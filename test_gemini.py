@@ -2,7 +2,7 @@ import google.generativeai as genai
 import os
 
 # Configurar API
-genai.configure(api_key="AIzaSyDPM9BhXcOiBSHBK4-O77ceJChfONfi3nM")
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 def test_correct_models():
     # Lista corregida basada en tu salida de consola

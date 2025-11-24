@@ -7,7 +7,7 @@ def get_available_models():
     # ---------------------------------------------------------
     # PEGA TU API KEY AQUÍ
     # ---------------------------------------------------------
-    api_key = "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"
+    api_key = ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
     
     if "sk-ant-api03-..." in api_key:
         print("❌ ERROR: Por favor edita el script y pega tu API Key real.")
