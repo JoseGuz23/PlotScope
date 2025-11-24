@@ -1,0 +1,8 @@
+azure-functions
+azure-functions-durable
+azure-storage-blob
+google-generativeai>=0.3.0
+anthropic>=0.18.0
+requests
+regex
+tenacity
