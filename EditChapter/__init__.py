@@ -1,5 +1,3 @@
-# EditChapter/__init__.py (v2.1 - Safe Prompt)
-
 import logging
 import json
 import os
@@ -31,6 +29,8 @@ VOZ DEL AUTOR - NO MODIFICAR ESTOS ELEMENTOS
 INFORMACIÓN DE ESTE CAPÍTULO
 ═══════════════════════════════════════════════════════════════════════════════
 Título: {{CHAPTER_TITLE}}
+Título Original (limpio): {{ORIGINAL_TITLE}}
+Tipo de Sección: {{SECTION_TYPE}}
 Posición en el arco: {{POSITION}}
 Ritmo esperado: {{PACING}}
 Es ritmo intencional: {{IS_INTENTIONAL}}
@@ -104,24 +104,24 @@ TU TAREA
 1. LEE el capítulo completo antes de editar.
 
 2. CORRIGE únicamente:
-   - Los problemas listados arriba (PROBLEMAS A CORREGIR)
-   - Instancias claras de "tell" que deberían ser "show" 
-   - Redundancias obvias (palabras/frases repetidas innecesariamente)
-   - Errores de continuidad con los personajes descritos
+    - Los problemas listados arriba (PROBLEMAS A CORREGIR)
+    - Instancias claras de "tell" que deberían ser "show" 
+    - Redundancias obvias (palabras/frases repetidas innecesariamente)
+    - Errores de continuidad con los personajes descritos
 
 3. NO TOQUES:
-   - NADA de la lista "VOZ DEL AUTOR - NO MODIFICAR"
-   - El ritmo del capítulo (especialmente si es INTENCIONAL)
-   - La longitud característica de oraciones del autor
-   - Diálogos breves (la brevedad suele ser intencional)
-   - Fragmentos de oración (pueden ser estilísticos)
+    - NADA de la lista "VOZ DEL AUTOR - NO MODIFICAR"
+    - El ritmo del capítulo (especialmente si es INTENCIONAL)
+    - La longitud característica de oraciones del autor
+    - Diálogos breves (la brevedad suele ser intencional)
+    - Fragmentos de oración (pueden ser estilísticos)
 
 4. CUANDO TENGAS DUDA: No edites. Es mejor preservar la voz del autor 
-   que "mejorar" algo que era intencional.
+    que "mejorar" algo que era intencional.
 
 5. MARCA cambios significativos con [NOTA EDITORIAL: explicación breve]
-   - Solo para cambios de contenido/continuidad
-   - NO para correcciones menores de estilo
+    - Solo para cambios de contenido/continuidad
+    - NO para correcciones menores de estilo
 
 ═══════════════════════════════════════════════════════════════════════════════
 FORMATO DE RESPUESTA
@@ -175,7 +175,7 @@ def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict
         'instrucciones_globales': [], 'instrucciones_capitulo': [], 'patrones_mantener': []
     }
     
-    # Obtener número de capítulo
+    # Obtener número de capítulo (ID secuencial)
     chapter_id = chapter.get('id', 0)
     try:
         chapter_num = int(chapter_id) if str(chapter_id).isdigit() else 0
@@ -273,10 +273,10 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
     if context['es_intencional']:
         advertencia_ritmo = f"""
         ╔══════════════════════════════════════════════════════════════════════════════╗
-        ║  ⚠️  ADVERTENCIA: RITMO INTENCIONAL                                          ║
-        ║  Este capítulo tiene ritmo {context['ritmo_esperado']} A PROPÓSITO.          ║
-        ║  Razón: {context['justificacion_ritmo'][:60]}...                             ║
-        ║  NO intentes "arreglarlo" acelerando, expandiendo o cambiando el ritmo.      ║
+        ║   ⚠️   ADVERTENCIA: RITMO INTENCIONAL                                         ║
+        ║   Este capítulo tiene ritmo {context['ritmo_esperado']} A PROPÓSITO.          ║
+        ║   Razón: {context['justificacion_ritmo'][:60]}...                              ║
+        ║   NO intentes "arreglarlo" acelerando, expandiendo o cambiando el ritmo.      ║
         ╚══════════════════════════════════════════════════════════════════════════════╝
         """
 
@@ -288,7 +288,13 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
     
     prompt = prompt.replace("{{NO_CORREGIR_STR}}", no_corregir_str)
     
+    # Campos nuevos para el contexto de edición (Título fragmentado para display)
     prompt = prompt.replace("{{CHAPTER_TITLE}}", chapter.get('title', 'Sin título'))
+    
+    # Campos nuevos del segmentador (limpio para contexto)
+    prompt = prompt.replace("{{ORIGINAL_TITLE}}", chapter.get('original_title', 'No aplica'))
+    prompt = prompt.replace("{{SECTION_TYPE}}", chapter.get('section_type', 'CHAPTER'))
+    
     prompt = prompt.replace("{{POSITION}}", str(context['posicion_arco']))
     prompt = prompt.replace("{{PACING}}", str(context['ritmo_esperado']))
     prompt = prompt.replace("{{IS_INTENTIONAL}}", "SÍ" if context['es_intencional'] else "No")
