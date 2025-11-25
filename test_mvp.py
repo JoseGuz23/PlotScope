@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import os
 
 def test_mvp_pipeline():
     """
@@ -9,7 +10,9 @@ def test_mvp_pipeline():
     # NOTE: Estos valores son ejemplos de ambiente.
     # Reemplaza base_url y function_key con los valores actuales de tu deployment de Azure.
     base_url = "https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net"
-    function_key = "hRT_p6gcbepJ6F46jC3o2Hk1k8UBde8Y_TH_sFcWcRnaAzFui8O7Ag==" 
+    function_key = os.environ.get("Azure_Function_Key")
+    if not function_key:
+        raise ValueError("La variable de entorno 'Azure_Function_Key' no está configurada. Asegúrate de que tu script se ejecute con las variables de entorno cargadas.")
     
     print("=" * 70)
     print("📚 PRUEBA MVP SYLPHRENA - Análisis Completo")
