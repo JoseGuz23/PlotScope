@@ -15,10 +15,12 @@ def test_mvp_pipeline():
     
     # 1. Iniciar
     print("\n🚀 1. Iniciando procesamiento...")
+    dummy_payload = "EJECUTAR_MODO_HARDCODED"
     try:
         start_response = requests.post(
             f"{base_url}/api/HttpStart",
             headers={"x-functions-key": function_key},
+            json=dummy_payload,
             timeout=10
         )
     except Exception as e:
