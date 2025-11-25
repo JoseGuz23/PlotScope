@@ -1,5 +1,14 @@
 import os
 from anthropic import Anthropic
+import json
+
+# --- CARGA DE VARIABLES (Tu bloque de configuración local) ---
+if os.path.exists('local.settings.json'):
+    with open('local.settings.json') as f:
+        config = json.load(f)
+        for key, value in config.get("Values", {}).items():
+            os.environ[key] = value
+
 
 def get_available_models():
     print("=== CONSULTANDO MODELOS DISPONIBLES EN TU CUENTA ANTHROPIC ===\n")
