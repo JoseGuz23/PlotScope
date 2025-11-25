@@ -1,14 +1,9 @@
 import azure.functions as func
-from azure.functions.durable import Blueprint
-from azure.functions import OrchestrationContext
+import azure.durable_functions as df
 import logging
 import json
 
-# Definimos el Blueprint (necesario para el modelo V2)
-bp = Blueprint()
-
-@bp.orchestration_trigger(context_name="context")
-def orchestrator_function(context: OrchestrationContext):
+def orchestrator_function(context: df.DurableOrchestrationContext):
     try:
         # Recuperar entrada (ruta del archivo o texto raw)
         book_path = context.get_input()
@@ -152,3 +147,5 @@ def orchestrator_function(context: OrchestrationContext):
         # Es importante relanzar o devolver estructura de error para que Azure marque Failed
         context.set_custom_status("Failed")
         raise Exception(error_msg)
+
+main = df.Orchestrator.create(orchestrator_function)
