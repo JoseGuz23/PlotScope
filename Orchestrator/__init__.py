@@ -44,11 +44,32 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"⏱️ Análisis completado en {(analysis_time - seg_time).total_seconds():.1f}s")
         
         # =================================================================
-        # 3. CREACIÓN DE BIBLIA (Reduce) -> Gemini Pro
+        # 2.5 LECTURA HOLÍSTICA (NUEVA) → Gemini Pro lee todo
+        # =================================================================
+        context.set_custom_status("Realizando lectura holística del libro completo...")
+
+        # Concatenar todo el texto para lectura completa
+        full_book_text = "\n\n---\n\n".join([
+            f"CAPÍTULO: {ch['title']}\n\n{ch['content']}" 
+            for ch in chapters
+        ])
+
+        holistic_analysis = yield context.call_activity('HolisticReading', full_book_text)
+
+        holistic_time = context.current_utc_datetime
+        logging.info(f"⏱️ Lectura Holística completada en {(holistic_time - analysis_time).total_seconds():.1f}s")
+
+        # =================================================================
+        # 3. CREACIÓN DE BIBLIA (Modificada) → Recibe análisis + holístico
         # =================================================================
         context.set_custom_status("Construyendo la Biblia Narrativa...")
-        
-        bible = yield context.call_activity('CreateBible', chapter_analyses)
+
+        bible_input = {
+            "chapter_analyses": chapter_analyses,
+            "holistic_analysis": holistic_analysis
+        }
+
+        bible = yield context.call_activity('CreateBible', json.dumps(bible_input))
         
         bible_time = context.current_utc_datetime
         logging.info(f"⏱️ Biblia creada en {(bible_time - analysis_time).total_seconds():.1f}s")

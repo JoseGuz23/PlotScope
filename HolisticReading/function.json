@@ -2,7 +2,7 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "bible_input_json",
+      "name": "full_book_text",
       "type": "activityTrigger",
       "direction": "in"
     }
