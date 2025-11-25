@@ -5,12 +5,12 @@ import re
 import time as time_module
 import google.generativeai as genai
 from google.api_core import exceptions
-# CAMBIO 1: Usamos tenacity para los reintentos (arquitectura robusta)
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 # Configurar logs de tenacity para que no sean ruidosos
 logging.getLogger('tenacity').setLevel(logging.WARNING)
 
+# --- 1. DEFINICIÓN DE LAS MÉTRICAS (Texto estático) ---
 ANALYZE_CHAPTER_METRICS = """
 MÉTRICAS OBJETIVAS A EXTRAER:
 
@@ -49,16 +49,131 @@ MÉTRICAS OBJETIVAS A EXTRAER:
    - dialogos_sin_accion: Secuencias largas de diálogo sin beats de acción
 """
 
-# Definimos las excepciones que merecen un reintento (Rate Limit o Servidor Caído)
+# --- 2. PLANTILLA DEL PROMPT (Usamos marcadores {{ASI}} para reemplazar seguro) ---
+ANALYZE_CHAPTER_PROMPT_TEMPLATE = """
+Actúa como un Analista Literario Forense. Tu trabajo es extraer datos OBJETIVOS y MEDIBLES del texto.
+
+CONTEXTO DEL CAPÍTULO:
+- Título: {{CHAPTER_TITLE}}
+- ID: {{CHAPTER_ID}}
+- Es fragmento de capítulo mayor: {{IS_FRAGMENT}}
+- Capítulo padre (si aplica): {{PARENT_CHAPTER}}
+
+---
+TEXTO A ANALIZAR:
+{{CHAPTER_CONTENT}}
+---
+
+INSTRUCCIONES DE EXTRACCIÓN:
+
+1. REPARTO LOCAL (personajes en este capítulo)
+Para CADA personaje que aparezca o sea mencionado:
+- nombre: Nombre como aparece en el texto
+- rol_en_capitulo: "protagonista" | "antagonista" | "secundario" | "mencionado"
+- estado_emocional: Emoción predominante en este capítulo
+- acciones_clave: Lista de acciones importantes que realiza
+- dialogos_count: Número de líneas de diálogo que tiene
+
+2. EVENTOS Y TRAMA
+Lista SECUENCIAL de eventos (en orden de aparición):
+- evento: Descripción breve (máx 15 palabras)
+- tipo: "accion" | "dialogo" | "reflexion" | "descripcion" | "flashback"
+- tension: 1-10 (1=calma total, 10=máxima tensión)
+
+3. MÉTRICAS OBJETIVAS
+{{METRICS_INSTRUCTIONS}}
+
+4. ELEMENTOS NARRATIVOS
+- lugar: Dónde ocurre la escena
+- tiempo_narrativo: Cuándo ocurre (relativo a la historia)
+- atmosfera: Tono emocional predominante
+- conflicto_presente: Sí/No + descripción breve
+- gancho_final: ¿El capítulo termina con tensión/pregunta abierta?
+
+5. SEÑALES PARA EDICIÓN
+- problemas_potenciales: Lista de posibles issues (show/tell, repeticiones, etc.)
+- fortalezas: Qué hace bien este capítulo
+- conexiones_con_otros: Referencias a eventos de otros capítulos (si detectables)
+
+DEVUELVE JSON ESTRICTO:
+{
+"chapter_id": "{{CHAPTER_ID}}",
+"titulo_capitulo": "{{CHAPTER_TITLE}}",
+"parent_chapter": "{{PARENT_CHAPTER}}",
+
+"reparto_local": [
+    {
+    "nombre": "...",
+    "rol_en_capitulo": "protagonista|antagonista|secundario|mencionado",
+    "estado_emocional": "...",
+    "acciones_clave": ["...", "..."],
+    "dialogos_count": 0
+    }
+],
+
+"eventos": [
+    {
+    "evento": "...",
+    "tipo": "accion|dialogo|reflexion|descripcion|flashback",
+    "tension": 0
+    }
+],
+
+"metricas": {
+    "estructura": {
+    "total_palabras": 0,
+    "total_oraciones": 0,
+    "promedio_palabras_por_oracion": 0.0,
+    "total_parrafos": 0
+    },
+    "composicion": {
+    "lineas_dialogo": 0,
+    "porcentaje_dialogo": 0.0,
+    "escenas_accion": 0,
+    "escenas_reflexion": 0
+    },
+    "ritmo": {
+    "eventos_por_mil_palabras": 0.0,
+    "clasificacion": "RAPIDO|MEDIO|LENTO"
+    },
+    "tiempo": {
+    "referencias_explicitas": ["..."],
+    "transcurrido_estimado": "minutos|horas|dias|semanas|indeterminado"
+    }
+},
+
+"elementos_narrativos": {
+    "lugar": "...",
+    "tiempo_narrativo": "...",
+    "atmosfera": "...",
+    "conflicto_presente": true,
+    "descripcion_conflicto": "...",
+    "gancho_final": true
+},
+
+"señales_edicion": {
+    "instancias_tell_no_show": [
+    {"texto": "...", "sugerencia": "..."}
+    ],
+    "repeticiones": [
+    {"palabra": "...", "frecuencia": 0}
+    ],
+    "fortalezas": ["...", "..."],
+    "problemas_potenciales": ["...", "..."]
+}
+}
+"""
+
+# --- 3. ESTRATEGIA DE REINTENTOS (Tenacity) ---
 retry_strategy = retry(
     retry=retry_if_exception_type((
         exceptions.ResourceExhausted, 
         exceptions.ServiceUnavailable, 
         exceptions.DeadlineExceeded
     )),
-    wait=wait_exponential(multiplier=1.5, min=2, max=30), # Espera exponencial
-    stop=stop_after_attempt(5), # Máximo 5 intentos antes de fallar
-    reraise=True # Si falla 5 veces, lanza el error para manejarlo abajo
+    wait=wait_exponential(multiplier=1.5, min=2, max=30),
+    stop=stop_after_attempt(5),
+    reraise=True
 )
 
 @retry_strategy
@@ -71,7 +186,7 @@ def call_gemini_with_retry(model, prompt):
             "max_output_tokens": 8192,
             "response_mime_type": "application/json"
         },
-        request_options={'timeout': 90}, # Timeout duro de la petición HTTP
+        request_options={'timeout': 90},
         safety_settings=[
             {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -80,6 +195,7 @@ def call_gemini_with_retry(model, prompt):
         ]
     )
 
+# --- 4. FUNCIÓN PRINCIPAL ---
 def main(chapter_json) -> dict:
     """
     Analiza un capítulo/fragmento con Gemini 2.5 Flash y Tenacity.
@@ -88,7 +204,7 @@ def main(chapter_json) -> dict:
     parent_title = "Sin título"
     
     try:
-        # 1. Manejo robusto de entrada
+        # A. Manejo robusto de entrada
         if isinstance(chapter_json, str):
             try:
                 chapter = json.loads(chapter_json)
@@ -98,157 +214,38 @@ def main(chapter_json) -> dict:
         else:
             chapter = chapter_json
 
-        chapter_id = chapter.get('id', 0)
-        
-        # --- METADATOS CRÍTICOS (Alineados con segmentbook) ---
-        is_fragment = chapter.get('is_fragment', False)
-        # Prioridad: parent_chapter > title > Sin título
+        # Aseguramos que sean strings para evitar errores en .replace()
+        chapter_id = str(chapter.get('id', 0))
+        is_fragment = str(chapter.get('is_fragment', False))
         parent_title = chapter.get('parent_chapter') or chapter.get('title') or "Sin título"
-        original_title = chapter.get('title', parent_title)
-        
-        context_instruction = ""
-        if is_fragment:
-            context_instruction = f"""
-            ⚠️ CONTEXTO DE FRAGMENTACIÓN:
-            Este texto es SOLO UN FRAGMENTO del capítulo mayor "{parent_title}".
-            NO trates esto como una historia completa. El arco narrativo puede estar cortado.
-            """
+        content = chapter.get('content', '')
 
-        # 2. LIMPIEZA MÍNIMA
-        content_clean = re.sub(r'\n+', '\n', chapter.get('content', ''))
+        # B. Limpieza mínima
+        content_clean = re.sub(r'\n+', '\n', content)
 
-        # Configurar Gemini
+        # C. Configurar Gemini
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             return {"error": "No API Key", "chapter_id": chapter_id}
 
         genai.configure(api_key=api_key)
         
-        # CAMBIO 2: Versión exacta que pediste (Flash 2.5)
+        # Modelo solicitado: Flash 2.5 Preview
         model = genai.GenerativeModel('models/gemini-2.5-flash-preview-09-2025')
 
-        ANALYZE_CHAPTER_PROMPT_V2 = """
-        Actúa como un Analista Literario Forense. Tu trabajo es extraer datos OBJETIVOS y MEDIBLES del texto.
-
-        CONTEXTO DEL CAPÍTULO:
-        - Título: {chapter_title}
-        - ID: {chapter_id}
-        - Es fragmento de capítulo mayor: {is_fragment}
-        - Capítulo padre (si aplica): {parent_chapter}
-
-        ---
-        TEXTO A ANALIZAR:
-        {chapter_content}
-        ---
-
-        INSTRUCCIONES DE EXTRACCIÓN:
-
-        1. REPARTO LOCAL (personajes en este capítulo)
-        Para CADA personaje que aparezca o sea mencionado:
-        - nombre: Nombre como aparece en el texto
-        - rol_en_capitulo: "protagonista" | "antagonista" | "secundario" | "mencionado"
-        - estado_emocional: Emoción predominante en este capítulo
-        - acciones_clave: Lista de acciones importantes que realiza
-        - dialogos_count: Número de líneas de diálogo que tiene
-
-        2. EVENTOS Y TRAMA
-        Lista SECUENCIAL de eventos (en orden de aparición):
-        - evento: Descripción breve (máx 15 palabras)
-        - tipo: "accion" | "dialogo" | "reflexion" | "descripcion" | "flashback"
-        - tension: 1-10 (1=calma total, 10=máxima tensión)
-
-        3. MÉTRICAS OBJETIVAS
-        {ANALYZE_CHAPTER_METRICS}
-
-        4. ELEMENTOS NARRATIVOS
-        - lugar: Dónde ocurre la escena
-        - tiempo_narrativo: Cuándo ocurre (relativo a la historia)
-        - atmosfera: Tono emocional predominante
-        - conflicto_presente: Sí/No + descripción breve
-        - gancho_final: ¿El capítulo termina con tensión/pregunta abierta?
-
-        5. SEÑALES PARA EDICIÓN
-        - problemas_potenciales: Lista de posibles issues (show/tell, repeticiones, etc.)
-        - fortalezas: Qué hace bien este capítulo
-        - conexiones_con_otros: Referencias a eventos de otros capítulos (si detectables)
-
-        DEVUELVE JSON ESTRICTO:
-        {
-        "chapter_id": "{chapter_id}",
-        "titulo_capitulo": "{chapter_title}",
-        "parent_chapter": "{parent_chapter}",
+        # D. CONSTRUCCIÓN DEL PROMPT (AQUÍ ESTABA EL ERROR ANTES)
+        # Usamos .replace() para inyectar tus variables en la plantilla de forma segura
+        prompt = ANALYZE_CHAPTER_PROMPT_TEMPLATE.replace("{{CHAPTER_TITLE}}", parent_title)
+        prompt = prompt.replace("{{CHAPTER_ID}}", chapter_id)
+        prompt = prompt.replace("{{IS_FRAGMENT}}", is_fragment)
+        prompt = prompt.replace("{{PARENT_CHAPTER}}", parent_title)
+        prompt = prompt.replace("{{METRICS_INSTRUCTIONS}}", ANALYZE_CHAPTER_METRICS)
+        prompt = prompt.replace("{{CHAPTER_CONTENT}}", content_clean)
         
-        "reparto_local": [
-            {
-            "nombre": "...",
-            "rol_en_capitulo": "protagonista|antagonista|secundario|mencionado",
-            "estado_emocional": "...",
-            "acciones_clave": ["...", "..."],
-            "dialogos_count": N
-            }
-        ],
-        
-        "eventos": [
-            {
-            "evento": "...",
-            "tipo": "accion|dialogo|reflexion|descripcion|flashback",
-            "tension": N
-            }
-        ],
-        
-        "metricas": {
-            "estructura": {
-            "total_palabras": N,
-            "total_oraciones": N,
-            "promedio_palabras_por_oracion": N.N,
-            "total_parrafos": N
-            },
-            "composicion": {
-            "lineas_dialogo": N,
-            "porcentaje_dialogo": N.N,
-            "escenas_accion": N,
-            "escenas_reflexion": N
-            },
-            "ritmo": {
-            "eventos_por_mil_palabras": N.N,
-            "clasificacion": "RAPIDO|MEDIO|LENTO"
-            },
-            "tiempo": {
-            "referencias_explicitas": ["..."],
-            "transcurrido_estimado": "minutos|horas|dias|semanas|indeterminado"
-            }
-        },
-        
-        "elementos_narrativos": {
-            "lugar": "...",
-            "tiempo_narrativo": "...",
-            "atmosfera": "...",
-            "conflicto_presente": true|false,
-            "descripcion_conflicto": "...",
-            "gancho_final": true|false
-        },
-        
-        "señales_edicion": {
-            "instancias_tell_no_show": [
-            {"texto": "...", "sugerencia": "..."}
-            ],
-            "repeticiones": [
-            {"palabra": "...", "frecuencia": N}
-            ],
-            "fortalezas": ["...", "..."],
-            "problemas_potenciales": ["...", "..."]
-        }
-        }
-        """
-
-    # EN ANALYZE CHAPTER - Instrucciones Agnósticas
-        prompt = ANALYZE_CHAPTER_PROMPT_V2
-        
-        # 4. LLAMADA Y MEDICIÓN
+        # E. Llamada a la IA
         start_gemini = time_module.time()
         logging.info(f"🚀 Llamando a Gemini 2.5 Flash para {parent_title} (ID: {chapter_id})...")
         
-        # Aquí usamos la función decorada con tenacity
         response = call_gemini_with_retry(model, prompt)
         
         gemini_elapsed = time_module.time() - start_gemini
@@ -259,7 +256,7 @@ def main(chapter_json) -> dict:
 
         analysis = json.loads(response.text)
         
-        # Inyección de metadatos finales
+        # F. Inyección de metadatos finales
         analysis['chapter_id'] = chapter_id
         analysis['titulo_real'] = parent_title
         analysis['_metadata'] = {
@@ -270,7 +267,7 @@ def main(chapter_json) -> dict:
         
         return analysis
 
-    # Manejo de errores FINAL (Si tenacity se rinde o hay otro error)
+    # G. Manejo de errores
     except Exception as e:
         error_msg = str(e)
         logging.error(f"💥 Error Fatal en ID {chapter_id}: {error_msg}")
@@ -279,12 +276,12 @@ def main(chapter_json) -> dict:
         if "429" in error_msg or "ResourceExhausted" in error_msg:
             status = "rate_limit_exhausted"
         
+        # Devolvemos estructura mínima para no romper el orquestador
         return {
             "chapter_id": chapter_id, 
             "titulo_real": parent_title,
             "error": error_msg, 
             "status": status,
-            # Estructura vacía para no romper el siguiente paso
             "reparto_local": [],
             "analisis_narrativo": {"resumen_denso": "FALLO DE ANÁLISIS"}
         }

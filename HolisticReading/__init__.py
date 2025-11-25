@@ -189,8 +189,9 @@ def main(full_book_text: str) -> dict:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('models/gemini-3-pro-preview')
         
-        # Construir prompt con el texto completo
-        prompt = HOLISTIC_READING_PROMPT.format(full_book_text=full_book_text)
+        # --- CAMBIO 1: Usar .replace en lugar de .format ---
+        # Esto evita que Python intente interpretar el JSON del prompt como variables
+        prompt = HOLISTIC_READING_PROMPT.replace("{full_book_text}", full_book_text)
         
         # Llamar a Gemini Pro
         logging.info("🧠 Gemini Pro está leyendo el libro completo...")
@@ -205,13 +206,15 @@ def main(full_book_text: str) -> dict:
         
         response_text = response.text.strip()
         
-        # Limpiar posibles artifacts de markdown
+        # --- CAMBIO 2: Limpiar artifacts de markdown de forma segura ---
         if response_text.startswith("```json"):
             response_text = response_text[7:]
-        if response_text.startswith("```"):
+        elif response_text.startswith("```"):
             response_text = response_text[3:]
+            
         if response_text.endswith("```"):
             response_text = response_text[:-3]
+        
         response_text = response_text.strip()
         
         # Parsear JSON
@@ -228,6 +231,7 @@ def main(full_book_text: str) -> dict:
         }
         
         logging.info(f"ADN del libro extraído exitosamente")
+        # Uso de .get() para evitar errores si falta alguna clave en el JSON
         logging.info(f"   - Género: {holistic_analysis.get('genero', {}).get('principal', 'N/A')}")
         logging.info(f"   - Advertencias para editor: {len(holistic_analysis.get('advertencias_para_editor', []))}")
         
@@ -235,6 +239,8 @@ def main(full_book_text: str) -> dict:
         
     except json.JSONDecodeError as e:
         logging.error(f"Error parseando JSON de lectura holística: {e}")
+        # Log del texto crudo para debuggear
+        logging.error(f"Texto recibido (inicio): {response_text[:500]}...") 
         raise
     except Exception as e:
         logging.error(f"Error en Lectura Holística: {str(e)}")
