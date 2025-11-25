@@ -15,38 +15,38 @@ ANALYZE_CHAPTER_METRICS = """
 MÉTRICAS OBJETIVAS A EXTRAER:
 
 1. ESTRUCTURA TEXTUAL
-   - total_palabras: Número exacto de palabras
-   - total_oraciones: Número de oraciones
-   - promedio_palabras_por_oracion: total_palabras / total_oraciones
-   - oracion_mas_larga: Número de palabras de la oración más larga
-   - oracion_mas_corta: Número de palabras de la oración más corta
-   - total_parrafos: Número de párrafos
-   - promedio_oraciones_por_parrafo: total_oraciones / total_parrafos
+    - total_palabras: Número exacto de palabras
+    - total_oraciones: Número de oraciones
+    - promedio_palabras_por_oracion: total_palabras / total_oraciones
+    - oracion_mas_larga: Número de palabras de la oración más larga
+    - oracion_mas_corta: Número de palabras de la oración más corta
+    - total_parrafos: Número de párrafos
+    - promedio_oraciones_por_parrafo: total_oraciones / total_parrafos
 
 2. COMPOSICIÓN DEL CONTENIDO
-   - lineas_dialogo: Número de líneas de diálogo (entre comillas o guiones)
-   - palabras_en_dialogo: Palabras dentro de diálogos
-   - porcentaje_dialogo: (palabras_en_dialogo / total_palabras) * 100
-   - lineas_narracion: Líneas que no son diálogo
-   - escenas_accion: Número de secuencias con verbos de movimiento/conflicto
-   - escenas_reflexion: Número de secuencias introspectivas
+    - lineas_dialogo: Número de líneas de diálogo (entre comillas o guiones)
+    - palabras_en_dialogo: Palabras dentro de diálogos
+    - porcentaje_dialogo: (palabras_en_dialogo / total_palabras) * 100
+    - lineas_narracion: Líneas que no son diálogo
+    - escenas_accion: Número de secuencias con verbos de movimiento/conflicto
+    - escenas_reflexion: Número de secuencias introspectivas
 
 3. RITMO CALCULADO
-   - eventos_por_mil_palabras: (total_eventos / total_palabras) * 1000
-   - densidad_dialogos: porcentaje_dialogo
-   - clasificacion_ritmo: RAPIDO (>5 eventos/1k, >40% diálogo) | 
-                          MEDIO (2-5 eventos/1k, 20-40% diálogo) | 
-                          LENTO (<2 eventos/1k, <20% diálogo)
+    - eventos_por_mil_palabras: (total_eventos / total_palabras) * 1000
+    - densidad_dialogos: porcentaje_dialogo
+    - clasificacion_ritmo: RAPIDO (>5 eventos/1k, >40% diálogo) | 
+                             MEDIO (2-5 eventos/1k, 20-40% diálogo) | 
+                             LENTO (<2 eventos/1k, <20% diálogo)
 
 4. MARCADORES TEMPORALES
-   - referencias_tiempo_explicitas: ["al día siguiente", "tres horas después", etc.]
-   - tiempo_transcurrido_estimado: "minutos" | "horas" | "días" | "semanas" | "indeterminado"
+    - referencias_tiempo_explicitas: ["al día siguiente", "tres horas después", etc.]
+    - tiempo_transcurrido_estimado: "minutos" | "horas" | "días" | "semanas" | "indeterminado"
 
 5. INDICADORES DE CALIDAD (para edición)
-   - instancias_tell_no_show: [{"texto": "Estaba triste", "linea_aprox": N}]
-   - repeticiones_detectadas: [{"palabra": "miró", "frecuencia": N}]
-   - adverbios_ly_excesivos: Conteo de adverbios terminados en -mente
-   - dialogos_sin_accion: Secuencias largas de diálogo sin beats de acción
+    - instancias_tell_no_show: [{"texto": "Estaba triste", "linea_aprox": N}]
+    - repeticiones_detectadas: [{"palabra": "miró", "frecuencia": N}]
+    - adverbios_ly_excesivos: Conteo de adverbios terminados en -mente
+    - dialogos_sin_accion: Secuencias largas de diálogo sin beats de acción
 """
 
 # --- 2. PLANTILLA DEL PROMPT (Usamos marcadores {{ASI}} para reemplazar seguro) ---
@@ -54,10 +54,11 @@ ANALYZE_CHAPTER_PROMPT_TEMPLATE = """
 Actúa como un Analista Literario Forense. Tu trabajo es extraer datos OBJETIVOS y MEDIBLES del texto.
 
 CONTEXTO DEL CAPÍTULO:
-- Título: {{CHAPTER_TITLE}}
+- Título para mostrar: {{CHAPTER_TITLE}}
+- Título Original: {{PARENT_CHAPTER}}
+- Tipo de Sección: {{SECTION_TYPE}}
 - ID: {{CHAPTER_ID}}
 - Es fragmento de capítulo mayor: {{IS_FRAGMENT}}
-- Capítulo padre (si aplica): {{PARENT_CHAPTER}}
 
 ---
 TEXTO A ANALIZAR:
@@ -98,8 +99,7 @@ Lista SECUENCIAL de eventos (en orden de aparición):
 DEVUELVE JSON ESTRICTO:
 {
 "chapter_id": "{{CHAPTER_ID}}",
-"titulo_capitulo": "{{CHAPTER_TITLE}}",
-"parent_chapter": "{{PARENT_CHAPTER}}",
+"titulo_capitulo": "{{PARENT_CHAPTER}}",
 
 "reparto_local": [
     {
@@ -199,9 +199,13 @@ def call_gemini_with_retry(model, prompt):
 def main(chapter_json) -> dict:
     """
     Analiza un capítulo/fragmento con Gemini 2.5 Flash y Tenacity.
+    Acepta el nuevo formato de salida con 'original_title' y 'section_type'.
     """
     chapter_id = "Desconocido"
-    parent_title = "Sin título"
+    # El título que se mostrará en el UI (puede ser fragmentado)
+    display_title = "Sin título"
+    # El título limpio y sin fragmentar, usado para el contexto de la IA
+    parent_context_title = "Sin título"
     
     try:
         # A. Manejo robusto de entrada
@@ -214,16 +218,25 @@ def main(chapter_json) -> dict:
         else:
             chapter = chapter_json
 
-        # Aseguramos que sean strings para evitar errores en .replace()
+        # B. Lectura de campos del nuevo formato (book_segmenter.py)
         chapter_id = str(chapter.get('id', 0))
         is_fragment = str(chapter.get('is_fragment', False))
-        parent_title = chapter.get('parent_chapter') or chapter.get('title') or "Sin título"
+        
+        # 1. Título para mostrar (puede incluir fragmento: "III. (1/2)")
+        display_title = chapter.get('title', 'Sin título')
+        
+        # 2. Título limpio para el contexto (ej: "III.") - Campo nuevo
+        parent_context_title = chapter.get('original_title') or display_title
+        
+        # 3. Tipo de sección (ej: "CHAPTER", "INTERLUDE") - Campo nuevo
+        section_type = chapter.get('section_type', 'CHAPTER')
+        
         content = chapter.get('content', '')
 
-        # B. Limpieza mínima
+        # C. Limpieza mínima
         content_clean = re.sub(r'\n+', '\n', content)
 
-        # C. Configurar Gemini
+        # D. Configurar Gemini
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             return {"error": "No API Key", "chapter_id": chapter_id}
@@ -231,20 +244,27 @@ def main(chapter_json) -> dict:
         genai.configure(api_key=api_key)
         
         # Modelo solicitado: Flash 2.5 Preview
-        model = genai.GenerativeModel('models/gemini-2.5-flash-preview-09-2025')
+        model = genai.GenerativeModel('gemini-flash-latest')
 
-        # D. CONSTRUCCIÓN DEL PROMPT (AQUÍ ESTABA EL ERROR ANTES)
-        # Usamos .replace() para inyectar tus variables en la plantilla de forma segura
-        prompt = ANALYZE_CHAPTER_PROMPT_TEMPLATE.replace("{{CHAPTER_TITLE}}", parent_title)
+        # E. CONSTRUCCIÓN DEL PROMPT (USANDO LOS NUEVOS CAMPOS)
+        # 1. Título para mostrar (puede ser fragmentado)
+        prompt = ANALYZE_CHAPTER_PROMPT_TEMPLATE.replace("{{CHAPTER_TITLE}}", display_title)
+        
+        # 2. Título limpio para el contexto y el JSON de salida (ej: "III.")
+        prompt = prompt.replace("{{PARENT_CHAPTER}}", parent_context_title)
+        
+        # 3. Nuevo campo para darle más contexto a la IA
+        prompt = prompt.replace("{{SECTION_TYPE}}", section_type)
+        
+        # Otros campos
         prompt = prompt.replace("{{CHAPTER_ID}}", chapter_id)
         prompt = prompt.replace("{{IS_FRAGMENT}}", is_fragment)
-        prompt = prompt.replace("{{PARENT_CHAPTER}}", parent_title)
         prompt = prompt.replace("{{METRICS_INSTRUCTIONS}}", ANALYZE_CHAPTER_METRICS)
         prompt = prompt.replace("{{CHAPTER_CONTENT}}", content_clean)
         
-        # E. Llamada a la IA
+        # F. Llamada a la IA
         start_gemini = time_module.time()
-        logging.info(f"🚀 Llamando a Gemini 2.5 Flash para {parent_title} (ID: {chapter_id})...")
+        logging.info(f"🚀 Llamando a Gemini 2.5 Flash para {parent_context_title} (Tipo: {section_type}, ID: {chapter_id})...")
         
         response = call_gemini_with_retry(model, prompt)
         
@@ -252,22 +272,23 @@ def main(chapter_json) -> dict:
         logging.info(f"⏱️ Gemini Flash tardó {gemini_elapsed:.2f}s")
         
         if not response.candidates:
-             raise ValueError("Respuesta vacía o bloqueada por seguridad.")
+            raise ValueError("Respuesta vacía o bloqueada por seguridad.")
 
         analysis = json.loads(response.text)
         
-        # F. Inyección de metadatos finales
+        # G. Inyección de metadatos finales (usando el título limpio)
         analysis['chapter_id'] = chapter_id
-        analysis['titulo_real'] = parent_title
+        analysis['titulo_real'] = parent_context_title
+        analysis['section_type'] = section_type # Añadir el tipo al análisis final
         analysis['_metadata'] = {
             'status': 'success', 
-            'model': 'gemini-2.5-flash-preview-09-2025',
+            'model': 'gemini-flash-latest',
             'processing_time_seconds': round(gemini_elapsed, 2)
         }
         
         return analysis
 
-    # G. Manejo de errores
+    # H. Manejo de errores
     except Exception as e:
         error_msg = str(e)
         logging.error(f"💥 Error Fatal en ID {chapter_id}: {error_msg}")
@@ -279,7 +300,7 @@ def main(chapter_json) -> dict:
         # Devolvemos estructura mínima para no romper el orquestador
         return {
             "chapter_id": chapter_id, 
-            "titulo_real": parent_title,
+            "titulo_real": parent_context_title,
             "error": error_msg, 
             "status": status,
             "reparto_local": [],

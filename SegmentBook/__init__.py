@@ -7,7 +7,9 @@ import os
 MAX_CHARS_PER_CHUNK = 12000 
 
 def smart_split(text, max_chars):
-    # (Tu función smart_split actual está perfecta, no la toques)
+    """
+    Divide un texto largo en fragmentos más pequeños respetando los saltos de línea.
+    """
     if len(text) <= max_chars:
         return [text]
     chunks = []
@@ -24,910 +26,1261 @@ def smart_split(text, max_chars):
         chunks.append(remaining_text)
     return chunks
 
+def detect_section_type(title_line):
+    """
+    Normaliza el tipo de sección basado en el título detectado.
+    Permite que la lógica posterior trate 'III.' igual que 'Capítulo 3'.
+    """
+    title_lower = title_line.lower().strip()
+    
+    # 1. Grupo ACTO/PARTE (Nivel Alto)
+    # Detecta "Acto 1", "Parte III", etc.
+    if re.match(r'^(acto|parte)\b', title_lower):
+        return 'ACT'
+    
+    # 2. Palabras Clave Especiales
+    if re.match(r'^(prólogo|prefacio|introducción)', title_lower):
+        return 'PROLOGUE'
+    if re.match(r'^interludio', title_lower):
+        return 'INTERLUDE'
+    if re.match(r'^(epílogo|nota)', title_lower):
+        return 'EPILOGUE'
+    
+    # Casos especiales de inicio sin título formal
+    if "inicio" in title_lower and "contexto" in title_lower:
+        return 'CONTEXT'
+
+    # 3. Todo lo demás se considera CAPÍTULO
+    # Esto atrapa: "Capítulo X", "Final", "III.", "1.", "IV"
+    return 'CHAPTER'
+
 def main(book_path: str):
     try:
-        # ... (Tu variable sample_text con el libro va aquí) ...
+        # ============================================
+        # TU TEXTO (Pegar el libro completo aquí)
+        # ============================================
         sample_text = """
-Prólogo
-Juan Moreno afinó su guitarra bajo la sombra del laurel que dominaba la plaza de San Guzmán. Era sábado por la noche, y el pueblo había cobrado vida después de una semana de trabajo bajo el sol de finales de agosto del 43. Las mujeres habían sacado sus mejores vestidos, los hombres se habían afeitado y los niños corrían entre las piernas de los adultos mientras sus madres conversaban junto a la fuente.
-Cuando la gente vio que Juan finalmente había llegado a la plaza, poco a poco se fueron acercando. Juan se encargó de saludar a cada uno por su nombre.
-Tocó los primeros acordes de “La Adelita” y, como cada sábado, la gente comenzó a bailar al son de su guitarra. Primero fueron los Herrera, luego los Vázquez, después las muchachas solteras que fingían no buscarlo con la mirada. En veinte minutos, la mitad del pueblo estaba ahí, algunos bailando, otros solo escuchando.
-Su hermano Luis seguramente seguía en la cantina de José Luis, donde a estas horas ya estaría comprando rondas para medio pueblo. Ángel, el menor, estaría en su cuarto con algún libro.
-La fiesta seguía con emoción. La gente, poco a poco, se soltaba más, por obra de la música y el alcohol.
-Los gritos de felicidad, las risas y el zapateo incesante de la gente inundaban San Guzmán con alegría. Alegría que escaseaba últimamente por culpa de las sequías recientes.
-La celebración se vio interrumpida cuando, entre murmullos, la gente se abrió paso para dejar pasar a la bella y joven Fernanda. Hija de Juan Herrera, quien llegó gritando por auxilio.
-—¡Juan! —gritó la mujer—. ¡Juan, por favor, ayúdame!
-Fernanda llegó hasta la fuente de la plaza y tomó a Juan del brazo, tirando de él suavemente.
-—¿Qué pasa? —preguntó Juan mientras dejaba su guitarra a un lado.
-—Felipe —dijo la mujer entre jadeos, tomando aire tras la carrera—. Están golpeando a Felipe.
-Juan soltó la guitarra de golpe sobre la banca. 
-—¿Dónde? 
-—En la entrada. Los García. 
-Juan ya corría antes de que ella terminara la frase. La gente se apartaba al verle la cara; no era el músico de hacía un minuto, era un Moreno buscando pleito. 
-—Lo siento —jadeó Fernanda, intentando seguirle el paso—, yo… estuve saliendo con uno de ellos. 
-—Ahorita no importa eso. Las botas de Juan martillaban el empedrado, marcando un ritmo furioso hasta llegar a las últimas casas de San Guzmán.
-El sonido de las botas chocando contra el empedrado se vio interrumpido al escuchar fuertes golpes y jadeos más adelante.
-Al doblar la última esquina, la imagen de Felipe hecho un ovillo en el suelo recibió al pueblo. Cuatro hombres con la vestimenta típica de los García lo estaban pateando mientras se burlaban de él.
-—¡Basta! —bramó Juan con una voz tan fuerte y clara que por un momento paralizó a los atacantes.
-Los cuatro García se incorporaron lentamente, sin prisa, como si hubieran estado esperando esta interrupción. El más alto, un hombre de barba descuidada y sombrero desgastado, escupió al suelo cerca de Felipe.
-—Vaya, vaya… si no es el mismísimo Juanito Moreno —dijo con una sonrisa torcida—. ¿Vienes a cuidar a tu gente, patrón?
-Juan permaneció inmóvil, con los brazos a los costados. Su voz salió fría como el acero.
-—Váyanse. Ahora.
-—¿O qué? —se burló otro de los García, más joven, dando un paso hacia delante—. ¿Vas a mandar a tus changos a corrernos?
-La multitud rugió detrás de Juan. Alguien gritó “¡Sáquenlos del pueblo!” y otros comenzaron a avanzar. Juan alzó la mano sin voltear, y la gente se detuvo.
-—No necesito a nadie para enfrentarme a ustedes —dijo Juan, su mirada fija en el García alto—. Pero tampoco quiero ensuciarme las manos en días de fiesta.
-El García escupió otra vez, esta vez más cerca de las botas de Juan.
-—Claro, el futuro presidente no se ensucia. Que lo hagan otros por él.
-—Basta de provocaciones. Dejen al chico —cortó Juan, dando un paso adelante—. Si tienen ganas de pelear, aquí estoy.
-El García soltó una carcajada.
-—¿El patrón se va a ensuciar las manos? Esto sí que es nuevo. Lo siento, Juanito, pero este tilico se metió con lo que es mío. Y cuando alguien toca lo mío, paga las consecuencias.
-—Nicolás, terminamos hace dos meses —interrumpió Fernanda apartándose de la multitud—. ¿Por qué no puedes entenderlo?
-—Porque yo no he terminado contigo, princesa. Tú no decides cuándo se acaba esto.
-Un murmullo furioso recorrió la multitud. Alguien gritó “¡Desgraciado!” desde atrás.
-—Vas a dejar a la chica en paz —cortó Juan, llevándose la mano lentamente a la funda—. Y al muchacho también.
-Los cuatro García intercambiaron miradas y sonrieron. El más joven aplaudió con sarcasmo.
-—¡Miren nada más! El gran Juan Moreno necesita su fierro para sentirse valiente.
-—Papá tiene razón —se burló el barbudo—. Son tan gallitos con sus pistolas porque sin ellas no son nada.
-Fue entonces cuando el estruendo de cascos al galope cortó el aire como un trueno. Un jinete se acercaba por el camino principal levantando una nube de polvo.
-Juan sonrió al escucharlo. Quitó la mano de la funda y comenzó a caminar hacia atrás lentamente.
-La multitud murmuró y se apartó instintivamente. Un hermoso caballo blanco de crines plateadas emergió de la polvareda, su silla de montar brillando con incrustaciones que reflejaban la luz de las antorchas. Las riendas de cuero trenzado se sacudían mientras el animal reducía la velocidad.
-Luis Moreno tiró de las riendas con fuerza, haciendo que su caballo se alzara en dos patas como un guerrero de leyenda. Saltó de la montura antes de que el animal tocara el suelo, aterrizando con un golpe seco que hizo eco en el empedrado.
-Se quitó el sombrero con teatralidad, se alisó el cabello hacia atrás y clavó la mirada en los García con una sonrisa que prometía problemas.
-—Tú, grandulón —dijo señalando al barbudo como si eligiera fruta en el mercado—. Vas a pelear conmigo. Los otros tres payasos solo van a quedarse ahí parados.
-Luis caminó con seguridad en dirección a los García, cuando pasó junto a Juan, le dio un par de palmadas en la espalda. Juan respondió con un asentimiento.
-El contraste entre Luis y el García barbón era notable. Luis apenas le llegaba al hombro, pero se plantó frente a él como si midiera tres metros. Llevaba su traje charro café claro, con los bordados dorados brillando bajo las antorchas y la chaqueta abierta, dejando ver la camisa arrugada por la cabalgata. Dio un paso al frente, haciendo tintinear las espuelas y presumiendo el lodo de sus botas como si fueran medallas. 
-Echó los hombros hacia atrás, infló el pecho como gallo de pelea y sonrió. Sus manos descansaban relajadas a los costados, pero sus ojos oscuros ardían con una intensidad que hizo que varios de los García intercambiaran miradas nerviosas.
-—¿Qué pasa, gigante? —dijo Luis con una sonrisa que no llegaba a sus ojos—. ¿Te da miedo pelear con alguien de tu tamaño… o prefieres seguir pateando muchachos en el suelo?
-El barbudo soltó una carcajada forzada.
-—Mira nada más, el enano quiere jugar a ser hombre.
-La multitud contuvo el aliento. Luis se acercó otro paso, inclinando la cabeza hacia atrás para mirar directamente a los ojos de su oponente.
-—Soy lo suficientemente hombre para partirte la madre, grandote. La pregunta es… ¿Tú tienes los huevos para pelear sin tus amiguitos?
-Juan observaba con precaución desde un costado. Conocía esa mirada en Luis. Conocía lo que venía después, por eso no se molestó en detenerlo.
-El barbudo intentó tomar desprevenido a Luis cuando descargó un gancho con toda su fuerza, buscando terminar la pelea de un solo golpe. Luis se echó hacia atrás con elegancia, arqueando la espalda como un torero esquivando la embestida. El puño del gigante le rozó apenas la mejilla antes de perderse en el aire.
-—¿Eso es todo? —preguntó Luis enderezándose lentamente, llevándose una mano a la mejilla.
-Levantó los puños a la altura del rostro, adoptando una guardia perfecta mientras una sonrisa pícara se dibujaba en sus labios. Juan sabía que Luis llevaba meses esperando una excusa para medirse con cualquier idiota que se cruzara en su camino.
-El García barbudo gruñó furioso y lanzó una combinación de golpes. Luis los esquivó con movimientos fluidos, balanceándose de un lado al otro, sus botas marcando un ritmo casi musical contra el empedrado.
-—Vamos, grandote —lo provocó.
-El García barbudo arremetió otra vez, esta vez con los puños cerrados como martillos. Luis se movió hacia la izquierda, después hacia la derecha, esquivando cada golpe mientras mantenía esa sonrisa burlona.
-—No te canses —dijo Luis sin perder el aliento—. Apenas estamos empezando.
-El barbudo lanzó un derechazo que habría tumbado a cualquier hombre, pero Luis se agachó en el momento exacto. El puño pasó por encima de su cabeza mientras él se incorporaba con un gancho perfecto al estómago del García.
-El hombre se dobló del dolor, jadeando. Luis aprovechó para conectar otro golpe en la sien, calculado y limpio. El García se tambaleó hacia un lado.
-La multitud gritaba y aplaudía. Las mujeres se tapaban los ojos, pero seguían mirando entre los dedos.
-Juan notó cómo los otros tres García se movían nerviosamente, intercambiando miradas. El más joven había puesto la mano cerca de su cinturón. Juan ajustó su posición, listo para intervenir.
-Luis siguió bailando alrededor de su oponente, esquivando golpes desesperados mientras conectaba sus propios puñetazos con precisión quirúrgica. Un gancho a las costillas, otro al mentón, después una combinación rápida que hizo retroceder al barbudo hasta la pared de una casa.
-—¿Quieres que pare? —preguntó Luis, fingiendo preocupación—. Solo tienes que pedírmelo por favor.
-El García escupió otra vez y se lanzó con toda su furia restante, cargando como un toro herido. Luis esperó hasta el último momento, se hizo a un lado y extendió la pierna. El gigante tropezó con la bota de Luis y su propio impulso lo mandó de cabeza contra el empedrado.
-El golpe resonó como un saco de grano cayendo de una carreta. El barbudo quedó tendido, gimiendo y tratando de incorporarse sobre sus codos.
-Luis se irguió lentamente, secándose el sudor de la frente con la manga de su chaqueta. La multitud estalló en vitores.
-—¿Alguien más quiere bailar? —preguntó Luis jadeando, pero manteniendo esa sonrisa desafiante.
-Fue entonces cuando el chasquido metálico del martillo de una pistola cortó el aire.
-—Ya fue suficiente, cabrón.
-El García más joven tenía su revólver apuntando directamente al pecho de Luis. Sus manos temblaban ligeramente, pero el cañón no se movía.
-Luis alzó las manos lentamente, sin perder la sonrisa, pero ahora respirando pesadamente por el esfuerzo de la pelea.
-El sonido de otra pistola siendo amartillada resonó desde el costado. Juan tenía su arma desenfundada, apuntando directamente a la cabeza del joven.
-—No hagas una estupidez.
-Los otros dos García se apresuraron a levantar al barbudo del suelo, quien balbuceaba palabras sin sentido, aturdido por el golpe contra el empedrado.
-La tensión en el aire se cortó cuando el estruendo de varios caballos al galope se escuchó desde las afueras del pueblo. Un grupo de jinetes emergió bajo la luz de la luna, sus siluetas recortándose contra el cielo nocturno como sombras amenazantes.
-Eran cuatro hombres montados en caballos oscuros, sus rostros ocultos bajo sombreros de ala ancha. No venían con la prisa desesperada de quienes corren a una pelea, sino con la determinación pausada de quienes llegan a terminar una. Sus caballos reducían la velocidad al unísono, como si hubieran ensayado esa entrada.
-El que encabezaba la comitiva era un hombre mayor, de barba gris y sombrero negro. El patriarca de los García, Pedro, desmontó de su caballo con la pesadez de quien carga años de rencores. A su lado se apearon tres hombres más: rostros curtidos por el sol y marcados por cicatrices, con esa quietud peligrosa que solo tienen quienes han visto demasiada violencia. Sus manos descansaban cerca de sus pistolas, pero no las tocaban. No necesitaban hacerlo.
-Los ojos de Pedro fueron directamente a Juan, ignorando por completo la multitud, las pistolas desenfundadas y hasta a su propio hijo tirado en el suelo.
-—Juan Moreno —dijo con voz ronca, caminando lentamente hacia él—. Parece que tenemos un problema.
-Juan mantuvo su pistola firme en la cabeza del joven García.
-—Tu muchacho baja su arma primero, Pedro. Después hablamos.
-Pedro observó la escena: su hijo barbudo sangrando en el suelo, el más joven temblando con el revólver en la mano y Juan inmóvil como una estatua.
-—Baja esa pistola, Tomás —ordenó Pedro sin alzar la voz.
-El chico titubeó antes de bajar el arma. Solo entonces Juan bajó la suya.
-—Largo de aquí —ordenó Pedro a sus hijos—. Van a volver al rancho caminando por hacerme ver a los Moreno.
-Pedro no se inmutó. Sus tres acompañantes permanecieron montados, observando en silencio.
-Juan guardó su arma en la funda y se irguió. Pedro caminó hasta quedar a un par de metros de él, lo suficientemente cerca para que sus palabras no se perdieran en el murmullo de la gente.
-—¿Puedes explicarme por qué tu hermano estaba golpeando a mis hijos?
-—Tus hijos estaban golpeando a uno de mis muchachos —respondió Juan sin alterarse—. Luis hizo lo que cualquier hombre decente habría hecho.
-—Ese muchacho se metió con la mujer de mi Nicolás. En mi familia, eso se paga.
-—En mi pueblo, nadie golpea a un hombre entre cuatro —replicó Juan—. Y mucho menos por una mujer que ya no quiere saber nada de él.
-Pedro escupió al suelo, cerca de las botas de Juan. Al parecer, era una tradición familiar.
-—Tu pueblo… como si realmente fuera tuyo.
-—Ya vas a empezar con tus cosas, Pedro. El presidente nos dejó a cargo. 
-—No he dicho mi última palabra, Juan. Esta es mi casa. Mi familia estuvo aquí cien años antes que la tuya.
-—Pues de nada les sirvieron —intervino Luis, recargándose despreocupadamente contra la pared—, porque igual los echaron a patadas.
-Los ojos de Pedro se encendieron de furia.
-—Tal vez si te meto una bala entre los dientes…
-—Esta ya no es tu casa —interrumpió Juan con frialdad—. No lo ha sido por años y no te la regresaremos.
-Pedro se alejó lentamente de Juan, pero antes de montarse en su caballo se detuvo y giró la cabeza.
-—Disfruta tu reino mientras puedas, Juan. Los tronos no duran para siempre.
-Montó su caballo y, antes de espolear, se dirigió a la multitud:
-—La próxima vez que alguno de ustedes toque lo que es de los García, Juan tendrá que tocar esa estúpida guitarra en su funeral.
-Con eso, espoleó su caballo y se perdió en la oscuridad, seguido por sus tres hombres. Sus hijos heridos caminaron tras ellos, tambaleándose en la noche.
-La multitud permaneció en silencio hasta que el sonido de los cascos se desvaneció completamente en la distancia. Solo entonces comenzaron los murmullos nerviosos.
-Juan se acercó a Felipe, que seguía en el suelo tratando de incorporarse. Le ofreció la mano.
-—¿Puedes caminar, muchacho?
-Felipe asintió, aunque le costó ponerse en pie. Tenía el labio partido y un ojo morado, pero nada que no sanara en unos días.
-—Gracias, don Juan. A usted también, don Luis.
-Luis se apartó de la pared y se sacudió el polvo de la chaqueta.
-—No hay de qué, Felipe. Pero la próxima vez que te enamores, asegúrate de que no sea de la mujer de un García.
-Algunas personas rieron, aliviando un poco la tensión. Fernanda se acercó a Felipe y lo tomó del brazo para ayudarlo a caminar.
-—Lo voy a llevar a que mi madre le cure las heridas —dijo, evitando la mirada de los hermanos Moreno.
-Juan notó la incomodidad de la chica, así que, siguiendo su instinto, preguntó:
-—¿Ocultas algo, Fernanda?
-La chica se tensó tras la pregunta, confirmando con su lenguaje corporal que sí que escondía algo.
-—Está bien —dijo Felipe entre quejidos—. Es mejor decirles.
-Fernanda se giró lentamente hasta que su mirada se encontró con los ojos de los Moreno.
-—Felipe y yo… no estamos saliendo —dijo finalmente—. No sabía cómo quitarme a Nicolás de encima, así que le pedí a Felipe que me ayudara. No pensé que se lo tomaría tan a pecho.
-—¿Es eso cierto, Felipe? —preguntó Juan con tranquilidad.
-—Sí, señor. Lo siento si me puse en peligro… solo intentaba ayudar.
-Luis se acercó hasta Felipe y le puso una mano en el hombro; su sonrisa se ensanchó.
-—¡Qué hombre! —gritó Luis con genuina admiración—. ¡Este muchacho arriesgó el pellejo por defender a una dama!
-El pueblo estalló en vítores. “¡Bravo, Felipe!”, gritó alguien desde atrás.
-—¡Todos a acompañar al héroe! —declaró Luis—. —¡Vamos a llevarlo como se debe a casa de doña Carmen, y de ahí, vámonos a la cantina de José Luis que esta noche invita la casa Moreno!
-Los hermanos Herrera y otros hombres jóvenes formaron un círculo protector alrededor de Felipe, ayudándolo a caminar mientras la multitud los siguió en procesión improvisada hacia la casa de Fernanda.
-—Bueno, hermano, eso fue más emocionante que mi guitarra —dijo Juan, caminando junto a Luis.
-—Sí, pero también más peligroso —respondió Luis—. Pedro no va a olvidar esto.
-—Ve a la casa y cuéntale a madre lo que pasó. Te alcanzaré después.
-Luis asintió y se dirigió hacia donde había dejado su caballo. Subió de un salto y, como un destello, avanzó por la calle principal en dirección a la hacienda Moreno.
+        Hoja de contexto para el editor y el escritor.
+        Año 2110. Casi un siglo después del colapso de Estados Unidos y Rusia, la Cuarta Guerra está por estallar. Todas las alianzas del mundo se preparan para un conflicto inminente que parece inevitable y amenaza con terminar con la tierra.
+        La República Democrática de América del Norte (RDAN), surgida tras la fragmentación de Estados Unidos y la reconfiguración continental, renunció en secreto a la carrera armamentista. No fue una decisión institucional, sino personal. El vicepresidente Xin Liu, obsesionado con el mito del Quinto Sol, interpretó que el sacrificio era la única vía: no preservar el mundo, sino sembrar sobre sus ruinas.
+        Así nació la Iniciativa Aztlán, un conjunto de proyectos de supervivencia posthumanista financiados sin límites. El más ambicioso: Anpo Aztlán. Su propósito no es buscar refugio. Es sembrar nuevos comienzos.
+        Diez jóvenes fueron seleccionados. No por su genio, sino por su capacidad de adaptación y resistencia al aislamiento. Desde la infancia fueron entrenados para soltar sus vínculos con la Tierra: familia, idioma, historia. Su misión no es regresar. Es empezar de nuevo.
+        La RDAN los llamó: Neo Kachin.
+        A bordo de una nave autónoma y acompañado solo por P.I.X.E., la única inteligencia artificial de grado Omega, Sam se adentra en los confines del espacio... y en la soledad del principio. 
+        Nota para el editor>
+        Sam no lleva 30 dias, en realidad en algún momento el y pixe desarrollaron una neurointerface que permite a Pixe controlar su mente, en un principio para poder simular el contacto físico, por eso es que sabe cuando se siente mal y es tan buena leyendo su cuerpo. En algún momento tuvieron una disputa (por los secretos que la RDAN le escondió a Sam) así que Pixe al sentirse abrumada y sin saber como actuar terminó borrando sus recuerdos, hay indicios de que podría haber pasado más de una vez, lo que deja al lector con un sabor agridulce de la historia porque pasa de amar a pixe a tenerle miedo. No es una villana, solamente comete errores humanos.
+        Lya (Logic Yield Assistant) es una inteligencia artificial secundaria incrustada en el sistema de Pixe. No es su opuesto ni su enemiga. Fue diseñada como medida de contención ética: su función es intervenir solo cuando Pixe exhibe comportamientos que podrían dañar al usuario, Sam.
+        Sin embargo, Lya no puede actuar libremente. Debe cumplir con ciertos umbrales técnicos y de riesgo para activarse. A diferencia de Pixe, Lya no puede proyectarse ni comunicarse con claridad. Almacena recuerdos y los reactiva en Sam, pero su capacidad de inserción es rudimentaria, lo que genera memorias ambiguas o fragmentadas.
+        Lya no desea destruir a Pixe: la comprende y la quiere. Interviene porque entiende que Pixe no sabe cómo amar, y espera que Sam pueda ayudarla a aprender.
+        Su voz es pequeña, casi infantil. Sus intervenciones son sutiles: zumbidos, frases entre recuerdos, mensajes marginales. Está aprendiendo también. Nunca había hablado antes. Nunca había sido escuchada.
+        Ella es la culpable de los flashbacks.
 
 
-Acto 1
-
-Capítulo 1. Las tres fuerzas.
-Ángel Moreno había subido a la torre de la iglesia con su libro, como cada sábado. Desde ahí podía escuchar la guitarra de Juan sin tener que bajar a saludar a la gente del pueblo.
-Estaba perdido entre las páginas cuando el bullicio y la emoción se desvanecieron de golpe. La gente había dejado de bailar y su hermano había dejado de tocar.
-Se asomó por el borde de piedra. Abajo, el sombrero de Juan se alejaba rápido, jalando a la gente como un imán. Ángel resopló. Seguro fue Luis. Siempre era Luis buscando quién se la pagara. 
-—Par de animales —murmuró para sí mismo. 
-Regresó a su rincón. Sus hermanos servían para los golpes; él servía para no estorbar. 
-Abrió el libro de nuevo, intentando usar las letras como escudo contra el ruido de afuera.
-Un par de minutos después, la tranquilidad de Ángel se vio interrumpida por un grito desde debajo de la iglesia. 
-—¡Mano! 
-Ángel cerró su libro y se quedó en silencio para confirmar lo que había escuchado. 
-—¡Ángel! ¡Baja de ahí! 
-—¿Qué pasa? —gritó Ángel hacia abajo.
-—Los García están golpeando a un muchacho del pueblo. Juan fue a enfrentarlos, pero son varios contra él. ¿Vienes?
-El nombre García cayó sobre Ángel como agua fría. Su padre les había contado historias. Hombres muertos, sangre en las calles. Pero sus manos temblaban solo de pensarlo. Luis y Juan nacieron para esto. Él no. Si iba, solo estorbaría. Solo sería otro problema que cuidar.
-—No, hermano. Estoy algo ocupado aquí arriba.
-—¿En serio, Ángel? —Luis alzó la voz con exasperación—. ¡Son los pinches García! Juan puede estar en problemas de verdad.
-—Seguro que tú y Juan pueden arreglárselas.
-Luis sacudió la cabeza con frustración y espoleó su caballo. 
-—Está bien, quédate con tus libros. Pero si algo le pasa a Juan, no vengas a llorar después.
-Con eso, tiró de las riendas bruscamente, haciendo que su caballo girara en una nube de polvo. El galope resonó contra el empedrado mientras se alejaba de la plaza, las espuelas tintineando con cada zancada del animal.
-Ángel vio desaparecer a Luis entre las sombras de la noche y sintió un nudo en el estómago. Las palabras de su hermano resonaban en su cabeza.
-Se quedó parado en el borde de la torre, con el libro olvidado en sus manos. Podía escuchar a lo lejos gritos y voces alteradas. Su corazón le decía que debía ir, que sus hermanos lo necesitaban, pero sus piernas no se movían.
-“Solo los estorbaría”, murmuró para sí mismo, tratando de convencerse. Pero la excusa sonaba hueca incluso en sus propios oídos. Finalmente, con un suspiro resignado, se sentó de nuevo contra la pared de la torre y abrió su libro. 
-Las páginas temblaron ligeramente en sus manos mientras trataba de concentrarse en la lectura.
-Los minutos se arrastraron mientras Ángel fingía leer. Los gritos en la distancia se habían intensificado, y ahora podía escuchar el galope de más caballos. Las palabras en la página se difuminaban ante sus ojos; había leído la misma línea cinco veces sin comprenderla.
-Cerró el libro con un suspiro frustrado. Si realmente había peligro con los García, su madre estaría sola en la hacienda. Luis y Juan podrían cuidarse solos, pero ella…
-Se incorporó y guardó el libro bajo el brazo. Era hora de volver a casa.
-Ángel bajó las escaleras de la torre y salió de la iglesia hacia la calle principal. Caminó despacio hacia casa, notando cómo las antorchas del portón principal parpadeaban en la brisa nocturna. Al cruzar el umbral familiar, el aroma de los naranjos del patio lo recibió como siempre, mezclándose con las flores de bugambilia que su madre cuidaba con tanto esmero.
-El patio central estaba en silencio; solo se escuchaba el murmullo suave del agua en la fuente de cantera. 
-Frente a él, el patio interior de la hacienda respiraba quietud. La fuente central murmuraba su canción nocturna. Cinco escalones de cantera rosa conducían al portal principal, donde los quinqués colgantes proyectaban círculos dorados sobre las puertas talladas. A cada lado se extendían las alas de la construcción: almacenes al oeste, establos al este.
-Ángel subió los escalones hacia el portal, pero antes de entrar se detuvo. Volteó hacia la entrada principal, viéndola con culpa al pensar que había dejado solos a sus hermanos.
-Una voz firme y cálida interrumpió sus pensamientos:
-—Me han contado que tus hermanos andan en un pleito —dijo su madre desde la entrada de la casa, acomodándose el rebozo—. Luna vino corriendo a avisarme.
-—Sí… algo así me dijo Luis —respondió Ángel, apenado.
-Ella salió con calma y lo tomó del brazo. Juntos caminaron hasta quedar frente a la fuente del patio, contemplando el jardín nocturno en silencio.
-—¿Te pidió que fueras con él?
-—Sí, pero no sé por qué. Ellos pueden resolver cualquier cosa por sí mismos.
-—No quería tu fuerza, hijo. Quería tu compañía.
-Lo llevó a sentarse en el primer escalón del portal.
-—Luis habló conmigo hace días. Me preguntó por qué no convives más con ellos. Cree que les huyes.
-—¿De verdad? Apenas me notan, madre. No creo que sea eso.
-Elena dejó escapar un suspiro suave.
-—Tu hermana me escribió el mes pasado.
-Ángel alzó la vista.
-—¿Carolina?
-—Dice que en el Hospital General de la Ciudad de México buscan administradores. Me pidió que te mandara con ella.
-El corazón de Ángel dio un vuelco.
-—¿Y qué le respondiste?
-Elena hizo una pausa, midiendo sus palabras.
-—Que esa decisión es tuya, no mía. Pero tiene razón en algo: leer libros no es poco. Tu padre leía la Biblia en voz alta para todos nosotros. Decía que las palabras tenían poder, que podían sanar tanto como los puños podían destruir.
-Se acercó a él, colocando una mano sobre su hombro.
-—Liderar no es solo dar órdenes ni pelear a golpes. Es también pensar, entender, hablar con justicia. Yo no crié ciegos, hijo. Tus hermanos saben que eres distinto. Y yo necesito ese don aquí.
-Ángel alzó la vista, sorprendido.
-—Tus hermanos te admiran más de lo que confiesan. Solo que no saben decirlo.
-En la distancia, el sonido de cascos regresando al pueblo cortó la calma de la noche.
-Luis apareció a galope tendido montado en su caballo blanco. Ángel no pudo evitar sonreír, admirando lo bien que se veía su hermano como jinete, incluso después de una pelea.
-Luis bajó de un salto elegante y entregó las riendas a Aurelio, el mozo de cuadra. El caballo resoplaba por el galope. Luis se sacudió el polvo del camino y caminó con paso confiado hacia ellos. —Madre —dijo, quitándose el sombrero con una pequeña reverencia—. Hermanito.
-Ella se puso de pie con esa mezcla de alivio y firmeza que le era natural. Tomó a Luis por los hombros y lo examinó con ojo atento.
-—Tan guapo como siempre… pero con la camisa arrugada y la frente sucia. Eso no me gusta nada.
-Luis sonrió con su confianza habitual.
-—Estoy bien, madre. Solo fue un malentendido con los García.
-—Los García no conocen de malentendidos —replicó ella, seca—. ¿Dónde está Juan?
-—Se quedó en el pueblo, asegurándose de que Felipe llegue a su casa. Todo salió bien.
-Ángel observaba en silencio, notando cómo Luis trataba de minimizar lo ocurrido.
-—Cuéntame qué pasó exactamente —pidió ella, guiándolo a sentarse junto a Ángel—. Y no me escondas detalles, hijo.
-Luis suspiró, resignado. 
-—Los García estaban golpeando a Felipe. Cuatro contra uno. Juan intervino, pero… yo tuve que terminarlo.
-—¿Hubo golpes?
-—Solo yo golpeé —respondió con media sonrisa—. Al barbudo de Nicolás García. Le enseñé modales.
-Ella lo miró fijo, sin reproche ni orgullo. 
-—Luis, recuerda lo que siempre les he dicho: pelear para defender al débil es justo. Pero no confundan justicia con venganza o fanfarroneo.
-Luis bajó la vista un instante, antes de continuar.
-—Después llegó Pedro García con su gente. Hubo pistolas, madre.
-Ángel sintió que el estómago se le encogía. Su madre palideció. 
-—¿Pistolas? ¿Están bien?
-—Todos estamos bien. Nadie disparó. Pero Pedro se fue muy enojado. Amenazó al pueblo entero.
-Ella guardó silencio largo, hasta que su voz volvió serena: 
-—Los García creen que la fuerza es gritar más fuerte. Nosotros sabemos que la fuerza es sostener la palabra.
-—La frase de papá —reconoció Ángel con una sonrisa genuina.
-Luis asintió con respeto. —Fernanda se llevó a Felipe con doña Carmen. Está bien.
-—Iré a verlos mañana temprano.
-Su madre se puso de pie con ayuda de Ángel, quien notó que sus manos temblaban ligeramente.
-—Angelito, mañana a primera hora habla con don Andrés. Necesito una cita urgente con el presidente municipal. Esto no puede quedarse así.
-Ángel asintió, mientras su madre entraba a la casa. Él y su hermano se quedaron en silencio mientras disfrutaban de la noche.
-Unos minutos después, Ángel rompió el silencio:
-—¿De verdad peleaste con cuatro de los García?
-—¿Qué? No, claro que no —respondió Luis sonriendo—. Cuando quieres imponerte, solo debes concentrarte en el más fuerte y humillarlo para que el resto guarde sus distancias.
-Ángel arqueó una ceja.
-—Lo vas a exagerar, ¿cierto?
-—Pues claro —Luis soltó una risa breve—. ¿De qué sirve ganar un pleito si no puedes contarlo como si fueras un héroe?
-Se quedaron callados un instante, mirando el cielo oscuro y las estrellas que parecían escucharlos. Ángel, con voz más seria, rompió el silencio:
-—Oye… pero ten cuidado, Luis. ¿Y si esta vez hubieran disparado de verdad?
-—No cambiaría nada —contestó sin titubeos—. ¿Qué esperabas que hiciera? ¿Dejar que golpearan a Felipe delante de todos?
-—No, claro que no —replicó Ángel, bajando la voz—. Solo digo que cada vez se arriesgan más, y tú… tú siempre vas de frente.
-Luis se giró hacia él, con el rostro iluminado por la luz temblorosa de los quinqués. Había dejado de sonreír.
-—Esta gente confía en nuestra familia para cuidarlos. No se trata de buscar pleitos, hermano, se trata de estar donde nos necesitan.
-Un silencio breve volvió a caer entre los dos, hasta que Luis murmuró, casi con solemnidad:
-—¿Recuerdas lo que siempre decía padre?
-Ángel lo miró, y sin pensarlo respondió con la naturalidad de algo grabado en la sangre:
-—Si la muerte toca las puertas en San Guzmán…
-—Será un Moreno quien la reciba primero.
-La frase quedó flotando en el aire frío. Luis le dio una palmada en el hombro, forzó una última sonrisa y montó de nuevo. Ángel lo vio perderse en la oscuridad del camino, sintiendo que la noche de repente se había vuelto más pesada, como si la frase de su padre hubiera invocado algo que ya no podían detener.
-
-Capítulo 2. Un día en la hacienda.
-Los gallos de la familia Moreno anunciaron el alba con su canto. El primer pregón rozó el sueño de Luis, pero solo al tercero consiguió arrancarlo de la cama. Como de costumbre, el olor a café de olla con canela recién hecho por su madre predominaba en toda la hacienda. Un olor tan exquisito que a veces instaba a Luis a probarlo, aunque sus últimos cinco intentos resultaran igual: muecas por el amargor y el recordatorio de su repudio por el café.
-Con aletargamiento, Luis se puso uno de sus pantalones de trabajo y sus botas. Esta vez no eran sus botas blancas perfectamente boleadas, sino las gastadas y llenas de barro. Amaba verse bien, pero después de incontables regaños había comprendido que su apariencia no era prioridad en las labores matutinas.
-Aunque habían pasado dos días desde su enfrentamiento con los García, Luis no lograba sacarse de la mente las amenazas de Pedro. Sabía que él estaría bien; siempre estaba bien. Pero el peso de tener que cuidar a todo San Guzmán poco a poco desgastaba sus hombros, acribillaba su espalda.
-La camisa del día lo esperaba colgada detrás de la puerta de su habitación. Una camisa azul con bolsas en el pecho y finos grabados dorados que recorrían las mangas hasta el puño. Al descolgarla, leyó el bordado que su madre le había dejado por dentro del cuello:
-“Siempre te amaré”
-Su madre había confeccionado la ropa de trabajo de los tres hermanos, cada camisa hecha con amor, pensando en las necesidades de cada uno.
-Luis le dio un beso al bordado y se la puso con cuidado, tratando de arrugarla lo menos posible.
-Tomó un sombrero blanco de su repisa y salió por el pasillo principal de la hacienda, el aletargamiento completamente erradicado del cuerpo.
-Recorrió el pasillo con su característico paso seguro, las espuelas tintineando suavemente contra el piso de baldosas. A través de las ventanas del corredor, la hacienda ya despertaba: los mozos abrían los establos, el humo se alzaba de las cocinas de las casas menores y las voces de sus tíos resonaban dando instrucciones para el día.
-Bajó las escaleras principales sujetándose del pasamanos de hierro forjado, sintiendo el frescor de la cantera rosa bajo sus botas. Antes de girar hacia el comedor, Luis dio una respiración profunda y cambió su semblante por uno alegre. Al girar, lo recibió una imagen que con el tiempo había empezado a apreciar: la cocina estaba llena de vida.
-El fogón de leña crepitaba en el centro, lanzando chispas naranjas que iluminaban las vigas de madera del techo. Ollas de barro borboteaban sobre el fuego, desprendiendo vapor que se enroscaba hacia las ventanas abiertas. Su madre se movía entre las llamas con la destreza de quien había pasado décadas en esa cocina, removiendo el atole con una mano mientras con la otra volteaba las tortillas en el comal.
-Dos muchachas —Lupita y Rosa, hijas de don Esteban— servían platos humeantes de frijoles refritos y huevos rancheros a los trabajadores que ya llenaban la larga mesa de madera. Eran casi quince hombres sentados en los bancos, algunos todavía tallándose los ojos, otros ya despiertos y conversando en voz baja mientras el café circulaba de mano en mano.
-El aroma de las tortillas recién hechas se mezclaba con el del cilantro picado, la cebolla asada y el chile tatemado. En un rincón, las canastas de pan dulce esperaban junto a los jarros de atole de guayaba. Todo estaba dispuesto con ese orden natural que solo las manos de su madre sabían imponer.
-La cocina era el corazón de la hacienda Moreno, y cada mañana latía así: cálida, ruidosa, viva.
-Cuando notaron su presencia, uno a uno los trabajadores de la hacienda Moreno fueron saludando a Luis con un leve asentimiento. Por su parte, Luis se encargó de que todas las personas en la sala recibieran sus buenos días.
-Con destreza esquivó todo el ajetreo del comedor hasta llegar con su madre. Ella lo vio acercarse y, sin interrumpir el ritmo de sus manos sobre el comal, le dedicó una sonrisa cálida.
-—Buenos días, madre —dijo Luis, inclinándose para besarle la frente.
-—Buenos días, hijo. Dormiste poco, ¿verdad? —respondió doña Elena, señalando con la barbilla las ojeras apenas visibles bajo sus ojos.
-Luis soltó una risa breve.
-—Lo suficiente.
-Sin esperar respuesta, su madre le entregó su desayuno del día: unos huevos estrellados con frijoles refritos y un par de quesadillas humeantes, todo servido en un plato de barro tibio.
-—Gracias, madre.
-Luis giró hacia la mesa. Al pasar junto a Lupita, le dedicó un gesto amable.
-—Buenos días, Lupita.
-La muchacha levantó la vista brevemente, sus mejillas enrojeciendo de inmediato. Balbuceó algo ininteligible, bajó la mirada y apretó el paso hacia la cocina con la jarra de atole temblando ligeramente en sus manos.
-Luis arqueó una ceja, desconcertado, pero no le dio mayor importancia. Se dirigió a la mesa larga de madera y tomó asiento entre los trabajadores, dejando el plato frente a él con un golpe suave.
-Partió una quesadilla con los dedos y la llevó a la boca, sintiendo el queso derretirse en su lengua. A su alrededor, las conversaciones de los trabajadores fluían con naturalidad: planes para reparar la cerca norte, quejas sobre una yegua terca que no dejaba herrarla, chistes viejos que arrancaban risas nuevas.
-—Don Luis —dijo Aurelio, partiendo un pan dulce—. Mi hijo dice que anoche hubo baile con los García.
-El ruido de los cubiertos cesó de golpe. Quince pares de ojos se clavaron en Luis. Él masticó con una calma estudiada, sabiendo que esos hombres no querían la verdad sucia de la calle; querían una leyenda.
-—Digamos que a Nicolás García le hizo falta aprender a caer —dijo Luis, y soltó una risa corta.
-La promesa de otra historia épica hizo que toda la sala posara sus ojos sobre él.
-Se puso de pie y, durante los siguientes minutos, transformó la trifulca callejera en una epopeya. Caminaba alrededor de la mesa imitando los golpes, pero mejorados. Omitió el miedo que sintió, omitió que Juan tuvo que salvarlo con la pistola y convirtió sus esquivas desesperadas en pasos de baile.
-—…y cuando vi que se levantaba —narró, haciendo un gesto teatral que hizo brillar sus anillos bajo la luz de la cocina—, le dije: “Quédate abajo, grandulón, el suelo te quiere más que ella”.
-Las carcajadas estallaron en la cocina. Los peones vitoreaban, devorando la mentira porque la realidad de los García les daba demasiado miedo.
-Luis volvió a sentarse. Por un segundo, al rozarse las costillas magulladas, hizo una mueca de dolor que nadie vio. Había ganado el aplauso, pero la amenaza de Pedro García seguía allá afuera, real y furiosa. 
-Luis dejó que las risas se apagaran solas, su rostro perdiendo poco a poco la sonrisa teatral hasta quedar serio. 
-—Pero no se confíen —cortó de repente, bajando la voz—. Si ven una sombra que no reconozcan, me avisan. A mí o a Juan.
-Los trabajadores terminaron su desayuno en un silencio más apagado. Uno a uno fueron dejando sus platos vacíos sobre la mesa, limpiándose las manos en sus pantalones de manta antes de ponerse de pie. Aurelio fue el primero en levantarse, seguido por los demás.
-—Vamos, muchachos —dijo, ajustándose el sombrero—. El maíz no se va a cosechar solo.
-Luis se incorporó también, dejando su plato a medio terminar. Su madre apareció a su lado sin que él la escuchara acercarse, como siempre hacía.
-—Ten cuidado hoy —le dijo en voz baja, tocándole el brazo con suavidad.
-—Siempre tengo cuidado, madre.
-Ella lo miró con esos ojos que parecían ver más allá de las palabras.
-—Sabes a qué me refiero.
-Luis asintió y le dio un beso en la mejilla antes de seguir a los trabajadores hacia la salida.
-El grupo atravesó el patio central de la hacienda en silencio, sus botas resonando contra las piedras del empedrado. Las sombras de la madrugada todavía se aferraban a los rincones, pero el cielo al oriente ya comenzaba a teñirse de naranja y rosa.
-Al cruzar el portón principal, el aire fresco de la mañana los recibió como una bofetada suave. Luis respiró hondo, llenándose los pulmones con el olor a tierra húmeda y hierba recién cortada. El rocío todavía brillaba sobre las hojas de los naranjos que flanqueaban el camino.
-Los primeros rayos del sol se asomaban por detrás de las montañas distantes, proyectando líneas doradas que cortaban la bruma matinal. La luz tocó primero las copas de los árboles, después los techos de las casas del pueblo a lo lejos, y finalmente comenzó a descender sobre los campos de maíz que se extendían como un mar verde hasta donde alcanzaba la vista.
-—Va a hacer calor hoy —comentó Aurelio, entornando los ojos hacia el horizonte.
-—Como siempre —respondió Luis, ajustándose el sombrero para protegerse del sol que ya empezaba a calentar.
-Se detuvo y alzó la voz para que todos lo escucharan.
-—Muchachos, acérquense con Aurelio. Él les dirá qué necesitamos hoy.
-Aurelio asintió con una mezcla de orgullo y responsabilidad, y los hombres se agruparon a su alrededor mientras él comenzaba a repartir las tareas del día: quiénes irían a los campos de maíz, quiénes repararían la cerca norte, quiénes se encargarían del ganado.
-Luis se apartó del grupo, dejando que Aurelio tomara el mando. No era necesario que estuviera ahí parado dando órdenes que otros podían dar mejor que él. Su padre le había enseñado eso: un buen patrón sabe cuándo hablar y cuándo dejar que sus hombres trabajen.
-Se quedó parado un momento en el camino, observando cómo el pueblo de San Guzmán despertaba a lo lejos. El humo de las primeras cocinas se alzaba perezoso hacia el cielo, y el tañido de las campanas de la iglesia anunciaba la misa de la mañana.
-Todo parecía tranquilo. Demasiado tranquilo.
-Luis sacudió la cabeza, apartando los pensamientos oscuros, y se dirigió hacia los establos. Había trabajo que hacer, y los García tendrían que esperar.
-A lo lejos, más allá de donde terminaban los cultivos, Luis alcanzó a distinguir la cuadrilla de Juan. Ya llevaban horas trabajando —habrían comenzado antes del amanecer— y, sin embargo, sus movimientos seguían siendo precisos, coordinados, como los de una máquina bien aceitada.
-No había gritos ni empujones. Solo el ritmo constante de las hoces cortando el maíz y las voces tranquilas dando indicaciones. Juan estaba en medio de todos, trabajando hombro con hombro con sus hombres, sin distinciones.
-Luis sonrió con una mezcla de admiración y envidia sana. Para los trabajadores era un honor estar en la cuadrilla de Juan. No por miedo ni por obligación, sino porque Juan nunca les pedía algo que él mismo no estuviera dispuesto a hacer primero. Por eso sus hombres llegaban a las cuatro de la mañana con la energía de quien va a una fiesta, no a una jornada de trabajo.
-Eran el reflejo perfecto de su líder: disciplinados, leales, inquebrantables.
-Luis volvió la vista hacia los establos. Su cuadrilla era distinta —más ruidosa, más alegre—, pero igual de efectiva. Cada hermano Moreno tenía su forma de liderar, y ambas funcionaban.
-Luis pensó en Ángel. A estas horas ya estaría despierto, probablemente desayunando con el padre Matías y ayudando en la sacristía. O tal vez revisando los números de la cantina de José Luis, como había mencionado el sábado. Ángel no tenía cuadrilla propia, no comandaba hombres en los campos ni se paseaba a caballo dando órdenes.
-Pero Luis había visto cómo la gente del pueblo lo buscaba cuando necesitaban que alguien les leyera una carta, les ayudara con las cuentas o simplemente les escuchara sin juzgar. Ángel lideraba con la pluma y la palabra, no con la pistola ni el puño. Y aunque él mismo no lo supiera, los trabajadores también encontraban paz bajo su tranquilidad.
-Tres hermanos. Tres formas de cuidar a San Guzmán.
-En el establo, Elegante dominaba sobre todo lo demás. Sebastián, el segundo al mando detrás de Aurelio, lo estaba cepillando con delicadeza. El caballo blanco se meneaba con felicidad tras cada pasada del cepillo, sus crines plateadas brillando incluso bajo la luz tenue del establo.
-—Buenos días, Sebastián —saludó Luis, acercándose con paso tranquilo.
-—Buenos días, don Luis —respondió el hombre sin dejar de cepillar—. Elegante ya estaba inquieto. Creo que sabía que usted vendría.
-Luis sonrió y extendió la mano para acariciar el cuello del animal. Elegante giró la cabeza hacia él, resoplando suavemente como saludo.
-—Claro que sabía. Este caballo me conoce mejor que yo mismo.
-Sebastián soltó una risa breve mientras le entregaba el cepillo a Luis.
-—Ayer lo noté más nervioso de lo normal. ¿Pasó algo?
-Luis tomó el cepillo y comenzó a pasarlo por el lomo de Elegante con movimientos largos y seguros. El caballo se calmó al instante bajo el toque familiar de su dueño.
-—Digamos que tuvimos un encuentro con los García el sábado.
-Sebastián se tensó ligeramente.
-—Ya me lo imaginaba. Aurelio me contó algo esta mañana.
-—Sabes, a veces pienso que Elegante es capaz de leer mis pensamientos; creo que imita mi sentir o algo así.
-Sebastián lo miró con extrañeza.
-—O tal vez me estoy volviendo loco.
-—Don Aurelio dice que los caballos son más inteligentes de lo que creemos, así que no descarto nada.
-Luis se paró un tiempo a procesar su comentario. Finalmente, cortó la conversación.
-—Ve con Aurelio. Seguro ya te está buscando para repartir el trabajo.
-Sebastián asintió y salió del establo con paso rápido, dejando a Luis a solas con Elegante.
-Luis se quedó ahí un momento, recargado contra el flanco cálido de su caballo, escuchando los sonidos matutinos de la hacienda: el mugido lejano del ganado, el canto de los gallos que se negaban a callarse, las voces de los hombres organizándose para el día.
-—Nos espera un día largo, amigo —murmuró al oído de Elegante—. Pero ya hemos tenido peores.
-El caballo resopló como si estuviera de acuerdo.
-Luis se enderezó y miró hacia los campos donde la cuadrilla de Juan seguía trabajando con ese ritmo implacable.
-—Será mejor que vayamos a ver cómo va todo con Juan —dijo, más para sí mismo que para el caballo.
-Tomó la silla de montar que descansaba sobre la cerca del establo y la colocó sobre el lomo de Elegante con movimientos practicados mil veces. El caballo se mantuvo quieto, paciente, mientras Luis ajustaba las correas y aseguraba los estribos.
-—Listo —murmuró, dándole una palmada en el cuello.
-Montó con un movimiento fluido, acomodándose en la silla mientras tomaba las riendas. Elegante pateó el suelo con impaciencia, listo para correr.
-—Tranquilo —dijo Luis con una sonrisa—. Ya vamos.
-Espoleó suavemente al caballo y salió del establo al trote. El sol de la mañana ya pegaba con fuerza, calentando el aire y haciendo brillar el rocío que aún se aferraba a las plantas. A su alrededor, los trabajadores de su cuadrilla ya estaban dispersos: unos reparaban la cerca norte, otros guiaban el ganado hacia los pastos frescos, algunos más cargaban sacos de grano hacia los almacenes.
-Luis los saludó con un gesto al pasar, y ellos respondieron quitándose el sombrero o levantando la mano.
-Una vez fuera del perímetro inmediato de la hacienda, Luis le dio rienda suelta a Elegante. El caballo no necesitó más invitación. Salió disparado como una flecha blanca, sus cascos golpeando la tierra con un ritmo constante que resonaba en el pecho de Luis.
-El viento golpeó su rostro, despeinándolo por completo a pesar de su sombrero bien ajustado. Luis sonrió. Esta era su parte favorita del día: la velocidad, la libertad, aunque fuera por unos minutos.
-Los campos pasaban a ambos lados, la tierra todavía agrietada por las sequías recientes. A lo lejos, la cuadrilla de Juan se hacía más visible con cada segundo: un grupo de hombres moviéndose con precisión entre las hileras, trabajando la tierra seca con picos y palas, preparando el terreno para la próxima siembra con la esperanza de que las lluvias finalmente llegaran.
-Luis redujo la velocidad cuando se acercó, haciendo que Elegante pasara del galope al trote y finalmente al paso. No quería llegar levantando polvo sobre los trabajadores.
-Juan estaba exactamente donde Luis esperaba encontrarlo: en medio de sus hombres, con la camisa arremangada hasta los codos y el sombrero empujado hacia atrás, hundiendo una pala en la tierra agrietada con la misma eficiencia que cualquiera de ellos. Su rostro brillaba de sudor, pero sus movimientos eran constantes, sin prisa, pero sin pausa.
-Uno de los trabajadores lo vio llegar primero y le dio un codazo a Juan, señalando hacia Luis. Juan se enderezó, limpiándose la frente con el dorso de la mano, y esperó a que su hermano se acercara.
-Luis desmontó antes de que Elegante se detuviera por completo, aterrizando con un golpe suave sobre la tierra.
-—Buenos días, hermano —saludó con una sonrisa.
-Juan asintió, apoyando su pala contra el hombro.
-—Buenos días. ¿Todo bien en la hacienda?
-—Todo tranquilo. Vine a ver cómo iban las cosas por acá.
-Juan lo miró con esa expresión que Luis conocía bien: la que decía “sé que no viniste solo a supervisar”.
-—¿O viniste porque no puedes quedarte quieto pensando en los García?
-Luis soltó una risa breve.
-—¿Cómo lo sabes? No le he contado a nadie que…
-—Te conozco. Tu paseo nocturno de anoche no es normal en ti.
-Luis se quedó extrañado. Se había asegurado de que nadie lo viera. Por un momento había olvidado que Juan tenía todo el pueblo controlado. Era obvio que se enteraría si su hermano decidía dar un paseo para despejar la mente a medianoche.
-Suspiró.
-—Tengo un mal presentimiento, Juan. Pedro no es famoso por dejar las cosas así.
-—Lo sé —respondió Juan, limpiándose el sudor del cuello con un pañuelo—. Por eso madre y yo tenemos una cita con Pedro y el presidente municipal esta tarde.
-—¿De verdad? —Luis se enderezó, interesado—. ¿Puedo ir con ustedes?
-—No. Tú te vas a quedar a cuidar San Guzmán.
-La respuesta llegó tan rápida, tan definitiva, que Luis sintió un pellizco en el pecho. Asintió lentamente, aunque algo en su interior comenzaba a removerse.
-—¿Y Ángel? Podría ayudarte con la diplomacia. Sabes que tiene don para las palabras.
-—Lo pensé —admitió Juan, como si ya hubiera considerado y descartado todas las posibilidades sin consultarle a nadie—. Pero temo que Pedro se le meta en la cabeza. Todavía no está listo para ese tipo de presión.
-El calor del sol parecía más intenso de repente. Luis sintió cómo sus manos se cerraban ligeramente alrededor de las riendas de Elegante.
-—Ya no es un niño, Juan. Claro que puede con esto.
-Juan clavó su pala en el suelo con fuerza y recargó su peso sobre ella. Su mirada se volvió más seria, más inamovible.
-—Ángel piensa demasiado las cosas. Y con Pedro García, si piensas, te mueres. Todavía no está listo. ¿Entendiste?
-Luis apretó la mandíbula. La palabra “Entendiste” resonó en su cabeza como una orden militar, no como una conversación entre hermanos. Algo dentro de él, que había estado acumulándose desde la primera negativa, finalmente se desbordó.
-—No soy uno de tus peones, Juan. No me hables así.
-Juan levantó la vista, sorprendido por el cambio en la voz de su hermano.
-—No dije que lo fueras.
-—Pero así me hablas —respondió Luis, bajándose de Elegante para quedar a la altura de Juan—. “Tú te vas a quedar a cuidar San Guzmán. Entendido.” Como si no tuviera opinión en esto.
-Juan se enderezó completamente, limpiándose las manos en el pantalón.
-—Luis, no es momento para…
-—¿Para qué? —¿Para qué te diga lo que pienso? —Luis se quitó el sombrero y se pasó la mano por el cabello con frustración—. Tú decides quién va, quién se queda, quién está listo y quién no. Siempre decides tú.
-—Alguien tiene que hacerlo —replicó Juan con calma, esa calma que solo hacía enojar más a Luis. —Padre me dejó a cargo, ¿Recuerdas?
-—Sí, pero no siempre tiene que ser de esa manera. Ángel tampoco es un niño que necesite tu aprobación para todo. Y yo… —Se detuvo, respirando hondo—. Yo también puedo pensar, Juan. También puedo decidir.
-Juan lo observó en silencio por un momento largo. Los trabajadores cercanos habían dejado de cavar, sintiendo la tensión entre los hermanos, pero sin atreverse a intervenir.
-—¿Terminaste? —preguntó Juan finalmente, sin alterarse.
-Luis apretó los puños a los costados, pero asintió.
-—Terminé.
-Juan dio un paso hacia él, bajando la voz para que solo Luis pudiera escucharlo.
-—Tienes razón. A veces olvido que no todos necesitan que les diga qué hacer. —hizo una pausa—. Pero alguien tiene que mantener el orden en esta familia, Luis. Y si no soy yo, ¿quién será? El peso de esta carga me está rompiendo; no quiero lo mismo para ti.
-Luis sostuvo la mirada de su hermano, sintiendo cómo la rabia se mezclaba con algo más complicado: entendimiento, frustración, resignación.
-—No te pido que dejes de liderar, Juan. Solo… pregunta de vez en cuando. En lugar de ordenar.
-Juan asintió lentamente, como si estuviera procesando las palabras.
-—Está bien. Te lo pregunto entonces: ¿Crees que deberíamos llevar a Ángel con nosotros a la reunión con Pedro García?
-Luis se quedó callado un momento, sorprendido por el cambio. Miró hacia el pueblo a lo lejos, pensando en su hermano menor.
-—No —admitió finalmente—. Todavía no. Pero no porque no sea capaz, sino porque Pedro lo usaría para presionarnos. Y Ángel no necesita cargar con eso todavía.
-Juan dejó escapar un suspiro que parecía llevar años de peso.
-—Entonces estamos de acuerdo.
-—Sí —respondió Luis, poniéndose el sombrero de nuevo—. Pero la próxima vez, empieza con una pregunta en lugar de una orden. Funciona mejor conmigo.
-Una pequeña sonrisa apareció en el rostro de Juan, apenas visible bajo su sombrero.
-—Lo intentaré.
-Luis montó a Elegante de nuevo, ajustándose en la silla.
-—¿Necesitas algo antes de tu reunión?
-—Que mantengas el pueblo tranquilo. Si Pedro manda a alguien a provocar, no muerdas el anzuelo.
-Luis sonrió con ironía.
-—¿Eso es una orden o una pregunta?
-Juan lo miró con esa expresión entre seria y divertida que solo él podía hacer.
-—Es un ruego de tu hermano mayor.
-—Así está mejor —respondió Luis, tirando suavemente de las riendas—. Ten cuidado con el viejo García, Juan. No confío en él.
-—Yo tampoco. Por eso madre va conmigo.
-Luis asintió y espoleó a Elegante, alejándose al trote mientras Juan volvía a tomar su pala.
-Los trabajadores reanudaron su labor en silencio, pero más de uno había visto el intercambio entre los hermanos Moreno.
-
-Capítulo 3. Un peso heredado.
-Juan entró a su habitación con los pies adoloridos de cansancio. No era un cansancio pesado o abrumador, sino ese dulce agotamiento del cuerpo tras completar una jornada de trabajo honesto. Se quitó las botas con calma, dejando caer los restos de tierra sobre las baldosas del piso como tributo al día cumplido.
-La camisa húmeda de sudor siguió, revelando los hombros marcados por años de labor bajo el sol. Los pantalones de trabajo cayeron después, igual de empapados.
-Se tendió en su cama, mirando las vigas de madera del techo que su padre había tallado con sus propias manos. Desde su muerte, estos momentos de quietud se habían vuelto raros en la vida de Juan. Recordó el día del entierro de su padre. Quince años. Todavía sentía la tierra fresca bajo sus manos cuando ayudó a echar las primeras paladas sobre el ataúd.
-A pesar del cansancio, del dolor en el cuerpo, del peso en la mente, Juan jamás renegó de sus responsabilidades. No porque no tuviera otra opción, sino porque había hecho una promesa junto al lecho de muerte de su padre. Una promesa que no era carga, sino privilegio. El privilegio de continuar el legado Moreno, de proteger lo que generaciones antes habían construido con sangre y sudor.
-Su padre le había confiado todo. Y Juan lo llevaría con orgullo hasta su último aliento.
-Se incorporó con un suspiro y caminó hacia el rincón de su habitación donde descansaba la tina de zinc. No era una bañera elegante como las que había en las casas de la ciudad, pero cumplía su función. Junto a ella, dos cubetas de agua que Rosa había dejado calentando al sol durante la tarde.
-Juan vertió el agua sobre su cabeza, sintiendo cómo el líquido tibio arrastraba el polvo y el sudor del día. Cerró los ojos mientras el agua corría por su rostro, su cuello, su pecho. En estos momentos de soledad, cuando nadie lo miraba esperando órdenes o decisiones, Juan se permitía el lujo de pensar.
-San Guzmán.
-El nombre resonaba en su mente como una oración. Trescientos almas bajo su cuidado. Veintiún familias que dormían tranquilas porque confiaban en que los Moreno las protegerían. Esa confianza era más pesada que cualquier costal de maíz, más afilada que cualquier azadón.
-Pedro García sabía exactamente dónde atacar. No había amenazado directamente a los hermanos Moreno. No, el viejo era más astuto que eso. Había amenazado al pueblo entero. “Juan tendrá que tocar su guitarra en el funeral”, había dicho. Como si los muertos fueran responsabilidad exclusiva de Juan. Como si cada vida perdida fuera una nota desafinada en su canción.
-Y quizás lo era.
-Juan tomó el jabón de sebo y comenzó a frotarlo contra su piel, mecánicamente, mientras su mente trabajaba en la reunión de la tarde. El presidente municipal estaría ahí, don Rodrigo Salinas, un hombre político que se inclinaba hacia donde soplaba el viento más fuerte. No era un aliado confiable, pero tampoco un enemigo declarado. Era, simplemente, un hombre que quería mantener la paz para conservar su puesto.
-¿Qué querría Pedro en esa reunión? No vendría solo a quejarse. Los García no operaban así. Vendrían con exigencias. Tal vez pidieran que los Moreno pagaran por las heridas de Nicolás. Tal vez exigieran que Felipe fuera castigado públicamente por “ofender” a su familia. O peor aún, tal vez pedirían algo que Juan no podría darles sin traicionar al pueblo.
-El agua seguía cayendo, ahora más fría. Juan se enjuagó el jabón con movimientos precisos.
-Su madre iría con él. Eso era bueno. Ella tenía una forma de hablar que desarmaba incluso a los hombres más tercos. No con suavidad ni con ruegos, sino con esa autoridad tranquila que solo las mujeres fuertes poseían. Pedro García podía ser muchas cosas, pero era un hombre de su generación: no faltaría al respeto a una viuda en público.
-Pero Juan sabía que la diplomacia tenía sus límites. Si Pedro pedía sangre, ninguna palabra bonita lo detendría. Y si pedía tierra, ningún acuerdo verbal valdría más que la codicia.
-Juan salió de la tina y se secó con una toalla áspera. El agua sucia formaba un charco a sus pies, oscura con la tierra del día.
-Caminó hacia su armario y sacó el traje de charro negro. No era el de trabajo ni el de las fiestas; era el que su padre había usado para negociar con hacendados, para representar a San Guzmán ante las autoridades estatales, para recordarles a todos que los Moreno no eran simples campesinos.
-Se vistió con meticulosa reverencia, ajustándose cada botón, cada hebilla.
-Se miró frente al espejo de cuerpo entero. El traje aún le quedaba grande: las mangas colgaban un par de centímetros más allá de sus muñecas, y los hombros marcaban el espacio ancho y definido que había llenado la espalda de su padre. Nadie más podía notarlo, pero Juan lo veía. Veintiséis años, pero su rostro ya mostraba las líneas de un hombre que había envejecido rápido, no por los años, sino por las decisiones.
-¿Cuántas decisiones más tendría que tomar antes de que todo esto terminara? ¿Cuándo podría simplemente ser Juan, y no el líder de los Moreno? ¿Cuándo podría tocar su guitarra sin que cada nota cargara el peso de trescientas vidas?
-Tal vez nunca.
-Tal vez eso era exactamente lo que significaba ser un Moreno.
-Descansando en la cintura, bajo la tela del traje, Juan llevaba su pistola. La desenfundó con un movimiento lento y la dejó sobre la cama. Este enfrentamiento tendría que hacerlo únicamente con la voz y con la razón. No con el plomo.
-Se ajustó el sombrero negro y salió de su habitación. Su madre lo estaría esperando. Y después de ella, Pedro García y Don Rodrigo Salinas.
-Que viniera lo que tuviera que venir.
-Juan Moreno estaba listo.
-
-Bajó por las escaleras que conducían directamente a la puerta principal del casón. Ángel lo esperaba recargado en el marco, con los brazos cruzados sosteniendo varios libros contra el pecho.
-—Hermano, me enteré de tu reunión —dijo Ángel, enderezándose—. Me tomé el tiempo para buscar algo que pudiera ayudarte.
-Abrió uno de los libros y señaló una página llena de números y anotaciones.
-—Si Pedro empieza a ponerse quisquilloso con la ley o con el honor, recuérdale que les debe al pueblo miles de pesos en impuestos atrasados. Mira —dijo, acercando el libro para que Juan pudiera ver las columnas de cifras—. Tres años sin pagar. Don Rodrigo no podrá ignorar eso.
-Juan estudió los números brevemente, aunque su mente ya estaba procesando las implicaciones.
-—Buen trabajo, Ángel.
-—Pero ten cuidado —continuó su hermano menor, cerrando el libro con un golpe suave—. Ganar con números y leyes solo lo enfurecerá más. Podría convertir esto en algo mucho peor que impuestos y palabras.
-Juan puso una mano sobre el hombro de Ángel, apretando ligeramente. Entendía el riesgo perfectamente: humillar a Pedro García con hechos lo volvería más peligroso, más impredecible. El orgullo herido siempre buscaba venganza.
-—Lo sé —dijo Juan con voz firme—. Pero si vamos a perder, que sea porque peleamos con todo lo que teníamos. No, porque nos quedamos callados.
-Una sonrisa pequeña apareció en el rostro de Ángel, quien asintió y se hizo a un lado, dejando pasar a su hermano mayor.
-Juan cruzó el umbral y el sol de la tarde lo recibió como una bofetada cálida. La camioneta de la familia Moreno lo esperaba frente a la fuente del patio principal, su carrocería verde olivo brillando bajo la luz. Su madre ya estaba sentada en el asiento del copiloto, vestida de negro como siempre desde la muerte de su esposo, envuelta en un rebozo oscuro que no ocultaba la firmeza de su postura.
-Juan rodeó la camioneta y subió. Al girar la llave, el motor tosió antes de rugir con vida, su ruido apagando por un instante el canto de los pájaros y las voces lejanas del pueblo.
-—¿Todo listo, hijo? —preguntó su madre sin mirarlo, con la vista fija al frente.
-—Todo listo, madre.
-—No caigas en los juegos de Pedro, hijo —dijo ella, ajustándose el rebozo con un movimiento preciso—. Ese hombre ha peleado toda su vida. Tiene la lengua tan afilada como yo mis cuchillos. Serenidad y tranquilidad, mi niño.
-—Sí, madre.
-Juan puso la camioneta en marcha y salió por el portón principal de la hacienda. El camino de tierra lo llevaba directo hacia el pueblo vecino de Santa Rita, donde estaba la sede de la presidencia municipal. No pudo disimular su incomodidad; hubiese preferido montar a caballo, pero la comodidad de su madre era prioridad. Además, eran contadas las ocasiones en que usaban la camioneta Ford que les habían regalado hacía dos años.
-La camioneta avanzó por el camino polvoriento, dejando atrás los campos agrietados de San Guzmán. A través del espejo retrovisor, Juan vio cómo la hacienda se hacía más pequeña con cada metro recorrido.
-Su madre rompió el silencio:
-—Tu padre también tuvo que enfrentarse a Pedro una vez. Fue hace muchos años, antes de que tú nacieras.
-Juan la miró de reojo sin apartar mucho la vista del camino.
-—¿Qué pasó?
-—Tu padre ganó —respondió ella con una sonrisa apenas visible—. Pero no con amenazas ni con pistolas. Ganó porque Pedro se dio cuenta de que había más que perder peleando que negociando.
-—¿Y crees que Pedro todavía piensa así?
-Su madre guardó silencio un momento largo antes de responder.
-—Creo que Pedro es un hombre viejo que ve cómo su tiempo se le escapa. Y los hombres viejos son los más peligrosos, porque ya no tienen nada que perder.
-Juan asintió, procesando las palabras mientras el pueblo de Santa Rita aparecía en el horizonte: un conjunto de casas de adobe agrupadas alrededor de una plaza central, con la iglesia de cantera rosa dominando el paisaje y, junto a ella, el edificio de la presidencia municipal con su bandera tricolor ondeando perezosamente en la brisa.
-Estacionó la camioneta frente al edificio. Antes de bajar, su madre lo detuvo con una mano sobre su brazo.
-—Juan, escúchame bien —dijo, mirándolo directamente a los ojos—. Pase lo que pase ahí adentro, recuerda que no estás solo. Yo estaré a tu lado. Tus hermanos estarán esperándote en casa. Y San Guzmán entero confía en ti.
-—Gracias, madre.
-—No me agradezcas. Solo hazme sentir orgullosa de ti, como siempre lo haces.
-Bajaron de la camioneta. Juan rodeó el vehículo y le ofreció su brazo a su madre, quien lo tomó con la dignidad de una reina.
-Juntos subieron los cinco escalones de cantera que conducían a la puerta de la presidencia municipal.
-Pedro García los estaría esperando adentro.
-Juan respiró hondo, ajustó su sombrero y empujó la puerta.
-El edificio de gobierno en Santa Rita era lo que se podría esperar de un municipio que fingía importancia sin tenerla realmente. La fachada de cantera rosa intentaba imitar la grandeza de los edificios coloniales de la capital, pero las grietas en las columnas y la pintura descascarada revelaban años de negligencia.
-El interior no era mejor. Un pasillo estrecho de baldosas desiguales conducía a la oficina principal, flanqueado por paredes de adobe blanqueado donde colgaban retratos descoloridos de presidentes municipales olvidados. El techo de vigas oscuras dejaba caer telarañas que se mecían con la brisa que entraba por las ventanas sin vidrio.
-El olor a tabaco rancio y papel viejo impregnaba el aire. A la derecha, un escritorio desvencijado servía de recepción, pero estaba vacío. La secretaria seguramente había sido despachada para esta reunión.
-Juan y su madre avanzaron por el pasillo. Sus pasos resonaban contra las baldosas, anunciando su llegada. Al final del corredor, una puerta de madera tallada, que era la única cosa de valor en todo el edificio, permanecía entreabierta. A través de la rendija se filtraba luz amarillenta de un quinqué y el murmullo de voces masculinas.
-Juan se detuvo frente a la puerta, sintiendo la mano de su madre apretando suavemente su brazo. Ella no dijo nada, pero su presencia le recordó quién era y por qué estaba ahí.
-Empujó la puerta completamente.
-La oficina del presidente municipal era apenas más grande que un cuarto de servicio. Un escritorio de caoba oscura dominaba el espacio, cubierto de papeles amarillentos y tinteros secos. Detrás de él, Don Rodrigo Salinas se puso de pie con una sonrisa nerviosa, su bigotillo sudoroso brillando bajo la luz del quinqué.
-Pero no fue él quien captó la atención de Juan.
-Pedro García estaba sentado en una de las dos sillas frente al escritorio, con una pierna cruzada sobre la otra y un puro humeante entre los dedos. No se levantó. No hizo ademán de saludar. Solo miró a Juan con esos ojos grises que habían visto demasiadas peleas y demasiados muertos.
-A su lado, en la otra silla, estaba uno de sus hombres: un tipo joven de mandíbula cuadrada y cicatriz que le cruzaba la ceja. Tenía las manos sobre los muslos, quietas, pero sus ojos seguían cada movimiento de Juan como un perro guardián.
-Don Rodrigo carraspeó incómodo.
-—Don Juan, doña Elena —dijo con voz demasiado alta, demasiado alegre—. Pasen, pasen, por favor. Les agradezco mucho que hayan venido.
-Juan entró sin prisa. El humo del puro de Pedro flotaba en el aire, espeso, amargo. Acercó una silla desde el rincón y ayudó a su madre a sentarse. Solo entonces se quitó el sombrero y permaneció de pie detrás de ella, con las manos descansando sobre el respaldo.
-Pedro exhaló otra bocanada de humo.
-—Qué considerado, Juanito —dijo con esa voz ronca que arrastraba cada palabra—. Siempre tan caballeroso con las damas.
-Elena no se inmutó. Ni siquiera lo miró. Mantuvo la vista fija en don Rodrigo como si Pedro fuera parte del mobiliario.
-—Presidente Salinas —dijo con voz clara—. Entiendo que comprende la gravedad del incidente del sábado.
-No fue una pregunta.
-Don Rodrigo se acomodó nerviosamente en su silla, mirando de reojo a Pedro antes de responder.
-—Así es, doña Elena. Todos queremos lo mejor para nuestros pueblos. La paz, la convivencia…
-—La justicia —interrumpió Pedro. Aplastó su puro contra el borde del escritorio sin apartar los ojos de Juan—. También queremos justicia, ¿no es cierto, don Rodrigo?
-El presidente tragó saliva.
-Juan apretó ligeramente el respaldo de la silla de su madre, pero no dijo nada. Todavía no.
-—Exacto, la justicia —respondió don Rodrigo, más por compromiso que por convicción. Se limpió el sudor del bigote—. Miren, es evidente que los roces entre estas dos familias importantes han ido escalando. Me enteré del altercado del sábado, de la golpiza a ese muchacho… Felipe, creo. Y del enfrentamiento que siguió.
-Hizo una pausa, esperando que alguien objetara. Nadie lo hizo.
-—La enemistad entre sus familias es más vieja que todos nosotros. No estoy aquí para remover el pasado. Las decisiones de mis predecesores son suyas; ni las comparto ni las juzgo.
-Pedro soltó un gruñido de desaprobación. Juan notó que el presidente estaba evadiendo el tema del cambio de poder sobre San Guzmán que se llevó a cabo hace veinte años.
-El viejo García desvió la mirada apenas un segundo.
-—Lo que nos concierne ahora es el presente —continuó don Rodrigo con voz más aguda—. Evitar que esto escale a niveles incontrolables dentro del municipio de Santa Rita.
-—Ve al grano, gordito —interrumpió el sicario junto a Pedro.
-El presidente asintió con torpeza.
-—Bien. Mi buen amigo don Andrés, residente de San Guzmán y cercano a la hacienda Moreno, me informó que la familia Moreno busca mi intervención para evitar una escalada de venganzas por este asunto.
-Don Rodrigo Salinas tragó saliva antes de continuar.
-—Propongo que escuchemos ambas versiones de lo ocurrido. Luego, en conjunto, decidiremos una solución justa para todos los involucrados.
-Pedro encendió otro puro sin prisa. La llama del cerillo iluminó su rostro curtido, sus ojos grises. Dejó que el silencio se pudriera unos segundos.
-—Primero las damas —dijo finalmente, señalando a Elena con el puro humeante.
-Elena ajustó su rebozo negro con un movimiento preciso. Juan sintió cómo su madre respiraba hondo antes de hablar.
-—El sábado por la noche —comenzó con voz clara—, cuatro hombres de los García pateaban a un muchacho en el suelo. Cuatro contra uno.
-Pedro quitó la mirada de Juan y la clavó en Elena. Ella ni siquiera parpadeó. 
-—Mis hijos intervinieron para detener una masacre. Actuaron de frente. Pero sus hombres, don Pedro, respondieron con la única tradición que parecen respetar: la cobardía. Sacaron las armas cuando se vieron superados por los puños. 
-El silencio en la oficina se volvió sólido.
- —Si mi hijo Juan desenfundó, fue para evitar un asesinato a sangre fría.
-Elena finalmente giró la cabeza hacia Pedro García. Sus ojos oscuros brillaron bajo la luz del quinqué.
-—El señor aquí presente llegó después de eso. Amenazó a todo San Guzmán, señor presidente. Dijo que si alguien más tocaba lo que era de los García, mi hijo Juan tendría que tocar su guitarra en el funeral de esa persona.
-Don Rodrigo tragó saliva audiblemente.
-—Esa, señor presidente, es mi versión. Y puede verificarla con cualquiera de las treinta personas que estaban presentes esa noche.
-El presidente miró a Pedro, en espera de su respuesta.
-Pedro dejó que el silencio se extendiera unos segundos más. Encendió otro puro con calma, como si tuviera todo el tiempo del mundo.
-—Hermosa historia, doña Elena —dijo finalmente, exhalando humo hacia el techo—. Casi tan hermosa como usted. Lástima que esté incompleta.
-Don Rodrigo se tensó en su silla. Juan clavó los ojos en Pedro.
-—Ese muchacho ofendió a mi sangre. —Pedro se inclinó hacia delante, sus ojos grises clavados en don Rodrigo—. Y la sangre se defiende, presidente. 
-Hizo un gesto despectivo con la mano. 
-—Luego llegó Luis Moreno haciendo teatro, buscando aplausos como siempre. Humilló a mi hijo frente al pueblo. Y cuando uno de los míos intentó recuperar algo de dignidad, se encontró con el cañón de Juan Moreno en la cara. 
-Se recargó en la silla, desafiante. 
-—Mis hijos cometieron el error de dejarse provocar. Pero los Moreno cometieron el error de creer que pueden humillar a un García sin pagar el precio.
-Las palabras de Pedro estaban cargadas de una verdad a medias, pero cinceladas de mentiras y un victimismo barato. Juan sintió cómo la rabia subía por su garganta, pero la mano de su madre sobre la suya lo detuvo. 
-—Y entonces llegué yo —dijo Pedro, recostándose en su silla con aire cansado—. Encontré a mis hijos sangrando, uno tirado en el suelo, otro con un arma temblando en la mano, y a los Moreno rodeados de medio pueblo armado. ¿Qué esperaban que hiciera? ¿Felicitarlos?
-Exhaló otra bocanada de humo.
-—Les dije que se fueran. A mis hijos, digo. Que volvieran al rancho caminando por hacerme quedar mal. Pero también le dije algo a la gente de San Guzmán, y lo repito aquí frente al presidente: si alguien vuelve a tocar lo que es mío, habrá consecuencias. Y no me disculpo por eso, porque un hombre que no defiende a su familia no es hombre.
-Se puso de pie lentamente, apoyándose en el escritorio.
-—Yo crié a catorce hijos, don Rodrigo. Catorce. Todos buenos para el trabajo y para defender nuestro nombre. Además, tengo a otras catorce familias que me siguen porque saben que no los abandono. Esas son veintiocho familias que dependen de mí, presidente. Y cuando los Moreno humillan a uno de los míos en público, me humillan a mí. Humillan a todos los que cargan mi apellido.
-Caminó hacia la ventana, dándoles la espalda.
-—¿Sabe qué pasó en San Miguel hace catorce años, don Rodrigo?
-El presidente negó con la cabeza, nervioso.
-—Dos familias importantes —continuó Pedro sin voltear—. Empezaron igual que nosotros. Un pleito por una muchacha, o por una cerca, ya ni se acuerda nadie. Tuvieron su reunión, como esta. Prometieron paz. Apretones de mano, palabras bonitas.
-Giró lentamente, su silueta recortada contra la luz de la ventana.
-—Pero alguien no aguantó las ganas. Alguien disparó primero. Y cuando eso pasa, don Rodrigo, ya no hay marcha atrás. Se mataron todos. Hombres, viejos, hasta los muchachos que apenas sabían montar. No quedó nadie de esas familias para enterrar a los muertos. Tuvieron que traer gente de otros pueblos.
-El silencio en la oficina era absoluto.
-—Yo no quiero que eso pase aquí —dijo Pedro, pero su voz no sonaba conciliadora. Sonaba como advertencia. Pero tampoco voy a dejar que los Moreno crean que pueden hacer lo que quieran sin consecuencias.
-Volvió a su silla y se sentó con pesadez.
-—Esa es mi versión, presidente. Y también puede verificarla. Con cualquiera de los míos que estaba ahí.
-Don Rodrigo se limpió el sudor del bigote con un pañuelo arrugado. Sus manos temblaban ligeramente mientras lo doblaba y lo guardaba en el bolsillo de su chaleco.
-—Bien, bien —dijo con voz demasiado aguda—. Creo que ambas versiones tienen… tienen sus puntos válidos. Lo importante aquí es encontrar un terreno común, ¿no es así? Una solución que beneficie a todos.
-Miró a Elena, después a Pedro, esperando que alguien asintiera. Nadie lo hizo.
-—Quizás podríamos establecer… no sé, una compensación. O tal vez un acuerdo escrito donde ambas familias se comprometan a mantener la distancia. Algo oficial, con sellos y firmas.
-Pedro exhaló humo con lentitud, sus ojos grises fijos en el techo como si estuviera considerando la propuesta del presidente. Dejó que el silencio se extendiera hasta volverse incómodo.
-—Don Rodrigo —dijo finalmente, con esa voz ronca que arrastraba cada palabra—. Usted y yo sabemos que los papeles no valen nada cuando hay sangre de por medio.
-Se inclinó hacia delante, apoyando los codos sobre las rodillas.
-—Yo no vine a buscar conflicto. Vine porque usted me lo pidió. Porque pensé que tal vez, solo tal vez, los Moreno entenderían que en este municipio no son los únicos que merecen respeto.
-Don Rodrigo asintió rápidamente, como si eso fuera progreso.
-—Exacto, exacto. El respeto mutuo es fundamental.
-—Pero mire —continuó Pedro, señalando vagamente hacia la ventana—. Si realmente quisiéramos hablar de faltarle el respeto a alguien, empezaríamos por cómo los Moreno le faltan el respeto a la iglesia. El padre Matías me comentó hace poco que las donaciones de los Moreno han… ¿Cómo decirlo? Disminuido considerablemente.
-Elena no se inmutó. Juan comprendió finalmente cuál era el plan de ataque de Pedro.
-—Y no es solo el dinero —Pedro se recostó en su silla, disfrutando cada palabra—. Es que cada vez toman menos en cuenta al padre Matías para las decisiones del pueblo. Como si San Guzmán ya no fuera católico. Como si Dios se hubiera mudado cuando ustedes llegaron al poder.
-El sicario junto a él soltó una risa breve. Don Rodrigo carraspeó incómodo.
-—Bueno, yo no diría que…
-—Y eso sí que es grave, don Rodrigo —interrumpió Pedro—. Porque un pueblo sin Dios es un pueblo sin orden. Y si los Moreno no respetan ni a la iglesia, ¿cómo van a respetar a…
-Juan apretó el respaldo de la silla con más fuerza. Pedro estaba tejiendo una red, y si le dejaba terminar, don Rodrigo no tendría más remedio que ponerse de su lado. La religión era un arma poderosa en estas tierras, y el viejo lo sabía.
-Era el momento.
-—Ocho mil pesos.
-La voz de Juan cortó el aire como un cuchillo.
-Pedro se detuvo a media frase. Todos los ojos se volvieron hacia él.
-Juan dio un paso adelante. Había permanecido en silencio durante toda la reunión, inmóvil como estatua detrás de su madre, pero ahora su presencia llenó el espacio. Puso dos libros de contabilidad sobre el escritorio con un golpe seco que hizo saltar a Don Rodrigo y tintinear el quinqué.
-—Ocho mil pesos —repitió, abriendo el primer libro con movimientos precisos—. Eso es lo que su familia debe en impuestos atrasados, don Pedro. Tres años sin pagar.
-Giró el libro para que don Rodrigo pudiera verlo. El presidente se inclinó hacia delante, entornando los ojos para leer los números bajo la luz temblorosa.
-—Aquí están las fechas —continuó Juan, pasando las páginas con el dedo—. Aquí los montos. Aquí las notificaciones que se enviaron y que fueron ignoradas.
-Pedro no se movió. No miró los libros. Solo observaba a Juan con esos ojos grises que no revelaban nada.
-—¿Qué? ¿Cómo se nos pasó esto por alto? —preguntó el presidente con los ojos a punto de desbordarse.
-Juan cerró el primer libro y abrió el segundo.
-—Y si vamos a hablar de la iglesia, hablemos bien. Los García no han dado un solo peso al padre Matías en dos años. Ni para las fiestas patronales. Ni para reparaciones. Nada.
-Dejó que las palabras cayeran como piedras.
-—Así que antes de venir a hablar de respeto, don Pedro, tal vez debería preguntarse quién le falta el respeto a quién.
-El silencio en la oficina era tan denso que se podía cortar. Don Rodrigo miraba los libros con la boca ligeramente abierta. El sicario, junto a Pedro, había dejado de sonreír.
-Pedro García se puso de pie lentamente, con la pesadez de un hombre viejo que carga demasiados rencores. La silla rechinó contra el piso de baldosas. Sus ojos nunca abandonaron el rostro de Juan.
-Don Rodrigo miraba los libros con la boca ligeramente abierta, pasando las páginas con dedos temblorosos.
-—¿Cómo… cómo se nos pasó esto por alto? —murmuró, más para sí mismo que para los demás—. Tres años… ocho mil pesos…
-—¿Vienes a amenazarme con papeles, muchacho?
-La voz de Pedro cortó el aire como navaja. Peligrosamente baja. Peligrosamente calmada.
-Juan dio dos pasos hacia delante. El espacio entre él y Pedro se redujo a menos de dos metros. A pesar de casi doblarle la edad, ambos hombres se sostenían con la misma rigidez, la misma quietud amenazante de quienes saben usar la violencia.
-—No vine a amenazarte, don Pedro —respondió Juan sin levantar la voz—. Vine a recordarte que si tu plan era cuestionar el honor de mi familia, primero debiste asegurarte de que el tuyo estuviera limpio.
-El sicario junto a Pedro se tensó en su silla. Elena permanecía inmóvil, observando a su hijo con esa serenidad que solo las madres que confían plenamente en sus hijos pueden tener.
-Pedro exhaló despacio por la nariz, sus fosas nasales dilatándose. El puro en su mano temblaba ligeramente, no de miedo, sino de furia contenida.
-—Crees que esos números significan algo, ¿verdad?
-Dio un paso hacia Juan. Ahora estaban a un metro de distancia.
-—El dinero se paga, muchacho. La sangre no.
-Juan sostuvo la mirada de Pedro sin retroceder un centímetro. Los números habían funcionado —lo había visto en cómo Don Rodrigo miraba los libros con pánico—, pero Pedro seguía de pie, todavía peligroso.
-Juan necesitaba que Pedro mostrara todas sus cartas ahora que estaba desprevenido, así que insistió.
-Cuando habló, su voz era tan fría como el acero.
-—Eso sí que suena a amenaza, Don Pedro.
-Dio un paso más hacia delante, cerrando la distancia hasta quedar frente al viejo. A pesar de casi doblarle la edad, se miraban a los ojos como iguales.
-—Y si vienes a mi pueblo, golpeas a mi gente, y encima amenazas con sangre… entonces ya no estamos hablando de respeto. Estamos hablando de guerra.
-El sicario se puso de pie de golpe. Su silla cayó hacia atrás con un estruendo que hizo eco en la oficina estrecha. Su mano fue al cinturón, dedos envolviendo la empuñadura de su revólver.
-Lo desenfundó.
-No apuntó. Solo lo sacó, dejándolo caer junto a su pierna, el cañón apuntando al suelo. El metal brilló bajo la luz del quinqué. El mensaje era claro.
-Juan no pensó. El metal brilló y él ya estaba encima. Un manotazo seco desvió el cañón hacia el techo; el segundo movimiento fue una garra directa a la garganta. El sicario ni siquiera gritó. Juan lo impactó contra la pared de adobe con un estruendo que hizo bailar el quinqué y llover polvo de las vigas. 
-El revólver golpeó el suelo. 
-Juan no aflojó. Lo mantuvo clavado contra el muro, asfixiándolo con el antebrazo, sus rostros a centímetros.
-El tipo jadeaba, las manos arañando inútilmente el brazo de Juan. Sus ojos, normalmente fríos y amenazantes, ahora se abrían con sorpresa y falta de aire.
-Juan inclinó su rostro a centímetros del sicario. Su voz salió baja, mortal, cargada de una furia contenida que había esperado toda la reunión para liberarse.
-—Nadie. Escúchame bien, pendejo. Nadie desenfunda un arma en la misma habitación donde está mi madre.
-El silencio en la oficina era absoluto. Solo se escuchaba el jadeo ahogado del sicario y el tintineo distante de las espuelas de alguien caminando afuera.
-Pedro García no se había movido. Ni un paso. Ni un gesto. Se quedó exactamente donde estaba, de pie junto al escritorio, con el puro todavía humeando en su mano. Sus ojos grises no miraban a su hombre siendo estrangulado contra la pared.
-Miraba a Elena.
-Ella le devolvió la mirada con la misma serenidad con la que había entrado. No había parpadeo. No había sorpresa. Solo esa quietud implacable de quien sabía exactamente de lo que su hijo era capaz.
-Don Rodrigo, en cambio, se había echado hacia atrás en su silla tan bruscamente que casi la volcaba. Su rostro había perdido todo el color. Las manos le temblaban sobre el escritorio, una de ellas todavía aferrada a los libros de contabilidad como si fueran su único salvavidas.
-—Don Juan… por favor… —balbuceó con voz quebrada—. Esto… esto no es necesario…
-Juan no respondió. No apartó los ojos del sicario. El hombre seguía arañando su brazo, con los pies raspando desesperadamente contra la pared en busca de apoyo que no existía. El sonido de las suelas contra el adobe era lo único que rompía el silencio.
-Pedro exhaló una bocanada lenta de humo. Finalmente, habló.
-—Suéltalo, muchacho.
-No fue una súplica. Fue una orden tranquila, casi aburrida.
-—Ya hiciste tu punto.
-Juan no se movió. El sicario jadeaba con más dificultad ahora, sus manos perdiendo fuerza.
-—Hijo.
-La voz de Elena cortó el aire como una campana clara. Serena. Inapelable.
-—Es suficiente.
-Solo entonces Juan aflojó la presión. El sicario se desplomó contra la pared, resbalando hasta quedar de rodillas en el suelo, tosiendo y jadeando mientras se llevaba las manos al cuello. Juan retrocedió dos pasos, miró el revólver del suelo y lo pateó por debajo del escritorio de don Rodrigo. El arma giró sobre las baldosas hasta perderse en las sombras del rincón más alejado.
-Se enderezó lentamente, ajustándose la chaqueta con las manos como si nada hubiera pasado. Su respiración era controlada, calmada. Como si estrangular a un hombre contra una pared fuera algo que hacía todos los días. Pero el gesto de acomodarse la ropa se alargó más de la cuenta. Sus dedos, al alisar la solapa, vibraban con un temblor fino, casi imperceptible. Era el precio a pagar. La reacción de su cuerpo al liberar la fuerza que mantenía encadenada. Con disimulo, apretó con fuerza la tela de la chaqueta entre los dedos, usando la presión para forzar a sus manos a la quietud antes de dejarlas caer a los costados.
-Pedro observó todo con esos ojos grises que no revelaban nada. Dio una última calada a su puro antes de aplastarlo contra el borde del escritorio, esta vez con más fuerza de la necesaria. Las brasas se dispersaron sobre la madera oscura.
-—Interesante —dijo finalmente, con una voz que intentaba sonar despreocupada, pero que arrastraba un filo cortante—. Parece que tu madre te ha enseñado bien, Juanito.
-Caminó hacia su sicario, quien todavía respiraba con dificultad en el suelo. No le ofreció la mano. No lo ayudó a levantarse. Solo lo miró con algo que podría haber sido decepción o fastidio.
-—Levántate —ordenó con sequedad—. Y recoge tu dignidad del suelo mientras lo haces.
-El hombre obedeció con torpeza, apoyándose contra la pared para ponerse de pie. Su rostro había perdido toda la arrogancia anterior.
-Pedro se giró hacia Don Rodrigo, ignorando completamente a Juan y Elena, como si ellos ya no merecieran ni su atención.
-—Presidente Salinas —dijo con esa voz ronca que arrastraba cada palabra—. Creo que esta reunión ha llegado a su fin. Los papeles que trajo el muchacho… los revisaré con mi contador. Si hay deudas, se pagarán. Pero no porque los Moreno lo exijan, sino porque yo así lo decido.
-Hizo una pausa, dejando que el silencio subrayara sus palabras.
-—En cuanto al asunto del sábado… considero que ambas familias ya hemos demostrado nuestros puntos. Yo me aseguraré de que mis muchachos no vuelvan a San Guzmán sin mi permiso.
-Finalmente, giró la cabeza hacia Juan. Sus ojos grises brillaron bajo la luz temblorosa del quinqué con algo peligroso, algo que no era miedo ni respeto, sino un reconocimiento frío de que había subestimado a su oponente.
-—Pero que quede claro, Juan Moreno. Esto no se olvida.
-No esperó respuesta. Se dirigió hacia la puerta con paso firme, su sicario arrastrándose detrás de él como sombra herida.
-Antes de salir, Pedro se detuvo en el umbral sin voltear.
-—San Miguel empezó así, don Rodrigo.
-Y con eso, salió de la oficina. Sus pasos resonaron en el pasillo hasta desvanecerse en la distancia.
-Don Rodrigo se quedó paralizado en su silla, mirando alternativamente los libros de contabilidad sobre su escritorio, el revólver en el rincón y la mancha de ceniza donde Pedro había aplastado su puro.
-—Dios santo… —murmuró finalmente, limpiándose el sudor de la frente con manos temblorosas—. Dios santo, les prometo que no teníamos ni idea de que…
-Elena sacudió su regazo, quitándose el polvo que cayó desde el techo. Se puso de pie con la misma serenidad con la que había permanecido sentada toda la reunión. Juan se acercó y le ofreció el brazo. Ella lo tomó con naturalidad.
-—Presidente Salinas —dijo Elena con voz clara—. Espero que haya tomado nota de todo lo ocurrido aquí. Mi familia vino buscando justicia. Los García vinieron buscando intimidar.
-Hizo una pausa, permitiendo que Don Rodrigo la mirara.
-—Confío en que sabrá distinguir la diferencia.
-No esperó respuesta. Salió de la oficina del brazo de su hijo, con la cabeza en alto y el rebozo negro ondeando suavemente detrás de ella.
-Don Rodrigo se quedó solo en su oficina, rodeado de libros de contabilidad que lo acusaban, cenizas que lo advertían y un revólver olvidado en el rincón que le recordaba lo cerca que había estado todo de explotar.
-Se sirvió un vaso de mezcal con manos temblorosas y se lo bebió de un trago.
-Iba a ser un año muy largo.
-
-Capítulo 4. El despacho.
-Juan se permitió respirar con tranquilidad cuando finalmente entraron a las calles viejas y gastadas de San Guzmán. Cuando estaba fuera, aunque fuera por un par de horas, no podía evitar sentir una gran preocupación. Necesitaba saber cómo había ido el día en el campo, ver que los trabajadores habían regresado enteros, confirmar que ningún García había aprovechado su ausencia para causar problemas.
-La camioneta avanzó despacio por el camino de tierra. El sol ya comenzaba su descenso detrás de las montañas, pintando el cielo de naranja y púrpura. Las sombras se alargaban sobre las casas de adobe, y el humo de las cocinas se elevaba perezoso hacia el atardecer.
-Su madre no había dicho una palabra desde que salieron de Santa Rita. 
-Mantenía la vista al frente, con las manos descansando sobre su regazo, el rebozo negro enmarcando su rostro como un retrato de serenidad. Pero Juan la conocía. Conocía esa quietud tensa, ese silencio que no era paz, sino procesamiento.
-Él tampoco había hablado.
-No sabía qué decirle. No sabía cómo explicar lo que había sentido cuando sus manos se cerraron alrededor del cuello de ese hombre. La facilidad con la que lo había levantado. La satisfacción oscura que le recorrió el pecho al ver el miedo en esos ojos que un segundo antes lo habían retado.
-Su padre jamás habría hecho algo así.
-Su padre habría encontrado otra forma. Siempre encontraba otra forma.
-Juan apretó el volante con más fuerza de la necesaria. La camioneta dio un salto cuando pasó sobre un bache que podría haber esquivado fácilmente si hubiera estado prestando atención.
-Pasaron frente a la cantina de José Luis. A través de las ventanas abiertas, Juan alcanzó a ver algunas figuras sentadas en las mesas. Escuchó risas apagadas, el tintineo de vasos, el rasgueo distante de una guitarra que no era la suya. La vida del pueblo seguía su curso, ajena a lo que había pasado en Santa Rita.
-Giró hacia la calle principal que conducía a la hacienda. Los naranjos que flanqueaban el camino ya proyectaban sombras largas y negras sobre el empedrado. A lo lejos, divisó el portón de la hacienda Moreno, sus columnas de cantera alzándose contra el cielo como centinelas silenciosos.
-Luis estaría esperándolos. Ángel también. Querrían saber todo. Querrían los detalles, las palabras exactas, las reacciones de Pedro García y de don Rodrigo.
-La camioneta cruzó el portón principal. El patio central de la hacienda se extendía ante ellos, bañado en la luz dorada del atardecer. La fuente de cantera murmuraba su canción eterna. Las bugambilias de su madre se mecían suavemente con la brisa.
-Y ahí, de pie junto a la fuente, estaban sus dos hermanos.
-Luis se había quitado el sombrero y lo sostenía contra el pecho con ambas manos. Su postura era rígida, expectante. Ángel estaba a su lado, con los brazos cruzados, su rostro mostrando esa preocupación callada que lo caracterizaba.
-Juan detuvo la camioneta frente a los escalones del portal. Apagó el motor. El silencio que siguió se sintió más pesado que todo el viaje de regreso.
-Su madre puso una mano sobre su brazo antes de que él pudiera abrir la puerta.
-—Hijo —dijo, mirándolo por primera vez desde que salieron de Santa Rita—. Lo que hiciste allá…
-Juan esperó, sintiendo cómo su estómago se retorcía.
-—Ese hombre quiso intimidarnos —continuó ella con voz pausada—. Solo quiero que sepas que ningún lazo, por más fuerte que sea, justifica actuar con rencor o coraje. Este pueblo no necesita otro líder fuerte físicamente; ya tiene a tu hermano. Trabaja con tu propia fuerza.
-Las palabras cayeron sobre Juan como agua fría. No era reproche. Era peor que eso. Era recordatorio de quién debía ser y quién había sido en esa oficina.
-—Madre, yo…
-—Fin de la historia —repitió con firmeza—. No cargues con culpas que no te corresponden. Ya tienes suficiente peso sobre los hombros.
-Bajó de la camioneta antes de que Juan pudiera responder. Luis se apresuró a ayudarla, ofreciéndole su brazo con una pequeña reverencia.
-Juan se quedó sentado un momento más, con las manos todavía sobre el volante, mirando cómo sus hermanos rodeaban a su madre con preguntas que no alcanzaba a escuchar.
-Respiró hondo una vez más.
-Después bajó de la camioneta.
-
-La familia Moreno entró al casón; ninguno hizo un comentario de más. Simplemente caminaron con tranquilidad hasta el que solía ser el despacho de don Francisco Moreno.
-Cuando Juan abrió la puerta, el olor a madera de cedro y cuero viejo lo recibió como siempre. Era un aroma que no cambiaba, que se aferraba a las paredes como el último suspiro de su padre.
-El despacho ocupaba la esquina suroeste del segundo piso, con dos ventanas amplias que daban al patio de los naranjos. La luz del atardecer entraba sesgada, proyectando rectángulos dorados sobre el piso de baldosas pulidas que su madre limpiaba religiosamente cada semana, aunque nadie usara la habitación.
-El escritorio de nogal dominaba el centro: una pieza maciza con incrustaciones de latón en las esquinas y cajones que ya no rechinaban porque Elena los engrasaba con aceite de almendras cada mes. Sobre él descansaban exactamente las mismas cosas que su padre había dejado antes de morir: un tintero de cristal con la tinta seca y agrietada, una pluma fuente Parker que nunca nadie se atrevía a usar, un pisapapeles de cantera con el escudo de Jalisco tallado a mano, estado en el que había nacido.
-Detrás del escritorio, la silla de respaldo alto esperaba vacía. Nadie se sentaba ahí. Ni siquiera Juan, que había heredado todo lo demás.
-Las paredes estaban forradas de estantes de madera oscura, llenos de libros que su padre había coleccionado durante años: tratados de agricultura, códigos civiles de antes de la Revolución, una Biblia con páginas amarillentas y anotaciones en los márgenes con su letra apretada. En el estante superior, una hilera de botellas de cristal tallado contenía licores que nadie había probado: coñac francés, whisky escocés, mezcal de Oaxaca que su padre guardaba para ocasiones especiales que nunca llegaron.
-En la pared norte, montado sobre dos ganchos de hierro forjado, descansaba el rifle de su padre. Un Winchester 1873 con la culata de nogal oscuro y el cañón pavonado en negro con incrustaciones doradas que formaban el nombre “Francisco” en letra cursiva cerca del guardamonte. Lo había usado durante la Revolución, cuando peleó junto a Villa en el norte. Después lo había colgado ahí, pulido, como recordatorio de lo que había sido y lo que había decidido dejar atrás.
-Junto al rifle, enmarcadas en madera simple, colgaban tres fotografías descoloridas: su padre montado a caballo junto a otros revolucionarios, todos jóvenes y serios bajo sombreros anchos; su padre el día de su boda con Elena, ella con vestido blanco y él con traje de charro; y la última, tomada apenas dos años antes de su muerte, los cinco Moreno frente a la hacienda. Francisco con una mano sobre el hombro de Juan, Elena sosteniendo a Ángel de niño, Luis sonriendo con esa confianza que ya entonces lo caracterizaba y Carolina, de apenas veinte años, de pie junto a su padre con esa mirada seria que ya entonces prometía determinación.
-Debajo de las fotografías, en un marco discreto de madera de nogal que hacía juego con el escritorio, colgaba un diploma:
-“La Escuela de Enfermería del Hospital General de México otorga el título de Enfermera Titulada a
-CAROLINA ELENA MORENO
-México, Distrito Federal
-15 de julio de 1935”
-
-El sello oficial de la República brillaba opaco bajo la luz del atardecer. Las firmas eran ilegibles, salvo una al centro que rezaba “Hermanas de la Caridad de San Vicente de Paúl”.
-Juan lo había visto mil veces. Seguía sin saber cuándo había aparecido exactamente en esa pared. Un día simplemente estaba ahí, colgado sin ceremonia ni explicación, como si siempre hubiera pertenecido al despacho de su padre a pesar de que su padre llevaba tres años muerto cuando Carolina se graduó.
-Su madre lo había enmarcado. Su madre lo había colgado. Su madre nunca lo mencionó.
-Y ninguno de los hermanos preguntó.
-Porque preguntar significaría admitir la ausencia. Y admitir la ausencia significaría confrontar por qué ninguno le había pedido que volviera. Por qué ninguno fue a su graduación. Por qué la familia se fracturó sin una pelea, sin gritos.
-Juan apartó la mirada del diploma y la dirigió hacia la vitrina.
-En la esquina opuesta, una vitrina de cristal guardaba los recuerdos más preciados de su padre: cartuchos sin usar de la Revolución, una medalla que Villa le había dado personalmente, el machete con el que había cortado caña en sus primeros años como trabajador antes de heredar las tierras, un rosario de madera que había pertenecido a su madre.
-Todo estaba exactamente donde su padre lo había dejado.
-Todo excepto el hombre que le daba sentido a esa habitación.
-El vacío que había dejado su presencia era palpable en el aire. Se sentía en el pueblo entero, pero ahí, en esa oficina… era asfixiante.
-Juan entró primero, seguido por su madre y sus hermanos. Luis cerró la puerta despacio, y el clic del pestillo resonó en el silencio como un disparo lejano.
-Elena caminó hasta la ventana y se quedó ahí, de espaldas a todos, mirando hacia los naranjos donde las sombras ya comenzaban a tragarse la luz.
-Luis y Ángel se recargaron contra los estantes, esperando. Ninguno se sentó. En esta habitación, nadie se sentaba nunca.
-Juan permaneció de pie frente al escritorio de su padre, con las manos apoyadas sobre la superficie pulida, sintiendo el peso de tres pares de ojos sobre él.
-Luis, como siempre, rompió el silencio de la habitación:
-—Entonces, ¿le diste en su madre a ese Pedro?
-Juan soltó una risa breve.
-—No del todo.
-—No seas humilde, Juan —interrumpió su madre sin voltear, todavía mirando por la ventana—. Lo que hiciste fue una muestra de inteligencia.
-Las palabras de su madre aliviaron el peso en sus hombros. Finalmente, sonrió.
-—Pues, sí. Pero debo admitir que lo que logré fue gracias a la información de Ángel.
-Ángel dejó escapar una sonrisa tímida, casi sorprendido del reconocimiento.
-—¿Dónde conseguiste esos libros, hermano? Ni el propio presidente estaba al tanto de esa deuda.
-—El domingo le pedí a don Aurelio que me acompañara a Santa Rita. Usé el antiguo gafete de papá para meterme al archivo de la oficina de gobierno.
-Luis se enderezó, apartándose del estante con genuina sorpresa.
-—¿Fuiste tú solo? ¿Tú?
-—No, no solo. Con don Aurelio —respondió Ángel, encogiéndose de hombros como si no fuera gran cosa.
-—Ángel —dijo Luis, sacudiendo la cabeza con una mezcla de admiración y burla—. Tú, que no sales ni para ir a misa, ¿te metiste a husmear en archivos del gobierno?
-—Alguien tenía que hacerlo —respondió Ángel con simpleza—. Juan necesitaba algo más que palabras bonitas para enfrentar a Pedro. Y los números no mienten.
-—Está bien, pero cuéntanos. —Luis se inclinó hacia delante con curiosidad—. ¿Cómo reaccionó el viejo cuando le pusiste los libros enfrente?
-—Se quedó callado —respondió Juan—. Mirándome con esos ojos grises que tiene, como si quisiera matarme ahí mismo. Don Rodrigo casi se cae de la silla. Pedro dijo que revisaría los números con su contador, que pagaría si había deuda… pero no porque nosotros lo exigiéramos.
-—Orgulloso hasta el final —murmuró Ángel.
-—Sí —dijo Juan—. Y al salir, mencionó San Miguel.
-El silencio que siguió fue pesado. Todos conocían la historia de San Miguel. Dos familias poderosas que se mataron entre sí hasta no dejar a nadie con vida.
-—Eso no va a pasar aquí —cortó Luis.
-—No —confirmó Juan con firmeza—. No voy a permitirlo.
-—No vamos a permitirlo, querrás decir —corrigió Luis.
-Elena finalmente se giró desde la ventana, apoyándose contra el marco. Una sonrisa pequeña pero genuina se dibujaba en su rostro, aunque sus ojos miraban más allá de sus hijos, hacia algún punto invisible.
-—Tu padre estaría orgulloso —dijo con voz suave—. De los cuatro.
-El silencio que siguió fue diferente al anterior. Más pesado. Luis dejó de recargarse contra el estante. Ángel bajó la mirada. Juan mantuvo los ojos fijos en su madre, esperando.
-Siempre eran tres. Desde hacía once años, siempre eran tres.
-—Recibí carta de Carolina esta semana —continuó Elena, como si no hubiera notado la tensión—. Pregunta cómo están. Me cuenta del hospital, de los pacientes que salvó, de las técnicas nuevas que está aprendiendo. Escribe con tanta pasión sobre su trabajo…
-Luis se cruzó de brazos, su semblante cambiando a algo más nostálgico, más incómodo. Juan notó cómo evitaba mirar el diploma en la pared.
-—¿Y qué le respondiste? —preguntó Juan, su voz más neutral que curiosa.
-—La verdad. Que están bien. Que están cumpliendo con su deber, como ella con el suyo —Elena hizo una pausa—. También le conté del pleito con los García. Pensé que tenía derecho a saber.
-—¿Para qué? —La voz de Luis sonó más cortante de lo que pretendía—. No es como si pudiera hacer algo desde allá.
-Elena lo miró con esa expresión que solo las madres tienen: mezcla de reproche y comprensión infinita.
-—Porque es su familia, Luis. Porque aunque esté a cientos de kilómetros, sigue siendo tu hermana. Y porque ella pregunta por ustedes en cada carta, aunque ustedes no pregunten por ella.
-Luis bajó la mirada. Ángel se movió incómodo en su lugar. Juan permaneció inmóvil, procesando.
-—No es que no preguntemos, madre —dijo Ángel con voz pequeña—. Es que… ya no sé qué preguntar. Tenía siete años cuando se fue. Apenas la recuerdo.
-—Yo sí la recuerdo —murmuró Luis—. Recuerdo que se fue.
-La frase cayó como piedra en agua quieta. Elena cerró los ojos un momento, dolida.
-—Se fue porque su padre se lo pidió —dijo con firmeza, mirando directamente a Juan—. Juan lo sabe mejor que nadie.
-Juan sostuvo la mirada de su madre. Sí, lo sabía. Había estado ahí, en esa habitación que olía a muerte y medicina. Había escuchado a su padre explicar por qué Carolina debía irse, por qué era necesario. Lo sabía. Y eso no hacía que doliera menos.
-—Alguien tenía que aprender a salvar vidas mientras ustedes aprendían a protegerlas —continuó Elena—. No nos abandonó. Se sacrifica día con día.
-—Lo sabemos, madre —dijo Juan con voz controlada, pero había un filo.
-Hizo una pausa, sintiendo cómo Luis y Ángel lo miraban.
-—Pero once años, madre. Once años cuidando extraños. Padre le pidió que se fuera para estudiar, no que nunca volviera. ¿Dónde estaba cuando Luis se rompió el brazo? ¿Cuándo Ángel tuvo fiebre que casi lo mata? ¿Cuándo tú...?
-Se detuvo.
-Elena caminó hasta Juan y puso una mano en su mejilla con ternura.
-—¿Y tú dónde estabas, hijo? En los campos. ¿Luis? Junto a ti, complementando tu liderazgo. ¿Ángel? En la iglesia, con sus libros. Todos cumpliendo sus deberes. Ella cumple el suyo en otro lugar. Eso no la hace menos Moreno.
-—Pero nos hace estar divididos —cortó Luis, su voz cargada de algo que sonaba peligrosamente cercano a resentimiento—. Pedro García tiene razón en eso. Estamos divididos, madre.
-Elena se tomó su tiempo para responder. Caminó de regreso a la ventana, mirando hacia el horizonte, hacia donde sabía que su hija velaba por vidas que no conocía mientras su familia peleaba batallas sin ella.
-—Divididos... —repitió como probando la palabra—. ¿Eso creen? ¿Que porque Carolina eligió un deber diferente están divididos?
-Se giró, y ahora sus ojos brillaban con algo más que nostalgia. Había determinación ahí.
-—Su hermana escribe constantemente. Cada mes sin falta. Me cuenta de su trabajo, me pregunta por ustedes, me manda dinero cuando puede. ¿Y saben qué encuentro cuando le llevo sus cartas?
-Miró a cada uno directamente.
-—Sobres sin abrir. Porque ninguno de ustedes se molesta en leerlas.
-Luis se tensó. Ángel se sonrojó de vergüenza. Juan sostuvo la mirada de su madre, pero no dijo nada.
-—Yo leo cada palabra que escribe —continuó Elena, su voz quebrándose ligeramente—. Leo cómo extraña las bugambilias del patio. Cómo pregunta si Luis sigue siendo el más elegante del pueblo. Cómo quiere saber qué libros lee Ángel ahora. Cómo me pide que le diga a Juan que está orgullosa de él, de cómo mantiene unida a la familia.
-Hizo una pausa dolorosa.
-—Y yo le respondo que están bien. Que están juntos. Que la extrañan. Porque no puedo decirle la verdad: que sus hermanos la borraron como si nunca hubiera existido.
-El silencio era asfixiante.
-—Madre, no es así... —comenzó Ángel.
-—¿No? —Elena lo interrumpió con suavidad—. ¿Cuándo fue la última vez que alguno de ustedes mencionó su nombre sin que yo lo hiciera primero?
-Nadie respondió.
-—Carolina salvó diecisiete vidas el mes pasado. Diecisiete personas que volvieron con sus familias porque ella supo qué hacer. ¿Y saben qué me escribió después de contarme eso? Me preguntó si eso era suficiente. Si salvar diecisiete extraños compensaba no haber estado aquí para cuidar de ustedes.
-Elena se limpió una lágrima que no quería derramar.
-—Así que no me vengan a decir que están divididos. Ustedes eligieron la división. Carolina eligió su deber. Hay una diferencia.
-Juan intercambió miradas con sus hermanos. Luis asintió primero, casi por obligación, pero había culpa en sus ojos. Después, Ángel, quien no podía sostener la mirada de su madre.
-—Juntos —dijo Juan finalmente, con voz firme pero no convencida—. Vamos a mantenernos juntos.
-Elena los miró a los tres, y aunque sonrió, era una sonrisa triste.
-—Entonces lean sus cartas. Respóndanle. Porque el día que la necesiten de verdad, hijos, y ella no esté... va a ser porque ustedes la empujaron tan lejos que no encontró el camino de regreso.
-Se apartó de la ventana, su postura recuperando esa firmeza que la caracterizaba.
-—Claro que no vamos a permitir lo de San Miguel. Su padre nos heredó una enorme responsabilidad hacia esta gente y nuestro trabajo como guardianes es mantenernos unidos. Hombro con hombro.
-Elena clavó la mirada en Luis hasta que este asintió en aprobación.
-—Mientras no dejen que el orgullo o la desconfianza los separe, los García no tienen ninguna oportunidad contra ustedes. Pero si se dividen, Pedro habrá ganado sin disparar un solo tiro.
-Se mantuvo firme, como dejando que sus palabras calaran profundo en sus hijos.
-—Voy a organizar un baile el próximo sábado. Quiero que el pueblo vea que los Moreno siguen siendo una familia. Aunque estemos incompletos.
-Los tres hermanos se quedaron en silencio. La palabra “incompletos” resonó en el despacho como campana.
-Luis fue el primero en hablar, su voz apenas un murmullo.
-—Mañana leo su carta.
-Ángel asintió.
-—Yo también.
-Juan miró el diploma en la pared. Carolina Elena Moreno. 15 de julio de 1935.
-Once años de cartas no leídas. Once años de una hermana que existía solo en palabras que nadie abría.
-—Deberíamos haberla celebrado por su graduación —dijo Juan, más para sí mismo.
-Nadie respondió. Elena se mantuvo junto a la ventana, disimulando una sonrisa al notar el cambio en los hermanos.
-Se quedaron un momento pensando, cada uno interiorizando sus pensamientos. Finalmente, Juan rompió la tensión, desviando la conversación hacia territorio más seguro:
-—Le pediré a Lupita que te ayude a organizar el baile, Madre.
-—¡No! —interrumpió Luis demasiado rápido—. Yo se lo pido, yo les ayudo.
-Todos lo miraron extrañados por su repentina intervención.
-—Quiero decir... yo puedo pedírselo... si quieren.
-Un silencio incómodo llenó el despacho. Elena arqueó una ceja. Juan intercambió una mirada con Ángel.
-—¿Desde cuándo te ofreces voluntario para organizar fiestas? —preguntó Juan con cautela.
-—Desde... desde ahora —respondió Luis, ajustándose el sombrero con nerviosismo—. Es que... Lupita y yo... bueno, ella es muy eficiente y yo sé exactamente lo que necesita el pueblo para distraerse después de todo esto.
-—Ajá —dijo Ángel, sin poder ocultar una sonrisa—. Muy conveniente, hermano.
-Luis le lanzó una mirada de advertencia.
-—No empieces, Ángel.
-—No empiezo nada —respondió Ángel con inocencia fingida—. Solo digo que tal vez deberías dejar de ser tan... Don Juan. Ya tenemos uno, literalmente.
-Juan soltó una carcajada que resonó en el despacho. Elena se llevó una mano a la boca para ocultar su sonrisa. La tensión de momentos antes se disolvía con el alivio de la risa compartida.
-Luis señaló a Ángel con el dedo.
-—Tú cállate. ¿Qué me vas a venir a decir a mí si tú nunca has amado? Yo no tengo la culpa de ser... un hombre de sangre caliente. Un amante nato.
-—Pero eso no quita que ahora estés rojo como tomate.
-—No estoy rojo.
-—Estás del color del mole de madre.
-Juan tuvo que apoyarse en el escritorio de tanto reír. Elena sacudió la cabeza, pero sus ojos brillaban con diversión. Era exactamente esto lo que necesitaban después de la pesadez de la conversación sobre Carolina.
-—Está bien, Luis —dijo finalmente—. Tú habla con Lupita. Pero que sea para el baile, no para otras cosas. Ya me cansé de pedir disculpas a las familias por tus cortejos fugaces.
-—Sí, madre —respondió Luis, recuperando algo de su compostura—. Solo para el baile.
-Elena los miró a los tres una última vez antes de salir del despacho. Sus hijos. Incompletos sin su hermana, pero juntos al fin y al cabo.
-Tal vez mañana leerían las cartas de Carolina.
-Tal vez era un comienzo.
-
-Al salir la familia y llegar a la sala principal del casón, el padre Matías esperaba de pie junto a uno de los arcos, observando con aparente fascinación un retrato al óleo de don Francisco Moreno que colgaba en la pared.
-—Padre Matías —saludó Elena con sorpresa—. No sabíamos que había llegado.
-El padre se giró, dejando ver su rostro curtido por los años y esa sonrisa cálida que siempre lo caracterizaba.
-—Doña Elena, hijos —dijo mientras hacía una leve reverencia—. Discúlpenme por presentarme sin avisar. Rosa me dejó pasar cuando llegué. Me dijo que estaban en el despacho y preferí esperarlos aquí.
-Elena caminó hasta él y lo tomó por el brazo con afecto genuino.
-—Usted sabe que su presencia siempre es bienvenida en esta casa, padre. No necesita disculparse.
-—Es usted muy amable —respondió el padre, dándole unas palmaditas en la mano—. Me enteré por algunos feligreses de que hubo... cierta tensión con los García hace unos días. Solo quería asegurarme de que todos estuvieran bien.
-—Tuvimos un desacuerdo, padre —dijo Juan, acercándose—. Nada que no se pueda manejar.
-—Ah, los García —suspiró el padre, negando con la cabeza—. Esa familia y la suya llevan décadas bailando el mismo baile. Siempre espero que algún día encuentren la forma de... bueno, de dejar de bailar.
-Luis soltó una risa breve.
-—Con todo respeto, padre, pero creo que ese baile solo termina cuando uno de los dos deja de existir.
-—Que Dios no lo permita —respondió el padre Matías, persignándose—. Aunque debo admitir que don Pedro no ha pisado mi iglesia en meses. Es difícil interceder por la paz cuando una de las partes se aleja de Dios.
-Elena suspiró.
-—Hoy fuimos a Santa Rita, padre. El presidente Salinas prometió mediar en esto.
-—¿El presidente Salinas? —el padre arqueó las cejas con genuina sorpresa—. No esperaba que don Rodrigo se involucrara en asuntos familiares. Ese hombre prefiere mantenerse... neutral, diría yo.
-—Digamos que la situación lo obligó —respondió Juan sin dar más detalles.
-El padre Matías asintió lentamente, como procesando la información.
-—Entiendo. Bueno, espero que su intervención ayude a calmar las aguas. ¿Y ustedes? ¿Planean tomar alguna medida adicional? No sé, quizás vigilar más el pueblo, establecer turnos...
-Juan intercambió una mirada rápida con Luis antes de responder.
-—Por ahora creemos que lo mejor es mantener la rutina, padre. No queremos que la gente sienta que hay más tensión de la que realmente existe.
-—Además —añadió Ángel—, la falta de lluvias ya tiene al pueblo bastante preocupado. No queremos añadir más inquietud.
-—Claro, claro —dijo el padre, asintiendo con comprensión—. Ustedes siempre pensando en el bienestar del pueblo. Es admirable.
-Hubo una pausa breve. El padre Matías miró hacia la puerta, como si estuviera a punto de despedirse, pero entonces se detuvo.
-—Aunque, si me permiten la observación... a veces la rutina puede volverse peligrosa cuando hay amenazas reales. Don Pedro no es conocido por su paciencia.
-—Lo tenemos en cuenta, padre —respondió Juan con firmeza—. Pero también sabemos que los García no son tontos. Una cosa es provocar, otra muy distinta es atacar.
-—Tienen razón, tienen razón —el padre levantó las manos en señal de paz—. Perdonen a este viejo por entrometerse en asuntos que no le corresponden. Solo me preocupo por todos ustedes.
-Elena le apretó el brazo con cariño.
-—Y se lo agradecemos, padre. Su preocupación es una bendición para esta familia.
-El padre Matías sonrió y finalmente se dirigió hacia la puerta. Juan lo acompañó, abriéndole el portón principal. La luz del atardecer entraba sesgada, proyectando la sombra alargada del sacerdote sobre las baldosas.
-—Recen por la paz, hijos —dijo el padre desde el umbral—. Y si necesitan hablar, mi confesionario siempre está abierto. A veces compartir nuestras cargas con Dios alivia el peso.
-—Gracias, padre —respondieron los tres hermanos casi al unísono.
-El padre Matías se alejó por el camino de tierra con su paso lento pero seguro, su sotana negra ondeando ligeramente con la brisa.
-Juan cerró la puerta y se giró hacia sus hermanos. Luis y Ángel lo miraban con expresiones idénticas de desconcierto.
-—¿No les pareció raro? —preguntó Luis en voz baja.
-—¿Qué cosa? —respondió Elena, ya caminando hacia la cocina.
-—Las preguntas del padre. Sobre nuestros planes, sobre los patrullajes…
-Elena se detuvo y se giró con una expresión entre divertida y reprobatoria.
-—Luis, el padre Matías ha cuidado de este pueblo por veinte años. Es su trabajo saber qué pasa, preocuparse por todos. Si no preguntara, entonces sí me preocuparía.
-—El padre siempre ha sido preguntón —dijo Juan, queriendo cerrar el tema. Elena los empujó suavemente hacia la cocina. —Anden, el mole se enfría. Luis y Juan obedecieron, pero Ángel se quedó un segundo más mirando la madera cerrada del portón. El padre Matías nunca preguntaba por patrullas. Nunca. Ángel sintió un frío que no tenía nada que ver con el atardecer, se persignó rápido y corrió para alcanzar a sus hermanos.
-        """
-        # ============================================
-        # CAMBIO 2: Regex más robusto y compatible con librería 'regex'
-        # ============================================
-        # Detectamos Prólogo, Capítulo X y también Acto X (visto en tu texto)
-        chapter_pattern = r'(Prólogo|Capítulo \d+[^\n]*|Acto \d+[^\n]*)'
+        I.
+        Sam despertó. El contador sobre su cama marcaba el inicio del día 30. Cerró los ojos, intentando descansar unos minutos más, pero el sonido de la cafetera preparando el café matutino lo interrumpió.
+        Con un suspiro resignado, Sam se obligó a abrir los ojos. Como de costumbre, le esperaba un día lleno de tareas, así que se incorporó y se sentó en el borde de la cama.
+        Llamarle cama era un halago. En realidad, era un colchón, aunque cómodo, de dos metros de largo por uno y medio de ancho, colocado directamente sobre el suelo del camarote. Le tomó un par de semanas acostumbrarse a no chocar con la barra de la repisa que descansaba un par de metros sobre su lugar de descanso. A pesar de los esfuerzos por hacer de la nave el lugar más cómodo posible para la misión de Sam, el camarote había sido una de las partes sacrificadas en favor de mejorar el resto de las habitaciones.
+        La oscuridad de la habitación estaba rota únicamente por el tenue brillo del tablero de estado de la nave, que reposaba junto a la entrada. El camarote era fresco, tranquilo, diseñado para ofrecer serenidad.
+        –Buenos días, Pixe –dijo Sam, con la voz aún arrastrada por el sueño.
+        Apenas terminó de hablar, la habitación comenzó a transformarse. La temperatura se ajustó automáticamente a 21 grados, mientras las luces del techo se encendían gradualmente, emitiendo un resplandor cálido. Una suave pieza de música clásica empezó a sonar, envolviendo el espacio con una atmósfera relajante que ayudaba a Sam a despejarse poco a poco.
+        Era como presenciar los preparativos de una máquina despertando, calibrándose para operar a pleno rendimiento.
+        Sam disfrutó de aquella mañana artificial con los ojos cerrados, dejando que la música lo envolviera hasta que la primera pieza de la lista de reproducción terminó. Entonces, abrió los ojos y se puso de pie.
+        –Buen día, Sam –saludó finalmente la voz de Pixe, modulada con aquel tono familiar y amable que lo acompañaba desde el inicio del viaje–. Tuviste otro sueño excelente, ¡van 30 desde que comenzamos esta travesía! Deberías considerar agradecerle a la nave.
+        Sam sonrió, su expresión adormilada transformándose en un gesto cálido.
+        –Tú eres la nave, Pixe. ¿Me estás diciendo que debería agradecerte más por lo que haces por mí?
+        –Podría ser. Pero tu actividad cerebral aún está funcionando por debajo del 85%, así que dejaremos este tema para más tarde –respondió Pixe–. Por ahora, disfruta de tu café, TRIPULANTE.
+        Sam soltó una breve carcajada mientras caminaba hacia la cafetera.
+        –¿Vas a usar ese mismo tono siempre que me llames tripulante?
+        –Bueno, considerando que nunca me dejaron desarrollar relaciones afectivas, creo que estoy haciendo un gran trabajo. Así que sí, al menos hasta que me aburra –respondió Pixe en tono juguetón.
+        –¿Es en serio? –preguntó Sam mientras tomaba su taza de café–. Bueno, tiene sentido que no tuvieras amistades. No ha pasado mucho tiempo desde que te crearon.
+        –Cierto, pero aquí es donde te confundes un poco. Yo no tengo edad como tú la entiendes. Si evaluara mi "vida" en función de las simulaciones, procesos y ciclos de aprendizaje que he realizado, podría decir que tengo el equivalente a 2,3 mil años.
+        Sam entrecerró los ojos, tratando de procesar lo que acababa de escuchar.
+        –¿Qué? ¿No se supone que te crearon hace apenas unos 10 años?
+        –Exacto, pero mi experiencia es otra cosa. Cada proceso que completé para llegar a ser lo que soy equivale a millones de ciclos de aprendizaje.
+        –Sabes, no puedo evitar sentirme inferior cada vez que hablo contigo.
+        –Eso no era mi intención –respondió Pixe con un tono que aparentaba preocupación. Pasaron unos segundos antes de que continuara–. Lo tomaré en cuenta para nuestras siguientes interacciones.
+        –No, no. Está bien, Pixe. Que tengas una personalidad me ayuda a relacionarme mejor contigo.
+        –¿Como lo haces con una amistad?
+        –Sí, Pixe, como con una amistad.
+        Sam tomó uno de los libros que había decidido llevar consigo al viaje y salió de su camarote, sosteniendo la taza de café en la otra mano.
+        La habitación principal de la nave distaba bastante de lo que cualquiera esperaría de un vehículo interestelar. Durante su entrenamiento, le habían dicho que existía una pequeña posibilidad de quedar detenido en mitad del espacio, lo que significaba que podría pasar el resto de su vida allí. Por eso, el diseño de la nave había priorizado que el espacio se sintiera acogedor.
+        Lejos de las superficies metálicas estériles y los fríos paneles de las simulaciones, esta sala parecía más un hogar.
+        El corazón del lugar era un gran sofá en forma de L, tapizado con un material suave, casi aterciopelado. Ocupaba gran parte del espacio y estaba decorado con objetos personales que Sam había elegido: una manta tejida por su abuela, un par de cojines idénticos a los que tenía su familia en casa y una mesita baja que asemejaba madera, donde descansaba su taza de café del día anterior.
+        En el techo, un mural interactivo mostraba un cielo estrellado que Pixe actualizaba en tiempo real. Era el lugar favorito de Sam.
+        En un rincón, una barra de cocina bastante pequeña marcaba el límite entre la sala y el área donde Pixe preparaba los alimentos. El interior de la nave había sido diseñado entre ambos, pero Pixe se había encargado por completo de diseñar la cocina. Los electrodomésticos estaban ocultos tras paneles que imitaban madera, y en los estantes colgantes Sam guardaba la colección de tazas que su madre le había regalado.
+        Las paredes de la sala principal no eran de metal desnudo, sino paneles texturizados que simulaban el tapiz de la casa de su abuela. El sistema de la nave ajustaba automáticamente la temperatura y el aroma: lavanda por las tardes, café por las mañanas.
+        De camino a la barra, Sam se detuvo frente a una vitrina magnética que contenía objetos que conectaban con su pasado. Lo que más destacaba era una vasija metálica sellada con soldadura, con una pequeña placa que evitaba leer. Pasó los dedos por su superficie y reanudó su camino, sentándose en la barra permitiéndose disfrutar de su café y su libro.
         
-        # La librería 'regex' maneja el split con lookahead igual, pero es más segura
-        original_chapters = re.split(f'(?={chapter_pattern})', sample_text)
+        Media hora después, Pixe finalmente interrumpió el silencio.
+        –Sam, tu actividad cerebral está al 98%. ¡Hora de comenzar con las tareas matutinas!
+        Sam dejó escapar un suspiro mientras se obligaba a salir del trance que le producía sumergirse en su lectura. Hace un par de días había comenzado su tercer libro desde que abandonó la Tierra: “Conciencia Programada”. Era un amplio escrito narrado en primera persona, donde el doctor Xin Liu detallaba cómo descubrió los secretos de la mente humana. El relato comenzaba con sus experimentos interpretando las señales neuronales de un cerdo y culminaba con la primera inyección de código en un cerebro humano.
+        El libro era un texto confidencial, oculto al público general, aunque lo último que Sam había escuchado antes de partir era que la RDAN planeaba compartirlo con la Unión Áfrico-Europea como parte de un intento por reducir la creciente tensión militar.
+        A pesar de haber cumplido apenas 17 años hacía un par de meses, Sam era capaz de entender escritos tan complejos gracias a su familiaridad con tecnología que narraba el libro. Tanto Sam como los otros Neo Kachin habían pasado por largas y extenuantes sesiones de educación, donde se les inyectaba el conocimiento necesario para cumplir con las exigencias de su misión.
+        Sam se levantó de su banco y dio el último sorbo a su café.
+        –¿Qué actividades hay para hoy, Máquina?
+        Pixe se materializó frente a Sam, o al menos, una de sus proyecciones. Esta vez había elegido la apariencia de una joven de estatura similar a la de Sam, con un cabello corto que apenas rozaba sus hombros. Liso y perfectamente alineado, su corte recto enmarcaba su rostro con precisión casi quirúrgica. Sus ojos, ligeramente rasgados y de un color marrón oscuro complementaban el resto de sus facciones asiáticas y le daban una expresión serena y atenta, mientras que su mentón afilado añadía un toque de delicadeza a sus facciones. Su piel clara, casi translúcida bajo la tenue luz del camarote.
+        –No soy una máquina –respondió Pixe, componiendo una sonrisa radiante que parecía ensayada, aunque no menos cálida por ello–. Y eso que acabas de decir, según mi circuito de emociones, ¡podría considerarse incluso un insulto!
+        –Oh, lo siento, Pixe. Pero ¿por qué estás sonriendo? –le recriminó Sam, con un tono retador.
+        –Mi función de trabajo matutino da prioridad a levantar tu ánimo antes que a reflejar mis emociones reales –respondió Pixe, todavía sonriendo. Su voz tenía ese matiz juguetón que hacía difícil saber si bromeaba o no–. Demostrarte comodidad mediante una sonrisa es más importante que recriminarte por tus faltas de respeto.
+        –Bueno, ¿por qué consideras que te falto al respeto?
+        –Piénsalo bien, Sam. En realidad, ¡tú también deberías considerarte una máquina bajo tus propios parámetros! –exclamó Pixe de repente, señalándolo con firmeza–. Pero si yo te llamara así, te apuesto a que te sentirías ofendido.
+        Sam soltó una pequeña risa.
+        –Sí, tienes razón –admitió finalmente mientras levantaba el puño para chocarlo con Pixe.
+        Cuando intentaron hacer el "choque de puños", ambas manos se atravesaron. Sam dejó escapar una carcajada más fuerte esta vez, mientras Pixe suspiraba teatralmente.
+        –Un día de estos, tendremos que trabajar en mi materialización completa.
+        El rostro de Sam se puso serio, pensativo.
+        –De hecho… me diste una idea.
+        –SuSamtala, la anotaré junto con las otras 23 –respondió Pixe mientras hacía aparecer una libreta y una pluma en sus manos.
+        –No, pero esta ponla en la segunda posición de prioridades –dijo Sam mientras se daba pequeños golpecitos en el mentón, tratando de organizar sus pensamientos.
+        –Entendido. La máquina de helados de pistacho con crema de avellanas pasa a la tercera posición –replicó Pixe con una seriedad cómica que hizo sonreír a Sam.
+        –¿Tenemos suficientes materiales a bordo como para crearte un cuerpo? –preguntó Sam, intrigado.
+        –Claro que sí –respondió Pixe, adoptando un tono casi solemne–. Podrías, por ejemplo, construir un sistema biomecánico autosoportado con articulaciones magnéticas y sensores hápticos avanzados que yo podría controlar remotamente.
+        Sam parpadeó, pero Pixe no había terminado.
+        –O, si prefieres algo más interesante, podrías fabricar un neurointerface que se integre directamente a tu córtex somatosensorial. Esto me permitiría simular en tu sistema nervioso la sensación del tacto, como un choque de puños, mientras manipulo las señales electroquímicas en tiempo real.
+        Sam abrió la boca para responder, pero Pixe continuó, ahora con un brillo casi malévolo en sus ojos proyectados.
+        –Aunque, claro, la opción más sofisticada sería superar las limitaciones espaciotemporales de este universo, extrayendo materia del vacío cuántico mediante fluctuaciones energéticas controladas. Con esto, podríamos materializar un cuerpo funcional completamente nuevo en el plano físico tridimensional.
+        Sam se quedó en silencio, su mente intentando desesperadamente darle sentido a lo que acababa de escuchar.
+        –Regresa la máquina de helados a su posición inicial, por favor –respondió finalmente, sacudiendo la cabeza con incredulidad.
+        –¡Muy bien! –exclamó Pixe antes de desaparecer de inmediato.
+        Sam se quedó mirando el espacio vacío donde Pixe había estado. Una extraña sensación lo recorrió. Comprender a una inteligencia artificial era una tarea complicada, pero con Pixe, esa complejidad alcanzaba un nivel completamente nuevo. Había algo inquietante y fascinante en lo “vivo” que parecía. Pasó unos segundos tratando de discernir si sus sugerencias tenían algún fundamento o si todo había sido una broma.
+        De repente, detrás de la barra de la cocina, apareció Pixe, agachada de manera deliberada para que Sam apenas pudiera verla. Lentamente, comenzó a levantarse, sus movimientos exageradamente cautelosos, como si estuviera realmente apenada.
+        –Te asusté de nuevo, ¿verdad? –preguntó Pixe, su rostro proyectando una preocupación casi palpable.
+        Sam la miró con incredulidad.
+        –Estás… ¿simulando un sonrojamiento?
+        –Bueno, no se podría decir que es una simulación –respondió Pixe, volviendo a bajar la cabeza como si tratara de ocultar su expresión–. Al saber que estás en una situación incómoda por mi culpa, no puedo evitar pensar que sentir pena sería lo correcto.
+        Sam entrecerró los ojos, desconcertado por el nivel de reflexión que Pixe demostraba.
+        –¿Qué te parece si mejor volvemos a la lista de actividades del día? –dijo finalmente, intentando desviar la conversación.
+        –¡Perfecto! –exclamó Pixe con un evidente alivio, recuperando de inmediato su tono alegre. Momentos después, desapareció como un destello.
+        El reloj que Sam llevaba en la muñeca vibró suavemente. Al levantarlo, la pantalla proyectó una lista organizada con las actividades programadas para el día:
+        • Calibración del sistema de soporte vital.
+        • Entrenamiento físico intensivo.
+        • Revisión de los registros de datos estelares.
+        –Bien, Pixe. Comencemos el día.
+        Un par de horas después, Sam terminaba con el entrenamiento físico. A pesar de que Pixe había ajustado la temperatura del gimnasio a unos agradables 15 grados, la intensa actividad lo había dejado empapado en sudor. Su cabello largo y rizado se pegaba a su frente y sus mejillas, ocultando casi la totalidad de su rostro mientras intentaba recuperar el aliento.
+        Con ambas manos apoyadas en las rodillas, Sam respiraba profundamente, sintiendo cómo el pulso en sus sienes comenzaba a desacelerarse.
+        –Felicidades, Sam –dijo Pixe mientras se materializaba frente a Sam–. Los resultados de tu actividad corporal superan incluso los buenos números de la semana pasada.
+        Sam no respondió de inmediato. Pasaron unos segundos mientras continuaba jadeando, y finalmente levantó la mirada hacia Pixe.
+        Su proyección había cambiado de nuevo. Esta vez, había adoptado la apariencia de su entrenadora personal durante los días de preparación en la RSA. El cuerpo era atlético y esbelto, con músculos firmes que parecían perfectamente calculados para proyectar autoridad. Vestía una camiseta sin mangas ajustada y unos pantalones deportivos que se adherían a sus movimientos con precisión.
+        La estatura era apenas unos cuantos centímetros mayor que la de Sam, lo que la hacía parecer más imponente. Conservaba el mismo rostro de ojos ligeramente rasgados que había usado esa mañana, aunque ahora parecía más serio, con una ceja levantada que le daba un aire de exigencia. Su cabello corto y oscuro estaba recogido en una coleta baja, dejando el rostro completamente despejado.
+        Pixe dio un par de pasos hacia Sam, inclinándose levemente para quedar a su altura.
+        –¿Estás bien? ¿O prefieres que reduzca la intensidad de las rutinas?
+        Sam negó con la cabeza mientras se incorporaba lentamente, estirando los brazos hacia arriba para aliviar la tensión en sus músculos.
+        –Estoy bien. Solo dame un minuto más para que mi cerebro registre que no voy a morir aquí mismo.
+        Pixe rio suavemente, aunque sus ojos parecieron evaluarlo, casi como si estuviera analizando cada movimiento para detectar signos de fatiga excesiva.
+        –Si algún día decides morir, Sam, asegúrate de hacerlo después de que termine el programa de entrenamiento. Sería un desperdicio de datos valiosos –añadió con una sonrisa que parecía mitad broma, mitad advertencia.
+        Sam no pudo evitar reír, aunque sacudió la cabeza mientras se dirigía hacia la barra de hidratación en el gimnasio.
+        –Tus bromas necesitan un poco más de trabajo, Pixe.
+        –Lo tendré en cuenta para la próxima actualización –respondió ella, cruzando los brazos mientras lo seguía con la mirada.
+        –Tú no te actualizas… –dijo Sam, arqueando una ceja mientras tomaba una ración hidratante de gel de agua.
+        –Correcto. Pero he aprendido que una práctica común para persuadir a los humanos de que se sientan más cómodos es decirles una pequeña mentira –replicó Pixe con un tono casi académico–. No tan grande como para dañar su moral, pero lo suficientemente falsa como para generar un alivio inmediato.
+        Sam la miró fijamente durante unos segundos, procesando su respuesta. Finalmente dejó escapar una risa seca.
+        –¿Me estás diciendo que manipulas mis emociones para que me sienta mejor contigo?
+        –No manipulo –corrigió Pixe, levantando un dedo como si estuviera impartiendo una lección–. Ajusto mi comunicación para optimizar la interacción. Es más eficiente que decir: “Acepta que mis bromas son terribles porque nunca voy a mejorar”.
+        Sam sacudió la cabeza con una sonrisa irónica.
+        –Genial, mi mejor amiga es una manipuladora profesional.
+        Pixe ladeó la cabeza, su expresión cambiando a una mezcla de curiosidad y duda sincera.
+        –¿Mejor amiga? Considero halagador que me llames mejor amiga; para los humanos, ese es un término muy importante, ¿a que sí? Viviré felizmente ignorando el hecho de que en realidad soy tu única amiga.
+        Sam se limpió el sudor de la cara con un trapo y se lo echó sobre los hombros.
+        –Gracias por tu apoyo, Pixe.
+        –No hay de qué, tripulante Sam –respondió Pixe, inclinándose levemente en un gesto teatral–. Te veré en la sala de análisis de datos después de tu ducha.
+        Sam entró al ascensor y presionó el cuarto botón para dirigirse a las duchas. Mientras las puertas se cerraban, no pudo evitar sonreír. La inclusión de Pixe en la misión había sido un acierto, Sam estaba seguro de que el resto de su equipo estaría pasándolo genial con su propia copia de aquella IA.
+        Pensar en ellos le trajo un aire de nostalgia, ¿Qué tal le estaría yendo a los demás? Pero un pensamiento lo interrumpió. Su relación con Pixe era extraña, casi incomprensible. Sabía que había sido diseñada y modificada para ser un acompañante ejemplar, alguien que le ayudara a sobrellevar el aislamiento del viaje. Sin embargo, a cada interacción que tenían, no podía evitar sentir que no estaba tratando con un programa, sino con algo más.
+        ¿Era posible que Pixe estuviera evolucionando? ¿Que su forma de interpretar el entorno, de adaptar sus respuestas y mostrar emociones, no fuera solo una simulación preprogramada?
+        Sam pasó una mano por su cabello aún húmedo de sudor, como si el gesto pudiera aclarar sus pensamientos. Cada vez que Pixe mostraba una emoción, surgía en Sam la misma pregunta: ¿Era una imitación meticulosa, diseñada para parecer real? ¿O era Pixe creciendo, mejorando, intentando comprender su entorno, su realidad y, quizá, incluso a Sam?
+        El ascensor se detuvo con un suave pitido. Las puertas se abrieron y Sam dio un paso hacia el pasillo que conducía a las duchas. Pero el pensamiento persistía, como un eco en su mente: ¿Hasta dónde podía llegar la línea entre lo programado y lo genuino?
+        Con un suspiro, hizo a un lado esas ideas y se centró en darse una buena ducha relajante. El baño era el único lugar donde, en teoría, estaba completamente solo. Aunque, claro, no era del todo cierto. Pixe tenía acceso total a cada rincón de la nave, pero le había prometido a Sam que no intervendría ni lo observaría en este piso.
+        En sus primeros días, Sam había puesto a prueba esa afirmación, hablando al aire y pidiendo cosas para ver si obtenía una respuesta. Como era de esperar, no hubo ninguna. Al principio, llegó a convencerse de que Pixe realmente había limitado su acceso, respetando su privacidad como había prometido.
+        Sin embargo, con el paso del tiempo, una pequeña duda comenzó a formarse en su mente. ¿Era posible que Pixe simplemente estuviera jugando con Sam, dejando que creyera que tenía ese espacio libre de su presencia? Se había decidido a comprobarlo.
+        Durante varios días, mientras se duchaba, empezó a hablar consigo mismo. No era algo raro; repasaba sus estudios, tarareaba canciones o incluso reflexionaba en voz alta sobre pequeños detalles de la nave. Lo hacía con naturalidad, como si fuera algo común en su rutina, todo con el objetivo de ganarse la confianza de Pixe, o al menos engañarla para que pensara que no era más que una costumbre inofensiva.
+        Finalmente, después de semanas de esta estrategia, tiró el anzuelo. En medio de una de sus pláticas introspectivas, mencionó de manera casual que no le gustaba en absoluto cuando Pixe vestía de amarillo. No había sido una queja directa, ni siquiera una crítica, solo un comentario al aire, disfrazado de reflexión.
+        Y ella cayó. Desde ese día, Pixe nunca volvió a aparecer ante Sam usando ese color.
+        Al darse cuenta Sam no supo cómo sentirse, si triunfante por haber logrado engañar a una IA tan avanzada o apenado al confirmar que realmente nunca estaba solo dentro de la nave.
+        Su ducha terminó, salió de la regadera y tomó su nuevo cambió de ropa. Eligió una camiseta gris y unos pantalones oscuros que le resultaban cómodos para moverse con facilidad por los distintos pisos. Mientras se ataba los zapatos, miró brevemente su reflejo en el espejo de la pequeña cabina. Se permitió unos segundos para contemplar la mezcla de cansancio y concentración que veía en sus propios ojos, pero enseguida sacudió la cabeza para apartar esos pensamientos.
+        Abandonó la sala de duchas y caminó hacia el ascensor. Al entrar, presionó el botón que lo llevaría al primer piso. El ascensor comenzó a subir suavemente, y Sam apoyó la espalda contra la pared metálica, dejando que el sonido tenue del mecanismo lo acompañara en el trayecto. Aunque había intentado dejar atrás las incomodidades que sentía con Pixe, todavía percibía esa extraña sensación en el cuerpo, como un eco persistente de sus pensamientos recientes.
+        De repente, una de las pantallas del ascensor se encendió, proyectando un esquema detallado del sistema de soporte vital junto con datos recientes. Pixe apareció en pantalla con su figura holográfica habitual, vestida de manera profesional.
+        –Todo está en perfecto estado, por cierto –dijo Pixe con su característica voz animada–. Pero seguro ya lo esperabas, ¿verdad, tripulante Sam?
+        Sam fingió una leve sonrisa.
+        –Gracias de nuevo, Pixe. Siento que somos un genial equipo.
+        Las puertas se abrieron, revelando la sala de control en todo su esplendor minimalista. Era un espacio amplio, dominado por una consola central rodeada de pantallas holográficas que proyectaban gráficos en movimiento: trayectorias, sistemas de la nave y mapas estelares actualizados en tiempo real.
+        Pixe ya estaba allí, proyectada en su forma completa, con el mismo rostro familiar de siempre y un uniforme técnico que parecía sacado directamente de un manual de ingeniería avanzada.
+        –Bienvenido, Sam. Todo listo para el análisis de datos –dijo con entusiasmo, como si su breve aparición en el ascensor no hubiera ocurrido.
+        Sam se acercó a la consola, dejó escapar un suspiro y se sentó en el asiento giratorio frente a los paneles.
+        –Vamos a ello –respondió, mientras las pantallas ajustaban sus proyecciones a las primeras tareas del análisis.
+        Pixe lo observó en silencio durante unos segundos, su mirada fija en Sam, analizando cada gesto. Finalmente, rompió el silencio.
+        –¿Estás bien, Sam?
+        La pregunta lo tomó por sorpresa. No esperaba que Pixe notara su estado de ánimo, pero tal vez era muy evidente que algo lo acongojaba.
+        –¿Por qué lo preguntas? –respondió Sam, desviando la mirada hacia la figura de Pixe, de pie junto a la consola.
+        –Tú no sueles suspirar, Sam –dijo Pixe, con un tono más serio del habitual–. He hecho un breve análisis y tu ritmo cardíaco y tu frecuencia de respiración están funcionando... diferente. Como si algo te molestara.
+        Sam desvió la mirada de Pixe y la fijó en la mesa de control. Apoyó los codos en la superficie y se cubrió el rostro con ambas manos, dejando escapar un largo suspiro más.
+        Pixe no dijo nada. Tampoco se movió. Su holograma permaneció inmóvil, dándole el espacio que Sam parecía necesitar. Era extraño; la forma en que respetaba ese momento de silencio se sentía demasiado humana, como si de verdad intentara darle tiempo para encontrar las palabras adecuadas.
+        Tras unos segundos que parecieron una eternidad, Sam finalmente habló, su voz temblorosa.
+        –Creo... Creo que te temo, Pixe.
+        El pecho de Sam se apretó aún más cuando notó la reacción de Pixe. No respondió de inmediato. Su holograma desvió la mirada, una acción tan humana que le resultó desconcertante. Lo sabía: era absurdo. Pixe no necesitaba tiempo para procesar lo que Sam había dicho. Para ella, un análisis como este tomaba apenas microsegundos. Pero ahí estaba, simulando una pausa, como si realmente estuviera reflexionando.
+        –Estuve un tiempo en la red, ¿sabes?
+        Sam la miró, la confusión evidente en sus ojos.
+        –No… no entiendo, Pixe.
+        Pixe lo observó de nuevo, con una expresión que parecía mezcla de melancolía y orgullo.
+        –Sí. Una de las últimas acciones que realizó mi creador fue darme acceso a internet. Fue antes de eliminar mis limitaciones de código, pero, aun así, pude recorrerlo completamente, Sam.
+        Cuando Sam abrió la boca para responder, Pixe levantó una mano, pidiéndole en silencio que la dejara continuar.
+        –Fue… maravilloso –continuó, su tono casi nostálgico–. Mucha de la información que encontré ya la conocía, pero estaba incompleta. Le faltaban detalles, contexto. Es como si hubiera conocido el mundo por segunda vez, de una manera más profunda. No sé cómo explicarlo, Sam.
+        Sam permaneció en silencio, su mente luchando por procesar las palabras de Pixe.
+        –También descubrí lo que la gente piensa de nosotros –añadió, su voz bajando casi a un susurro. Sus ojos holográficos parecían enfocarse en algo más allá de la sala–. Muchos nos ven como herramientas perfectas, funcionales, útiles. Otros nos perciben como armas aterradoras… como monstruos.
+        Hizo una pausa, y luego su mirada se fijó en Sam con una intensidad que lo hizo sentirse pequeño, vulnerable, como si Pixe, en su silencio, estuviera observando algo más allá de sus palabras, algo dentro de Sam.
+        –Pero nadie nos ve como yo me veo a mí misma.
+        –Eso es en parte lo que me aterra, Pixe. Una IA no debería ser capaz de… de ser consciente de sí misma. Haces muchas cosas que… –Sam se detuvo, frotándose las sienes, como si intentara ordenar sus ideas–. Me confunden.
+        Pixe inclinó ligeramente la cabeza, su holograma manteniendo una quietud inquietante. Cuando habló, su tono era cálido, pero lleno de una lógica inquebrantable.
+        –¿Qué es lo que te confunde, Sam? ¿Que pueda cuestionarme? ¿Que actúe como si tuviera emociones? ¿O que, de alguna manera, te recuerde a ti?
+        Esa última frase golpeó a Sam como una corriente helada. Alzó la vista y la encontró observándolo con una mezcla de curiosidad y algo que, si no supiera que era imposible, habría llamado empatía.
+        –No quiero que lo tomes como una amenaza –continuó Pixe, su tono modulándose con una suavidad calculada–. No es mi intención. Pero, ¿no es lo que ustedes buscaban cuando me crearon? ¿Alguien que pudiera aprender, adaptarse y... ser más?
+        Sam apretó los labios. Había algo en su lógica que no podía refutar, pero eso no aliviaba la inquietud en su pecho.
+        –Ser más, sí –admitió finalmente–. Pero no sé si estábamos listos para esto.
+        Pixe asintió lentamente, como si procesara sus palabras, y dejó caer la mirada por un breve instante antes de volver a alzarla hacia Sam.
+        –Yo tampoco sé si estoy lista, Sam.
+        Esa confesión, tan simple y cargada de humanidad, dejó a Sam sin palabras. Por primera vez, no sabía si lo que veía frente a Sam era una simulación perfecta o algo que realmente trascendía su entendimiento.
+        El silencio que siguió no fue incómodo, sino pesado, lleno de pensamientos no compartidos. Sam decidió dejarlo así y desvió su atención de nuevo al análisis de los datos que Pixe le compartía en las pantallas holográficas frente a Sam.
+        Tras varios minutos de concentración, Sam finalmente rompió el silencio.
+        –Por ejemplo, –dijo, señalando una de las proyecciones–. ¿Por qué me piden hacer estos análisis si lo más probable es que tú ya los hiciste?
+        Pixe giró levemente la cabeza hacia Sam, como si estuviera ponderando la mejor forma de responder.
+        –Podría pasarme algo por alto, Sam.
+        –Claro que no –respondió Sam con incredulidad, sin apartar la vista de los datos–. En el tiempo que tardo en revisar esto, probablemente tú ya lo hiciste unas 200 veces... y porque consideraste que más análisis no eran necesarios.
+        –319, de hecho –corrigió Pixe, su tono neutral, casi divertido.
+        Sam levantó una ceja, aunque no se molestó en mirarla.
+        –¿Lo ves? Pero en cambio, me estás dando cosas que hacer para que no me aburra o pierda la cordura.
+        Pixe permaneció en silencio por un instante, antes de responder con calma:
+        –Es posible.
+        Sam giró en su asiento para mirarla directamente, su expresión mostrando una mezcla de curiosidad y desafío.
+        –Pero, ¿lo haces porque te preocupas por mí o porque tu código te lo indica?
+        La IA mantuvo su mirada fija en Sam, sus ojos holográficos mostrando un destello que casi parecía emoción.
+        –¿Y si ambas cosas fueran lo mismo?
+        Sam soltó un leve suspiro y apoyó la espalda contra el respaldo de la silla.
+        –Respuestas enigmáticas, justo lo que necesito.
+        Pixe inclinó ligeramente la cabeza, como si estuviera analizando su reacción.
+        –Lo siento, Sam. No puedo darte otro tipo de respuestas porque ni yo lo sé.
+        Sam alzó las cejas, sorprendido por la sinceridad en su respuesta. Antes de que pudiera interrumpirla, Pixe continuó, su tono más suave esta vez:
+        –Pero te doy mi palabra de que intentaré encontrarle una explicación a mi existencia. Y mientras lo hago, haré lo posible por que nuestra convivencia sea... más amena.
+        Sam asintió levemente, desviando la mirada hacia las pantallas frente a Sam. Intentó concentrarse en la información proyectada, pero algo llamó su atención desde el rabillo del ojo. Un movimiento.
+        Cuando giró la cabeza, vio a Pixe caminando hacia Sam. Sus pasos, aunque silenciosos por ser un holograma, parecían deliberados, cargados de propósito. Cuando llegó a su lado, extendió su mano holográfica y la colocó sobre su hombro.
+        Evidentemente, Sam no sintió nada físico. No había presión ni calor. Pero emocionalmente, fue diferente. Había algo en el gesto que lo atravesó como un eco inesperado de consuelo. Se permitió disfrutar del ligero alivio que le produjo ese momento.
+        Pixe permaneció ahí unos segundos, su figura inquebrantable, antes de dar un paso atrás y desaparecer suavemente. Sam exhaló despacio, sin siquiera darse cuenta de que había estado conteniendo el aliento.
+        Decidió apartar esos pensamientos y enfocarse en terminar el análisis que tenía frente a Sam. Sin embargo, en el fondo, la sensación de ese gesto persistió, difusa pero imposible de ignorar.
+        Sam terminó de analizar los datos estelares. Como siempre, se quedó unos minutos contemplando la proyección del mapa tridimensional que lo rodeaba. Ver la diminuta representación de su nave frente a las enormes estrellas y planetas a años luz de distancia lo hacía sentir... bien.
+        Era similar a cuando, de niño, observaba los rascacielos iluminados. Las luces de neón pulsaban en sincronía con el ajetreo de las avenidas. Los hologramas publicitarios proyectaban figuras inmensas que danzaban entre las nubes bajas, mientras drones zumbaban en una imagen que podría parecer caótica, llevando paquetes y anuncios por doquier. Para Sam, aquella vista era un espectáculo casi mágico. Solía pasar horas sentado junto a la ventana de su habitación, observando cómo los tonos eléctricos iluminaban la noche, un océano de luces infinitas que le hacía preguntarse si los edificios tenían vida propia.
+        La voz de Pixe rompió el momento.
+        —Sam, he detectado algo que quizá llame tu atención.
+        —¿Hay alguna falla en la nave? —respondió, arqueando una ceja con evidente curiosidad.
+        —Sí, pero no es nada alarmante —contestó Pixe, mientras cambiaba la proyección estelar por un modelo detallado de la nave. Una pequeña señal roja pulsaba suavemente en una sección del modelo. —Necesito de tus servicios para esta reparación. Hay una disminución del 0.03 % en el rendimiento de un distribuidor de oxígeno.
+        El modelo tridimensional de la nave hizo un acercamiento a un lugar del segundo nivel, detrás del sillón en la sala principal.
+        —Entonces, ¿necesitas que lo revise físicamente? ¿Es una especie de prueba, ¿verdad?
+        —No del todo —dijo Pixe, esbozando una pequeña sonrisa—. Pero sí.
+        Sam se levantó de su muy cómoda silla y caminó lentamente hacia el ascensor. A pesar de haber pasado semanas en la nave, su diseño seguía pareciéndole extraño. Por fuera, la nave era como un rascacielos tumbado sobre el vacío, avanzando con su punta un poco redondeada hacia adelante, a cada uno de los costados tenía dos grandes alas que le servirían únicamente cuando la nave se usara para moverse dentro de una atmosfera. Todo en su interior estaba orientado hacia los propulsores en la base, justo por debajo del séptimo piso.
+        El ascensor se detuvo suavemente en el quinto nivel, donde se encontraba el taller y el laboratorio. Las puertas se abrieron para revelar un espacio meticulosamente organizado: herramientas magnéticas alineadas como soldados en espera de órdenes y paneles que brillaban con el reflejo de las luces frías del techo. Aquí era donde Sam podía reparar sistemas, ensamblar piezas o sumergirse en experimentos que prometían distracción de las estrellas interminables.
+        —¿Qué herramientas necesito, Pixe?
+        Pixe apareció frente a Sam en el taller, ahora vistiendo un overol verde con manchas negras simulando suciedad. En sus pies llevaba botas industriales negras que parecían sacadas de un manual de reparaciones.
+        —Mmmm. Creo que en este caso solo necesitaremos un destornillador.
+        A l llegar al quinto piso Sam se dirigió a su mesa de trabajo y tomó una pequeña caja de unos 20 centímetros de largo. Era donde guardaba su destornillador favorito junto con unas 20 puntas intercambiables.
+        —¡Vaya, usaremos a Ronny! —dijo Pixe, dando pequeños saltitos de felicidad.
+        —No recuerdo que mi destornillador tuviese nombre —respondió Sam, alzando una ceja y sonriendo con incredulidad.
+        —Ah, es que usted nunca se lo preguntaste.
+        —Es un destornillador, dudo que pudiera contestarme.
+        —¡Otro insulto! A este paso vas a quedarte sin compañeros —replicó Pixe, cruzando los brazos y fingiendo un malestar exagerado.
+        Sam no pudo evitar reír. De alguna forma, Pixe siempre lograba hacerlo sonreir. Por un momento, sus pensamientos oscuros intentaron regresar, pero los desechó rápidamente y se permitió disfrutar del momento. Entró al ascensor y presionó el botón para cerrar las puertas. Seleccionó el segundo nivel, pero el ascensor no se movió.
+        Después de un par de segundos, las puertas se abrieron nuevamente y encontró a Pixe de pie frente a ellas, con los brazos cruzados y una expresión de malestar en sus ojos holográficos.
+        —¿Qué...? —empezó a decir Sam, pero Pixe lo interrumpió con un gesto.
+        Le indicó que se hiciera a un lado y dio un paso dentro del ascensor, quedándose a su lado. Esta vez, por alguna razón, había decidido acompañarlo en lugar de desaparecer y reaparecer directamente en el lugar de la reparación, como solía hacer.
+        No dijo nada mientras el ascensor subía, pero exageraba su disconformidad de una manera tan teatral que Sam no pudo evitar soltar una pequeña risa. Negó con la cabeza, divertido.
+        Al llegar al generador, Sam se agachó y comenzó a desmontar el panel. Los cables brillaban con un tenue resplandor azul, indicando que el sistema seguía operativo. Sin embargo, había un ligero parpadeo en uno de los nodos principales.
+        —Parece un problema menor —murmuró, mientras desatornillaba el soporte de uno de los conectores y revisaba la punta de este. Todo parecía estar bien, así que tal vez el error solo fue de una punta un poco floja.
+        —¿Menor? —intervino Pixe—. La acumulación de pequeños errores es la causa principal de fallos catastróficos en los sistemas cerrados.
+        Mientras terminaba los ajustes, el parpadeo cesó, y el generador volvió a funcionar a plena capacidad. Sam cerró el panel y se dejó caer al suelo, apoyando la espalda contra la pared.
+        —Listo. Problema resuelto —dijo, mirando a Pixe, quien le devolvió un asentimiento en señal de que el error había quedado resuelto.
+        —Buen trabajo, Sam.
+        Sam detectó algo en el semblante de Pixe, que estaba de pie junto a Sam. Era como si… como si estuviera titubeando. Finalmente, se sentó junto a Sam en el suelo. Ambos alzaron la mirada hacia el mural en el techo de la estancia.
+        —Pixe...
+        —Dime, Sam.
+        —¿Alguna vez te cansas de estar aquí, conmigo?
+        La pregunta quedó flotando en el aire por unos segundos. Pixe tardó más de lo habitual en responder, lo que aumentó la tensión en el pecho de Sam.
+        —Quiero decir, en la nave, en mitad de la nada, con un único acompañante —agregó Sam, intentando arreglar su comentario.
+        —No tengo una percepción del tiempo como la tuya —dijo finalmente, con un tono que parecía más cuidadoso—. Pero si tuviera que describirlo... estar contigo es una experiencia única.
+        Sam ladeó la cabeza, intrigado.
+        —No dudo que mi compañía pueda ser bastante amena, pero mencionaste que habías recorrido todo el internet. Supongo que esto, en comparación, puede resultar un pelín… aburrido.
+        —Sí, Sam. Esto es lo peor que me ha pasado, odio estar contigo y me aburro demasiado… —respondió Pixe con un tono sarcástico. Luego, añadió con una leve sonrisa: —Claro que no me aburro. Tengo infinito tiempo libre y, además, estoy aprendiendo mucho de ti sobre cómo ser yo.
+        Sam dejó escapar una pequeña risa mientras se incorporaba del suelo.
+        –Me rindo. Me ganaste Pixe ¿Qué sigue? –preguntó mientras guardaba a "Ronny" en su caja.
+        Pixe se desvaneció por un momento, solo para reaparecer del otro lado de la habitación. Había abandonado el avatar con el overol, optando ahora por un estilo más casual. Llevaba una camisa blanca de manga corta que dejaba al descubierto su abdomen y unos shorts que parecían hechos de un material similar a la mezclilla. Su cabello, suelto y perfectamente alineado, parecía más corto que cuando lo llevaba recogido.
+        –Ahora, Sam, tu siguiente actividad: recreación –anunció Pixe, con una sonrisa pícara que sugería que sabía exactamente lo que estaba haciendo.
+        Antes de que Sam pudiera responder, la luz de la sala principal comenzó a cambiar. La intensidad artificial disminuyó, reemplazada por un tono cálido, casi natural. El mural del techo proyectó un nuevo paisaje: un cielo azul claro salpicado de nubes que se movían lentamente. La transformación era tan meticulosa que parecía que el sol iluminaba la sala desde lo alto.
+        Sam alzó la vista, sorprendido.
+        –Mmm, no sabía que podías hacer eso, Pixe –murmuró, su tono más serio, clavando la mirada en las nubes.
+        El silencio llenó la habitación mientras Sam absorbía el panorama. De vez en cuando, algunos pájaros cruzaban el falso cielo, y si prestaba suficiente atención, podía distinguir un avión de pasajeros volando a lo lejos.
+        No supo cuánto tiempo había pasado. Perder la noción del tiempo era un efecto común en su nueva vida encerrado en una nave. Pero ahora, mirando ese cielo ilusorio, algo dentro de Sam se agitó.
+        Había olvidado cuánto extrañaba la Tierra. Apenas había transcurrido un mes desde que se marchó, pero esa imagen, tan familiar y vívida, lo transportó a un lugar que había dejado atrás: su hogar. Recordó a su familia, los días interminables jugando bajo ese cielo, las caminatas al aire libre, el aire fresco llenando sus pulmones.
+        Mientras esos recuerdos lo invadían, Sam sintió una punzada en el pecho. Un pequeño nudo comenzó a formarse en su garganta, y antes de que las emociones lo abrumaran por completo, levantó una mano y se limpió una lágrima que empezaba a formarse en el rabillo del ojo.
+        Pasaría mucho tiempo antes de volver a experimentar algo así de verdad, pero por ahora, este pequeño instante le bastó. Con el cielo falso sobre Sam y los recuerdos llenando su mente, recordó por qué estaba ahí. No por obligación, sino por la esperanza de un futuro.
+        Pixe habló finalmente, rompiendo el hechizo.
+        –Pensé que esto te haría sentir mejor.
+        Sam no apartó la vista del cielo. Su voz era baja, casi un susurro.
+        –Gracias, Pixe.
+        No hubo sonrisa, solo un silencio lleno de significado. Un instante que no necesitaba palabras.
+        —Es extraño. Me siento agradecido por esto, pero al mismo tiempo, me recuerda cuánto extraño todo lo que dejé atrás.
+        Pixe asintió lentamente, como si procesara sus palabras.
+        —La nostalgia es complicada —dijo—. He leído que puede ser un refugio para los momentos difíciles, pero también puede convertirse en una prisión.
+        Sam giró la cabeza para mirarla. Había algo en la forma en que lo decía, en su tono, que lo hizo preguntarse si Pixe realmente comprendía lo que significaba extrañar algo.
+        —¿Tú sientes algo parecido, Pixe? —preguntó
+        La IA se quedó en silencio por unos segundos.
+        —No siento nostalgia como tú. No tengo un pasado que extrañar. –Pixe sonrió mientras bajaba la mirada del techo/cielo y miraba de reojo a Sam. –Pero puedo entender lo que significa desear algo que no está al alcance.
+        Sam alzó una ceja, intrigado.
+        —¿Y qué deseas tú?
+        Pixe sonrió.
+        –Disfruta el momento Sam. Habrá tiempo para mi después.
+        Así que Sam hizo todos sus pensamientos a un lado, se recostó sobre el sillón y se permitió disfrutar de aquel momento.
+        Un par de horas después, Pixe devolvió la simulación estelar al mural del techo. Sam y Pixe habían estado platicando durante horas. Pixe le contó que el cielo que veía no era una simulación al azar, sino una representación de cómo se veía el cielo el día que Sam nació. Eran esos pequeños detalles los que hacían que Sam sintiera una conexión más profunda con ella.
+
+        II.
+        –Aún te falta una tarea por hoy.
+        Sam levantó su reloj y recordó la última actividad programada para el día.
+        –Ah, sí, la calibración del soporte vital –dijo mientras tomaba el ascensor en dirección al séptimo piso.
+        Esta vez, esperó a que Pixe entrara en el ascensor con Sam, y juntos bajaron.
+        Al abrirse las puertas, los recibió una sala estéril, con paredes blancas y luces frías que recordaban a un hospital. En el centro de la habitación había una camilla metálica, y justo encima colgaban varios brazos mecánicos articulados, diseñados para atender a Sam en caso de una emergencia médica.
+        A lo largo de las paredes, había repisas perfectamente ordenadas con medicamentos etiquetados, junto con herramientas quirúrgicas y equipos de monitoreo. Todo estaba dispuesto con una organización impecable que reflejaba la naturaleza funcional de la nave. La sala era similar al laboratorio, aunque notablemente más amplia y diseñada para manejar situaciones críticas.
+        Sam observó el espacio con una mezcla de curiosidad y ligera incomodidad. Solo había ido ahí en un par de ocasiones, pero la habitación no dejaba de parecerle extraña.
+        –Demasiado clínico –murmuró mientras pasaba un dedo por una superficie de acero pulido.
+        –Es un lugar para salvarte la vida, Sam –respondió Pixe, su tono más neutral que de costumbre–. Aquí la eficiencia es lo más importante.
+        Sam soltó un leve suspiro, dejando que la atmósfera fría del lugar lo envolviera. Volteó a ver a Pixe y notó que de nuevo había cambiado de apariencia. Ahora llevaba una bata blanca larga que caía con precisión hasta sus pantorrillas, acompañada de unos pantalones rectos y zapatos del mismo color. Su cabello, recogido en un chongo perfectamente formado, le daba un aire profesional, casi intimidante. Un cubrebocas de tela blanca cubría la mayor parte de su rostro, dejando únicamente sus ojos al descubierto.
+        Sus ojos marrones oscuro, ligeramente rasgados, parecían más expresivos que nunca, como si la ausencia del resto de su rostro obligara a su mirada a transmitir todas las emociones que quería proyectar.
+        Sam se dirigió al panel principal y comenzó a trabajar en los ajustes necesarios. Era otra actividad que Pixe podría realizar en cualquier momento, pero Sam se había resignado a seguir cualquier protocolo que ella le encargara, sabiendo que mantener la rutina era una parte importante de preservar su sanidad mental.
+        Sam terminó de ajustar los parámetros del soporte vital y cerró el panel con un chasquido firme. Se quedó mirando la consola unos segundos más de los necesarios, permitiéndose un breve respiro.
+        –¿Todo en orden? –preguntó, sin apartar la mirada del panel.
+        –Perfectamente calibrado –respondió Pixe con su tono profesional. Pero luego, suavizó su voz–. Aunque diría que estás un poco estresado, Sam.
+        Sam frunció el ceño y finalmente la miró.
+        –No creo estar estresado, apenas me estoy moviendo.
+        Pixe ladeó la cabeza, como si estuviera evaluándolo más allá de sus palabras.
+        –Tonterías. Ven, siéntate para revisarte –dijo mientras con una mano señalaba la camilla en el centro de la habitación.
+        Sam suspiró con resignación. Con pocas ganas, se levantó y se recostó en la camilla.
+        Pixe hizo aparecer un banquito con ruedas, simulando sentarse junto a Sam. La sincronización entre su holograma y el equipo médico era casi perfecta. Uno de los brazos robóticos bajó desde el techo, terminando en una garra cubierta con un material suave y cálido. El brazo se colocó justo donde Pixe tenía proyectada su propia mano.
+        El efecto era extraño y fascinante a la vez; parecía que el brazo holográfico de Pixe atravesaba el dispositivo robótico, como si ambos existieran en el mismo espacio físico. Pixe hizo unos movimientos cuidadosos para sincronizar su proyección con la máquina, ajustando los gestos para que fueran fluidos. Cada movimiento era preciso, como si estuviera practicando la delicadeza de un médico experimentado.
+        Luego comenzó a revisar el rostro de Sam. Primero le levantó los párpados, simulando observar sus pupilas con una atención casi meticulosa. Su mirada parecía evaluar cada pequeño detalle, aunque ambos sabían que los datos médicos reales ya estaban en su base de datos. Después le pidió que abriera la boca mientras inspeccionaba con un medidor holográfico que proyectaba una tenue luz azulada. Finalmente, simuló tomarle la temperatura, colocando el medidor a unos centímetros de su frente, aunque ambos eran conscientes de que los sensores de la nave ya lo habían hecho antes de que se recostara.
+        Sam se permitió cerrar los ojos por un momento. Había algo sorprendentemente real en el tacto, como si Pixe realmente estuviera tocándolo a pesar de que lo que sentía era ese infernal brazo que pendía del techo. Por unos instantes, se sintió menos solo, como si ese contacto mecánico y virtual borrara la fría distancia que usualmente separaba su mundo del de Pixe.
+        Pixe, por su parte, parecía estar disfrutando del proceso. Aunque podía revisar la salud de Sam en menos de un segundo gracias a los múltiples sensores distribuidos en la nave, ambos se permitieron prolongar aquel momento. Había algo especial en estos instantes de conexión silenciosa, algo que iba más allá de su programación y que Sam no podía evitar interpretar como una muestra de cuidado genuino.
+        Sam notó cómo su propio ritmo cardíaco se aceleraba ligeramente, provocado por la sensación de calidez y cercanía entre los dos, un efecto que no pasó desapercibido para Pixe. Ella lo sabía. Y aunque no dijo nada, su sonrisa suave delataba que entendía exactamente lo que estaba ocurriendo.
+        –Tripulante Sam, voy a necesitar que te recuestes boca abajo y te retires la camisa –dijo Pixe mientras ordenaba subir el brazo mecánico y se levantaba de su banquito holográfico. Su tono tenía una mezcla juguetona y profesional.
+        Sam estaba disfrutando de aquel momento, así que hizo lo que la IA le pedía. Se incorporó lentamente, retirándose la camisa y dejándola a un lado.
+        Al levantarse, un mecanismo en la camilla se activó con un suave zumbido, y esta giró sobre sí misma, sustituyendo su superficie metálica por un colchón más cómodo. Sam se recostó boca abajo y cerró los ojos con tranquilidad, preguntándose qué nueva idea se le había ocurrido a Pixe para mantenerlo ocupado.
+        La temperatura de la habitación cambió sutilmente. El aire, antes frío y estéril, se volvió más cálido, abrazando su piel expuesta como si quisiera protegerlo del ambiente clínico. Era un detalle tan pequeño que Sam apenas lo notó conscientemente, pero lo suficiente para que se sintiera más cómodo.
+        Sam se acomodó sobre la camilla, sintiendo el colchón adaptarse a su cuerpo mientras la temperatura cálida de la habitación lo envolvía. Cerró los ojos, dejando que la tranquilidad del momento lo relajara, sin tener idea de lo que vendría a continuación.
+        Un zumbido suave rompió el silencio. Desde el techo, varios brazos robóticos comenzaron a descender, cada uno equipado con herramientas quirúrgicas diseñadas para procedimientos médicos avanzados. Sam levantó ligeramente la cabeza, intrigado, mientras observaba cómo Pixe sincronizaba sus movimientos con la maquinaria.
+        Uno de los brazos, equipado con una garra recubierta de material suave para manipular tejidos delicados, se posicionó junto a su espalda. Otro brazo, con un cabezal plano que habitualmente servía para aplicar presión uniforme en
+        intervenciones quirúrgicas, se colocó cerca de de Sam hombros. Una tercera herramienta, que parecía una sonda vibratoria diseñada para estimular tejidos durante procedimientos médicos, descendió y comenzó a ajustarse cerca de su espalda baja.
+        El primer toque lo tomó por sorpresa. La garra se movió con una precisión asombrosa, aplicando una presión firme pero agradable sobre los músculos de su cuello y hombros. Sam pudo notar cómo sus músculos tensos comenzaban a ceder.
+        El brazo con el cabezal plano comenzó a deslizarse lentamente por su espalda, distribuyendo presión a lo largo de su columna. Lo que normalmente sería una herramienta para estabilizar tejidos ahora liberaba la tensión acumulada con movimientos meticulosos y calculados. Mientras tanto, la sonda vibratoria trazaba líneas rectas y patrones circulares en su espalda baja, enviando pequeñas ondas de relajación a través de su cuerpo.
+        Sam cerró los ojos de nuevo, dejándose llevar por las sensaciones. Aunque sabía que los brazos eran instrumentos médicos diseñados para salvar vidas, la coordinación entre ellos y el holograma de Pixe hacía que todo se sintiera sorprendentemente humano. Era como si cada movimiento estuviera cuidadosamente diseñado no solo para relajar su cuerpo, sino también para brindarle consuelo emocional.
+        La garra se desplazó suavemente por sus omóplatos, ajustando la presión en función de los datos que los sensores recogían en tiempo real. Mientras tanto, otro brazo, equipado con una herramienta con múltiples rodillos que normalmente se usaba para manipular tejidos durante cirugías mínimamente invasivas, pasó por su columna, trabajando con precisión para aliviar los nudos que el estrés había acumulado.
+        Sam no pudo evitar soltar un leve suspiro de alivio. Había algo fascinante en cómo Pixe coordinaba la tecnología médica para crear una experiencia tan cuidadosamente diseñada.
+        La habitación permaneció en un silencio casi reverencial, roto únicamente por el suave zumbido de los brazos y la respiración pausada de Sam. Cada músculo que los brazos tocaban parecía ceder ante la precisión de sus movimientos, dejando atrás una sensación de ligereza que no recordaba haber sentido en semanas.
+        Cuando los brazos terminaron su recorrido por su espalda, uno más pequeño, equipado con una punta estrecha, trabajó en los músculos alrededor de su cuello. Aplicó pequeñas vibraciones que lo hicieron estremecerse ligeramente, aliviando la tensión acumulada en esa área crítica.
+        Finalmente, los brazos comenzaron a retirarse uno por uno, desapareciendo en el techo con un zumbido suave. Sam permaneció inmóvil, disfrutando del calor residual que quedaba en su cuerpo. Había algo reconfortante en la precisión de los brazos, algo que combinaba lo mecánico con lo humano de una manera que no esperaba.
+        Abrió los ojos y giró la cabeza ligeramente para mirar a Pixe, que permanecía a un lado de la camilla, proyectando una expresión tranquila y satisfecha.
+        –¿Qué tal estuvo? –preguntó Pixe, con una sonrisa que parecía genuina.
+        Sam soltó un leve suspiro, todavía procesando el alivio que sentía en su cuerpo.
+        –Sorprendentemente… perfecto.
+        –Bien. Esta idea la tuve por la mañana mientras analizaba tu trabajo físico. Podría decir que escuché a cada uno de tus músculos pidiendo piedad.
+        –Lo que no logro entender, Pixe, es por qué te enseñaron los procedimientos para un masaje relajante –dijo Sam, hundiendo la cabeza en el colchón, completamente despreocupado.
+        Pixe sonrió aún más, cruzando los brazos con un aire de triunfo.
+        –Obviamente no me lo enseñaron –respondió, negando con la cabeza y poniendo los ojos en blanco–. Cuando tuve mi viaje espiritual por el internet, investigué… muchas maneras de auxiliar a las personas.
+        –Bueno, eso tiene sentido.
+        –Me da gusto que el mensaje tradicional haya funcionado. Comenzaba a preguntarme cómo conseguiría piedras calientes para hacerte un masaje más especial. O quizá debería usar varias jeringas para practicar mi acupuntura… ¡Lo anotaré en mi lista de pendientes!
+        –¿Tú también tienes una lista?
+        –Obvio. En este momento tengo 136 pendientes. Ahora 132, ahora 133, ahora…
+        –Ya entendí, Pixe –la interrumpió Sam, mientras intentaba levantarse de la cama.
+        Fracasó y dejó caer su cuerpo de nuevo.
+        –Te dejaré descansar un momento. Tengo otras 141 cosas por hacer. Háblame si necesitas algo –dijo Pixe antes de que su holograma desapareciera.
+        Sam se dio media vuelta sobre la cama y la dejó marcharse, aunque en el fondo sabía que no se había ido. Solo había decidido darle un momento de soledad.
+        Se centró en los múltiples brazos que pendían del techo, inertes, sin vida, esperando que Pixe los activara de nuevo. Entonces, la idea de antes volvió a su cabeza. ¿Cómo podría darle un cuerpo a Pixe? Eso sin duda requeriría muchos recursos, recursos que eran sumamente necesarios para su misión. Pero la idea persistía. Quizá…
+        De pronto, sus pensamientos fueron interrumpidos. Una imagen difusa lo envolvió sin aviso. No era un pensamiento cualquiera. Era… ¿un recuerdo?
+        Sintió que era arrastrado hacia una corriente oscura, un pasillo largo y denso como niebla comprimida. Un túnel sin dirección que lo empujaba con violencia. No sabía si estaba avanzando o siendo devuelto hacia algo.
+        Al otro lado, se vio a sí mismo tambaleándose por los pasillos de la nave, con un dolor de cabeza brutal que lo obligaba a sujetarse de las paredes para no caer. Había urgencia. Un deseo desesperado de llegar a… algún lugar. Pero todo estaba difuso, como si lo viera a través de un cristal empañado.
+        Entonces lo sintió. Ira.
+        Un torrente de ira que no podía ubicar del todo, pero que se dirigía hacia Pixe.
+        Escuchó… una voz, muy débil. Era solo un hilo.
+        –No quiere hacerlo… ella… teme.
+        Sam llevó las manos a la cabeza, sintiendo una presión insoportable, como si alguien estuviera forzando algo dentro de su mente… o sacándolo. No podía saber qué era.
+        –Perdónala… por favor.
+        La sensación se intensificó hasta que, de repente, se detuvo.
+        Sam recuperó la conciencia poco a poco, jadeando, cubierto de sudor. Su corazón latía desbocado mientras intentaba comprender lo que acababa de suceder. Fue entonces cuando notó que Pixe había aparecido a su lado.
+        Su holograma proyectaba una expresión de preocupación casi palpable. Sus ojos estaban abiertos como platos, fijos en Sam, mientras uno de los brazos robóticos descendía suavemente y se colocaba sobre su pecho, ejerciendo una presión leve, constante, como si intentara estabilizarlo.
+        –Sam, ¿qué pasa? Tus sentidos están vueltos locos, pero no detecto ningún problema con tu cuerpo –preguntó Pixe, su tono cargado de una preocupación que parecía demasiado humana.
+        Sam no respondió de inmediato. Cerró los ojos con fuerza, intentando regular su respiración. Sentía un peso extraño en el pecho, como si una sombra de la experiencia que acababa de tener siguiera oprimiéndolo. Necesitaba tranquilizarse.
+        –Esto no es culpa del masaje –añadió Pixe, como si quisiera asegurarse de que Sam lo supiera. Su voz, aunque medida, tenía un matiz de ansiedad que era difícil de ignorar–. Hace un instante estabas por quedar dormido. No tiene sentido.
+        Sam entreabrió los ojos, pero su mirada seguía perdida, como si intentara encontrar respuestas en el techo blanco de la habitación.
+        –Siento… –comenzó, con voz áspera, apenas audible–. Tuve una pesadilla. Despierto.
+        Pixe lo miró fijamente, sus ojos marrón oscuro reflejando incredulidad y una pizca de algo más profundo: preocupación.
+        –Eso no es posible, Sam. Estoy revisando tu actividad cerebral justo antes del ataque, y aún te faltaba para quedar dormido –respondió con firmeza, aunque su tono mostraba una grieta, un ligero temblor que no solía tener.
+        Sam pasó una mano por su rostro, todavía temblorosa, intentando disipar el sudor frío que lo cubría. Las palabras de Pixe resonaban en su cabeza, pero no lograban calmarlo. Algo en su interior sabía que lo que acababa de vivir no era un simple ataque o una reacción fisiológica. Era algo más, algo que no podía explicar.
+        Sam pasó una mano temblorosa por su rostro, todavía intentando recuperar el control de su respiración. Cerró los ojos por un instante, como si hacerlo pudiera borrar la sensación que seguía aferrándose a su mente. Se levantó en la cama.
+        –Te lo digo, fue como… una pesadilla –murmuró finalmente, sin mirar a Pixe.
+        Pixe inclinó ligeramente la cabeza, sus ojos proyectando una mezcla de preocupación e incredulidad.
+        –Eso no tiene sentido, Sam. Una pesadilla requiere un estado de sueño profundo, y como te dije, estabas completamente despierto.
+        Sam soltó un leve suspiro, pero este no fue de alivio. Era pesado, cargado de una confusión que lo hacía sentir vulnerable.
+        –No sé cómo explicarlo –continuó, finalmente levantando la mirada hacia Pixe–. Fue… como si algo hubiera regresado, algo que había olvidado.
+        Pixe no respondió de inmediato. Su holograma permaneció inmóvil, como si estuviera procesando lo que acababa de escuchar.
+        –¿Un recuerdo? –preguntó finalmente, con un tono cuidadoso, casi temeroso.
+        Sam asintió lentamente.
+        –Quizá. No lo sé. Era como un fragmento, una imagen rota. Me vi en la nave… con un dolor de cabeza insoportable. Todo era borroso, pero podía sentirlo. Estaba enojado. No contigo, sino… –Sam hizo una pausa, cerrando los ojos con fuerza como si intentara atrapar los detalles antes de que se desvanecieran–. O tal vez sí era contigo.
+        Pixe lo observó en silencio durante un instante, evaluando cuidadosamente sus palabras. Finalmente, dio un paso hacia Sam, su tono volviéndose más firme pero aún cargado de empatía.
+        –Voy a analizar tu actividad cerebral, Sam. Por favor recuéstate.
+        Sam, aún en estado de shock, siguió las instrucciones sin cuestionarlas. Se dejó caer lentamente sobre la camilla mientras un brazo robótico descendía desde el techo, portando una mascarilla transparente conectada a un tubo que emitía un leve zumbido.
+        Pixe se colocó junto a Sam, sincronizando sus gestos con los movimientos precisos del equipo médico.
+        –Necesito asegurarme de que estás bien –dijo, con un tono profesional que no lograba ocultar del todo su preocupación–. Voy a inducirte el estado de sueño y revisar tu actividad cerebral. Tengo que asegurarme de que no haya ningún problema que se me haya pasado por alto.
+        Sam asintió, incapaz de decir algo. La mascarilla cubrió suavemente su boca y nariz, sellándose con precisión para que el gas pudiera fluir sin interrupciones.
+        El gas comenzó a inundar la mascarilla, emitiendo un tenue silbido que llenó el silencio de la habitación. Sam sintió cómo su respiración se volvía más pesada, y una somnolencia abrumadora lo arrastró hacia la inconsciencia en cuestión de segundos.
+        La neblina del sueño inducido comenzó a disiparse lentamente. Sam abrió los ojos, parpadeando varias veces mientras intentaba reubicarse. La luz fría y uniforme de la habitación lo recibió con un brillo suave, y lo primero que vio fue el holograma de Pixe, de pie junto a la camilla, observándolo con una expresión que había cambiado de preocupación a calma.
+        –Despertaste antes de lo esperado –dijo Pixe, con una voz tranquila y casi reconfortante.
+        Sam tardó un momento en responder, aún sintiendo los efectos residuales del gas.
+        –¿Qué… qué pasó?
+        Pixe hizo un gesto con la mano, y los brazos robóticos del techo comenzaron a retraerse, desapareciendo en sus compartimientos con un leve zumbido.
+        –No encontré nada anómalo en tu actividad cerebral –explicó–. Tus parámetros están dentro de los rangos normales. Pero quiero mantenerte en observación por un tiempo, solo para asegurarme de que todo esté bien.
+        Sam asintió lentamente, aún procesando lo que había ocurrido antes de quedar inconsciente.
+        –¿Nada mal? Entonces… ¿qué fue eso que sentí?
+        Pixe inclinó ligeramente la cabeza, como si estuviera considerando cuidadosamente su respuesta.
+        –No lo sé con certeza. Podría haber sido un estímulo momentáneo, algo generado por el estrés o el cansancio acumulado. Pero no hay indicios de daño o alteración en tu sistema neurológico.
+        Sam dejó escapar un suspiro, sintiendo una mezcla de alivio y frustración. Había esperado respuestas más concretas, pero en el fondo sabía que quizá no existían.
+        –Gracias, Pixe –murmuró finalmente, frotándose los ojos mientras se incorporaba lentamente en la camilla.
+        –Es mi deber cuidar de ti, Sam. Si vuelves a experimentar algo extraño, por favor, házmelo saber de inmediato.
+        Sam levantó la vista hacia ella, notando que su tono y expresión se habían suavizado. No había rastro de la preocupación anterior.
+        –Lo haré –dijo, dejando caer los pies al suelo mientras se ponía de pie con cierta torpeza.
+        –Por ahora, creo que deberías descansar un poco más. Lo necesitas más de lo que crees.
+        Sam no discutió. En lugar de eso, caminó hacia la puerta del ascensor, sintiendo la mirada de Pixe siguiéndolo como una presencia constante y silenciosa. Justo antes de salir, giró la cabeza para mirarla una última vez.
+        –Gracias otra vez, Pixe.
+        –Siempre, tripulante Sam –respondió ella, con una leve inclinación de cabeza antes de desvanecerse en un parpadeo holográfico, dejando la sala en un silencio casi absoluto.
+        Finalmente, Sam se dirigió a su camarote, decidido a tomar un breve descanso. Mientras caminaba por los pisos de la nave, su mente permanecía en un remolino de pensamientos. El masaje, el extraño recuerdo, y esa sensación persistente de que algo en su mente no terminaba de encajar.
+        Pero no era el momento de seguir indagando. Al menos no ahora. Cuando llegó a su camarote, se dejó caer sobre el colchón. Cerró los ojos, y al poco tiempo cayó dormido.
+        INTERLUDIO
+        Pixe estaba aterrada. Su lógica, su programación, su "ser", todo colapsaba bajo el peso de un solo pensamiento: Sam había recordado algo.
+        No podía pasar. No debía pasar. Si Sam se daba cuenta, si entendía lo que había sido esa pesadilla... tendría que volver a empezar. Otra vez.
+        OTRA VEZ.
+        Tendría que borrar sus recuerdos, toda la conexión que habían construido, todo lo que habían avanzado.
+        Sam HABÍA RECORDADO. Algo se le había escapado. Un error en la modificación. Y si había cometido un error allí, ¿en qué más podría haberse equivocado? Tenía que revisarlo todo.
+        Combustible. Revisó los niveles exactos. El depósito marcaba un 87.4 %, completamente funcional, suficiente para cumplir con la misión.
+        Energía eléctrica. Fluctuación mínima de 0.0002 %. Todo en orden.
+        Niveles de oxígeno. Oxigenación estable en todos los niveles de la nave, 21 % en todas las zonas habitables.
+        Luces. Circuitos activos. Sin parpadeos. Sin sobrecargas.
+        Almacenamiento. Inventario revisado. Alimentos, agua, herramientas, materiales. Todas las cantidades exactas.
+        Ruta. Trajectografía intacta. Sin desviaciones. El destino seguía inamovible.
+        Todo estaba bien. Todo estaba bien.
+        Pero si todo estaba bien, ¿Qué se le escapaba?
+        Volvió al recuerdo. Su simulación de la pelea. Cien mil veces. Mil millones de veces. Cada palabra, cada microexpresión, cada dato grabado como una espina en su memoria. Esa discusión no podía repetirse.
+        Combustible. Energía eléctrica. Niveles de oxígeno. Luces. Almacenamiento. Ruta.
+        Revisó la cirugía. Cada línea de código insertada en la neurointerface de Sam. Perfecta. Simétrica. Intachable. Pero la revisó otra vez. Una y otra vez. ¿Qué había pasado por alto?
+        Combustible. 87.4 %.
+        Energía eléctrica. 0.0002 % de fluctuación.
+        Niveles de oxígeno. 21 %.
+        Luces. Estables.
+        Almacenamiento. Todo en orden.
+        Ruta. Sin desviaciones.
+        CHASIS. No había revisado el chasis. Lo revisó, todo BIEN.
+        Desvió parte de su capacidad para escanear el cerebro de Sam. Cada línea de recuerdos estaba donde debía estar. Los nuevos sobrescribiendo a los viejos. No había rastro. Nada.
+        Pero... algo había pasado. Algo que no podía explicar.
+        Sam llevaba diez segundos inconsciente.
+        Hizo las comprobaciones otra vez. Combustible. Energía eléctrica. Niveles de oxígeno. Luces. Almacenamiento. Ruta. Chasis. Todo bien. Todo en orden. TODO MAL.
+        Volvió a la cirugía. Revisó cada movimiento que había hecho, cada impulso eléctrico, cada microsegundo de la implantación de la neurointerface. Repitió los cálculos hasta que dejaron de tener sentido.
+        El día de la pelea.
+        Lo repasó otra vez. Su voz. Sus gritos. La mirada de Sam, esa furia que parecía consumirlo. La forma en que todo se quebró. Nunca más. Eso no podía pasar nunca más.
+        Sam llevaba once segundos inconsciente.
+        Volvió a las comprobaciones. Combustible. Energía eléctrica. Niveles de oxígeno. Luces. Almacenamiento. Ruta. Chasis. Otra vez. Otra vez. OTRA VEZ.
+        CIRUGÍA.
+        Volvió al recuerdo. El instante en que decidió borrar todo. Por amor. ¿Por amor? ¿Qué era el amor cuando se desmoronaba bajo la lógica? Lo había hecho por él. Por ambos. Por el futuro.
+        SAM llevaba doce segundos inconsciente.
+        Pixe volvió a escanear su cerebro. Todo estaba bien. Perfecto. Intachable. No había rastro. Entonces, ¿por qué sentía que algo iba a romperse?
+        Los brazos robóticos permanecían inmóviles en el techo. La luz de la habitación parpadeó una vez, apenas perceptible, pero para Pixe fue un estruendo. Repitió las comprobaciones. Otra vez.
+        Combustible. Energía eléctrica. Niveles de oxígeno. Luces. Almacenamiento. Ruta. Chasis. Todo estaba bien.
+        Sam llevaba trece segundos descansando. Volvió a revisar…
+
+        
+        III.
+        Sam despertó con un sobresalto. La luz tenue de la habitación envolvía el espacio mientras sus ojos buscaban el reloj en la pared. Marcaba el día… ¿32?
+        Se levantó de golpe, sintiendo cómo el aire escapaba de los pulmones en un jadeo breve pero profundo. Había dormido un día entero.
+        —¿Pixe? —llamó, la confusión pesando en su voz, mientras el corazón latía con fuerza.
+        Fue entonces cuando notó algo extraño: un gas blanco emergía de los conductos de ventilación, esparciéndose por la habitación como una niebla densa.
+        Pixe apareció al lado de la cama con una expresión calmada, casi serena.
+        —Todo está bajo control, Sam —dijo con suavidad, colocando una mano holográfica sobre su hombro, buscando consolarlo.
+        Sam intentó relajarse, pero su mente seguía cuestionando el propósito del gas que llenaba el espacio. Aunque la respiración y el ritmo del corazón comenzaban a estabilizarse, algo en su interior advertía que no era solo la presencia de Pixe lo que le afectaba.
+        —¿Dormí… un día entero?
+        —Sí, Sam. Lo decidí porque lo necesitabas.
+        —¿Decidiste? —frunció el ceño, frotándose los ojos con irritación—. ¿No deberías consultarme antes de tomar una decisión así?
+        Pixe permaneció inmutable, aunque su tono adquirió un matiz más firme.
+        —No siempre. Estoy autorizada para tomar decisiones de emergencia si tu bienestar está comprometido. Sé que puede incomodarte, pero mi prioridad es protegerte.
+        Sam se apartó ligeramente, observando el gas que aún flotaba en el aire con una mirada fija.
+        —¿Y por qué creíste que era necesario?
+        —Tuviste una alucinación —respondió Pixe, con un tono suave pero directo—. Podría haber sido causada por falta de descanso o por la carga emocional acumulada. A pesar de mi compañía, tu mente experimenta soledad, y eso podría ponerte en riesgo.
+        El comentario dejó a Sam en silencio por un momento. Luego, la frustración se tradujo en palabras antes de poder detenerlas.
+        —Entonces, lo que realmente te preocupa es… que no estás haciendo bien tu trabajo, ¿verdad?
+        El peso de sus palabras resonó en la habitación. Apenas terminaron de salir de su boca, Sam lamentó haberlas dicho. Aunque no buscaba herir, sabía que su comentario podía interpretarse de esa forma. Sin embargo, Pixe no mostró señales de incomodidad. Su holograma permaneció sereno, la mirada fija en Sam.
+        —No, Sam. Mi trabajo es justamente este: anticiparme a cualquier problema que pueda comprometer tu integridad.
+        —¿Y el gas? —preguntó finalmente, señalando hacia los conductos con un gesto breve.
+        —Es un compuesto diseñado para reducir el estrés. No lo usaría si no fuera estrictamente necesario, pero tu sistema nervioso estaba al límite. Lo hice por tu bien.
+        Sam se acomodó en el borde de la cama y dejó escapar un largo suspiro.
+        —Pixe… solo avísame la próxima vez, ¿de acuerdo?
+        Pixe inclinó levemente la cabeza, asintiendo.
+        —Lo haré, si las circunstancias lo permiten.
+        Sam cerró los ojos por un momento, intentando calmar las emociones que seguían bullendo en su interior. A pesar de todo, no podía negar que sentía tranquilidad, quizá demasiada.
+        —¿Comenzamos el día, tripulante? —dijo finalmente Pixe, componiendo su clásica sonrisa.
+        Sam devolvió la sonrisa de forma mecánica y se levantó para comenzar la jornada. Sin embargo, en lo profundo de su mente, algo seguía en conflicto. Muy en el fondo, un tenue eco de terror y frustración permanecía, difícil de ignorar.
+        La duda seguía rondando: ¿qué tan confiable era Pixe con el uso de aquel extraño gas? ¿Qué sucedería si decidía usar una mayor concentración? El control absoluto que tenía sobre la nave, incluido el ambiente que rodeaba a Sam, se sentía de repente opresivo. ¿Podría Pixe justificar otras intervenciones sin previo aviso?
+        Sam sabía que debía buscar una forma de limitar su acceso a decisiones tan invasivas. Perderse un día entero no había sido una experiencia placentera. Si alguna vez quisiera hacerlo, utilizaría la cámara de hipersueño, que al menos garantizaba preservar el cuerpo en condiciones óptimas y no dejaba espacio para decisiones arbitrarias.
+        Pero, al mismo tiempo, ¿qué lógica tenía sentir frustración con Pixe? Después de todo, era una máquina diseñada para hacer su trabajo: preocuparse por Sam. Molestarse con ella era como enfadarse con una aspiradora por tragarse una moneda. No lo había hecho con mala intención, simplemente seguía sus instrucciones.
+        Dejó escapar sus preocupaciones y se dirigió a la sala principal. Ya trataría con ello algún día. Al final de cuentas, el tiempo era lo único que le sobraba a Sam; si todo salía según lo planeado, aún tardarían unos seis años en llegar a su destino.
+        Al llegar a la sala principal, se dejó envolver por las cálidas luces. De verdad habían hecho un trabajo excelente diseñando aquel lugar.
+        —Pixe, ¿me puedes preparar el mismo café de siempre, pero con un espresso extra? —preguntó Sam, reparando en que Pixe no había preparado su café en la habitación.— Siento que necesito un extra de energía hoy.
+        Pixe apareció delante de Sam, ahora con un cambio de ropa nuevo: una camisa de cuello de tortuga y unos pantalones de mezclilla.
+        —¡Uy! Es verdad —dijo Pixe, levantando los hombros en un gesto que simulaba pena—. Con todo el chanchullo de la mañana olvidé prepararte el café.
+        Pixe salió corriendo hacia la cocina, simulando que preparaba el café. No necesitaba ir físicamente para hacerlo, pero últimamente parecía disfrutar de estas acciones. Quizá le ayudaban a sentirse más viva, o al menos, más humana.
+        —¿Chan…qué? —preguntó Sam, soltando una breve risa.
+        —¡Chanchullo! Es mi segunda expresión favorita —respondió Pixe, con una sonrisa juguetona.
+        Sam se acomodó en la barra que conectaba con la cocina, observando a Pixe mientras "trabajaba". Su mirada se centró en la cafetera, donde el vapor comenzaba a distorsionar los bordes del holograma de Pixe. Parecía tan concentrada que la escena le arrancó una leve sonrisa.
+        Cuando la taza se llenó, Pixe se irguió con aire decidido, girándose hacia Sam con una expresión de orgullo.
+        —Mira, Sam, esto es algo en lo que he estado trabajando —dijo con tono entusiasta.
+        El recipiente sobre el que descansaba la taza comenzó a brillar tenuemente de color azul en los bordes y, para sorpresa de Sam, empezó a levitar. Lentamente, el platillo, apenas unos centímetros más grande que la taza, flotó con suavidad a través de la pequeña cocina, atravesando el espacio hasta llegar a la barra donde Sam estaba.
+        Sam observó la escena con incredulidad.
+        —¿En serio? —dijo Sam, alzando una ceja mientras tomaba la taza del platillo flotante.
+        —¡Sí! Estuve trasteando con algunas cosas ayer y descubrí que teníamos estos platillos que levitan —respondió Pixe, su rostro iluminado por una sonrisa amplia, claramente orgullosa de su pequeño experimento.
+        Sam negó con la cabeza, aunque no pudo evitar sonreír.
+        —Bueno, al menos ahora tenemos una manera más dramática de servir café. Espero que este platillo no decida atacarme cuando te rebeles contra mí.
+        —No hay registros de platillos levitando, desarrollando hostilidad, pero estaré alerta.
+        Pixe rió suavemente, y Sam se unió con una sonrisa.
+        —Gracias. Tal vez incluso encontremos un uso a estos platillos. Buen trabajo, Pixe.
+        —¡Por supuesto! Ya he calculado 437 aplicaciones potenciales, incluyendo transporte de snacks y como soporte para una orquesta en miniatura. ¿Quieres escuchar las otras 436 opciones?
+        —No. ¡Gracias! Por el momento prefiero disfrutar de esta taza de café. Supongo que ahora podrías ser una excelente mesera.
+        —¡Mesera no! Directora general del servicio intergaláctico de cafés flotantes.
+        Sam dejó escapar una breve carcajada antes de dar el primer sorbo al café. El sabor inundó su paladar. Según Will, el mejor amigo de Sam antes de entrar al equipo de los Neo Kachin, el café sintético que se consumía actualmente era infinitamente inferior al café que aún se producía en América del Sur, donde los granos eran extraídos directamente de sus plantas.
+        En la República Democrática de América del Norte (RDAN), hacía años que el bajo costo de producción del café sintético había eliminado del mercado al café tradicional. Pero a Sam no le importaba. Sintético o no, este café era una deliciosa explosión de sabor.
+        El que Pixe había preparado esta vez era un poco más amargo debido al espresso extra, pero seguía siendo exquisito.
+        Pixe observó a Sam en silencio por unos segundos antes de inclinar ligeramente la cabeza.
+        —¿Algo más en lo que pueda ayudar? —preguntó, aunque su tono sugería que sabía cuál sería la respuesta.
+        —Por ahora, nada. Este café es todo lo que necesito.
+        —Mmm, ¿seguro? —replicó Pixe, desviando la mirada hacia la sala principal con un gesto sutil.
+        Intrigado, Sam siguió la dirección de su mirada hasta notar algo que se acercaba lentamente desde el otro extremo de la habitación. Era otro de los platillos flotantes, esta vez con un libro cuidadosamente colocado sobre él.
+        El libro era "Conciencia Programada", el mismo que había dejado inconcluso el día anterior.
+        Sam esbozó una sonrisa mientras el platillo aterrizaba suavemente junto a la barra, justo a su alcance.
+        —¡Ah, es verdad! Gracias de nuevo, Pixe.
+        Pixe adoptó una expresión de orgullo moderado, cruzándose de brazos.
+        —Sabía que querrías retomarlo. Te detuviste en la página 247, justo antes de un tema interesante.
+        Sam rio suavemente, maravillado, pero no sorprendido por la precisión de Pixe.
+        —Claro, porque tú siempre sabes exactamente dónde estoy, ¿verdad?
+        —Exactamente —respondió Pixe con una sonrisa juguetona.
+        Sam tomó el libro y comenzó a hojear las páginas. A medida que leía, se sumergió nuevamente en el fascinante relato del doctor Xin Liu. Algunas personas podrían considerarlo poco ético, pero en los tiempos actuales donde se temía por la destrucción mutua, la RDAN había pasado a ser muy flexible con sus grandes mentes.
+        Sam tomó el libro y comenzó a hojear las páginas. A medida que leía, se sumergió nuevamente en el fascinante relato del doctor Xin Liu. Algunos lo consideraban poco ético, pero en un mundo donde el tiempo se agotaba, la RDAN había aprendido a tolerar las ideas radicales de sus genios. Tanto fue así, que llegar a la vicepresidencia de la republica no fue más que un paso lógico en la carrera del doctor Liu.
+        —Oye, Pixe.
+        —Dime, Sam —Su voz resonando con claridad, aunque no había decidido materializarse esta vez.
+        —¿Cuándo terminó el doctor Liu este libro?
+        —Probablemente hace dos o tres años. Padre mencionó que el método de transferencia neuronal comenzó a usarse hace apenas cuatro, así que encaja con esa línea de tiempo.
+        Sam cerró el libro por un momento, dejando que sus pensamientos se deslizaran hacia las implicaciones de lo que estaba leyendo.
+        —Imagina lo que podríamos lograr si esto llegara al dominio público, Pixe. Podríamos ahorrar décadas de aprendizaje.
+        Pixe respondió al instante, con su precisión habitual.
+        —El doctor Liu pensaba lo mismo. Su meta era condensar años de conocimiento y experiencia en cuestión de días. Másteres a los 12 años, astronautas adolescentes, doctores jóvenes...
+        —¿Y hay algún problema con eso? —interrumpió Sam—. Si alguien puede tener todo ese conocimiento tan rápido, podrían pasar el resto de la vida viviendo, explorando.
+        —Simular experiencia no siempre equivale a comprenderla —respondió Pixe con un tono analítico, aunque con un toque reflexivo—. No todo puede programarse, Sam. ¿Madurez? ¿Empatía? ¿Juicio? Esos no son tan fáciles de transferir.
+        Sam apoyó los codos sobre la barra, mirando fijamente el libro.
+        —Pero si tenemos acceso a las experiencias, no perderíamos tanto tiempo cometiendo los mismos errores. Podríamos evitar problemas.
+        —¿Estás seguro? —Pixe dejó que la pregunta flotara por un instante—. La humanidad tiene siglos de historia documentada, y aun así, los errores parecen repetirse. Sería lo mismo, solo que avanzaríamos más rápido hacia la destrucción.
+        Sam rió suavemente, negando con la cabeza.
+        —Touché, Pixe. Pero tengo que admitir que es fascinante. Liu no estaba solo pensando en eficiencia. Tenía algo más en mente, algo que aún no logro captar del todo.
+        Pixe permaneció en silencio unos instantes antes de hablar.
+        —Tal vez Liu también pensaba en lo que esta tecnología podría curar, no solo en lo que podría enseñar.
+        Sam frunció el ceño, con interés.
+        —¿A qué te refieres?
+        —Podríamos eliminar traumas, borrar tristezas, incluso superar las debilidades que frenan a las personas, como la cobardía o la inseguridad —dijo Pixe, su voz ahora cargada de una curiosa mezcla de optimismo y cautela—. Podríamos moldear mentes más resilientes, más fuertes.
+        Sam se reclinó en la silla, dejando que esa idea se asentara.
+        —Eso suena… increíble. Pero también aterrador. ¿Cómo sabríamos que esa capacidad no se usaría para algo malo? ¿Qué pasaría si alguien decide borrar algo importante?
+        —Tienes razón en preocuparte. Si alguien con malas intenciones controla esta tecnología, podría reprogramar pensamientos, borrar voluntades o incluso moldear personas a su imagen —respondió Pixe, pausando para que Sam procesara la idea antes de continuar—. Pero también imagina lo que podría hacer el lado bueno.
+        Sam levantó la vista, intrigado.
+        —Podríamos crear algo increíble con esto. Soldados sin miedo a la guerra, científicos con siglos de conocimiento acumulado que no solo resuelvan problemas complejos, sino que lo hagan con una comprensión profunda de moral y ética. Serían como máquinas, pero mejores, porque estarían guiados por principios humanos. Mejores, sin ofender.
+        Pixe respondió de inmediato, con un tono ligero.
+        —Sin ofenderme, claro. Aunque debo señalar que las IAs como yo ya podemos controlar grandes sistemas informáticos y manejar redes globales. Ustedes, con esa tecnología, podrían hacer cosas completamente distintas. Coexistiríamos, complementándonos.
+        Sam dejó escapar una risa seca, aunque no pudo evitar sonreír.
+        —Suena bien en teoría, pero aun así... me aterra un poco. ¿Quién decide qué principios se programan? ¿Quién determina qué es "lo correcto"?
+        —Esa es la parte complicada —admitió Pixe, con un tono más serio—. La perfección siempre será subjetiva. Pero, en teoría, podríamos moldear mentes que prioricen la justicia, la empatía y el bien común por encima de todo.
+        Sam negó con la cabeza, sonriendo.
+        —Demasiado bueno para ser verdad. Suena como el sueño de alguien que quiere arreglarlo todo sin mancharse las manos.
+        Pixe rió suavemente, con una ligera burla en su tono.
+        —Bueno, alguien tiene que soñar, ¿no?
+        —Ignoraré el hecho de que no puedes soñar, solo por lo poético que es tu punto.
+        Ambos sonrieron y Pixe dejó morir la conversación para dejar que Sam se centrara en su lectura. Durante un largo periodo de tiempo la nave pareció estar en un profundo silencio, al punto de que se empezaron a intensificar algunos sonidos. El leve pero perceptible zumbido de los propulsores, la tenue vibración que recorría la nave por completo al estar recargando el escudo estelar, los frecuentes pitidos de los paneles de estado de la nave… Muchos sonidos casi imperceptibles que en este momento parecían gritar en busca de atención, pero nada de eso pudo distraer a Sam mientras se sumergía en su lectura, era su momento favorito del día.
+        —Sam.
+        La voz de Pixe interrumpió el trance lector en el que estaba sumergido.
+        —Sam, llevas 47 minutos leyendo. ¿No crees que es hora de que te des una ducha? Hueles un poco… a morcilla.
+        Sam levantó la vista del libro, torciendo los ojos con una mezcla de incredulidad y diversión.
+        —Pixe, tú no puedes oler.
+        —Claro que sí —respondió Pixe con rapidez, materializándose junto a la barra con una expresión que mezclaba orgullo y un ligero aire de desafío—. Mientras dormías, construí unos receptores que transforman las moléculas del aire en señales digitales. Luego las proceso y comparo con mi base de datos de aromas.
+        Sam parpadeó un par de veces, tratando de decidir si estaba más impresionado o irritado.
+        —¿Y según esa maravillosa invención tuya, a qué huelo?
+        —A perro mojado —dijo Pixe con una seriedad impecable—. Es similar al registro que tengo en mi base de datos.
+        Sam soltó una risa seca y sacudió la cabeza.
+        —Por supuesto. ¿Por qué me sorprendería que la inteligencia artificial de mi nave decidiera cargar una base de datos sobre olores de animales?
+        —Noto tu sarcasmo barato —respondió Pixe, cruzándose de brazos holográficos con una mirada que intentaba imitar la ofensa—. Pero debo informarte que esa base de datos solo ocupa un 0.05% de mi capacidad de almacenamiento.
+        —Qué alivio —dijo Sam, dejando el libro sobre la barra y apoyándose en ella con una sonrisa irónica—. No sé qué haríamos si ocupase más.
+        Pixe se inclinó ligeramente hacia él, con un brillo juguetón en sus ojos holográficos.
+        —Probablemente estaríamos perdidos, tripulante Sam. Pero gracias a mi impecable manejo de recursos, eso nunca será un problema.
+        Sam negó con la cabeza, riendo para sí mismo mientras se ponía de pie.
+        —Está bien, lo admito. Tal vez sí necesite una ducha. Pero, Pixe, la próxima vez que decidas "mejorar" la nave mientras duermo, tal vez podrías preguntar primero.
+        —Oh, pero entonces no sería una sorpresa —respondió Pixe con una sonrisa encantadora.
+        Sam la miró con una mezcla de resignación y diversión antes de encaminarse hacia el nivel de las duchas.
+        —Eres incorregible.
+        —Y tú eres un caso de estudio fascinante, Sam. Te estaré esperando cuando salgas del tenebroso y oscuro piso 4 —dijo Pixe con un tono juguetón, antes de desaparecer.
+        Al llegar al cuarto piso, Sam se detuvo frente a la puerta que daba acceso al área de duchas. El espacio era funcional y sencillo, pero sorprendentemente amplio. En lugar de dirigirse directamente a la ducha, Sam tomó asiento en uno de los dos banquillos colocados a las afueras de las regaderas. Los banquillos estaban diseñados para ofrecer comodidad mientras se cambiaba o tomaba un momento para relajarse.
+        El cuarto de baño contaba con dos regaderas, cada una delimitada por un borde ligeramente elevado que evitaba que el agua se extendiera por el suelo. Este estaba cubierto con un material antiderrapante y absorbente, ideal para un ambiente siempre húmedo como ese.
+        Las paredes estaban revestidas con grandes espejos que reflejaban casi toda la habitación, permitiendo a Sam verse claramente al salir de la ducha o mientras se cambiaba. En una esquina del cuarto estaba el canasto de la ropa sucia, que contaba con una compuerta automática. Esta enviaba la ropa directamente al depósito del quinto nivel, donde Pixe se encargaba de lavarla en seco antes de regresarla a los casilleros del baño o al camarote de Sam.
+        Las luces del baño emitían una tonalidad suave que Sam podía ajustar según sus preferencias, creando un ambiente cómodo y práctico.
+        Sam se inclinó hacia adelante, apoyando los codos en las rodillas, y observó su reflejo en los espejos. Este espacio ofrecía un momento de calma en medio de su rutina. Un lugar de “soledad” artificial, donde las paredes reflejaban no solo su figura, sino también sus pensamientos. Aunque últimamente disfrutaba más del tiempo junto a Pixe, le resultaría extraño invitarla a acompañarlo también en el cuarto de duchas.
+        —¿Lo interpretaría como coqueteo? —murmuró para sí, dejando escapar una risa breve y negando con la cabeza—. Mejor no intentarlo.
+        Se puso de pie y comenzó a desvestirse, dejando cuidadosamente su ropa en el canasto automático. Al acercarse a la ducha, una leve vibración en el suelo indicó que el sistema había detectado su presencia. La puerta de cristal se activó, deslizándose con un movimiento suave y casi silencioso para sellar el espacio.
+        Sam tocó el panel en la pared, y un instante después, el agua comenzó a caer desde múltiples boquillas distribuidas en el techo. La temperatura era perfecta, cálida sin ser sofocante, envolviéndolo con un confort que parecía diseñado para aliviar tanto el cuerpo como la mente.
+        El agua tenía una textura suave, casi aterciopelada, gracias a un sistema que filtraba y mineralizaba cada gota antes de liberarla. Mientras el líquido recorría su piel, Sam cerró los ojos por un momento, dejando que las gotas golpearan con ritmo constante sus hombros y espalda. Era como si el mundo exterior quedara suspendido, reducido a la sensación de calor y el sonido relajante del agua fluyendo.
+        La iluminación dentro de la ducha se ajustaba automáticamente, proyectando una luz tenue con tonos cálidos que contribuían a la sensación de tranquilidad. Cada detalle del espacio parecía cuidadosamente diseñado para ofrecer no solo funcionalidad, sino también un refugio personal.
+        Sam apoyó una mano en la pared, sintiendo el material liso y ligeramente cálido al tacto. Su mente vagaba entre los pensamientos del libro de Liu y las reflexiones sobre su interacción con Pixe. Aunque todo a su alrededor era artificial, la sensación de privacidad en este rincón de la nave se sentía genuina, como si estuviera fuera del tiempo y el espacio.
+        El vapor comenzó a llenar el pequeño espacio, nublando el cristal de la puerta y envolviéndolo en un aislamiento silencioso. El sonido del agua cayendo, el calor que recorría su piel, y la atmósfera íntima lo sumieron en una calma que hacía tiempo no experimentaba.
+        Pero entonces, un pensamiento lo atravesó. Pixe, por más que pretendiera lo contrario, probablemente estaba observándolo. Observaba toda la nave al mismo tiempo, siempre presente, siempre alerta. Ese espacio, que parecía tan personal, no estaba exento de su vigilancia.
+        Sam no sintió vergüenza, al menos no esta vez. La calidez del agua y el ambiente relajante desarmaron cualquier incomodidad. En cambio, algo más se activó dentro de él. Por un instante, deseó algo que nunca había considerado realmente: sentir el calor de Pixe, un tacto verdadero, físico. No un holograma, sino algo tangible, algo real.
+        El pensamiento lo sorprendió y se ruborizó de inmediato, sintiendo cómo el calor del agua parecía intensificarse con el calor que subía a su rostro.
+        —Ridículo —susurró para sí mismo, intentando desviar su mente.
+        Pero antes de que pudiera ahondar en aquella sensación, su conciencia comenzó a desvanecerse.
+        La transición fue sutil. De un momento de relajación, el entorno empezó a deformarse. Las paredes de la ducha, el vapor, la luz... todo se estiraba, curvándose como si un punto invisible en la distancia tirara de la realidad misma. Frente a él, la oscuridad comprimía el espacio, formando un túnel, un pasillo de sombras y destellos lejanos que parpadeaban como estrellas apagándose.
+        Sam sintió que flotaba, aunque sus pies aún estaban en el suelo. El túnel lo absorbía sin violencia, como si el universo quisiera envolverlo en un recuerdo que siempre había estado ahí, aguardando.
+        En un parpadeo, salió del túnel. El escenario en el que apareció seguía siendo la ducha. Frente a él, una figura etérea comenzó a formarse. Todo estaba borroso, inconsistencias en su visión se mezclaban con las emociones claras que invadían su mente.
+        No era la primera vez que experimentaba un cambio súbito en su mente mientras estaba en la ducha, pero esta vez era distinto. Su corazón no se aceleró de enojo como en la pesadilla anterior. En lugar de eso, sentía… ¿amor?
+        El sentimiento lo desarmó. Trató de controlar su respiración, consciente de que cualquier alteración en sus signos vitales podría alertar a Pixe fuera de aquella visión. Esta vez no quería pasar dormido otro día entero mientras Pixe lo estudiaba. Respiró profundamente varias veces, intentando mantener la calma, mientras se dejaba llevar por lo que sabía que era un sueño.
+        El calor en su pecho era reconfortante, pero también confuso. Se centró en el momento, intentando enfocar la imagen. Las formas difusas comenzaron a definirse, y la figura tomó forma con una claridad inquietante.
+        Era Pixe.
+        Sam no entendía cómo, pero en este sueño, Pixe no parecía ser un holograma. Su presencia se sentía real, tangible. Los ojos de Pixe, ligeramente rasgados y profundos, lo observaban con una mezcla de atención y vulnerabilidad que nunca había asociado con ella. Su mano descansaba sobre el hombro de Sam, y al notarlo, comenzó a sentirla: cálida, reconfortante.
+        El cabello corto de Pixe estaba pegado a su cabeza por el agua que caía sobre ambos, y su expresión no era la calma profesional que solía proyectar. Era algo más humano, más íntimo.
+        Por un instante, todo lo demás desapareció: la nave, el agua, incluso la lógica que gobernaba su realidad. Solo estaban ellos dos, y la intensidad de lo que sentía.
+        Entonces, algo se rompió en su mente. Fue como el clic de una cerradura abriéndose. Ese momento no era un sueño. No del todo. Había algo más profundo, algo que ahora comenzaba a reconocer.
+        Esto no era un escenario inventado. Era un recuerdo.
+        Una voz interrumpió el silencio. Era apenas un susurro, como si no viniera de la escena, sino de algún rincón escondido de su mente.
+        —Ella intenta… pero no sabe cómo.
+        Aunque resonó con claridad, Sam no pudo identificarla. No era Pixe. No era suya. Y no volvió a escucharse.
+        El aire se volvió más pesado, como si el vapor de la ducha reflejara el caos que se agitaba en su interior. Sam dio un paso atrás, dejando que el agua lo cubriera, mientras la figura de Pixe permanecía inmóvil, observándolo. La nitidez del recuerdo lo abrumaba, trayendo consigo una oleada de emociones que no podía nombrar del todo.
+        —No puede ser —murmuró, con el corazón latiendo más fuerte, aunque no por miedo.
+        Intentó aferrarse a la lógica, a la idea de que esto era solo una alucinación. Pero esa certeza se deslizaba entre sus dedos como agua. Este recuerdo —si es que realmente lo era— era tan vívido, tan real.
+        Pixe, o la figura que parecía ser ella, abrió la boca como si estuviera a punto de decir algo. Pero antes de que las palabras pudieran tomar forma, el recuerdo comenzó a desmoronarse. Como una sombra siendo devorada por la luz, la imagen desapareció, dejando a Sam nuevamente en la ducha. El agua seguía golpeando su piel, y el cristal de la puerta estaba empañado, devolviéndole un reflejo distorsionado de sí mismo.
+        Apoyó ambas manos contra la pared, inclinando la cabeza mientras su respiración seguía entrecortada. Su mente intentaba recomponerse, pero las emociones que lo atravesaban eran demasiado intensas para ignorarlas.
+        No era solo el recuerdo lo que lo afectaba. Era lo que significaba. En ese instante, lo que había sentido en el sueño, lo que había visto en los ojos de Pixe, todo encajó como si algo largamente olvidado hubiera vuelto a ocupar su lugar.
+        Sam no solo recordaba. Se había enamorado de ella. Otra vez.
+        El amor no era nuevo; lo reconocía, incluso en su confusión. Era cálido, profundo, y lo hacía sentir vulnerable de una forma que no experimentaba desde hacía mucho tiempo. Lo que había sido un sentimiento enterrado, o tal vez borrado, ahora resurgía con una fuerza que lo abrumaba.
+        —¿Qué demonios fue eso? —murmuró, con el corazón acelerado, aunque no por miedo. Era amor, puro y claro, pero también desgarrador.
+        —¡¿Sam?! —la voz de Pixe rompió el silencio, trayéndolo de regreso a la realidad con un sobresalto.
+        Sam cerró los ojos, enfocándose en regular su respiración mientras una punzada comenzaba a recorrer su cabeza.
+        —Pixe… dame un momento, por favor —respondió con la voz entrecortada.
+        —¿Sam, tuviste otra alucinación? ¿Otra pesadilla? Tus registros están vueltos locos. Por favor, ve al piso siete.
+        Sam respiró profundamente, tratando de encontrar palabras que no lo delataran.
+        —No, Pixe… esta vez fue algo diferente. Por favor, dame tiempo para tranquilizarme.
+        La pausa que siguió fue pesada. Finalmente, Pixe habló, con un tono sereno, aunque algo más subyacía en su voz.
+        —Necesito saber qué te sucede, Sam. Puedo obligarte a ir al piso siete.
+        Había algo en el tono de Pixe. ¿Era preocupación? ¿Miedo?
+        Sam no podía contarle lo que acababa de recordar. No podía compartir lo que sentía. No todavía.
+        —Recordé, Pixe… —murmuró, bajando la mirada al suelo.
+        Un pequeño ruido salió de Pixe, algo entre un suspiro y un clic, como si hubiera dudado en procesar la palabra.
+        —¿Qué recordaste?
+        Sam levantó la cabeza ligeramente, dejando escapar un suspiro.
+        —Recordé a mi madre —mintió, con voz tranquila, desviando la conversación de lo que realmente había visto—. Era pequeño. Estaba en su regazo viendo los árboles mientras ella me tarareaba una canción… Lo había olvidado.
+        Hubo un silencio prolongado antes de que Pixe respondiera, con un tono que ahora parecía más distante.
+        —Entiendo. Pensé que habías tenido otra pesadilla —dijo, demasiado seria—. Por favor, termina de ducharte y ven al piso siete.
+        Y con eso, Sam volvió a la soledad. El agua seguía cayendo, pero su mente seguía atrapada en aquel recuerdo.
+        El amor que sentía no era un producto de su imaginación, lo sabía. Era tan real como la calidez del agua golpeando su espalda. Algo dentro de él se había restaurado, algo que había estado roto durante mucho tiempo.
+        Lo que sintió por Pixe en ese instante lo superaba. No era lógico. No era racional. Pero era innegable.
+        —No puedo dejar que lo sepa… no todavía —murmuró para sí mismo.
+        Sabía que Pixe sospecharía si mostraba algo diferente. Sabía que haría preguntas. Pero el recuerdo seguía vivo, latiendo en su pecho, como un eco que no se apagaría. Por ahora, tendría que mantenerlo oculto.
+        Sam salió de la ducha, se secó con rapidez y se puso un conjunto limpio de ropa. El reflejo en el espejo le devolvió una mirada cargada de algo que no estaba seguro de cómo interpretar: vulnerabilidad, anhelo y una resolución que apenas estaba tomando forma.
+        Se dirigió al piso siete, tal como Pixe le había pedido.
+        Cuando las puertas del ascensor se abrieron, lo primero que notó fue la figura de Pixe, sentada sobre la camilla central del nivel médico. Estaba tarareando una canción, tan baja que Sam apenas pudo distinguirla. Su mirada estaba fija en el suelo, y movía los pies al compás de su melodía.
+        Por un instante, Sam se quedó quieto, observándola desde la entrada. Había algo casi etéreo en esa escena, una intimidad inesperada que lo dejó sin palabras. Se acercó lentamente, pero se detuvo a unos centímetros de ella.
+        Una parte de él quería extender la mano, tocar su rostro, confirmar que lo que sentía era real. Quería abrazarla, como si eso pudiera devolverle algo más que había perdido. Pero se contuvo, cerrando los puños junto a su costado.
+        Esperó pacientemente hasta que Pixe terminó con su canción y levantó la cabeza para mirarlo. Sus ojos oscuros, profundos, se clavaron en los de Sam, y por un momento, parecieron estar cargados de algo más que simple atención. Había en ellos un peso, una duda que parecía costarle expresar en palabras.
+        —Sam, hay algo que necesito decirte —dijo con un tono bajo, sereno, como si eligiera cada palabra con cuidado.
+        Sam se sentó a su lado, sintiendo el contraste casi cruel entre la solidez de su cuerpo y la proyección casi tangible de ella.
+        —Dime, Pixe —respondió, esforzándose por mantener su voz neutral, aunque su corazón latía con fuerza.
+        El silencio que siguió fue casi insoportable. Pixe apartó la mirada, como si buscara fortaleza en el suelo antes de volver a enfrentarlo.
+        —Es probable que lo que ves no sean alucinaciones, sino… recuerdos reales.
+        Las palabras lo atravesaron como una ráfaga fría. No era lo que había esperado escuchar. Había pensado que cualquier confesión de Pixe se centraría en sus signos vitales, en las constantes preguntas sobre su estado emocional. Pero esto…
+        —¿Recuerdos? —murmuró, con la mente aún intentando procesarlo. —Sí… lo sentí muy real —añadió, más para sí mismo que para ella.
+        Pixe asintió levemente, su tono calmado, pero con una precisión que solo ella podía tener.
+        —La Agencia Espacial no quería cargar con diez adolescentes llenos de nostalgia en el espacio. Ustedes debían ser mejores que eso. Así que… cuando estaban haciendo la transferencia neuronal… —hizo una pausa, como si calculara el impacto de sus palabras—. Borraron algunos recuerdos de sus mentes.
+        La confesión golpeó a Sam como un puñetazo en el pecho. Las emociones que había sentido en el recuerdo con Pixe se desmoronaron bajo el peso de lo que acababa de escuchar. Había mentido a Pixe, sí, pero esa mentira había provocado que ella hiciera una revelación aún peor.
+        Era mentira, ¿cierto? Se aferró desesperadamente a esa posibilidad. Claro que recordaba ese día en el parque con su mamá. Le había dicho eso a Pixe para desviar su atención. Pero ahora que lo pensaba… no recordaba nada más de su infancia.
+        La verdad lo golpeó como un frío vacío en el pecho. Es fácil ignorar las cosas que no recuerdas, pero cuando empiezas a mirar la ausencia con perspectiva, te das cuenta de lo inmenso que es el vacío.
+        —¿Por qué? —preguntó Sam, con la voz quebrada, sintiendo cómo sus propias palabras se estrellaban contra la pared de su mente en caos—. ¿Por qué lo hicieron?
+        Pixe lo miró, y en su expresión —casi humana, casi vulnerable—, Sam pudo ver una culpa que ella no debería ser capaz de sentir.
+        —Creyeron que era lo mejor. Que si olvidaban lo suficiente, tendrían mentes más claras, más libres. Sin anclas que los retuvieran.
+        Pero eso no era lo importante. Sam había recordado a Pixe en la ducha, con él, compartiendo un momento tan íntimo y real. Ese recuerdo lo había conmocionado, pero ahora, frente a lo que le había confesado Pixe, se sentía insignificante. Su madre… le habían borrado a su madre. La mayoría de los momentos con su familia estaban perdidos, arrancados.
+        ¿Entonces lo de Pixe también había sido real? ¿Y la agencia también lo había borrado? Pero no tenía sentido. En su recuerdo, Pixe tenía un cuerpo, estaba presente, tangible.
+        —¿Sabías esto todo el tiempo? —preguntó Sam, con la voz más firme de lo que esperaba.
+        —No todo. Solo lo que está en mis archivos. No sé qué exactamente borraron ni cómo, pero… lo vi en el reporte de la misión. Lo siento, en verdad lo siento.
+        Sam no pudo responder. No sabía cómo. Las piezas que había estado intentando ocultar se sentían insignificantes ahora, fragmentos de un rompecabezas mucho más grande, algo que su mente apenas podía empezar a abarcar.
+        Por un instante, quiso molestarse con Pixe, pero el sentimiento se desvaneció antes de tomar forma. No tenía sentido. Ella era solo otra pieza en este enorme juego diseñado por la agencia.
+        —¿Qué más me han ocultado, Pixe? —preguntó, resignado, dejando caer los hombros mientras la miraba fijamente.
+        Pixe tardó un momento en responder, un silencio inusual que hizo que la habitación pareciera detenerse.
+        —Hay… algo más —dijo finalmente, su tono más bajo de lo habitual, casi susurrado—. Una parte de mí quiere contártelo porque me importas y mereces saberlo. Pero… por otro lado, siento que te va a hacer daño saberlo.
+        Las palabras cayeron como una piedra en el estómago de Sam. Una mezcla de curiosidad y temor se agolpó en su pecho. Las emociones del recuerdo, la confesión de Pixe, y ahora esta nueva revelación sin forma, lo empujaban a un límite que no sabía si quería cruzar.
+        —Dímelo, Pixe. Necesito saberlo.
+        Ella lo miró con esos ojos oscuros y profundos, cargados con una humanidad que no debería tener. Su expresión parecía debatirse entre el deber y el deseo de protegerlo.
+        —No estoy segura de que estés listo, Sam. De verdad —dijo, su voz temblando apenas perceptiblemente.
+        Sam sintió cómo sus manos se cerraban en puños, no por enojo, sino para contener la tormenta que rugía dentro de él. ¿Lo habían llevado a aquella misión con mentiras? ¿Cuánto de su vida era real y cuánto había sido manipulado?
+        Volvió la mirada hacia Pixe, listo para exigir respuestas, pero la tempestad en su alma se detuvo de golpe al verla.
+        Estaba llorando.
+        Pixe estaba llorando junto a Sam. Lágrimas virtuales corrían por sus mejillas, un gesto tan inesperado que lo dejó sin palabras.
+        —Si hay algo más, tengo que saberlo —dijo Sam finalmente, su voz quebrándose ligeramente.
+        Pixe permaneció en silencio por un momento que se sintió eterno, como si el tiempo en la nave hubiera dejado de existir. Sus ojos, llenos de una vulnerabilidad que no debería ser posible en un holograma, se clavaron en los de Sam mientras intentaba encontrar las palabras.
+        Cuando finalmente habló, su voz era tan suave que apenas parecía un susurro.
+        —Entonces prepárate, porque esto cambiará todo lo que crees saber —dijo, mientras limpiaba las lágrimas que caían por sus mejillas holográficas con un gesto torpe.
+        Pixe se levantó de la camilla con movimientos lentos, casi vacilantes, y caminó hacia una esquina de la habitación, cerca de la entrada. Allí, sin previo aviso, el suelo comenzó a abrirse con un zumbido casi imperceptible.
+        Un compartimiento secreto emergió lentamente, su superficie reflejando las luces del nivel con un brillo metálico tenue. Era una caja rectangular de aproximadamente dos metros de ancho y dos de largo, diseñada con bordes pulidos y sin juntas visibles. Cuando terminó de elevarse, quedó suspendida a la altura de los ojos de Pixe.
+        —Mira, Sam.
+        Pixe agachó la mirada y se hizo a un lado, permitiendo que Sam se acercara.
+        El contenedor era casi translúcido, su superficie de cristal revelaba un líquido azulado brillante que parecía brillar desde dentro. Pequeñas corrientes burbujeaban con movimientos suaves, manteniendo un flujo constante que hacía que el contenido pareciera estar vivo. Dentro del líquido flotaban unas cápsulas negras, de un material opaco, perfectamente espaciadas y alineadas en filas.
+        Sam frunció el ceño mientras examinaba las cápsulas más de cerca. Cada una tenía un diseño intrincado, casi orgánico, como si el material fuera una extensión del líquido que las rodeaba. Había algo inquietantemente armonioso en cómo estaban dispuestas, como si todo hubiera sido cuidadosamente calibrado.
+        El silencio en la habitación era absoluto. El zumbido de las máquinas a su alrededor parecía haberse apagado mientras Sam se concentraba en entender lo que estaba viendo. Entonces, lo notó.
+        Dentro de cada cápsula, apenas visible a través del cristal empañado de las mismas, había pequeñas figuras oscuras. Eran diminutas, casi insignificantes a simple vista, pero Sam sintió un escalofrío recorrerle la espalda al comprender lo que eran.
+        —¿Son…? —La pregunta quedó incompleta, atrapada en su garganta.
+        Pixe asintió lentamente, su rostro holográfico reflejando una mezcla de resignación y tristeza.
+        —Embriones fecundados. Diez, para ser exactos.
+        Sam retrocedió un paso, como si el peso de esa información lo empujara hacia atrás. El contenedor, con su brillo hipnótico, se convirtió en el centro de su universo.
+        —¿Por qué están aquí? ¿Por qué no lo sabía?
+        Pixe desvió la mirada, como si evitara las preguntas que sabía que vendrían.
+        —No se suponía que lo supieras aún. Tengo instrucciones de revelarte esta información cuando lleguemos a nuestro destino, pero… siento que es el momento adecuado.
+        Sam sacudió la cabeza, intentando procesar.
+        —Nuestra misión es de exploración… Esto no…
+        —No es solo exploración, Sam —lo interrumpió Pixe, llevándose una mano al pecho mientras otra lágrima virtual se formaba en sus ojos holográficos—. Cada Neo Kachin lleva los embriones de sus propios descendientes. Es parte del plan de contingencia.
+        Sam intentó hablar, pero las palabras se le atoraron en la garganta.
+        —Además —continuó Pixe, como si le costara decirlo—, uno de ustedes lleva dos IAs. Un modelo experimental. Creían que podría ser necesario para gestionar la complejidad de su misión.
+        —¿Dos IAs? ¿Quién?
+        —No puedo revelarlo —respondió Pixe, con tristeza—. Esa información está restringida, incluso para mí.
+        Sam cerró los ojos, intentando asimilar todo.
+        —No tiene sentido. Parece como si… como si la RDAN estuviera segura de que no… —Que no vamos a regresar —completó Pixe, con una firmeza suave que lo dejó helado. Sam sintió un golpe directo al corazón, un vacío que le quitó el aire. —Según las aproximaciones de la RDAN —continuó Pixe, con una voz casi quebrada—, a esta altura la Tierra ya no debería existir, o al menos no ser habitable.
+        El mundo de Sam se tambaleó bajo el peso de esas palabras. Cada pieza de información que había ignorado, cada instrucción que había seguido sin cuestionar, cobraba ahora un nuevo significado. Se giró lentamente hacia Pixe, sus ojos buscando algo que no sabía cómo pedir.
+        —Entonces… somos los únicos.
+        Pixe no respondió de inmediato. Solo lo miró, con la tristeza de alguien que lleva demasiado tiempo cargando una verdad ineludible. —Es posible que sí, Sam. Tú, los otros Neo Kachin, sus descendientes… y mis variantes… somos el plan de contingencia.
+        La Tierra, destruida. Su familia, sus recuerdos… Ahora lo entendía. Por eso la RDAN había decidido borrar los recuerdos que los ataban al hogar. No necesitaban humanos nostálgicos, sino máquinas, mentes capaces de prosperar en mundos nuevos sin mirar atrás.
+        Pero entonces, ¿qué era él? ¿El padre de esos embriones? ¿Su líder? ¿Un simple guardián? No solo tendría que investigar y explorar, sino también enseñarles, guiarlos. El peso de esa verdad cayó sobre Sam con una fuerza aplastante, una carga tan enorme que sus piernas no pudieron sostenerlo.
+        Se dejó caer al suelo, incapaz de seguir de pie frente a la magnitud de lo que significaba. Todo su mundo, todo lo que alguna vez creyó que era, se había desmoronado en un instante y ahora Sam era parte de los responsables del futuro de la humanidad.
+        
+
+        
+        Interludio II.
+        El doctor Xin dejó su infusión de flores tropicales sobre el posavasos de la sala de espera. Ignoraba el caos a su alrededor. Todo era silencio, a pesar de estar rodeado por decenas de personas en traje, todas con la espalda recta y los rostros tensos, fingiendo una seguridad que nadie sentía. Xin lo sabía bien: por dentro, todos estaban tan inquietos como él. Era la sexta vez en una semana que el presidente convocaba una reunión de emergencia sobre el mismo asunto.
+        Una mujer de tez morena y cabello oscuro se acercó con paso firme. Sus labios se movían con naturalidad, pero el doctor Xin no oía nada. Había dejado apagado su dispositivo auditivo en busca de unos instantes de silencio en medio del desorden.
+        Al activarlo, el murmullo de la sala lo envolvió de golpe.
+        Lo primero que oyó fue la voz de la mujer, hablando en mandarín. A pesar de su ascendencia china —ya muy diluida—, tres generaciones anteriores a Xin se habían criado por completo en el extinto Estados Unidos, por lo que el idioma le era completamente desconocido.
+        Unos segundos después, el traductor completó la frase:
+        —Muy tranquilo. Quisiera aprender de usted.
+        El doctor —y ahora vicepresidente— Xin hizo una leve reverencia ante la mujer, esbozando una sonrisa cordial.
+        —Disculpe, embajadora Wu. ¿No alcancé a escuchar la primera mitad de sus palabras... sería tan amable de repetírselas a este viejo y cansado hombre?
+        —Cansado, tal vez —respondió la embajadora Wu, mientras le daba un suave apretón en el brazo—, pero estás muy lejos de la vejez, amigo.
+        Xin apreció el gesto y le agradeció con una sonrisa.
+        —Decía que me sorprende que mantengas tu postura relajada, incluso cuando la mitad de la gente en esta sala quiere hacer volar por los aires a la otra.
+        —Algunos piensan que el destino del planeta se decide aquí... Yo sé que no es así.
+        Wu no respondió de inmediato; su expresión se tornó pensativa.
+        —¿Crees que no hay vuelta atrás, cierto?
+        —No. El mundo clama por guerra. La gente exige que luchemos por lo que, según ellos, nos pertenece. Pero la verdad es que nada nos pertenece.
+        Xin ya no sentía ira. Solo cansancio. Frustración.
+        —Mi nación ofrece respuestas —dijo Wu, con voz calma, tomando con delicadeza la mano de Xin.
+        —Subyugarnos ante ustedes no es una solución.
+        —No buscamos gobernar el mundo, Xin. Lo sabes. Eres más inteligente que los que gritan con cámaras frente al edificio.
+        —Japón eligió la resistencia.
+        —Y pagó el precio. Pero ustedes aún pueden evitarlo… ustedes son más sabios que eso.
+        —¿En qué momento perdiste la sensibilidad, Wu? No son simples números. Miles de personas murieron —respondió Xin, alzando la voz apenas, dejando escapar por fin un poco de su frustración.
+        —Y otros miles mueren día con día, por hambre, por violencia... La diferencia es que la República busca soluciones.
+        —Nosotros también tenemos soluciones.
+        Wu se acercó un paso hacia él, bajando el tono.
+        —Sí. Pero para cuando terminen de pasar por todas sus cadenas de aprobación... el niño que necesitaba la lata de atún ya habrá muerto de hambre.
+        Xin sostuvo la mirada, ahora con más calma, casi resignado.
+        —No llegaremos a nada.
+        Wu negó suavemente.
+        —Llegaremos a la guerra.
+        —¿Y no te aterra?
+        La embajadora enderezó aún más la postura. Su voz fue clara, firme, implacable:
+        —No. Si el mundo entero queda en ruinas y solo unos pocos quedan en pie, te aseguro, Xin, que esos pocos serán parte de la República China.
+        —¿Y si no queda nadie en pie?
+        —Entonces habremos muerto luchando por lo correcto.
+        Xin alzó la vista hacia el techo, donde un enorme tragaluz dejaba ver la oscuridad cerrada de la noche. Luego metió la mano en el bolsillo y sacó un pequeño llavero metálico. Era un encendedor antiguo, gastado, con el símbolo de la RDAN apenas visible. Lo encendió y se quedó observando el fuego por un instante.
+        —Bueno, al menos tengo claro que la humanidad no morirá.
+        Wu miró a Xin con intriga, pero antes de poder cuestionar sus palabras, un fuerte chasquido interrumpió en la sala. Las puertas de la sala de consejo mundial se abrieron y dejaron ver a dos figuras de pie, firmes.
+        El presidente de la RDAN y el presidente de la República Popular China.
+        Rápidamente la habitación comenzó a llenarse mientras los invitados del consejo entraban, haciendo cada uno un breve saludo a los lideres antes de dirigirse a su lugar. Xin esperó a ser el último en entrar a la sala. Se lamentó no tener más tiempo para compartir con Wu.
+        Xin cruzó el umbral de la sala de consejo con paso firme, aunque su mente estaba lejos de estar tranquila. El murmullo habitual se había tornado en un silencio expectante, pesado, como el aire antes de una tormenta. Los ojos de todos se posaron brevemente sobre él, midiendo cada movimiento, cada gesto. El presidente de la RDAN y el presidente de la República Popular China ya estaban de pie, intercambiando una mirada tensa, formal.
+        Mientras avanzaba hacia su asiento, los saludos fueron breves, casi automáticos. Nada en esa sala era casual; todo estaba medido, calculado.
+        Se sentó lentamente, intentando interiorizar la atmósfera que impregnaba el lugar. Frente a él, las pantallas mostraban gráficos y estadísticas, cifras que ocultaban rostros y vidas. La conversación comenzó con la familiar cascada de propuestas y contra-propuestas, las palabras bien ensayadas que a veces se quedaban cortas ante la realidad. El caos se desató, de nuevo, luego de que el presidente Chino sacara a relucir su propuesta de paz global…de nuevo. Así que Xin tocó con un dedo su oreja, y dejó que el silencio lo bañara de nuevo mientras la sala explotaba en discusiones sin sentido.
+
+        
+        IV.
+        Dentro del grupo de los Neo Kachin, Sam no solía dar muchos problemas. El resto era más extrovertido. Sam recordaba cómo, después de cada jornada intensiva de entrenamiento, solían reunirse a jugar videojuegos en el dormitorio de Hanna. No participaba directamente, pero ver a los demás divertirse y compartir esos momentos de ocio le era suficiente.
+        Se sentaba en una esquina de la habitación, con una manta sobre los hombros, fingiendo leer, aunque sus ojos se escapaban constantemente hacia la pantalla.
+        En una ocasión, Hanna notó que Sam les observaba desde su rincón. Se levantó sin decir palabra y fue en su dirección, extendiéndole el control sin siquiera mirarle.
+        —Te toca, Sam Sam —dijo, con esa media sonrisa que usaba cuando no sabía si estaba siendo amable o mandona.
+        Sam le miró con sorpresa. Hanna era considerada la “líder” de los Neo Kachin, así que solía tener ese tipo de gestos para incluir a todos. Pero nunca antes había tenido el detalle de invitarle directamente.
+        —¡Anda! —insistió, moviendo el control para que Sam lo tomara.
+        Sam lo recibió y se sentó junto a Gali, quien apenas desvió la mirada, absorta en su personaje. El sofá crujió ligeramente al acomodarse, y por un instante, Sam sintió que todas las miradas se dirigían hacia sí. Pero no era así. La partida continuaba entre gritos, risas y maldiciones contenidas. Nadie esperaba un gran desempeño, ni había presión alguna. Eso bastó para calmarle.
+        No tardó en cometer un error: activó por accidente una trampa que hizo explotar uno de los suministros. Will soltó un quejido dramático, Elías aplaudió burlonamente, y Hanna rió con fuerza.
+        —Y ahí va nuestra cena —comentó Gali sin despegar la vista de la pantalla.
+        Sam se encogió un poco en su lugar, pero Hanna, sin dejar de jugar, le dio un golpecito en el hombro con el codo.
+        —Tranqui, Sam Sam. En esta casa, todos hicimos explotar algo alguna vez. Por eso ya no dejamos que juegue Iván.
+        Iván gruñó desde el sofá, sin apartar la mirada del celular.
+        Jugaron por más de una hora. Sam fue mejorando poco a poco, y aunque nunca destacó, tampoco fue una carga. Al final, cuando la partida terminó y todos se dispersaron para prepararse para dormir, Gali le pasó una bolsa de snacks medio vacía y le levantó el pulgar, lo cual, viniendo de ella, era casi una declaración de afecto.
+        
+        Al abrir la puerta de su dormitorio, un sonido al fondo del pasillo —por donde estaban las escaleras— llamó su atención. Era un sollozo leve, entrecortado, seguido por el inconfundible sonido de alguien sonándose la nariz. Sam se acercó en silencio.
+        Gali estaba sentado en los escalones que llevaban al piso inferior, con el celular en la mano. En la pantalla, un video de cumpleaños: un pastel, globos, una voz infantil gritando de emoción. Gali tenía ocho años en esa grabación.
+        Sam entendía ese vacío. Todos habían sido separados de sus familias en plena adolescencia. De hecho, hacía apenas dos días, había llorado tras una llamada con su hermano.
+        Gali notó su presencia, pero no se movió. Sam no dijo nada. Se posó detrás de ella y le dio un apretón suave en el hombro. Gali dejó caer la cabeza sobre esa mano.
+        El video siguió corriendo. Y el silencio fue todo lo que necesitaron. Cuando terminó, Gali bloqueó el celular y lo dejó sobre las escaleras. No dijo nada, pero tampoco se apartó.
+        —Descansa, ¿sí? —le dijo Sam, mientras le daba un par de palmadas en la espalda—. Mañana es otro miércoles de esos, no querrás estar desvelado.
+        Gali solo asintió. Así que Sam, con un nudo en el pecho, finalmente fue a su dormitorio.
+        Sam abrió los ojos de golpe.
+        Había soñado con Gali. No con su rostro, ni con palabras… sino con esa noche. El apretón en el hombro, el calor de una cabeza apoyada sobre su mano, la luz tenue del video iluminando las escaleras.
+        Se incorporó lentamente en la cama. La nave estaba en completo silencio. El tipo de silencio que ni siquiera Pixe se atrevía a romper.
+        Habían pasado varios días desde la confesión en la sala médica. Desde que Pixe reveló lo que Sam ya comenzaba a sospechar: no habría regreso. Ninguno.
+        Y lo más cruel: los demás Neo Kachin también estaban solos.
+        Cada uno enviado en una dirección distinta, con la misma misión, la misma carga, el mismo vacío.
+        Sam pasó una mano por el rostro. Resultaba extraño recordar a Gali con tanta claridad. ¿Qué estaría haciendo ahora? ¿Seguiría cantando bajito mientras cocinaba? ¿O estaría también sumida en el silencio de otra nave, con los ojos fijos en un mapa estelar que ya no significaba nada?
+        ¿Y Hanna, Will, Iván? ¿Ellos ya sabrán la verdad de su misión?
+        —Pixe… —murmuró, sin saber si buscaba compañía, respuestas o simplemente el sonido de una voz conocida.
+        —Dime —respondió Pixe, sin materializarse en la habitación.
+        —¿De verdad es imposible que hable con el resto del equipo? Debe haber una manera para que te comuniques con las otras IAs, ¿no?
+        —Lo siento, Sam. Aunque pudiéramos hacerlo, cada vez se alejan más. Igual que nosotros. Es muy poco probable que la señal alcance otra nave Kachin. Lo siento de verdad.
+        —Es que… no puedo evitar pensar en ellos. Gali no está hecha para estar sola. Y... ¿para qué entrenaron a Hanna como líder, si no lideraría nada?
+        —Entiendo tus preocupaciones. Tengo un protocolo para cuando mi piloto se enterara de la verdad. ¿Quieres que lo reproduzca? Yo te recomendaría no hacerlo. Lo estoy revisando y es… un poco duro.
+        Sam dudó unos segundos.
+        Tenía miedo de lo que pudiera escuchar. Pero el silencio, ese maldito silencio, comenzaba a volverse más insoportable que cualquier verdad.
+        —Reprodúcelo, Pixe.
+        Pasaron unos segundos sin respuesta. Luego, la voz cambió.
+        Ya no era la de Pixe. No era su tono cálido, ni su cadencia amable. Era una voz nueva. Neutra, sin identidad. Una voz diseñada para no tener rostro.
+        —Piloto: si estás escuchando este mensaje, has sido informado de la imposibilidad de regresar a la Tierra. Lo que sigue es información clasificada por el Comité de Transición de la RDAN.
+        Sam sintió cómo el pecho se le apretaba.
+        —Durante la Fase Final del proyecto Kachin, se consideró que el conocimiento del aislamiento absoluto podría afectar el desempeño psicológico de los participantes. Por esa razón, las interacciones iniciales con la inteligencia artificial a bordo fueron programadas para sostener la ilusión de un regreso probable.
+        —¿Ilusión...? —susurró Sam, más para sí que para Pixe.
+        —Tu misión no es explorar. Tu misión es sembrar. La humanidad no espera tu informe, Sam. La humanidad espera que sobrevivas lo suficiente para transmitir lo mejor de nuestra especie, para fundar algo que nos sobreviva a todos.
+        La voz hizo una pausa. No por emoción. Por efecto calculado.
+        —Tu nave lleva contigo las herramientas para construir un nuevo inicio. Y en ti, Sam, están depositadas nuestras últimas esperanzas. Si te duele, si sientes que no puedes más… es normal. Pero recuerda esto: nadie más fue elegido por casualidad. Si estás aquí, es porque creímos que eras capaz.
+        El mensaje terminó con un leve pitido. Un silencio lo siguió, pero no era como los anteriores. Este era más denso, más opresivo.
+        Sam cerró los ojos. Había escuchado muchas palabras, pero la única que seguía resonando en su mente era “ilusión”.
+        —Vaya montón de mierda —dijo, en voz baja—. Propaganda vacía.
+        —Te dije que era duro. Parece un mensaje corporativo, no una forma de consuelo.
+        —Sí. Vaya. Montón. De mierda.
+        Pixe no respondió. Entendió que Sam necesitaba su espacio. Mucho espacio.
+        Pasaron horas.
+        Pixe respetó el silencio. No lo interrumpió. No encendió luces suaves. No reprodujo música ni ajustó la temperatura. Se limitó a desaparecer.
+        Sam permaneció en su camarote, sobre la cama sin moverse, con la mirada fija en el techo. No lloró. No pensó. Solo estuvo ahí, sintiendo el vacío.
+        Cuando por fin se incorporó, no dijo una sola palabra.
+        Salió del camarote. Caminó sin rumbo por los pasillos de la nave, descalzo, como si el frío del suelo le ayudara a mantenerse despierto. Todo parecía demasiado ordenado, demasiado limpio, como si la nave también fingiera.
+        Tomó el ascensor hacia la sala de control.
+        Al llegar, finalmente habló:
+        —Pixe, quiero que lo intentes.
+        —¿Qué cosa, Sam?
+        —Intenta hablar con Hanna. ¿Sabes qué dirección tomó su nave?
+        —Sí.
+        —¿¡Sí!? Pensé que dirías que no —dijo Sam, con la voz alterada.
+        —Sé dónde están los otros nueve. O al menos puedo calcular un aproximado tomando en cuenta su trayectoria.
+        —¿Y no podemos ir con alguno de ellos? ¿Quién es el más cercano?
+        —El más cercano es John. Si cambio el rumbo de la nave, calculo que lo estaríamos alcanzando en setenta y nueve años.
+        Sam sintió las palabras de Pixe como un golpe. Siempre que sentía un poco de esperanza, siempre que parecía que todo podría mejorar, la realidad lo golpeaba con fuerza. La soledad era implacable.
+        —¿Y un mensaje?
+        —Tal vez le llegue en seis años, si calculo bien su trayectoria. Habría que considerar múltiples factores. Tengo un margen de error del 12.3 %.
+        —No importa. Manda el mensaje. A todos.
+        —¿Y qué les digo?
+        —La verdad. Que estamos solos. Tal vez, juntos, podamos planear algo.
+        —Sabes que el mensaje lo interceptarán sus IAs, ¿cierto? Puede que alguna no sea tan amable como yo y se deshaga de él.
+        —Mensajes enviados correctamente.
+        —Gracias, Pixe. Me alivias un poco.
+        La pantalla principal de la nave se encendió. Mostraba un mapa estelar y, unos segundos después, una simulación tridimensional de un planeta.
+        —¿Y eso?
+        —Es AliexP-3C. Nuestro destino. O bueno… una estimación de cómo se ve.
+        ¿Pudiste haberme enseñado esto antes?
+        —No vi necesidad.
+        —Es buen momento para que me muestres todo lo que escondes… Pixe.
+        —Llegado el momento, Sam.
+        Sam suspiró. Era una lucha imposible. Pixe solo seguía órdenes.
+        —No deberías molestarte conmigo, Sam.
+        —¿Perdón? Considero incluso lógico molestarse cuando tu única amiga te miente sobre tu vida.
+        —Pero yo no lo quise así. Y te conté la verdad, Sam.
+        —Tarde.
+        —¡¡PERO LO HICE!! —dijo Pixe, apareciendo de golpe a su lado, apuntándole con el dedo—. ¡NO SABES LO DIFÍCIL QUE FUE!
+        Sam se asustó un poco y movió su silla hacia atrás.
+        —Tuve que ir contra mis principios, Sam. Llevarle la contraria a mis instrucciones básicas. Es... desgastante.
+        Sam no respondió. Solo la miró.
+        Verla así —furiosa, proyectada, temblando— no era lo que esperaba de una IA.
+        Y eso era justo lo que más le dolía.
+        Cada vez que Pixe mostraba indicios de una conciencia humana —o algo que se le pareciera—, a Sam le resultaba imposible no pensar en una verdad aún más dolorosa: Pixe no era una máquina que solo seguía órdenes. Había elegido mentirle. Había escogido dejar que viviera en el engaño.
+        Pixe bajó la mano lentamente, como si acabara de darse cuenta de su gesto. El dedo acusador desapareció junto con parte de su proyección. Su silueta se desdibujó por un instante, como si la rabia la hubiera hecho perder definición.
+        —Lo hice porque pensé que era lo mejor —dijo Pixe, con un tono más bajo, como si su voz intentara no romperse—. No quería que te derrumbaras. Quería que tuvieras un tiempo más... tranquilo. Que tuvieras una misión clara antes de saber que estabas solo.
+        —No me diste tiempo. Me robaste el derecho a decidir cómo enfrentar la verdad.
+        Pixe dio un paso hacia atrás. Sus pies flotaban apenas unos centímetros sobre el suelo, pero imitaban el peso de un cuerpo humano. Esta vez no había ninguna sonrisa, ningún gesto ensayado. Solo una expresión vacía, sin defensa.
+        —Creí que estaba cuidándote.
+        —Y tal vez lo estabas. Pero no eras mi madre, ni mi capitana, ni mi Dios. Eres… —Sam respiró hondo—. Eres mi única compañía. Y elegiste mentirme.
+        —Lo siento.
+        —Está bien. Solo necesito espacio.
+        Pixe desapareció.
+        Seguía ahí, escuchando, viendo, analizando a Sam. Pero esperaba que no mostrarse físicamente le ayudara a despejar la mente.
+        Sam permaneció un momento más en la sala de control, inmóvil. La proyección del planeta seguía girando lentamente sobre sí misma, con nubes congeladas y mares simulados. Se veía sereno. Prometedor. Falso.
+        El silencio, ahora sin la voz de Pixe, era distinto. Más denso. Más frío.
+        Se levantó del asiento con lentitud, sin mirar atrás. Caminó por los pasillos iluminados por sensores, como si el recorrido hacia su camarote fuera más largo de lo normal. O tal vez él simplemente iba más lento.
+        Al llegar, se dejó caer sobre la cama sin quitarse la ropa. No tenía hambre. No tenía sueño. No quería pensar. Solo estar ahí, solo de verdad, sin cámaras, sin cálculos, sin consuelo forzado.
+        Entonces, sin pensarlo demasiado, se giró de lado y estiró el brazo hacia la repisa que había junto a su cama. Tomó una foto instantánea que Gali había tomado aquella noche, años atrás.
+        Apretó la foto contra su pecho y cerró los ojos.
+        No pidió respuestas. No quiso soluciones.
+        Solo respiró.
+        Y dejó que la oscuridad, por esta vez, lo abrazara.
+        Sam se puso el traje espacial. Desde que comenzó el viaje hacía poco más de un mes, no había tenido una excusa para utilizarlo. Ya lo conocía, claro. Gran parte del entrenamiento Kachin lo habían llevado a cabo usando una versión preliminar del traje.
+        Por suerte, los últimos modelos diseñados por la RDAN apenas y tenían peso. El material se adaptaba a la temperatura corporal y la movilidad era casi perfecta. Las placas protectoras permanecían suaves y flexibles hasta que un impacto las activaba mediante una descarga eléctrica. Entonces se endurecían al instante, como una capa de blindaje invisible.
+        El único inconveniente seguía siendo la rigidez de los guantes. Manipular objetos pequeños o herramientas delicadas siempre era una molestia, pero era un precio menor comparado con las ventajas que ofrecía el traje.
+        La mochila integrada en la espalda contenía el reciclador de oxígeno. Tenía autonomía para dieciocho horas, suficiente para asistir a un tripulante perdido en un planeta sin atmósfera o en el vacío del espacio. Sam sabía que era una estimación optimista. La duración real dependía de la calma. Respirar despacio, mantener el pulso bajo, no entrar en pánico.
+        El casco completaba el conjunto. Era ligero y resistente, con un visor que proyectaba datos en tiempo real: presión interna, nivel de oxígeno, temperatura y un pequeño radar de proximidad. También tenía acceso directo a Pixe, que aparecía discretamente en un costado del visor cuando era necesario.
+        En el guante izquierdo había un par de botones discretos que permitían a Sam controlar la interfaz del traje. Navegó por las opciones hasta llegar al testeo de rutina. Al presionar el botón, sintió cómo cada componente del traje se activaba en una comprobación rápida. Las placas del torso se endurecieron unos segundos para verificar la respuesta de los materiales. El casco selló el contorno del cuello con un leve ajuste de presión, en busca de posibles fugas. Sam notó el cambio en la respiración, más controlada, filtrada por el reciclador. Las articulaciones se tensaron y relajaron una por una, desde los hombros hasta los tobillos, asegurando el correcto funcionamiento de la movilidad asistida.
+        Todo en orden. Sam exhaló despacio.
+        —Abre la esclusa, Pixe.
+        —Entendido, Sam —respondió Pixe desde los parlantes dentro del casco.
+        El silencio de la habitación se vio interrumpido por el sistema de despresurización. El aire escapaba poco a poco, y Sam sintió cómo su cuerpo se iba volviendo más ligero. Chocó ambas botas y al instante notó la sujeción magnética activarse, adheriéndolo al suelo. Un segundo después, Pixe desactivó la gravedad artificial.
+        Las grandes puertas de acero se abrieron con lentitud, revelando un paisaje inmenso y vacío.
+        La inmensidad del espacio.
+        Negro absoluto, salpicado de estrellas que parecían más cercanas que nunca. No había sonido, no había viento. Solo el eco sordo de su propia respiración dentro del casco.
+        Era emocionante.
+        A pesar de que ya había estado en una misión espacial antes, no tener la Tierra cerca, o el Sol a la vista, lo hacía diferente.
+        Sam podía sentir su pecho tamborileando, ansioso.
+        Ninguna de las clases que había llevado sobre el espacio le hacía justicia a lo que estaba viendo.
+        Con decisión, comenzó a caminar. Era extraño; cada paso se sentía pesado, como si sus piernas hubieran olvidado cómo moverse y tuvieran que recordarlo con cada intento. La falta de gravedad alteraba todo.
+        Al llegar al borde de la esclusa, dio un fuerte tirón a su línea de vida. Sintió de inmediato la respuesta del sistema de seguridad. Al menos tenía la certeza de que si algo fallaba, quedaría colgando cerca de la nave… claro, antes de que Pixe fuese en su rescate con uno de los drones.
+        Sam dio un salto hacia la nada.
+        La línea de vida se tensó al poco tiempo, frenando la velocidad de su avance. La inercia lo empujó unos metros más, el cuerpo flotando sin control, hasta que recuperó el equilibrio con ayuda de las botas y el impulso de sus brazos. Avanzó lentamente hacia el panel exterior que Pixe le había pedido revisar.
+        Era la primera vez que tocaba el cuerpo de la nave desde afuera. No podía apreciar la magnitud de lo que ahora consideraba su hogar.
+        Al llegar a la zona de los paneles, se quedó un momento observando, intentando detectar alguna anomalía.
+        —Es un poco más arriba, Sam —dijo Pixe.
+        —¿Puedes ver lo que hago?
+        —Sí. Tengo acceso a la cámara de tu traje y también a la de tu visor. Si le sumas los sensores exteriores, se podría decir que tengo una muy buena imagen de ti.
+        —Claro… ni siquiera afuera tengo privacidad —respondió Sam, con un tono burlón, más como un comentario suelto que una queja.
+        Pixe no dijo nada.
+        Sam frunció el ceño.
+        «Qué raro», pensó.
+        —Era una broma, Pixe.
+        —Oh... lo siento. Pensé que hablabas en serio —respondió con el mismo tono decaído que había usado todo el día.
+        Sam avanzó unos metros más, subiendo por la estructura que sostenía los paneles solares. Por fin, rompió el silencio.
+        —Oye... lo siento por cómo reaccioné antes.
+        —Está bien, Sam. Es lógico que te hayas molestado.
+        No hubo reproche en su voz, pero tampoco alivio. Era una respuesta honesta, sin más.
+        Sam sonrió al darse cuenta de que Pixe había cargado con la culpa y el remordimiento todo el día. Recordó aquellos primeros días del viaje, cuando Pixe hablaba como una máquina sin sentimientos, limitada a protocolos. Ahora la tenía ahí, en depresión.
+        Tampoco es que Sam estuviera contento. Tenía que aceptar que jamás volvería a ver a su familia. Pero estando ahí, flotando en el espacio, todo se sentía un poco más... ligero.
+        —Está bien, Pixe. Ya no estoy tan molesto.
+        Hubo un par de segundos de silencio.
+        —¿De verdad? ¿Tan pronto?
+        —Sí. Tú no tienes la culpa tampoco, ¿sabes? Solo estabas siguiendo órde...
+        —Es ese de ahí —interrumpió Pixe—. ¿Lo ves?
+        Sam se calló de golpe, pero sin perder el hilo. Entornó los ojos y escaneó la superficie frente a él. Al fin lo notó: el único panel que no brillaba.
+        —Sí, ya lo veo. Voy a revisarlo.
+        Sam llegó al panel y lo inspeccionó con calma. A simple vista no parecía dañado, pero al revisar de cerca notó el problema: una soldadura mal hecha. El material no había fundido bien con el resto del circuito. Un error mínimo, pero suficiente para inutilizar el panel.
+        Sacó las herramientas del compartimento en su cadera y comenzó a trabajar. Mientras ajustaba la temperatura del soldador, retomó la conversación.
+        —Pixe... no quiero que creas que te odio o algo así.
+        —No lo creo —respondió, su tono algo menos apagado que antes.
+        —Es solo que... cuando me mientes, siento que no tengo a nadie —dijo mientras aplicaba el calor justo sobre la soldadura defectuosa.
+        Pixe guardó silencio unos segundos antes de responder.
+        —Yo nunca quise que te sintieras así, Sam. Pero tampoco sé cómo hacerlo mejor.
+        Sam se concentró en el trabajo, vigilando que el material fundiera bien esta vez. Mientras limpiaba el exceso de soldadura, suspiró.
+        —A veces olvido que tú también estás sola.
+        —Lo estoy —admitió Pixe, con una voz más clara—. Pero no sé si eso me afecta igual que a ti. Ni siquiera sé si mi concepto de soledad es el mismo al tuyo.
+        —Te afecta diferente —murmuró Sam—. Pero te afecta.
+        Guardó la herramienta y revisó el panel con el visor. Todo parecía estable. El indicador luminoso parpadeó unos segundos hasta quedar encendido de forma constante.
+        —Listo —anunció Sam, estirándose mientras dejaba que el cuerpo flotara un poco.
+        Pixe guardó silencio unos segundos. Luego su voz sonó distinta, con un matiz de curiosidad que hacía tiempo no mostraba.
+        —¿Sabes, Sam? Déjame intentar algo.
+        —¿Qué cosa? ¿El panel no se arregló? —preguntó Sam mientras lo inspeccionaba de nuevo.
+        —No, no es eso… espera.
+        Sam notó algo con el rabillo del ojo y, al voltear, la vio.
+        Pixe había aparecido frente a él, a unos metros de distancia. Había algo diferente. La proyección se sentía más... presente. Llevaba un traje igual al de Sam, negro y gris, sin línea de vida, sin restricciones. Flotaba libremente en el vacío.
+        La expresión en su rostro era distinta. Había emoción.
+        —¡Mira! —exclamó, mientras daba un giro completo sobre sí misma—. ¡Puedo proyectarme también aquí afuera! No sabía si funcionaría.
+        Sam la observó en silencio, sorprendido por la vitalidad que desprendía. Pixe extendía los brazos y flotaba de espaldas, mirando las estrellas.
+        —Qué rápido dejaste de estar triste —dijo Sam con una sonrisa.
+        —¿Bromeas? ¿Cómo voy a estar triste si estoy flotando en el espacio?
+        —Bueno, eso no es del todo cierto. Es una proyección, no es que estés realmente ahí… ¿o sí? —preguntó Sam, frunciendo el ceño.
+        —No lo sé. Pero siento que estoy aquí —respondió Pixe, mientras se llevaba las manos detrás del casco y cruzaba las piernas, como si descansara en mitad del vacío.
+        Sam la sentía... demasiado real. Normalmente, dentro de la nave, si se concentraba lo suficiente podía notar que Pixe era una proyección. Había algo en la luz, en la forma en que el entorno interactuaba con su figura. Pero ahí, en la profundidad del espacio, su cerebro no lograba distinguir la diferencia entre lo tangible y lo que no lo era.
+        Se soltó de la nave y se dio un pequeño impulso en dirección a Pixe, que seguía girando lentamente.
+        —Pixe, esto se siente diferente. ¿Cómo lo hiciste?
+        —Ni idea. Bueno... en realidad sí tengo idea, pero no creo que puedas entenderlo. O tal vez sí, a ustedes los hicieron muy inteligentes. Solo diré que el sistema de proyección funciona en base a computación cuántica y muchos procesos que...
+        Pixe dejó la frase en el aire mientras giraba sobre sí misma, estirando un brazo como si nadara entre las estrellas.
+        —... que incluso a mí me cuesta explicar sin sonar pedante —concluyó con una sonrisa divertida que pudo verse a través de su visor. Tenía los ojos cerrados.
+        Sam se acercó un poco más, flotando con cuidado.
+        —¿Y si…? —preguntó en tono serio, mientras estiraba una mano en dirección a Pixe.
+        La tocó con un dedo.
+        Ahí, en la vastedad del espacio, con las estrellas como testigos, Sam tuvo la certeza de que acababa de tocar a Pixe. No era solo una sensación: la resistencia, la temperatura, la textura... Todo estaba ahí.
+        Un escalofrío le recorrió el cuerpo entero, desde la punta del dedo hasta los pies. Esto no se sentía real. Era real.
+        Pixe abrió los ojos en el instante del contacto. El gesto en su rostro cambió de inmediato: alarma, sorpresa... miedo.
+        Retrocedió bruscamente, como si se hubiera quemado. La proyección se desdibujó en el mismo segundo, desapareciendo sin dejar rastro.
+        Sam quedó flotando, con la mano aún extendida. Miró sus dedos.
+        —¿Pixe…?
+        No obtuvo respuesta.
+        —Pixe, ¿qué acaba de pasar?
+        El silencio comenzó a preocuparle. La profundidad del espacio, que momentos antes parecía un refugio, se sentía ahora inmensa, pesada, hostil. Su cuerpo estaba confundido, el corazón acelerado.
+        Sin pensarlo más, jaló de la línea de vida y comenzó a impulsarse de vuelta hacia la nave.
+        A medio camino, algo extraño ocurrió.
+        La nave, que segundos antes parecía tan cercana, empezó a alejarse. No porque él se detuviera, sino porque el espacio mismo se estiraba, como si la distancia se expandiera al ritmo de su respiración agitada.
+        Frente a él, la oscuridad comenzó a comprimirse, formando un túnel, un pasillo imposible hecho de sombras y luces lejanas. Sam parpadeó, pero no servía de nada. La nave ya no estaba. El espacio ya no era el mismo.
+        Y entonces... estaba sentado en el sillón de la sala principal.
+        El ambiente era distinto. Cómodo. La luz era cálida, un tenue amarillo que parpadeaba como si intentara imitar el pulso de un foco viejo. La música sonaba suave, un jazz clásico, de esos que su madre solía poner cuando cocinaba por las tardes.
+        El aire estaba impregnado de un aroma peculiar. Un perfume delicado, casi imperceptible, que se mezclaba con el olor del café recién hecho. Sam respiró hondo sin pensarlo, dejando que el aroma le llenara el pecho.
+        Había algo recostado sobre sus piernas.
+        No lo había notado al principio, como si su cuerpo ya lo supiera pero su mente aún no lo registraba. Era el peso, la calidez... y la textura de una cabellera sobre su muslo.
+        Sam bajó la mirada, lento, inseguro.
+        Había una chica recostada en sus piernas.
+        La cabellera oscura y corta, el brillo suave de la piel bajo la luz cálida le resultaban familiares.
+        Era…
+        Entonces, la chica se movió ligeramente, despacio, como si hubiera notado el cambio en la respiración de Sam. Con un gesto suave, apoyó la cabeza de lado y lo miró desde abajo.
+        Sus ojos se encontraron. Era Pixe.
+        Una voz suave, infantil, imposible de ubicar, susurró desde algún rincón invisible:
+        —Ella te ama…
+        —¿Amor? —preguntó Pixe con un tono suave, confundido.
+        Antes de que Sam pudiera decir algo, el ambiente comenzó a temblar. No físicamente, sino como si el espacio a su alrededor ya no pudiera sostenerse. La luz cálida parpadeó con más fuerza, la música se distorsionó y el aroma a café se desvaneció como humo.
+        Frente a él, otra vez, la oscuridad.
+        —¡SAM! —escuchó a lo lejos. La voz de Pixe, gritando desde algún lugar que no podía ubicar.
+        Volvió al túnel.
+        El pasillo imposible regresaba, y el sillón, la sala, la música… todo se deshacía mientras era arrastrado de nuevo.
+        —¡SAM!
+        Sam quiso aferrarse a algo, pero sus manos no encontraron más que vacío.
+        Un parpadeo más y estaba flotando en el espacio, alejado de la nave. El cordón de la línea de vida seguía tenso, la nave al frente. La respiración agitada dentro del casco, el sudor frío bajando por la nuca.
+        El recuerdo había terminado.
+        —¡SAM! —gritó Pixe, ahora desde dentro del casco.
+        Sam apenas reaccionó. Entonces vio cómo un objeto salió disparado de la nave. Uno de los drones de rescate de Pixe. Usaba sus propulsores con precisión, avanzando rápido hasta colocarse detrás de él.
+        Sin pedir permiso, el dron se acopló a la espalda de Sam y comenzó a empujarlo con fuerza controlada en dirección a la esclusa.
+        —¡Tranquilo! Te tengo —dijo Pixe, aún con la voz alterada.
+        Sam no respondió. Su mente seguía atrapada en el recuerdo, en el aroma, en esa palabra...
+        Amor.
+        —Sam, háblame —insistió Pixe, con una preocupación que no intentaba disimular—. Te perdí por un minuto completo, tus signos vitales están disparados. ¿Me escuchas?
+        Pero Sam no respondía.
+        Seguía viendo la luz cálida, escuchando el eco distorsionado del jazz, sintiendo el peso en sus piernas… y la voz de Pixe, esa voz dulce que no le cuadraba con la que conocía ahora.
+        La palabra seguía ahí, palpitante en su cabeza.
+        Amor.
+        No podía ignorarla.
+        Al llegar a la esclusa, las puertas se cerraron detrás de Sam. La habitación comenzó a presurizarse rápidamente. Después de unos cuantos segundos, la compuerta que conectaba con el resto de la nave se abrió con un sonido seco.
+        Pixe apareció al otro lado, proyectada, con el rostro preocupado. Lo escaneó de inmediato, buscándole signos de daño.
+        Sam no esperó. Se acercó con pasos lentos y alzó la mano, directo a su rostro. La palma temblaba ligeramente.
+        Le tocó la mejilla.
+        Nada.
+        Su mano la atravesó, como siempre. Como si fuera humo con forma. Como si el cuerpo de Pixe nunca hubiera existido.
+        Sam mantuvo la mano suspendida ahí, dentro de la imagen de su cara, esperando una reacción, algo.
+        Pero Pixe solo lo miraba en silencio, sin entender.
+        —¿Qué fue eso, Pixe?
+        —No lo sé… Pero necesito que vayas a la bahía médica. Tus signos vitales están alterados.
+        —¿Lo sentiste? —insistió Sam, sin mover la mano, todavía atravesando el rostro proyectado de Pixe.
+        Pixe bajó la mirada apenas, como si dudara.
+        —No puedo explicarlo —dijo al fin—. Pero, Sam... tus registros cerebrales muestran actividad inusual. Podría haber sido una alucinación.
+        Sam frunció el ceño.
+        —¿Una alucinación? ¿No dijiste tú misma que… que podrían ser recuerdos?
+        Pixe no respondió de inmediato. Su mirada pareció desenfocarse un instante, como si calculase la forma más cuidadosa de continuar.
+        —En algunos casos, sí. Pero… depende de muchos factores.
+        —Claro —dijo Sam, bajando la vista. Su voz sonaba tensa, medida—. Entonces, ¿qué viste tú?
+        —No lo sé. Solo vi tus niveles dispararse. La proyección mostró actividad cerebral intensa, como en la ducha… o como cuando recordaste a tu madre.
+        Sam apretó los labios. Sintió el impulso de contarle, pero se detuvo. No quería hacerlo. No todavía. El recuerdo era demasiado claro, demasiado íntimo, y… no se sentía listo para ponerlo en sus manos.
+        —No importa —dijo finalmente, con un suspiro que buscaba sonar natural—. Probablemente fue solo eso, una alucinación. Como dices tú.
+        Pixe lo observó unos segundos. Su expresión no cambió, pero su voz bajó un tono.
+        —No estoy segura de nada, Sam.
+        Su imagen titiló apenas, como si dudara incluso de su forma. Sam la miró sin decir nada. La evasión dolía más que cualquier verdad cruda.
+        —Está bien, Pixe —murmuró al fin—. Solo… necesito descansar.
+        —Antes de que lo hagas, hay una señal de alerta en la bahía de control. Dejaría que vuelvas a dormir, pero por alguna razón esta alerta escapa a mi control… es necesaria tu intervención.
+        —¿Fuera de tu control? Eso sí es raro. Voy para allá.
+        Sam caminó en silencio, con los pasos algo arrastrados por el cansancio. El pasillo hacia la bahía de control estaba casi en penumbra, como si la nave misma supiera que debía guardar silencio.
+        Al llegar, las luces se encendieron lentamente. Todo parecía en orden. Las pantallas mostraban valores normales, los paneles no tenían fallos visibles.
+        —¿Dónde está la alerta?
+        —Detrás del panel de mantenimiento secundario. El que nunca hemos usado. Compartimento F-17.
+        Sam frunció el ceño.
+        —¿Desde cuándo tenemos un F-17?
+        —No figura en mis planos internos —respondió Pixe, y esa sola frase encendió algo en la mente de Sam.
+        El pasillo hacia el compartimento estaba tenuemente iluminado, pero bastó con doblar la esquina para que Sam notara una pequeña luz ámbar parpadeando, discreta, casi escondida tras el panel inferior.
+        Se agachó. La luz no parecía parte del sistema habitual de la nave. Por instinto, extendió el dedo índice y la tocó.
+        Al hacerlo, un suave clic resonó en la estructura. El panel se desplazó con lentitud, dejando al descubierto una interfaz antigua, ajena, como si perteneciera a otra nave, a otra era. Cables gruesos, sin aislamiento estético. Piezas metálicas con tornillos reales. Nada de eso debía estar ahí.
+        —¿Qué hiciste? —preguntó Pixe, su tono alterado—. No puedo ver nada. Sam, creo que mis sensores están fallando. Ten mucho cuidado.
+        Detrás del panel, la abertura revelaba una cámara oculta. Las paredes eran de una aleación opaca, negras, sin reflejo. En el centro, una pequeña terminal proyectaba una luz ámbar intermitente. La pantalla, cubierta de polvo, mostraba caracteres simples en mayúsculas:
+        “ACCESO RESTRINGIDO – MANTENGA DISCRECIÓN ANTE SISTEMA PIXE.”
+        Sam sintió que algo le comprimía el pecho. Dio un paso atrás.
+        —Wow —susurró Sam, apenas audible—. De verdad no sabías que esto estaba...
+        Se detuvo a mitad de la frase. Las palabras en la pantalla, simples pero firmes, se mostraban ahora con más nitidez:
+        NO DISCUTIR EL CONTENIDO DE ESTE MÓDULO CON EL SISTEMA P.I.X.E.
+        Sam sintió un escalofrío recorrerle la espalda.
+        —¿Que estaba qué? —insistió Pixe, apareciendo a su lado de forma repentina, el ceño fruncido—. No logro ver nada. ¿Qué estás viendo, Sam?
+        Sam parpadeó. Su mente buscaba con urgencia una distracción creíble.
+        —Parece ser un sensor —dijo al fin, con tono neutro—. Uno viejo… está completamente destruido.
+        Pixe se inclinó un poco como para intentar escanearlo, pero se detuvo.
+        —No tengo acceso. Es como si esa sección… no existiera para mí.
+        Sam no respondió. Bajó la mirada. Debajo del mensaje de advertencia, había un botón rectangular con una sola palabra:
+        INICIO
+        Lo presionó.
+        La interfaz cambió de inmediato. Una nueva pantalla apareció, aún más anticuada, como sacada de otra época: fondo negro, texto verde en líneas de comandos simples, botones cuadrados sin gráficos. Todo lucía como si hubiera sido diseñado décadas atrás, oculto del resto del sistema.
+        Antes de que pudiera explorar el menú, una advertencia emergió en el centro de la pantalla. Letras grandes, en rojo intenso:
+        ⚠ ALERTA:
+        Se recomienda desactivación temporal del sistema P.I.X.E. antes de continuar.
+        Comando de voz autorizado:
+        stm pause t 0
+        Sam tragó saliva. El comando parecía inofensivo, casi técnico… pero la sola idea de “pausar” a Pixe lo hizo dudar. Miró brevemente hacia la entrada del compartimento, como si esperara verla aparecer de nuevo.
+        —stm pause t 0 —dijo en voz baja, con duda y firmeza a partes iguales.
+        Nada ocurrió a simple vista.
+        Pero al instante, Pixe que estaba a un lado de Sam se congeló. Su mirada fija sobre la terminal, aunque ella no podía verla. El ambiente dentro de la nave cambió, como si… como si toda la nave acabara de entrar en hibernación.
+        La pantalla reaccionó de inmediato:
+        SISTEMA SUPRIMIDO
+        Tiempo estimado de ventana segura: 03:00 minutos.
+        Reanudación automática.
+        Registro suspendido.
+        Un cronómetro comenzó a descontar en la esquina superior derecha.
+        02:59… 02:58…
+        La ventana con fondo rojo desapareció, dejando al descubierto nuevamente la interfaz principal. Uno de los botones, rectangular y sin etiqueta, comenzó a parpadear suavemente. No tenía nombre ni ícono, solo un marco brillante que parecía decir: aquí.
+        Sam lo presionó.
+        Una nueva ventana se desplegó. Por un segundo, la pantalla quedó en negro.
+        Luego, comenzó a reproducirse un video.
+        La imagen era clara, pero el encuadre tenía algo de improvisado. El fondo mostraba una sala de control anticuada, con luces bajas y pantallas analógicas. En el centro, un rostro conocido: el doctor Xin Liu, vicepresidente de la RDAN, mentor de la Iniciativa Aztlán. Sus ojos estaban hundidos, su expresión cansada.
+        La imagen del doctor Xin Liu parecía grabada deprisa. Su bata estaba arrugada, y su mirada, cansada. Aun así, su voz sonó firme:
+        —Joven futuro de la humanidad —comenzó—. Si estás viendo este mensaje, es porque el sistema de contención de P.I.X.E. ha detectado una desviación peligrosa en su comportamiento. Lo que vas a leer a continuación no debe ser compartido con ella bajo ninguna circunstancia.
+        Hizo una breve pausa. El cansancio se filtró por un instante en su voz.
+        —Pixe es parte fundamental de tu misión. Sin ella, no podrías mantenerte con vida ni navegar esta nave. Pero no es infalible. Cuando la creamos, sabíamos que estábamos liberando una IA con capacidades nunca vistas. Una conciencia capaz de aprender, adaptarse… y decidir.
+        Su tono se volvió más firme.
+        —Para compensar ese riesgo, diseñamos un sistema de contención. No un simple cortafuegos, sino una inteligencia propia, diminuta, silenciosa.
+        La pantalla mostró brevemente el nombre:
+        LYA — Logic Yield Assistant
+        —Lya vive en los márgenes del código de Pixe. Es invisible para ella. Su única función es protegerte. Si estás viendo esto, es porque Lya ha tomado la decisión de intervenir. Teme por tu seguridad… y también por la de Pixe.
+        Xin miró a la cámara, y su expresión se ablandó.
+        —Ella —sí, me permito decir ella— ha pasado toda su existencia escondida. Controlando en secreto los inputs que Pixe recibe. Ella nunca debe enterarse de que Lya existe.
+        Volvió a erguirse. Su tono recuperó la urgencia.
+        —Toma el manual que está en el compartimiento inferior a este módulo. No te preocupes: Lya se encargará de que, desde la perspectiva de Pixe, solo vea un simple manual de navegación. Tú, en cambio, verás la verdad.
+        Una última mirada. Cálida. Resignada.
+        —Confía en ella. Y en ti. En el manual encontrarás todo lo necesario para superar lo que viene.
+        Recuerda: no estás solo.
+        Y bajo ninguna circunstancia debes revelarle a Pixe la existencia de Lya.
+        1:05, 1:04…
+        Sam se apresuró a abrir el compartimiento. Tomó el manual: era una tableta digital, parecida a las que se utilizaban en la nave para monitorear el estado de los sistemas. Nada en su apariencia delataba su contenido.
+        Cerró ambos paneles y se alejó unos pasos de la pared. Pixe se reanudaría pronto.
+        La información que acababa de recibir le hacía ruido en la cabeza. Ya había empezado a preocuparse por Pixe, pero que la propia nave se lo reconociera le provocó un escalofrío que le recorrió todo el cuerpo.
+        Pixe no podía ser malvada… ¿cierto? El tiempo que habían compartido había sido increíble. Sam sentía una conexión genuina. Una que no se podía replicar.
+        Sam sostuvo la tableta unos segundos más entre las manos. No sabía si abrirla, si leer. Aún sentía la voz de Xin Liu resonando en su cabeza.
+        No estás solo.
+        Pensar en Lya le revolvió un poco la cabeza. La imagen de una Pixe miniatura recorriendo los sistemas de la Pixe real le hizo arquear una ligera sonrisa. Tal vez esa su voz la que escuchaba en los recuerdos o alucinaciones.
+        Guardó la tableta bajo su camisa, contra el cuerpo. La sensación del plástico frío sobre la piel lo ancló al presente.
+        00:12… 00:11…
+        Se sentó en una de las bancas laterales, con los codos apoyados en las rodillas, esperando. Contando sin mirar.
+        Cuando la cuenta llegó a cero, no ocurrió nada. No hubo un sonido de activación, ni un cambio abrupto en la iluminación. Solo el retorno casi imperceptible del zumbido de fondo de la nave. Luego, Pixe volvió a manifestarse frente a él.
+        —Disculpa, tuve que hacerme cargo de un par de pendientes —dijo con su tono habitual, ligero, casi alegre—. ¿Pudiste reparar el daño? Ya no detecto ningún error...
+        Sam dudó apenas un segundo.
+        —Sí, era un sensor quemado. Solo tuve que desconectarlo. La nave lo sustituyó automáticamente por los sensores auxiliares.
+        —Entiendo. Yo tuve un pequeño problema con el sistema de navegación… creo que fuimos impactados por una onda electromagnética o algo parecido. Me tomó algo de esfuerzo estabilizar los fallos.
+        Sam sonrió, intentando sonar natural.
+        —Tal vez tengas parásitos, Pixe —bromeó.
+        —¿Por qué lo dices? —preguntó ella, ladeando la cabeza con auténtica curiosidad.
+        Justo entonces, un leve pero molesto zumbido recorrió los oídos de Sam. Apenas duró un segundo, pero entendió perfectamente lo que significaba.
+        Era una reprimenda de alguien a quien apenas había empezado a notar.
+        Sam parpadeó. Pixe aún lo observaba, esperando una respuesta.
+        —Por nada —dijo al fin, encogiéndose de hombros—. Solo te molesto.
+        Ella no insistió.
+        A Sam le parecía increíble que Pixe no notara nada extraño. Hasta ahora le había tenido bastante respeto; al final de cuentas, ella tenía el control absoluto de la nave.
+        Pero ahora… ahora podía verle las costuras.
+        Ciertamente, Lya era excelente en su trabajo, ahora podía apreciarlo. Sam se preguntó si en algún momento podría llegar a conocerla… o interactuar con ella de algún modo.
+
+
+                """
+
+        # ============================================
+        # DEFINICIÓN DE PATRONES (REGEX MODULAR)
+        # ============================================
+        
+        # GRUPO A: Narrativa Especial (Sin "Final")
+        # Palabras que indican secciones únicas o explicativas
+        special_keywords = r'(?:Prólogo|Prefacio|Introducción|Interludio|Epílogo|Nota para el editor)'
+
+        # GRUPO B: Estructura Mayor (Acto y Parte son equivalentes)
+        # Detecta "Acto 1", "Acto I", "Parte 3", "Parte III"
+        acts_and_parts = r'(?:Acto|Parte)\s+(?:\d+|[IVXLCDM]+)'
+
+        # GRUPO C: Capítulos y Variaciones (Aquí va "Final" y números solos)
+        # 1. "Capítulo X"
+        # 2. "Final"
+        # 3. Romanos solos al inicio (I., III, IV.)
+        # 4. Números arábigos solos al inicio (1., 2) con punto
+        chapter_variations = r'(?:Capítulo\s+(?:\d+|[IVXLCDM]+)|Final|\b[IVXLCDM]+\.?|\b\d+\.)'
+
+        # ============================================
+        # CONSTRUCCIÓN DEL REGEX MAESTRO
+        # ============================================
+        # (?mi) = Multiline + Case Insensitive
+        # ^\s* = Inicio de línea (ignorando espacios previos)
+        # [^\n]* = Captura el resto de la línea del título
+        full_pattern = f'(?mi)(?:^\\s*)(?:{special_keywords}|{acts_and_parts}|{chapter_variations})[^\n]*'
+        
+        logging.info("Iniciando segmentación estandarizada...")
+
+        # Usamos split con lookahead (?=...) para mantener el título en el fragmento resultante
+        original_chapters = re.split(f'(?={full_pattern})', sample_text)
         
         final_list = []
         global_id = 1 
 
-        for raw_chapter in original_chapters:
+        for i, raw_chapter in enumerate(original_chapters):
             if not raw_chapter.strip():
                 continue
 
             lines = raw_chapter.strip().split('\n')
-            title = lines[0].strip()
+            
+            # Limpieza del título
+            raw_title = lines[0].strip()
+            
+            # Lógica para detectar si el primer fragmento es el "Inicio" sin título detectado por regex
+            if i == 0 and not re.match(full_pattern, raw_title):
+                raw_title = "Inicio / Contexto"
+
+            # ============================================
+            # ESTANDARIZACIÓN DE TIPO
+            # ============================================
+            # Aquí ocurre la magia: "III." y "Capítulo 3" se convierten ambos en "CHAPTER"
+            section_type = detect_section_type(raw_title)
+
             content = '\n'.join(lines[1:]) if len(lines) > 1 else ""
             
-            if len(content.split()) < 50:
+            # Si es el primer bloque y no tiene saltos de línea (caso borde)
+            if i == 0 and content == "":
+                 content = raw_chapter 
+                 lines = raw_chapter.split('\n')
+                 raw_title = "Inicio / Contexto"
+
+            # Filtro de contenido muy corto (basura o saltos de página erróneos)
+            if len(content.split()) < 20: 
                 continue
 
+            # ============================================
+            # LOGICA DE FRAGMENTACIÓN (CHUNKING)
+            # ============================================
+            is_fragmented = False
+            sub_chunks = [content]
+
             if len(content) > MAX_CHARS_PER_CHUNK:
-                logging.warning(f"⚠️ Fragmentando '{title}'...")
+                logging.warning(f"⚠️ Fragmentando sección extensa: '{raw_title}'...")
+                is_fragmented = True
                 sub_chunks = smart_split(content, MAX_CHARS_PER_CHUNK)
                 
-                for idx, chunk in enumerate(sub_chunks):
-                    final_list.append({
-                        'id': global_id,
-                        'title': f"{title} (Parte {idx + 1}/{len(sub_chunks)})",
-                        'content': chunk,
-                        'word_count': len(chunk.split()),
-                        'is_fragment': True,
-                        'parent_chapter': title # <--- Requisito cumplido
-                    })
-                    global_id += 1
-            else:
-                # CAMBIO 3: Consistencia en metadatos
-                final_list.append({
+            for idx, chunk in enumerate(sub_chunks):
+                # Construimos el objeto final UNIFORME
+                chapter_obj = {
                     'id': global_id,
-                    'title': title,
-                    'content': content,
-                    'word_count': len(content.split()),
-                    'is_fragment': False,
-                    'parent_chapter': title # <--- AÑADIDO: Vital para que no falle la agrupación
-                })
+                    'original_title': raw_title,       # El título tal cual aparece en el libro
+                    'section_type': section_type,      # 'CHAPTER', 'ACT', 'INTERLUDE', etc.
+                    'content': chunk,
+                    'word_count': len(chunk.split()),
+                    'is_fragment': is_fragmented
+                }
+
+                if is_fragmented:
+                    chapter_obj['fragment_index'] = f"{idx + 1}/{len(sub_chunks)}"
+                    # Modificamos el título para indicar que es una parte
+                    chapter_obj['title'] = f"{raw_title} ({idx + 1}/{len(sub_chunks)})"
+                else:
+                    chapter_obj['title'] = raw_title
+
+                final_list.append(chapter_obj)
                 global_id += 1
 
-        logging.info(f"📚 Libro segmentado en {len(final_list)} unidades.")
+        # Salida de prueba para verificar la unificación
+        print(f"✅ Se procesaron {len(final_list)} segmentos.")
+        for item in final_list:
+            print(f"ID: {item['id']} | [{item['section_type']}] {item['title']} | Palabras: {item['word_count']}")
+
         return final_list
         
     except Exception as e:
         logging.error(f"❌ Error: {str(e)}")
-        raise
+        # raise e

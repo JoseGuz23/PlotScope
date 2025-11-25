@@ -1,5 +1,3 @@
-# CreateBible/__init__.py (v2.1 - Fixed)
-
 import logging
 import json
 import os
@@ -44,22 +42,34 @@ def call_gemini_pro(model, prompt):
     )
 
 def agrupar_fragmentos(analyses):
-    """Middleware: Agrupa fragmentos por capítulo padre"""
+    """
+    Middleware: Agrupa fragmentos por capítulo padre.
+    Se actualiza para capturar el nuevo campo 'section_type'.
+    """
     capitulos_consolidados = defaultdict(lambda: {
         "titulo": "",
+        "section_type": "UNKNOWN", # Nuevo campo para el tipo estandarizado
         "fragmentos": [],
         "metadata_agregada": {"ids_involucrados": []}
     })
 
     for analysis in analyses:
+        # Usamos 'titulo_real' (el título limpio inyectado por analize_chapter)
+        # como la clave de agrupación principal.
         clean_title = (
-            analysis.get("parent_chapter") or 
             analysis.get("titulo_real") or 
             analysis.get("original_title") or 
+            analysis.get("parent_chapter") or 
             "Sin Título"
         )
         
         capitulos_consolidados[clean_title]["titulo"] = clean_title
+        
+        # Propagamos el tipo de sección (asumimos que es consistente en todos los fragmentos)
+        section_type = analysis.get("section_type")
+        if section_type:
+             capitulos_consolidados[clean_title]["section_type"] = section_type
+             
         capitulos_consolidados[clean_title]["fragmentos"].append(analysis)
         capitulos_consolidados[clean_title]["metadata_agregada"]["ids_involucrados"].append(
             analysis.get("id") or analysis.get("chapter_id", "?")
@@ -228,7 +238,7 @@ def main(bible_input_json) -> dict:
             
         genai.configure(api_key=api_key)
         # Usamos 1.5 Pro por su enorme ventana de contexto y estabilidad
-        model = genai.GenerativeModel('models/gemini-3-pro-preview')
+        model = genai.GenerativeModel('gemini-3.0-pro-preview') # Usando el modelo de preview por defecto
         
         # D. Construcción del Prompt (SEGURO con .replace)
         str_holistic = json.dumps(holistic_analysis, indent=2, ensure_ascii=False) if has_holistic else "NO DISPONIBLE - Inferir de detalles"
@@ -271,7 +281,7 @@ def main(bible_input_json) -> dict:
             'tiempo_segundos': round(elapsed, 2),
             'capitulos_procesados': len(capitulos_estructurados),
             'tiene_holistic': has_holistic,
-            'costo_estimado_usd': 0 # Calcular según pricing actual de 1.5 Pro
+            'costo_estimado_usd': 0 # Calcular según pricing actual
         }
         
         problemas = bible.get('problemas_priorizados', {})
