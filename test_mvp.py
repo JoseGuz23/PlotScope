@@ -9,7 +9,7 @@ def test_mvp_pipeline():
     # NOTE: Estos valores son ejemplos de ambiente.
     # Reemplaza base_url y function_key con los valores actuales de tu deployment de Azure.
     base_url = "https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net"
-    function_key = "D3mx0F0bcrf533OYNdyujs8spwrH6ePpHB1HyxaMth4fAzFuXBPktA==" 
+    function_key = "hRT_p6gcbepJ6F46jC3o2Hk1k8UBde8Y_TH_sFcWcRnaAzFui8O7Ag==" 
     
     print("=" * 70)
     print("📚 PRUEBA MVP SYLPHRENA - Análisis Completo")

@@ -244,7 +244,7 @@ def main(chapter_json) -> dict:
         genai.configure(api_key=api_key)
         
         # Modelo solicitado: Flash 2.5 Preview
-        model = genai.GenerativeModel('gemini-flash-latest')
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
         # E. CONSTRUCCIÓN DEL PROMPT (USANDO LOS NUEVOS CAMPOS)
         # 1. Título para mostrar (puede ser fragmentado)
@@ -282,7 +282,7 @@ def main(chapter_json) -> dict:
         analysis['section_type'] = section_type # Añadir el tipo al análisis final
         analysis['_metadata'] = {
             'status': 'success', 
-            'model': 'gemini-flash-latest',
+            'model': 'gemini-2.5-flash',
             'processing_time_seconds': round(gemini_elapsed, 2)
         }
         
