@@ -1,7 +1,8 @@
+# Contenido corregido de requirements.txt
 azure-functions
-azure-functions-durable
+azure-functions-durable  # ¡Este es el correcto!
 azure-storage-blob
-azure-durable-functions
+# Eliminar la línea: azure-durable-functions
 google-generativeai>=0.3.0
 anthropic>=0.18.0
 requests
