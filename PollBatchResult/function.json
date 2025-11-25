@@ -1,0 +1,10 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "batch_info",
+      "type": "activityTrigger",
+      "direction": "in"
+    }
+  ]
+}

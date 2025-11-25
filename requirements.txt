@@ -6,3 +6,5 @@ anthropic>=0.18.0
 requests
 regex
 tenacity
+google-cloud-storage>=2.10.0
+google-cloud-aiplatform>=1.36.0

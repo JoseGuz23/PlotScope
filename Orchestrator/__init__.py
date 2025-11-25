@@ -1,23 +1,48 @@
+# =============================================================================
+# Orchestrator/__init__.py - VERSIÓN COMPLETA v2.5
+# =============================================================================
+# 
+# DOS MODOS DE OPERACIÓN:
+#   1. LOTES SIMPLES (default) - Funciona YA, sin configuración extra
+#   2. BATCH API - Requiere GCP configurado (más barato, más robusto)
+#
+# Para cambiar de modo, modifica USE_BATCH_API abajo.
+# =============================================================================
+
 import azure.functions as func
 import azure.durable_functions as df
 import logging
 import json
+from datetime import timedelta
+
+# =============================================================================
+# CONFIGURACIÓN
+# =============================================================================
+
+# Cambiar a True cuando tengas GCP configurado
+USE_BATCH_API = True
+
+
+# Tamaños de lote para modo simple
+ANALYSIS_BATCH_SIZE = 5    # Capítulos a analizar con Gemini (simultáneos)
+EDIT_BATCH_SIZE = 3        # Capítulos a editar con Claude (simultáneos)
+
+# Configuración de Batch API (solo si USE_BATCH_API = True)
+BATCH_POLL_INTERVAL_SECONDS = 60
+BATCH_MAX_WAIT_MINUTES = 30
+
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
     try:
-        # Recuperar entrada (ruta del archivo o texto raw)
         book_path = context.get_input()
-        
-        # Timestamp de inicio
         start_time = context.current_utc_datetime
         
         # =================================================================
-        # 1. SEGMENTACIÓN (Actividad Única)
+        # 1. SEGMENTACIÓN
         # =================================================================
-        context.set_custom_status("Segmentando libro...")
-        logging.info("🎬 Iniciando orquestación Sylphrena.")
+        context.set_custom_status("📚 Segmentando libro...")
+        logging.info("🎬 Iniciando Sylphrena v2.5")
         
-        # Llama a segmentbook
         chapters = yield context.call_activity('SegmentBook', book_path)
         
         seg_time = context.current_utc_datetime
@@ -25,127 +50,249 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             raise ValueError("La segmentación no devolvió capítulos.")
 
         total_chapters = len(chapters)
-        logging.info(f"⏱️ Segmentación lista: {total_chapters} capítulos en {(seg_time - start_time).total_seconds():.1f}s")
+        seg_seconds = (seg_time - start_time).total_seconds()
+        logging.info(f"✅ Segmentación: {total_chapters} capítulos en {seg_seconds:.1f}s")
         
         # =================================================================
-        # 2. ANÁLISIS PARALELO (Fan-Out) -> Gemini Flash
+        # 2. ANÁLISIS - Elegir modo
         # =================================================================
-        context.set_custom_status(f"Analizando {total_chapters} capítulos en paralelo...")
-        
-        parallel_tasks = []
-        for chapter in chapters:
-            task = context.call_activity('AnalyzeChapter', chapter)
-            parallel_tasks.append(task)
-        
-        # Fan-In: Esperar a que todos terminen
-        chapter_analyses = yield context.task_all(parallel_tasks)
+        if USE_BATCH_API:
+            # ─────────────────────────────────────────────────────────────
+            # MODO BATCH API (requiere GCP)
+            # ─────────────────────────────────────────────────────────────
+            chapter_analyses = yield from analyze_with_batch_api(context, chapters)
+        else:
+            # ─────────────────────────────────────────────────────────────
+            # MODO LOTES SIMPLES (funciona ya)
+            # ─────────────────────────────────────────────────────────────
+            chapter_analyses = yield from analyze_with_simple_batches(context, chapters)
         
         analysis_time = context.current_utc_datetime
-        logging.info(f"⏱️ Análisis completado en {(analysis_time - seg_time).total_seconds():.1f}s")
+        analysis_seconds = (analysis_time - seg_time).total_seconds()
+        logging.info(f"✅ Análisis completado en {analysis_seconds:.1f}s")
         
         # =================================================================
-        # 2.5 LECTURA HOLÍSTICA (NUEVA) → Gemini Pro lee todo
+        # 3. LECTURA HOLÍSTICA
         # =================================================================
-        context.set_custom_status("Realizando lectura holística del libro completo...")
-
-        # Concatenar todo el texto para lectura completa
+        context.set_custom_status("📖 Lectura holística del libro...")
+        
         full_book_text = "\n\n---\n\n".join([
             f"CAPÍTULO: {ch['title']}\n\n{ch['content']}" 
             for ch in chapters
         ])
-
+        
+        word_count = len(full_book_text.split())
+        logging.info(f"📖 Enviando {word_count:,} palabras a lectura holística...")
+        
         holistic_analysis = yield context.call_activity('HolisticReading', full_book_text)
-
+        
         holistic_time = context.current_utc_datetime
-        logging.info(f"⏱️ Lectura Holística completada en {(holistic_time - analysis_time).total_seconds():.1f}s")
+        holistic_seconds = (holistic_time - analysis_time).total_seconds()
+        logging.info(f"✅ Lectura holística en {holistic_seconds:.1f}s")
 
         # =================================================================
-        # 3. CREACIÓN DE BIBLIA (Modificada) → Recibe análisis + holístico
+        # 4. CREAR BIBLIA
         # =================================================================
-        context.set_custom_status("Construyendo la Biblia Narrativa...")
-
+        context.set_custom_status("📜 Construyendo Biblia Narrativa...")
+        
         bible_input = {
             "chapter_analyses": chapter_analyses,
             "holistic_analysis": holistic_analysis
         }
-
+        
         bible = yield context.call_activity('CreateBible', json.dumps(bible_input))
         
         bible_time = context.current_utc_datetime
-        logging.info(f"⏱️ Biblia creada en {(bible_time - analysis_time).total_seconds():.1f}s")
-        
-        # Validación simple de éxito
-        bible_status = bible.get('_metadata', {}).get('status', 'unknown')
-        if bible_status != 'success':
-            logging.warning(f"⚠️ Alerta: La Biblia reporta estado '{bible_status}'")
+        bible_seconds = (bible_time - holistic_time).total_seconds()
+        logging.info(f"✅ Biblia creada en {bible_seconds:.1f}s")
 
         # =================================================================
-        # 4. EDICIÓN CONTEXTUAL (Fan-Out) -> Claude Sonnet
+        # 5. EDICIÓN CON CLAUDE (en lotes)
         # =================================================================
-        context.set_custom_status(f"Editando {total_chapters} capítulos con contexto...")
-        
-        edit_tasks = []
-        # Usamos zip para emparejar Capítulo + Su Análisis
-        for chapter, analysis in zip(chapters, chapter_analyses):
-            
-            # Validación defensiva de IDs (Opcional pero recomendada)
-            c_id = chapter.get('id')
-            a_id = analysis.get('chapter_id')
-            if str(c_id) != str(a_id):
-                logging.warning(f"⚠️ Mismatch de IDs: Cap {c_id} vs Análisis {a_id}")
-
-            edit_input = {
-                'chapter': chapter,
-                'bible': bible,     # Pasamos la biblia completa (es pequeña, solo texto JSON)
-                'analysis': analysis
-            }
-            task = context.call_activity('EditChapter', edit_input)
-            edit_tasks.append(task)
-        
-        edited_chapters = yield context.task_all(edit_tasks)
+        edited_chapters = yield from edit_with_batches(context, chapters, chapter_analyses, bible)
         
         edit_time = context.current_utc_datetime
+        edit_seconds = (edit_time - bible_time).total_seconds()
         total_seconds = (edit_time - start_time).total_seconds()
         
-        logging.info(f"⏱️ Edición completada. Tiempo Total: {total_seconds:.1f}s")
-        
-        # =================================================================
-        # 5. RETORNO DE RESULTADOS
-        # =================================================================
-        # Nota: Azure DF tiene un límite de tamaño de retorno (aprox 4MB).
-        # Si el libro es muy grande, aquí deberíamos guardar en Blob Storage 
-        # y devolver solo la URL. Para este ejemplo, devolvemos resumen.
-        
-        # Calculamos costo total estimado sumando metadatos
-        total_cost_usd = 0.0
-        try:
-            # Costo Biblia
-            total_cost_usd += bible.get('_metadata', {}).get('estimated_cost_usd', 0)
-            # Costo Edición (Sumar todos los capítulos)
-            for ch in edited_chapters:
-                total_cost_usd += ch.get('metadata', {}).get('cost_usd', 0)
-        except:
-            pass # Si falla el cálculo de costos, no rompemos el proceso
+        logging.info(f"✅ Edición completada en {edit_seconds:.1f}s")
+        logging.info(f"⏱️ TIEMPO TOTAL: {total_seconds/60:.1f} minutos")
 
-        result = {
+        # =================================================================
+        # 6. RESULTADO FINAL
+        # =================================================================
+        context.set_custom_status("✅ Completado")
+        
+        return {
             'status': 'completed',
-            'project_name': 'Sylphrena',
-            'chapters_processed': len(edited_chapters),
-            'total_time_seconds': round(total_seconds, 2),
-            'total_estimated_cost_usd': round(total_cost_usd, 4),
-            'bible': bible,
-            # Devolvemos el contenido editado. 
-            # ¡OJO! Si es muy grande, Azure cortará esto.
-            'edited_chapters': edited_chapters 
+            'version': 'v2.5',
+            'mode': 'batch_api' if USE_BATCH_API else 'simple_batches',
+            'total_chapters': total_chapters,
+            'chapters_analyzed': len(chapter_analyses),
+            'chapters_edited': len(edited_chapters),
+            'tiempos': {
+                'segmentacion': f"{seg_seconds:.1f}s",
+                'analisis': f"{analysis_seconds:.1f}s",
+                'holistica': f"{holistic_seconds:.1f}s",
+                'biblia': f"{bible_seconds:.1f}s",
+                'edicion': f"{edit_seconds:.1f}s",
+                'total': f"{total_seconds/60:.1f} min"
+            },
+            'bible_metadata': bible.get('_metadata', {}),
+            'edited_chapter_ids': [e.get('chapter_id') for e in edited_chapters]
         }
         
-        return result
-        
     except Exception as e:
-        error_msg = f"💥 Error Fatal en Orquestador: {str(e)}"
-        logging.error(error_msg)
-        # Es importante relanzar o devolver estructura de error para que Azure marque Failed
-        context.set_custom_status("Failed")
-        raise Exception(error_msg)
+        logging.error(f"💥 Error fatal: {str(e)}")
+        import traceback
+        logging.error(traceback.format_exc())
+        
+        return {
+            'status': 'error',
+            'message': str(e)
+        }
+
+
+# =============================================================================
+# MODO 1: LOTES SIMPLES (funciona ya, sin GCP)
+# =============================================================================
+
+def analyze_with_simple_batches(context, chapters):
+    """Analiza capítulos en lotes pequeños (sin Batch API)."""
+    total_chapters = len(chapters)
+    total_batches = (total_chapters + ANALYSIS_BATCH_SIZE - 1) // ANALYSIS_BATCH_SIZE
+    
+    logging.info(f"📊 Modo LOTES SIMPLES: {total_batches} lotes de {ANALYSIS_BATCH_SIZE}")
+    
+    all_analyses = []
+    failed = []
+    
+    for batch_num, i in enumerate(range(0, total_chapters, ANALYSIS_BATCH_SIZE), 1):
+        batch = chapters[i:i + ANALYSIS_BATCH_SIZE]
+        batch_ids = [ch.get('id', '?') for ch in batch]
+        
+        context.set_custom_status(f"🔍 Analizando lote {batch_num}/{total_batches}")
+        logging.info(f"🔍 Lote {batch_num}/{total_batches}: IDs {batch_ids}")
+        
+        try:
+            tasks = [context.call_activity('AnalyzeChapter', ch) for ch in batch]
+            results = yield context.task_all(tasks)
+            
+            for result in results:
+                if result.get('error') or result.get('status') == 'fatal_error':
+                    failed.append(result)
+                else:
+                    all_analyses.append(result)
+            
+            logging.info(f"✅ Lote {batch_num} completado")
+            
+        except Exception as e:
+            logging.error(f"❌ Error en lote {batch_num}: {e}")
+            for ch in batch:
+                failed.append({'chapter_id': ch.get('id'), 'error': str(e)})
+    
+    logging.info(f"📊 Análisis: {len(all_analyses)} OK, {len(failed)} fallidos")
+    return all_analyses
+
+
+# =============================================================================
+# MODO 2: BATCH API (requiere GCP configurado)
+# =============================================================================
+
+def analyze_with_batch_api(context, chapters):
+    """Analiza capítulos usando Gemini Batch API."""
+    logging.info(f"📦 Modo BATCH API: {len(chapters)} capítulos")
+    
+    context.set_custom_status("📤 Enviando a Gemini Batch API...")
+    
+    # Enviar batch
+    batch_info = yield context.call_activity('SubmitBatchAnalysis', chapters)
+    
+    if batch_info.get('error'):
+        raise Exception(f"Error creando batch: {batch_info.get('error')}")
+    
+    logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_id', 'N/A')}")
+    
+    # Polling hasta completar
+    for attempt in range(BATCH_MAX_WAIT_MINUTES):
+        context.set_custom_status(f"⏳ Esperando Batch API... ({attempt + 1}/{BATCH_MAX_WAIT_MINUTES} min)")
+        
+        # Timer de Durable Functions (no bloquea el orquestador)
+        next_check = context.current_utc_datetime + timedelta(seconds=BATCH_POLL_INTERVAL_SECONDS)
+        yield context.create_timer(next_check)
+        
+        # Consultar estado
+        result = yield context.call_activity('PollBatchResult', batch_info)
+        
+        if isinstance(result, list):
+            # ¡Completado! Tenemos los análisis
+            logging.info(f"✅ Batch completado: {len(result)} análisis")
+            return result
+        
+        if result.get('status') == 'failed':
+            raise Exception(f"Batch falló: {result.get('error')}")
+        
+        # Sigue procesando, continuar polling
+        logging.info(f"⏳ Batch aún procesando... (intento {attempt + 1})")
+    
+    raise Exception(f"Batch no completó en {BATCH_MAX_WAIT_MINUTES} minutos")
+
+
+# =============================================================================
+# EDICIÓN CON CLAUDE (siempre en lotes)
+# =============================================================================
+
+def edit_with_batches(context, chapters, chapter_analyses, bible):
+    """Edita capítulos en lotes con Claude."""
+    
+    # Emparejar capítulos con sus análisis
+    chapters_to_edit = []
+    for chapter in chapters:
+        ch_id = str(chapter.get('id'))
+        analysis = next(
+            (a for a in chapter_analyses if str(a.get('chapter_id')) == ch_id),
+            None
+        )
+        if analysis:
+            chapters_to_edit.append({'chapter': chapter, 'analysis': analysis})
+    
+    total_to_edit = len(chapters_to_edit)
+    total_batches = (total_to_edit + EDIT_BATCH_SIZE - 1) // EDIT_BATCH_SIZE
+    
+    logging.info(f"✏️ Editando {total_to_edit} capítulos en {total_batches} lotes")
+    
+    all_edited = []
+    failed = []
+    
+    for batch_num, i in enumerate(range(0, total_to_edit, EDIT_BATCH_SIZE), 1):
+        batch = chapters_to_edit[i:i + EDIT_BATCH_SIZE]
+        
+        context.set_custom_status(f"✏️ Editando lote {batch_num}/{total_batches}")
+        logging.info(f"✏️ Lote edición {batch_num}/{total_batches}")
+        
+        try:
+            tasks = []
+            for item in batch:
+                edit_input = {
+                    'chapter': item['chapter'],
+                    'bible': bible,
+                    'analysis': item['analysis']
+                }
+                tasks.append(context.call_activity('EditChapter', edit_input))
+            
+            results = yield context.task_all(tasks)
+            
+            for result in results:
+                if result.get('status') == 'error':
+                    failed.append(result)
+                else:
+                    all_edited.append(result)
+                    
+        except Exception as e:
+            logging.error(f"❌ Error en lote edición {batch_num}: {e}")
+    
+    logging.info(f"✏️ Edición: {len(all_edited)} OK, {len(failed)} fallidos")
+    return all_edited
+
 
 main = df.Orchestrator.create(orchestrator_function)
