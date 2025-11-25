@@ -6,9 +6,7 @@ import os
 def test_mvp_pipeline():
     """
     Test MVP con visualización mejorada de TAXONOMÍA DE PERSONAJES.
-    """
-    # NOTE: Estos valores son ejemplos de ambiente.
-    # Reemplaza base_url y function_key con los valores actuales de tu deployment de Azure.
+    """  
     base_url = "https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net"
     function_key = os.environ.get("Azure_Function_Key")
     if not function_key:
