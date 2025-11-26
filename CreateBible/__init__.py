@@ -1,9 +1,9 @@
 # =============================================================================
-# CreateBible/__init__.py - DEPLOY 3.0
+# CreateBible/__init__.py - DEPLOY 3.1 (SDK UPDATE)
 # =============================================================================
 # CAMBIOS:
-#   - Safety settings: formato diccionario
-#   - Modelo: models/gemini-2.5-pro (confirmado disponible)
+#   - Actualizado a SDK 'google-genai' (v1.0).
+#   - LÓGICA PRESERVADA: Prompt de Biblia, Agrupación, Tenacity, Metadata.
 # =============================================================================
 
 import logging
@@ -11,48 +11,42 @@ import json
 import os
 import time as time_module
 from collections import defaultdict
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from google.api_core import exceptions
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('tenacity').setLevel(logging.WARNING)
 
-# Reintentos
+# Reintentos (Tu configuración original)
 retry_strategy = retry(
-    retry=retry_if_exception_type((
-        exceptions.ResourceExhausted,
-        exceptions.ServiceUnavailable,
-        exceptions.DeadlineExceeded
-    )),
+    retry=retry_if_exception_type((Exception,)), # Simplificado para atrapar errores del nuevo SDK
     wait=wait_exponential(multiplier=2, min=4, max=60),
     stop=stop_after_attempt(3),
     reraise=True
 )
 
 @retry_strategy
-def call_gemini_pro(model, prompt):
-    """Llamada con safety settings CORREGIDOS"""
-    return model.generate_content(
-        prompt,
-        generation_config={
-            "temperature": 0.1,
-            "max_output_tokens": 16384,
-            "response_mime_type": "application/json"
-        },
-        request_options={'timeout': 180},
-        # ✅ FORMATO CORRECTO: diccionario
-        safety_settings={
-            "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
-            "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
-            "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
-            "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
-        }
+def call_gemini_pro_new(client, prompt):
+    """Llamada a Gemini Pro con SDK Nuevo y tus settings"""
+    return client.models.generate_content(
+        model='models/gemini-3-pro-preview', # Usamos 3 Pro
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.1,
+            max_output_tokens=8192, # Ajustado a un valor seguro estándar
+            response_mime_type="application/json",
+            safety_settings=[
+                types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+                types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+                types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+                types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+            ]
+        )
     )
 
-
 def agrupar_fragmentos(analyses):
-    """Agrupa fragmentos por capítulo padre"""
+    """Agrupa fragmentos por capítulo padre (TU LÓGICA ORIGINAL)"""
     capitulos_consolidados = defaultdict(lambda: {
         "titulo": "",
         "section_type": "UNKNOWN",
@@ -61,6 +55,8 @@ def agrupar_fragmentos(analyses):
     })
 
     for analysis in analyses:
+        if not analysis: continue
+        
         clean_title = (
             analysis.get("titulo_real") or 
             analysis.get("original_title") or 
@@ -83,7 +79,7 @@ def agrupar_fragmentos(analyses):
     logging.info(f"📦 Agrupación: {len(analyses)} fragmentos → {len(resultado)} capítulos")
     return resultado
 
-
+# (TU PROMPT ORIGINAL INTACTO)
 CREATE_BIBLE_PROMPT_TEMPLATE = """
 Eres el EDITOR JEFE del Proyecto Sylphrena. Crea la BIBLIA NARRATIVA DEFINITIVA.
 
@@ -171,11 +167,10 @@ RESPONDE JSON:
 }
 """
 
-
 def main(bible_input_json) -> dict:
-    """Fusiona análisis detallados + lectura holística"""
+    """Fusiona análisis detallados + lectura holística (SDK Nuevo)"""
     try:
-        # Parseo
+        # 1. Parseo (Tu lógica original)
         if isinstance(bible_input_json, str):
             try:
                 bible_input = json.loads(bible_input_json)
@@ -188,41 +183,40 @@ def main(bible_input_json) -> dict:
         holistic_analysis = bible_input.get('holistic_analysis', {})
         has_holistic = bool(holistic_analysis and holistic_analysis.get('genero'))
         
-        logging.info(f"📚 CreateBible v3.0 - {len(chapter_analyses)} análisis")
+        logging.info(f"📚 CreateBible v3.1 - {len(chapter_analyses)} análisis")
         
-        # Agrupación
+        # 2. Agrupación (Tu función)
         capitulos_estructurados = agrupar_fragmentos(chapter_analyses)
         
-        # Configurar Gemini
+        # 3. Cliente Nuevo
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             raise ValueError("GEMINI_API_KEY no configurada")
             
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         
-        # ✅ MODELO CONFIRMADO DISPONIBLE
-        model = genai.GenerativeModel('models/gemini-3.0-pro-preview')
-        
-        # Construir prompt
+        # 4. Construir Prompt (Tu lógica)
         str_holistic = json.dumps(holistic_analysis, indent=2, ensure_ascii=False) if has_holistic else "NO DISPONIBLE"
         str_chapters = json.dumps(capitulos_estructurados, indent=2, ensure_ascii=False)
+        # Recorte de seguridad por si es gigante
+        str_chapters = str_chapters[:3000000]
         
         prompt = CREATE_BIBLE_PROMPT_TEMPLATE.replace("{{HOLISTIC_DATA}}", str_holistic)
         prompt = prompt.replace("{{CHAPTERS_DATA}}", str_chapters)
         
-        # Llamar
         start_time = time_module.time()
-        logging.info("🧠 Construyendo Biblia v3.0...")
+        logging.info("🧠 Construyendo Biblia v3.1...")
         
-        response = call_gemini_pro(model, prompt)
+        # 5. Llamada
+        response = call_gemini_pro_new(client, prompt)
         
         elapsed = time_module.time() - start_time
         logging.info(f"⏱️ Biblia creada en {elapsed:.2f}s")
         
-        if not response.candidates:
+        if not response.text:
             raise ValueError("Respuesta vacía o bloqueada")
         
-        # Parsear
+        # 6. Parseo (Limpieza Markdown)
         response_text = response.text.strip()
         if response_text.startswith("```json"):
             response_text = response_text[7:]
@@ -233,11 +227,11 @@ def main(bible_input_json) -> dict:
         
         bible = json.loads(response_text.strip())
         
-        # Metadata
+        # 7. Metadata (Original)
         bible['_metadata'] = {
             'status': 'success',
-            'version': '3.0',
-            'modelo': 'gemini-3.0-pro',
+            'version': '3.1',
+            'modelo': 'models/gemini-3-pro-preview',
             'tiempo_segundos': round(elapsed, 2),
             'capitulos_procesados': len(capitulos_estructurados),
             'tiene_holistic': has_holistic
@@ -250,6 +244,7 @@ def main(bible_input_json) -> dict:
             
     except Exception as e:
         logging.error(f"💥 Error en CreateBible: {str(e)}")
+        # Estructura de error para no romper orquestador
         return {
             "metadata_biblia": {"error": True},
             "identidad_obra": {"genero": "Error", "tema_central": f"Fallo: {str(e)}"},

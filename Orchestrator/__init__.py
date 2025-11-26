@@ -20,7 +20,7 @@ from datetime import timedelta
 # =============================================================================
 
 # Cambiar a True cuando tengas GCP configurado
-USE_BATCH_API = False
+USE_BATCH_API = True
 
 # Tamaños de lote para modo simple
 ANALYSIS_BATCH_SIZE = 5    # Capítulos a analizar con Gemini (simultáneos)
@@ -43,7 +43,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info("🎬 Iniciando Sylphrena v2.5")
         
         chapters = yield context.call_activity('SegmentBook', book_path)
-        
+
         seg_time = context.current_utc_datetime
         if not chapters:
             raise ValueError("La segmentación no devolvió capítulos.")
