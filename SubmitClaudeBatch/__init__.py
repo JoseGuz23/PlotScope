@@ -1,9 +1,11 @@
 # =============================================================================
-# SubmitClaudeBatch/__init__.py
+# SubmitClaudeBatch/__init__.py - PUNTO ÓPTIMO v2.0
 # =============================================================================
 # 
-# Envía capítulos a Claude Batch API (50% descuento)
-# Necesita: ANTHROPIC_API_KEY
+# Optimizaciones:
+#   - Prompt reducido ~40% (mantiene ejemplos clave)
+#   - RAG selectivo (solo contexto relevante por capítulo)
+#   - Métricas de tokens estimados
 #
 # =============================================================================
 
@@ -13,220 +15,228 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 
-# Importar el prompt template desde EditChapter
-EDIT_CHAPTER_PROMPT_TEMPLATE = """
-Eres un EDITOR DE DESARROLLO profesional trabajando en una novela de {{GENRE}}.
+# ═══════════════════════════════════════════════════════════════════════════════
+# PROMPT PUNTO ÓPTIMO
+# - Mantiene 4 ejemplos esenciales (2 buenos, 2 malos)
+# - Elimina decoraciones y repeticiones
+# - ~1200 tokens vs ~2000 original
+# ═══════════════════════════════════════════════════════════════════════════════
 
-═══════════════════════════════════════════════════════════════════════════════
+EDIT_PROMPT_OPTIMAL = """Eres un EDITOR DE DESARROLLO profesional trabajando en una novela de {genero}.
+
 IDENTIDAD DE LA OBRA
-═══════════════════════════════════════════════════════════════════════════════
-Género: {{GENRE}}
-Tono: {{TONE}}
-Tema central: {{THEME}}
-Estilo de prosa: {{STYLE}}
+- Género: {genero} | Tono: {tono} | Tema: {tema}
+- Estilo de prosa: {estilo}
 
-═══════════════════════════════════════════════════════════════════════════════
-VOZ DEL AUTOR - NO MODIFICAR ESTOS ELEMENTOS
-═══════════════════════════════════════════════════════════════════════════════
-{{NO_CORREGIR_STR}}
+VOZ DEL AUTOR - NO MODIFICAR:
+{no_corregir}
 
-═══════════════════════════════════════════════════════════════════════════════
-INFORMACIÓN DE ESTE CAPÍTULO
-═══════════════════════════════════════════════════════════════════════════════
-Título: {{CHAPTER_TITLE}}
-Posición en el arco: {{POSITION}}
-Ritmo esperado: {{PACING}}
+CAPÍTULO ACTUAL
+- Título: {titulo}
+- Posición en arco: {posicion}
+- Ritmo: {ritmo}{advertencia_ritmo}
 
-═══════════════════════════════════════════════════════════════════════════════
-PERSONAJES EN ESTE CAPÍTULO
-═══════════════════════════════════════════════════════════════════════════════
-{{CHARACTERS_STR}}
+PERSONAJES EN ESTE CAPÍTULO:
+{personajes}
 
-═══════════════════════════════════════════════════════════════════════════════
-PROBLEMAS A CORREGIR EN ESTE CAPÍTULO
-═══════════════════════════════════════════════════════════════════════════════
-{{PROBLEMS_STR}}
+PROBLEMAS A CORREGIR:
+{problemas}
 
-═══════════════════════════════════════════════════════════════════════════════
-TEXTO A EDITAR
-═══════════════════════════════════════════════════════════════════════════════
+EJEMPLOS DE EDICIÓN:
 
-{{CHAPTER_CONTENT}}
+✅ CORRECTO - Show don't tell:
+Original: "María estaba muy triste por la noticia."
+Editado: "María apartó la mirada. Sus dedos se clavaron en el borde de la mesa."
+Razón: Muestra la emoción en lugar de declararla.
 
-═══════════════════════════════════════════════════════════════════════════════
-TU TAREA
-═══════════════════════════════════════════════════════════════════════════════
+✅ CORRECTO - Continuidad:
+Original: "Pedro sacó su espada del cinturón" (pero la perdió en cap anterior)
+Editado: "Pedro buscó su espada, recordando que la había perdido en el río."
+Razón: Corrige inconsistencia manteniendo la narrativa.
 
-1. CORRIGE únicamente:
-    - Los problemas listados arriba
-    - Instancias claras de "tell" que deberían ser "show" 
-    - Redundancias obvias
-    - Errores de continuidad
+❌ RECHAZADO - Cambia la voz:
+Original: "Era de noche. Fría. La luna no daba calor."
+Incorrecto: "La noche envolvía todo con su manto gélido mientras la luna observaba desde lo alto."
+Razón: El autor usa oraciones cortas. La "corrección" destruye su estilo.
 
-2. NO TOQUES:
-    - NADA de la lista "VOZ DEL AUTOR"
-    - El ritmo del capítulo
-    - Diálogos breves (la brevedad es intencional)
+❌ RECHAZADO - Expande ritmo intencional:
+Original (capítulo lento): "Caminó por el jardín. Las flores estaban marchitas."
+Incorrecto: "Caminó lentamente por el sendero, observando con melancolía las flores marchitas..."
+Razón: Si el ritmo es intencional, expandir ROMPE la narrativa.
 
-3. CUANDO TENGAS DUDA: No edites.
+TEXTO A EDITAR:
 
-═══════════════════════════════════════════════════════════════════════════════
-FORMATO DE RESPUESTA (JSON)
-═══════════════════════════════════════════════════════════════════════════════
+{contenido}
 
-{
-  "capitulo_editado": "El texto completo del capítulo editado",
-  "cambios_realizados": [
-    {
-      "tipo": "redundancia|show_tell|continuidad|otro",
-      "original": "Texto original",
-      "editado": "Texto corregido",
-      "justificacion": "Por qué este cambio"
-    }
-  ],
-  "problemas_corregidos": ["ID-001", "ID-002"],
-  "notas_editor": "Observaciones generales (opcional)"
-}
-"""
+TU TAREA:
+1. Corrige SOLO: problemas listados + "tell vs show" + redundancias + continuidad
+2. NO toques: voz del autor, ritmo intencional, diálogos breves
+3. Ante la duda: NO edites
 
-
-def build_edit_prompt(chapter: dict, context: dict) -> str:
-    """Construye el prompt de edición para un capítulo."""
-    
-    # Formatear elementos NO_CORREGIR
-    no_corregir = context.get('no_corregir', [])
-    if no_corregir:
-        no_corregir_str = "\n".join([f"- {item}" for item in no_corregir[:10]])
-    else:
-        no_corregir_str = "- (Sin elementos específicos detectados)"
-    
-    # Formatear personajes
-    personajes = context.get('personajes_en_capitulo', [])
-    if personajes:
-        personajes_str = "\n".join([
-            f"- {p.get('nombre', '?')}: {p.get('rol', '?')} | {p.get('arco', 'Sin arco definido')}"
-            for p in personajes[:8]
-        ])
-    else:
-        personajes_str = "- (Sin personajes principales identificados)"
-    
-    # Formatear problemas
-    problemas = context.get('problemas_capitulo', [])
-    if problemas:
-        problemas_str = "\n".join([
-            f"- [{p.get('id', '?')}] {p.get('tipo', '?')}: {p.get('descripcion', '')[:100]}"
-            for p in problemas[:5]
-        ])
-    else:
-        problemas_str = "- (Sin problemas específicos detectados para este capítulo)"
-    
-    # Construir prompt
-    prompt = EDIT_CHAPTER_PROMPT_TEMPLATE
-    prompt = prompt.replace("{{GENRE}}", context.get('genero', 'ficción'))
-    prompt = prompt.replace("{{TONE}}", context.get('tono', 'neutro'))
-    prompt = prompt.replace("{{THEME}}", context.get('tema_central', ''))
-    prompt = prompt.replace("{{STYLE}}", context.get('estilo_prosa', 'equilibrado'))
-    prompt = prompt.replace("{{NO_CORREGIR_STR}}", no_corregir_str)
-    prompt = prompt.replace("{{CHAPTER_TITLE}}", chapter.get('title', 'Sin título'))
-    prompt = prompt.replace("{{POSITION}}", str(context.get('posicion_arco', 'desconocida')))
-    prompt = prompt.replace("{{PACING}}", str(context.get('ritmo_esperado', 'MEDIO')))
-    prompt = prompt.replace("{{CHARACTERS_STR}}", personajes_str)
-    prompt = prompt.replace("{{PROBLEMS_STR}}", problemas_str)
-    prompt = prompt.replace("{{CHAPTER_CONTENT}}", chapter.get('content', ''))
-    
-    return prompt
+RESPONDE JSON (sin markdown):
+{{"capitulo_editado": "texto completo", "cambios_realizados": [{{"tipo": "redundancia|show_tell|continuidad|otro", "original": "texto", "editado": "texto", "justificacion": "razón"}}], "problemas_corregidos": ["ID-001"], "notas_editor": "observaciones opcionales"}}"""
 
 
 def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict:
-    """Extrae contexto relevante para la edición."""
-    context = {
-        'genero': 'ficción',
-        'tono': 'neutro', 
-        'tema_central': '',
-        'estilo_prosa': 'equilibrado',
-        'no_corregir': [],
-        'posicion_arco': 'desconocida',
-        'ritmo_esperado': 'MEDIO',
-        'personajes_en_capitulo': [],
-        'problemas_capitulo': []
-    }
-    
+    """
+    RAG SELECTIVO: Extrae SOLO lo relevante para este capítulo.
+    ~800-1000 tokens vs ~5000 de la biblia completa.
+    """
     chapter_id = chapter.get('id', 0)
     try:
         chapter_num = int(chapter_id) if str(chapter_id).isdigit() else 0
     except:
         chapter_num = 0
     
-    # 1. IDENTIDAD
+    # 1. IDENTIDAD (~50 tokens)
     identidad = bible.get('identidad_obra', {})
-    context['genero'] = identidad.get('genero', 'ficción')
-    context['tono'] = identidad.get('tono_predominante', 'neutro')
-    context['tema_central'] = identidad.get('tema_central', '')
+    context = {
+        'genero': identidad.get('genero', 'ficción'),
+        'tono': identidad.get('tono_predominante', 'neutro'),
+        'tema': identidad.get('tema_central', 'no especificado'),
+    }
     
-    # 2. VOZ
+    # 2. VOZ (~150 tokens)
     voz = bible.get('voz_del_autor', {})
-    context['estilo_prosa'] = voz.get('estilo_detectado', 'equilibrado')
-    context['no_corregir'] = voz.get('NO_CORREGIR', [])
+    context['estilo'] = voz.get('estilo_detectado', 'equilibrado')
+    context['no_corregir'] = voz.get('NO_CORREGIR', [])[:7]  # Max 7 items
     
-    # 3. RITMO
+    # 3. RITMO de este capítulo (~50 tokens)
+    context['ritmo'] = 'MEDIO'
+    context['posicion'] = 'desarrollo'
+    context['es_intencional'] = False
+    context['justificacion_ritmo'] = ''
+    
     mapa_ritmo = bible.get('mapa_de_ritmo', {})
     for cap in mapa_ritmo.get('capitulos', []):
         if cap.get('numero') == chapter_num or cap.get('capitulo') == chapter_num:
-            context['ritmo_esperado'] = cap.get('clasificacion', 'MEDIO')
-            context['posicion_arco'] = cap.get('posicion_en_arco', 'desconocida')
+            context['ritmo'] = cap.get('clasificacion', 'MEDIO')
+            context['posicion'] = cap.get('posicion_en_arco', 'desarrollo')
+            context['es_intencional'] = cap.get('es_intencional', False)
+            context['justificacion_ritmo'] = cap.get('justificacion', '')
             break
     
-    # 4. PERSONAJES (simplificado)
+    # 4. PERSONAJES solo los presentes (~200 tokens max)
     local_chars = analysis.get('reparto_local', [])
-    local_names = set()
+    nombres_locales = set()
     for p in local_chars:
-        if isinstance(p, dict) and 'nombre' in p:
-            local_names.add(p['nombre'].lower())
+        if isinstance(p, dict):
+            nombre = p.get('nombre', '')
+            if nombre:
+                nombres_locales.add(nombre.lower())
     
+    personajes_relevantes = []
     reparto = bible.get('reparto_completo', {})
+    
     for categoria in ['protagonistas', 'antagonistas', 'secundarios']:
         for char in reparto.get(categoria, []):
             char_name = char.get('nombre', '').lower()
-            if char_name in local_names:
-                context['personajes_en_capitulo'].append({
+            aliases = [a.lower() for a in char.get('aliases', [])]
+            
+            if char_name in nombres_locales or any(a in nombres_locales for a in aliases):
+                info = {
                     'nombre': char.get('nombre'),
                     'rol': char.get('rol_arquetipo', categoria),
-                    'arco': char.get('arco_personaje', '')
-                })
+                }
+                # Solo agregar arco si existe y es corto
+                arco = char.get('arco_personaje', '')
+                if arco and len(arco) < 80:
+                    info['arco'] = arco
+                
+                # Marcar si tiene inconsistencias
+                if char.get('consistencia') != 'CONSISTENTE':
+                    notas = char.get('notas_inconsistencia', [])
+                    if notas:
+                        info['alerta'] = notas[0][:60]
+                
+                personajes_relevantes.append(info)
     
-    # 5. PROBLEMAS
+    context['personajes'] = personajes_relevantes[:8]  # Max 8
+    
+    # 5. PROBLEMAS que afectan ESTE capítulo (~150 tokens max)
+    problemas_relevantes = []
     problemas = bible.get('problemas_priorizados', {})
-    for severidad in ['criticos', 'medios', 'menores']:
+    
+    for severidad in ['criticos', 'medios']:
         for problema in problemas.get(severidad, []):
             caps_afectados = problema.get('capitulos_afectados', [])
+            
             if chapter_num in caps_afectados or str(chapter_num) in [str(c) for c in caps_afectados]:
-                context['problemas_capitulo'].append({
-                    'id': problema.get('id', ''),
-                    'tipo': problema.get('tipo', ''),
-                    'descripcion': problema.get('descripcion', ''),
-                    'sugerencia': problema.get('sugerencia', '')
+                problemas_relevantes.append({
+                    'id': problema.get('id', '?'),
+                    'tipo': problema.get('tipo', 'otro'),
+                    'desc': problema.get('descripcion', '')[:100],
+                    'fix': problema.get('sugerencia', '')[:60]
                 })
+    
+    context['problemas'] = problemas_relevantes[:5]  # Max 5
     
     return context
 
 
-def main(edit_requests: dict) -> dict:
-    """
-    Envía todos los capítulos a Claude Batch API.
+def build_edit_prompt(chapter: dict, context: dict) -> str:
+    """Construye prompt optimizado."""
     
-    Input: {
-        'chapters': [...],
-        'bible': {...},
-        'analyses': [...]
-    }
-    Output: {batch_id, chapters_count, status, id_map}
-    """
+    # NO_CORREGIR
+    if context['no_corregir']:
+        no_corregir_str = "\n".join([f"- {item}" for item in context['no_corregir']])
+    else:
+        no_corregir_str = "- (Sin restricciones específicas)"
+    
+    # PERSONAJES
+    if context['personajes']:
+        lines = []
+        for p in context['personajes']:
+            line = f"- {p['nombre']}: {p['rol']}"
+            if p.get('arco'):
+                line += f" | {p['arco']}"
+            if p.get('alerta'):
+                line += f" | ⚠️ {p['alerta']}"
+            lines.append(line)
+        personajes_str = "\n".join(lines)
+    else:
+        personajes_str = "- (Ninguno identificado)"
+    
+    # PROBLEMAS
+    if context['problemas']:
+        lines = []
+        for p in context['problemas']:
+            line = f"- [{p['id']}] {p['tipo']}: {p['desc']}"
+            if p.get('fix'):
+                line += f"\n  Sugerencia: {p['fix']}"
+            lines.append(line)
+        problemas_str = "\n".join(lines)
+    else:
+        problemas_str = "- (Sin problemas específicos para este capítulo)"
+    
+    # ADVERTENCIA DE RITMO
+    advertencia_ritmo = ""
+    if context['es_intencional']:
+        advertencia_ritmo = f"\n⚠️ RITMO INTENCIONAL: {context['justificacion_ritmo'][:80]}"
+    
+    prompt = EDIT_PROMPT_OPTIMAL.format(
+        genero=context['genero'],
+        tono=context['tono'],
+        tema=context['tema'],
+        estilo=context['estilo'],
+        no_corregir=no_corregir_str,
+        titulo=chapter.get('title', 'Sin título'),
+        posicion=context['posicion'],
+        ritmo=context['ritmo'],
+        advertencia_ritmo=advertencia_ritmo,
+        personajes=personajes_str,
+        problemas=problemas_str,
+        contenido=chapter.get('content', '')
+    )
+    
+    return prompt
+
+
+def main(edit_requests: dict) -> dict:
+    """Envía capítulos a Claude Batch API con contexto optimizado."""
     try:
         from anthropic import Anthropic
         
-        # ─────────────────────────────────────────────────────────────────
-        # A. CONFIGURACIÓN
-        # ─────────────────────────────────────────────────────────────────
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
             return {"error": "ANTHROPIC_API_KEY no configurada", "status": "config_error"}
@@ -235,79 +245,70 @@ def main(edit_requests: dict) -> dict:
         bible = edit_requests.get('bible', {})
         analyses = edit_requests.get('analyses', [])
         
-        logging.info(f"📦 Preparando Claude Batch de {len(chapters)} capítulos...")
+        logging.info(f"📦 Preparando Claude Batch OPTIMIZADO: {len(chapters)} capítulos")
         
-        # Crear cliente
         client = Anthropic(api_key=api_key)
         
-        # ─────────────────────────────────────────────────────────────────
-        # B. PREPARAR REQUESTS
-        # ─────────────────────────────────────────────────────────────────
         batch_requests = []
         ordered_ids = []
+        total_prompt_tokens = 0
         
         for chapter in chapters:
             ch_id = str(chapter.get('id', '?'))
             ordered_ids.append(ch_id)
             
-            # Buscar análisis correspondiente
+            # Buscar análisis
             analysis = next(
                 (a for a in analyses if str(a.get('chapter_id')) == ch_id),
                 {}
             )
             
-            # Extraer contexto y construir prompt
+            # Contexto SELECTIVO
             context = extract_relevant_context(chapter, bible, analysis)
+            
+            # Prompt OPTIMIZADO
             prompt = build_edit_prompt(chapter, context)
             
-            # Formato para Batch API
+            # Estimar tokens
+            prompt_tokens = len(prompt.split()) * 1.3
+            total_prompt_tokens += prompt_tokens
+            
             request = {
                 "custom_id": f"chapter-{ch_id}",
                 "params": {
                     "model": "claude-sonnet-4-5-20250929",
                     "max_tokens": 8000,
                     "temperature": 0.3,
-                    "messages": [
-                        {"role": "user", "content": prompt}
-                    ]
+                    "messages": [{"role": "user", "content": prompt}]
                 }
             }
             batch_requests.append(request)
         
-        logging.info(f"📝 {len(batch_requests)} requests preparados")
-        logging.info(f"📋 IDs en orden: {ordered_ids[:5]}...")
+        logging.info(f"📝 {len(batch_requests)} requests")
+        logging.info(f"📊 Tokens INPUT estimados: {total_prompt_tokens:,.0f}")
+        logging.info(f"💰 Costo INPUT estimado: ${total_prompt_tokens * 1.50 / 1_000_000:.3f}")
         
-        # ─────────────────────────────────────────────────────────────────
-        # C. CREAR BATCH JOB
-        # ─────────────────────────────────────────────────────────────────
-        logging.info("🚀 Enviando a Claude Batch API...")
-        
-        message_batch = client.messages.batches.create(
-            requests=batch_requests
-        )
+        message_batch = client.messages.batches.create(requests=batch_requests)
         
         logging.info(f"✅ Batch creado: {message_batch.id}")
-        logging.info(f"   Estado: {message_batch.processing_status}")
         
         return {
             "batch_id": message_batch.id,
             "chapters_count": len(chapters),
             "status": "submitted",
             "processing_status": message_batch.processing_status,
-            "id_map": ordered_ids
+            "id_map": ordered_ids,
+            "metrics": {
+                "estimated_input_tokens": int(total_prompt_tokens),
+                "estimated_input_cost_usd": round(total_prompt_tokens * 1.50 / 1_000_000, 4)
+            }
         }
         
     except ImportError as e:
         logging.error(f"❌ SDK no instalado: {e}")
-        return {
-            "error": "Instala: pip install anthropic",
-            "status": "import_error"
-        }
+        return {"error": str(e), "status": "import_error"}
     except Exception as e:
-        logging.error(f"❌ Error creando batch: {str(e)}")
+        logging.error(f"❌ Error: {str(e)}")
         import traceback
         logging.error(traceback.format_exc())
-        return {
-            "error": str(e),
-            "status": "error"
-        }
+        return {"error": str(e), "status": "error"}

@@ -1,14 +1,6 @@
 # =============================================================================
-# Orchestrator/__init__.py - VERSIÓN COMPLETA v2.5
+# Orchestrator/__init__.py - VERSIÓN 3.1 COMPLETA (CORREGIDA)
 # =============================================================================
-# 
-# DOS MODOS DE OPERACIÓN:
-#   1. LOTES SIMPLES (default) - Funciona YA, sin configuración extra
-#   2. BATCH API - Requiere GCP configurado (más barato, más robusto)
-#
-# Para cambiar de modo, modifica USE_BATCH_API abajo.
-# =============================================================================
-
 import azure.functions as func
 import azure.durable_functions as df
 import logging
@@ -19,35 +11,33 @@ from datetime import timedelta
 # CONFIGURACIÓN
 # =============================================================================
 
-# Cambiar a True cuando tengas GCP configurado
 USE_BATCH_API = True
+USE_LANGUAGETOOL = False  # Desactivado (rate limit + poco beneficio)
 
-# Tamaños de lote para modo simple
-ANALYSIS_BATCH_SIZE = 5    # Capítulos a analizar con Gemini (simultáneos)
-EDIT_BATCH_SIZE = 3        # Capítulos a editar con Claude (simultáneos)
+ANALYSIS_BATCH_SIZE = 5
+EDIT_BATCH_SIZE = 3
 
-# Configuración de Batch API (solo si USE_BATCH_API = True)
 BATCH_POLL_INTERVAL_SECONDS = 60
 BATCH_MAX_WAIT_MINUTES = 30
 
-# ─────────────────────────────────────────────────────────────────
-# CONFIGURACIÓN CLAUDE BATCH
-# ─────────────────────────────────────────────────────────────────
-CLAUDE_BATCH_MAX_WAIT_MINUTES = 120  # 2 horas máximo (normalmente es menos)
-CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120  # Cada 2 minutos
-USE_LANGUAGETOOL = False  # Habilitar corrección mecánica
+CLAUDE_BATCH_MAX_WAIT_MINUTES = 120
+CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120
 
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
     try:
         book_path = context.get_input()
         start_time = context.current_utc_datetime
+        instance_id = context.instance_id
+        
+        # Extraer nombre del libro
+        book_name = book_path.split('/')[-1].split('.')[0] if book_path else "libro"
         
         # =================================================================
         # 1. SEGMENTACIÓN
         # =================================================================
         context.set_custom_status("📚 Segmentando libro...")
-        logging.info("🎬 Iniciando Sylphrena v2.5")
+        logging.info("🎬 Iniciando Sylphrena v3.1")
         
         chapters = yield context.call_activity('SegmentBook', book_path)
         
@@ -60,17 +50,11 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"✅ Segmentación: {total_chapters} capítulos en {seg_seconds:.1f}s")
         
         # =================================================================
-        # 2. ANÁLISIS - Elegir modo
+        # 2. ANÁLISIS
         # =================================================================
         if USE_BATCH_API:
-            # ─────────────────────────────────────────────────────────────
-            # MODO BATCH API (requiere GCP)
-            # ─────────────────────────────────────────────────────────────
             chapter_analyses = yield from analyze_with_batch_api(context, chapters)
         else:
-            # ─────────────────────────────────────────────────────────────
-            # MODO LOTES SIMPLES (funciona ya)
-            # ─────────────────────────────────────────────────────────────
             chapter_analyses = yield from analyze_with_simple_batches(context, chapters)
         
         analysis_time = context.current_utc_datetime
@@ -113,51 +97,93 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"✅ Biblia creada en {bible_seconds:.1f}s")
 
         # =================================================================
-        # 5A. CORRECCIÓN MECÁNICA (LanguageTool)
+        # 5. CORRECCIÓN MECÁNICA (opcional)
         # =================================================================
-        context.set_custom_status("🔧 Corrección mecánica...")
-        corrected_chapters = yield from apply_mechanical_corrections(context, chapters)
-
-        mechanical_time = context.current_utc_datetime
-        mechanical_seconds = (mechanical_time - bible_time).total_seconds()
-        logging.info(f"✅ Corrección mecánica completada en {mechanical_seconds:.1f}s")
+        if USE_LANGUAGETOOL:
+            context.set_custom_status("🔧 Corrección mecánica...")
+            corrected_chapters = yield from apply_mechanical_corrections(context, chapters)
+            mechanical_seconds = (context.current_utc_datetime - bible_time).total_seconds()
+        else:
+            corrected_chapters = chapters
+            mechanical_seconds = 0
+            logging.info("⏭️ LanguageTool deshabilitado")
 
         # =================================================================
-        # 5B. EDICIÓN CON CLAUDE BATCH API
+        # 6. EDICIÓN CON CLAUDE BATCH API (LÓGICA CORREGIDA AQUI ABAJO)
         # =================================================================
         context.set_custom_status("✏️ Edición con Claude Batch...")
+        pre_edit_time = context.current_utc_datetime
+        
         edited_chapters = yield from edit_with_claude_batch(context, corrected_chapters, chapter_analyses, bible)
 
         edit_time = context.current_utc_datetime
-        edit_seconds = (edit_time - mechanical_time).total_seconds() # Tiempo solo para 5B
-        total_seconds = (edit_time - start_time).total_seconds() # Tiempo desde el inicio (PASO 1)
-        
-        logging.info(f"✅ Edición con Claude completada en {edit_seconds:.1f}s")
-        logging.info(f"⏱️ TIEMPO TOTAL DEL ORCHESTRATOR: {total_seconds/60:.1f} minutos")
+        edit_seconds = (edit_time - pre_edit_time).total_seconds()
+        logging.info(f"✅ Edición completada en {edit_seconds:.1f}s")
 
         # =================================================================
-        # 6. RESULTADO FINAL
+        # 7. GUARDAR OUTPUTS ORGANIZADOS
+        # =================================================================
+        context.set_custom_status("💾 Guardando resultados...")
+        
+        tiempos = {
+            'segmentacion': f"{seg_seconds:.1f}s",
+            'analisis': f"{analysis_seconds:.1f}s",
+            'holistica': f"{holistic_seconds:.1f}s",
+            'biblia': f"{bible_seconds:.1f}s",
+            'mecanica': f"{mechanical_seconds:.1f}s",
+            'edicion': f"{edit_seconds:.1f}s",
+            'total': f"{(edit_time - start_time).total_seconds()/60:.1f} min"
+        }
+        
+        save_input = {
+            'job_id': instance_id,
+            'book_name': book_name,
+            'bible': bible,
+            'edited_chapters': edited_chapters,
+            'original_chapters': chapters,
+            'tiempos': tiempos
+        }
+        
+        save_result = yield context.call_activity('SaveOutputs', save_input)
+        
+        logging.info(f"💾 Outputs guardados: {save_result.get('status')}")
+
+        # =================================================================
+        # 8. RESULTADO FINAL CON COSTOS
         # =================================================================
         context.set_custom_status("✅ Completado")
         
+        total_seconds = (edit_time - start_time).total_seconds()
+        tokens_libro = int(word_count * 1.33)
+        
+        # Calcular costos estimados
+        costos = {
+            'segmentacion': round(tokens_libro * 0.10 / 1_000_000, 4),
+            'analisis_batch': round(tokens_libro * 0.05 / 1_000_000, 4),
+            'holistica': round(tokens_libro * 1.25 / 1_000_000 + 5000 * 5.00 / 1_000_000, 4),
+            'biblia': round(len(chapter_analyses) * 300 * 1.25 / 1_000_000 + 8000 * 5.00 / 1_000_000, 4),
+            'edicion_input': round(tokens_libro * 2 * 1.50 / 1_000_000, 4),
+            'edicion_output': round(tokens_libro * 1.1 * 7.50 / 1_000_000, 4),
+            'infraestructura': 0.05
+        }
+        costos['total'] = round(sum(costos.values()), 2)
+        
+        logging.info(f"💰 COSTO TOTAL ESTIMADO: ${costos['total']:.2f}")
+        
         return {
             'status': 'completed',
-            'version': 'v2.5',
-            'mode': 'batch_api' if USE_BATCH_API else 'simple_batches',
+            'version': 'v3.1',
+            'job_id': instance_id,
+            'book_name': book_name,
+            'palabras': word_count,
             'total_chapters': total_chapters,
             'chapters_analyzed': len(chapter_analyses),
             'chapters_edited': len(edited_chapters),
-            'tiempos': {
-                'segmentacion': f"{seg_seconds:.1f}s",
-                'analisis': f"{analysis_seconds:.1f}s",
-                'holistica': f"{holistic_seconds:.1f}s",
-                'biblia': f"{bible_seconds:.1f}s",
-                'mecanica': f"{mechanical_seconds:.1f}s",  # 🆕
-                'edicion': f"{edit_seconds:.1f}s",
-                'total': f"{total_seconds/60:.1f} min"
-            },
-            'bible_metadata': bible.get('_metadata', {}),
-            'edited_chapter_ids': [e.get('chapter_id') for e in edited_chapters]
+            'tiempos': tiempos,
+            'costos': costos,
+            'outputs': save_result.get('urls', {}),
+            'outputs_container': save_result.get('container', 'sylphrena-outputs'),
+            'outputs_path': save_result.get('base_path', instance_id),
         }
         
     except Exception as e:
@@ -172,7 +198,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
 
 
 # =============================================================================
-# MODO 1: LOTES SIMPLES (funciona ya, sin GCP)
+# ANÁLISIS CON LOTES SIMPLES
 # =============================================================================
 
 def analyze_with_simple_batches(context, chapters):
@@ -214,7 +240,7 @@ def analyze_with_simple_batches(context, chapters):
 
 
 # =============================================================================
-# MODO 2: BATCH API (requiere GCP configurado)
+# ANÁLISIS CON BATCH API
 # =============================================================================
 
 def analyze_with_batch_api(context, chapters):
@@ -223,60 +249,46 @@ def analyze_with_batch_api(context, chapters):
     
     context.set_custom_status("📤 Enviando a Gemini Batch API...")
     
-    # Enviar batch
     batch_info = yield context.call_activity('SubmitBatchAnalysis', chapters)
     
     if batch_info.get('error'):
         raise Exception(f"Error creando batch: {batch_info.get('error')}")
     
-    logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_id', 'N/A')}")
+    logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_name', 'N/A')}")
     
-    # Polling hasta completar
     for attempt in range(BATCH_MAX_WAIT_MINUTES):
         context.set_custom_status(f"⏳ Esperando Batch API... ({attempt + 1}/{BATCH_MAX_WAIT_MINUTES} min)")
         
-        # Timer de Durable Functions (no bloquea el orquestador)
         next_check = context.current_utc_datetime + timedelta(seconds=BATCH_POLL_INTERVAL_SECONDS)
         yield context.create_timer(next_check)
         
-        # Consultar estado
         result = yield context.call_activity('PollBatchResult', batch_info)
         
         if isinstance(result, list):
-            # ¡Completado! Tenemos los análisis
             logging.info(f"✅ Batch completado: {len(result)} análisis")
             return result
         
         if result.get('status') == 'failed':
             raise Exception(f"Batch falló: {result.get('error')}")
         
-        # Sigue procesando, continuar polling
+        batch_info = result
         logging.info(f"⏳ Batch aún procesando... (intento {attempt + 1})")
     
     raise Exception(f"Batch no completó en {BATCH_MAX_WAIT_MINUTES} minutos")
 
 
 # =============================================================================
-# EDICIÓN CON CLAUDE (siempre en lotes)
-# =============================================================================
-
-# =============================================================================
-# CORRECCIÓN MECÁNICA CON LANGUAGETOOL
+# CORRECCIÓN MECÁNICA
 # =============================================================================
 
 def apply_mechanical_corrections(context, chapters):
     """Aplica corrección mecánica a todos los capítulos."""
-    if not USE_LANGUAGETOOL:
-        logging.info("⏭️ LanguageTool deshabilitado, saltando corrección mecánica")
-        return chapters
-    
     logging.info(f"🔧 Aplicando corrección mecánica a {len(chapters)} capítulos...")
     context.set_custom_status("🔧 Corrección mecánica (LanguageTool)")
     
     corrected_chapters = []
     total_corrections = 0
     
-    # Procesar en lotes pequeños para no saturar
     MECHANICAL_BATCH_SIZE = 5
     
     for i in range(0, len(chapters), MECHANICAL_BATCH_SIZE):
@@ -300,7 +312,6 @@ def apply_mechanical_corrections(context, chapters):
 def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
     """Edita capítulos usando Claude Batch API (50% descuento)."""
     
-    # Emparejar capítulos con sus análisis
     chapters_to_edit = []
     for chapter in chapters:
         ch_id = str(chapter.get('id'))
@@ -318,9 +329,6 @@ def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
         logging.warning("⚠️ No hay capítulos para editar")
         return []
     
-    # ─────────────────────────────────────────────────────────────────
-    # 1. ENVIAR BATCH
-    # ─────────────────────────────────────────────────────────────────
     context.set_custom_status("📤 Enviando a Claude Batch API...")
     
     edit_request = {
@@ -337,21 +345,26 @@ def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
     batch_id = batch_info.get('batch_id')
     logging.info(f"📦 Claude Batch creado: {batch_id}")
     
-    # ─────────────────────────────────────────────────────────────────
-    # 2. POLLING HASTA COMPLETAR
-    # ─────────────────────────────────────────────────────────────────
     for attempt in range(CLAUDE_BATCH_MAX_WAIT_MINUTES):
         context.set_custom_status(f"⏳ Esperando Claude Batch... ({attempt + 1}/{CLAUDE_BATCH_MAX_WAIT_MINUTES} min)")
         
-        # Timer de Durable Functions
+        # Esperar
         next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_BATCH_POLL_INTERVAL_SECONDS)
         yield context.create_timer(next_check)
         
-        # Consultar estado
+        # Consultar
         result = yield context.call_activity('PollClaudeBatchResult', batch_info)
         
+        # === 🛡️ LOGGING DE DIAGNÓSTICO (PARA VERIFICAR QUE NO ESTÁ VACÍO) ===
+        res_type = "LISTA" if isinstance(result, list) else "DICT"
+        res_status = result.get('status', 'N/A') if isinstance(result, dict) else 'COMPLETADO'
+        logging.info(f"🕵️ DEBUG Claude Poll: Tipo={res_type}, Status={res_status}, Attempt={attempt}")
+        # ===================================================================
+
         if isinstance(result, list):
-            # ¡Completado! Tenemos los capítulos editados
+            if not result and attempt < 2:
+                 logging.warning("⚠️ ALERTA: Claude devolvió lista vacía muy rápido.")
+            
             logging.info(f"✅ Claude Batch completado: {len(result)} capítulos editados")
             return result
         
@@ -359,14 +372,14 @@ def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
             raise Exception(f"Claude Batch falló: {result.get('error')}")
         
         if result.get('status') == 'completed_no_results':
-            logging.warning("⚠️ Claude Batch completó pero sin resultados extraíbles")
+            logging.warning("⚠️ Claude Batch completó pero sin resultados")
             return []
         
-        # Sigue procesando, actualizar batch_info con id_map
+        # Actualizar info para siguiente poll
         batch_info = result
         
         counts = result.get('request_counts', {})
-        logging.info(f"⏳ Claude Batch procesando... ({counts.get('succeeded', 0)} OK, {counts.get('processing', 0)} pendientes)")
+        logging.info(f"⏳ Claude procesando... ({counts.get('succeeded', 0)} OK, {counts.get('processing', 0)} pendientes)")
     
     raise Exception(f"Claude Batch no completó en {CLAUDE_BATCH_MAX_WAIT_MINUTES} minutos")
 
