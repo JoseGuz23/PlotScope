@@ -30,6 +30,13 @@ EDIT_BATCH_SIZE = 3        # Capítulos a editar con Claude (simultáneos)
 BATCH_POLL_INTERVAL_SECONDS = 60
 BATCH_MAX_WAIT_MINUTES = 30
 
+# ─────────────────────────────────────────────────────────────────
+# CONFIGURACIÓN CLAUDE BATCH
+# ─────────────────────────────────────────────────────────────────
+CLAUDE_BATCH_MAX_WAIT_MINUTES = 120  # 2 horas máximo (normalmente es menos)
+CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120  # Cada 2 minutos
+USE_LANGUAGETOOL = True  # Habilitar corrección mecánica
+
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
     try:
@@ -43,7 +50,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info("🎬 Iniciando Sylphrena v2.5")
         
         chapters = yield context.call_activity('SegmentBook', book_path)
-
+        
         seg_time = context.current_utc_datetime
         if not chapters:
             raise ValueError("La segmentación no devolvió capítulos.")
@@ -106,16 +113,27 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"✅ Biblia creada en {bible_seconds:.1f}s")
 
         # =================================================================
-        # 5. EDICIÓN CON CLAUDE (en lotes)
+        # 5A. CORRECCIÓN MECÁNICA (LanguageTool)
         # =================================================================
-        edited_chapters = yield from edit_with_batches(context, chapters, chapter_analyses, bible)
-        
+        context.set_custom_status("🔧 Corrección mecánica...")
+        corrected_chapters = yield from apply_mechanical_corrections(context, chapters)
+
+        mechanical_time = context.current_utc_datetime
+        mechanical_seconds = (mechanical_time - bible_time).total_seconds()
+        logging.info(f"✅ Corrección mecánica completada en {mechanical_seconds:.1f}s")
+
+        # =================================================================
+        # 5B. EDICIÓN CON CLAUDE BATCH API
+        # =================================================================
+        context.set_custom_status("✏️ Edición con Claude Batch...")
+        edited_chapters = yield from edit_with_claude_batch(context, corrected_chapters, chapter_analyses, bible)
+
         edit_time = context.current_utc_datetime
-        edit_seconds = (edit_time - bible_time).total_seconds()
-        total_seconds = (edit_time - start_time).total_seconds()
+        edit_seconds = (edit_time - mechanical_time).total_seconds() # Tiempo solo para 5B
+        total_seconds = (edit_time - start_time).total_seconds() # Tiempo desde el inicio (PASO 1)
         
-        logging.info(f"✅ Edición completada en {edit_seconds:.1f}s")
-        logging.info(f"⏱️ TIEMPO TOTAL: {total_seconds/60:.1f} minutos")
+        logging.info(f"✅ Edición con Claude completada en {edit_seconds:.1f}s")
+        logging.info(f"⏱️ TIEMPO TOTAL DEL ORCHESTRATOR: {total_seconds/60:.1f} minutos")
 
         # =================================================================
         # 6. RESULTADO FINAL
@@ -134,6 +152,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 'analisis': f"{analysis_seconds:.1f}s",
                 'holistica': f"{holistic_seconds:.1f}s",
                 'biblia': f"{bible_seconds:.1f}s",
+                'mecanica': f"{mechanical_seconds:.1f}s",  # 🆕
                 'edicion': f"{edit_seconds:.1f}s",
                 'total': f"{total_seconds/60:.1f} min"
             },
@@ -210,8 +229,7 @@ def analyze_with_batch_api(context, chapters):
     if batch_info.get('error'):
         raise Exception(f"Error creando batch: {batch_info.get('error')}")
     
-    batch_job_name = batch_info.get('batch_job_name')
-    logging.info(f"📦 Batch Job creado: {batch_job_name}")
+    logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_id', 'N/A')}")
     
     # Polling hasta completar
     for attempt in range(BATCH_MAX_WAIT_MINUTES):
@@ -232,10 +250,6 @@ def analyze_with_batch_api(context, chapters):
         if result.get('status') == 'failed':
             raise Exception(f"Batch falló: {result.get('error')}")
         
-        if result.get('status') == 'completed_no_results':
-            logging.warning("⚠️ Batch completó pero sin resultados extraíbles")
-            return []
-        
         # Sigue procesando, continuar polling
         logging.info(f"⏳ Batch aún procesando... (intento {attempt + 1})")
     
@@ -246,8 +260,45 @@ def analyze_with_batch_api(context, chapters):
 # EDICIÓN CON CLAUDE (siempre en lotes)
 # =============================================================================
 
-def edit_with_batches(context, chapters, chapter_analyses, bible):
-    """Edita capítulos en lotes con Claude."""
+# =============================================================================
+# CORRECCIÓN MECÁNICA CON LANGUAGETOOL
+# =============================================================================
+
+def apply_mechanical_corrections(context, chapters):
+    """Aplica corrección mecánica a todos los capítulos."""
+    if not USE_LANGUAGETOOL:
+        logging.info("⏭️ LanguageTool deshabilitado, saltando corrección mecánica")
+        return chapters
+    
+    logging.info(f"🔧 Aplicando corrección mecánica a {len(chapters)} capítulos...")
+    context.set_custom_status("🔧 Corrección mecánica (LanguageTool)")
+    
+    corrected_chapters = []
+    total_corrections = 0
+    
+    # Procesar en lotes pequeños para no saturar
+    MECHANICAL_BATCH_SIZE = 5
+    
+    for i in range(0, len(chapters), MECHANICAL_BATCH_SIZE):
+        batch = chapters[i:i + MECHANICAL_BATCH_SIZE]
+        
+        tasks = [context.call_activity('MechanicalCorrection', ch) for ch in batch]
+        results = yield context.task_all(tasks)
+        
+        for result in results:
+            corrected_chapters.append(result)
+            total_corrections += result.get('corrections_count', 0)
+    
+    logging.info(f"✅ Corrección mecánica: {total_corrections} correcciones totales")
+    return corrected_chapters
+
+
+# =============================================================================
+# EDICIÓN CON CLAUDE BATCH API
+# =============================================================================
+
+def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
+    """Edita capítulos usando Claude Batch API (50% descuento)."""
     
     # Emparejar capítulos con sus análisis
     chapters_to_edit = []
@@ -258,45 +309,66 @@ def edit_with_batches(context, chapters, chapter_analyses, bible):
             None
         )
         if analysis:
-            chapters_to_edit.append({'chapter': chapter, 'analysis': analysis})
+            chapters_to_edit.append(chapter)
     
     total_to_edit = len(chapters_to_edit)
-    total_batches = (total_to_edit + EDIT_BATCH_SIZE - 1) // EDIT_BATCH_SIZE
+    logging.info(f"✏️ Enviando {total_to_edit} capítulos a Claude Batch API")
     
-    logging.info(f"✏️ Editando {total_to_edit} capítulos en {total_batches} lotes")
+    if total_to_edit == 0:
+        logging.warning("⚠️ No hay capítulos para editar")
+        return []
     
-    all_edited = []
-    failed = []
+    # ─────────────────────────────────────────────────────────────────
+    # 1. ENVIAR BATCH
+    # ─────────────────────────────────────────────────────────────────
+    context.set_custom_status("📤 Enviando a Claude Batch API...")
     
-    for batch_num, i in enumerate(range(0, total_to_edit, EDIT_BATCH_SIZE), 1):
-        batch = chapters_to_edit[i:i + EDIT_BATCH_SIZE]
+    edit_request = {
+        'chapters': chapters_to_edit,
+        'bible': bible,
+        'analyses': chapter_analyses
+    }
+    
+    batch_info = yield context.call_activity('SubmitClaudeBatch', edit_request)
+    
+    if batch_info.get('error'):
+        raise Exception(f"Error creando Claude batch: {batch_info.get('error')}")
+    
+    batch_id = batch_info.get('batch_id')
+    logging.info(f"📦 Claude Batch creado: {batch_id}")
+    
+    # ─────────────────────────────────────────────────────────────────
+    # 2. POLLING HASTA COMPLETAR
+    # ─────────────────────────────────────────────────────────────────
+    for attempt in range(CLAUDE_BATCH_MAX_WAIT_MINUTES):
+        context.set_custom_status(f"⏳ Esperando Claude Batch... ({attempt + 1}/{CLAUDE_BATCH_MAX_WAIT_MINUTES} min)")
         
-        context.set_custom_status(f"✏️ Editando lote {batch_num}/{total_batches}")
-        logging.info(f"✏️ Lote edición {batch_num}/{total_batches}")
+        # Timer de Durable Functions
+        next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_BATCH_POLL_INTERVAL_SECONDS)
+        yield context.create_timer(next_check)
         
-        try:
-            tasks = []
-            for item in batch:
-                edit_input = {
-                    'chapter': item['chapter'],
-                    'bible': bible,
-                    'analysis': item['analysis']
-                }
-                tasks.append(context.call_activity('EditChapter', edit_input))
-            
-            results = yield context.task_all(tasks)
-            
-            for result in results:
-                if result.get('status') == 'error':
-                    failed.append(result)
-                else:
-                    all_edited.append(result)
-                    
-        except Exception as e:
-            logging.error(f"❌ Error en lote edición {batch_num}: {e}")
+        # Consultar estado
+        result = yield context.call_activity('PollClaudeBatchResult', batch_info)
+        
+        if isinstance(result, list):
+            # ¡Completado! Tenemos los capítulos editados
+            logging.info(f"✅ Claude Batch completado: {len(result)} capítulos editados")
+            return result
+        
+        if result.get('status') == 'error':
+            raise Exception(f"Claude Batch falló: {result.get('error')}")
+        
+        if result.get('status') == 'completed_no_results':
+            logging.warning("⚠️ Claude Batch completó pero sin resultados extraíbles")
+            return []
+        
+        # Sigue procesando, actualizar batch_info con id_map
+        batch_info = result
+        
+        counts = result.get('request_counts', {})
+        logging.info(f"⏳ Claude Batch procesando... ({counts.get('succeeded', 0)} OK, {counts.get('processing', 0)} pendientes)")
     
-    logging.info(f"✏️ Edición: {len(all_edited)} OK, {len(failed)} fallidos")
-    return all_edited
+    raise Exception(f"Claude Batch no completó en {CLAUDE_BATCH_MAX_WAIT_MINUTES} minutos")
 
 
 main = df.Orchestrator.create(orchestrator_function)

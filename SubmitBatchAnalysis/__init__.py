@@ -37,6 +37,10 @@ def main(chapters: list) -> dict:
         
         # Crear cliente
         client = genai.Client(api_key=api_key)
+
+        # 🆕 GUARDAR ORDEN DE IDs
+        ordered_ids = [str(ch.get('id', '?')) for ch in chapters]
+        logging.info(f"📋 IDs en orden: {ordered_ids[:5]}...")
         
         # ─────────────────────────────────────────────────────────────────
         # B. PREPARAR REQUESTS INLINE
@@ -85,9 +89,10 @@ def main(chapters: list) -> dict:
             "batch_job_name": batch_job.name,
             "chapters_count": len(chapters),
             "status": "submitted",
-            "state": str(batch_job.state) if batch_job.state else "PENDING"
+            "state": str(batch_job.state) if batch_job.state else "PENDING",
+            "id_map": ordered_ids  # 🆕 MAPA DE IDs
         }
-        
+    
     except ImportError as e:
         logging.error(f"❌ SDK no instalado: {e}")
         return {

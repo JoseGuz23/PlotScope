@@ -35,6 +35,9 @@ def main(batch_info: dict) -> dict:
         if not batch_job_name:
             return {"status": "error", "error": "No batch_job_name provided"}
         
+        id_map = batch_info.get('id_map', [])
+        logging.info(f"📋 Mapa de IDs recuperado: {len(id_map)} elementos")
+        
         logging.info(f"🔄 Consultando batch: {batch_job_name}")
         
         # Crear cliente
@@ -52,63 +55,47 @@ def main(batch_info: dict) -> dict:
         #                   JOB_STATE_SUCCEEDED, JOB_STATE_FAILED, JOB_STATE_CANCELLED
         
         if "SUCCEEDED" in job_state:
-            # ─────────────────────────────────────────────────────────────
-            # C. EXTRAER RESULTADOS
-            # ─────────────────────────────────────────────────────────────
             logging.info(f"✅ Job completado, extrayendo resultados...")
             
             results = []
+            idx = 0  # 🆕 Contador para el mapa
             
-            # Los resultados vienen en job.dest o inline_response dependiendo del tipo
-            if hasattr(job, 'dest') and job.dest:
-                # Resultados en archivo
-                logging.info(f"   Destino: {job.dest}")
-                # Aquí habría que descargar del destino
-                # Por ahora, verificar si hay inline_response
-            
-            # Para requests inline, los resultados vienen en response
+            # Extraer respuestas
             if hasattr(job, 'response') and job.response:
                 for resp in job.response:
                     try:
-                        # Extraer el texto generado
                         if hasattr(resp, 'candidates') and resp.candidates:
-                            text = resp.candidates[0].content.parts[0].text
-                            # Intentar parsear como JSON
-                            analysis = json.loads(text)
-                            results.append(analysis)
-                        elif hasattr(resp, 'text'):
-                            analysis = json.loads(resp.text)
-                            results.append(analysis)
-                    except (json.JSONDecodeError, AttributeError, IndexError) as e:
-                        logging.warning(f"   Error parseando respuesta: {e}")
-                        continue
-            
-            # Alternativa: verificar inline_responses
-            if not results and hasattr(job, 'inline_responses'):
-                for resp in job.inline_responses:
-                    try:
-                        if hasattr(resp, 'response'):
-                            text = resp.response.candidates[0].content.parts[0].text
-                            # Limpiar posibles backticks
-                            text = text.strip()
-                            if text.startswith("```json"):
-                                text = text[7:]
-                            if text.startswith("```"):
-                                text = text[3:]
-                            if text.endswith("```"):
-                                text = text[:-3]
-                            analysis = json.loads(text.strip())
-                            results.append(analysis)
+                            candidate = resp.candidates[0]
+                            if hasattr(candidate, 'content') and candidate.content:
+                                text = candidate.content.parts[0].text
+                                
+                                # Limpiar markdown
+                                text = text.replace('```json', '').replace('```', '').strip()
+                                
+                                # Parsear JSON
+                                analysis = json.loads(text)
+                                
+                                # 🆕 ESTAMPAR ID CORRECTO POR POSICIÓN
+                                if idx < len(id_map):
+                                    analysis['chapter_id'] = id_map[idx]
+                                    logging.info(f"✅ Resultado {idx} → ID: {id_map[idx]}")
+                                else:
+                                    analysis['chapter_id'] = f"unknown_{idx}"
+                                    logging.warning(f"⚠️ Resultado {idx} fuera de rango")
+                                
+                                results.append(analysis)
+                                idx += 1
+                                
                     except Exception as e:
-                        logging.warning(f"   Error en inline_response: {e}")
+                        logging.warning(f"⚠️ Error procesando resultado {idx}: {e}")
+                        idx += 1  # IMPORTANTE: avanzar aunque falle
                         continue
             
-            logging.info(f"📥 Extraídos {len(results)} análisis")
+            logging.info(f"🔥 Extraídos {len(results)} análisis con IDs correctos")
             
             if results:
-                return results  # Lista de análisis
+                return results
             else:
-                # Si no pudimos extraer resultados, devolver info del job
                 return {
                     "status": "completed_no_results",
                     "job_name": batch_job_name,
