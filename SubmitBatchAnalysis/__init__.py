@@ -2,75 +2,46 @@
 # SubmitBatchAnalysis/__init__.py
 # =============================================================================
 # 
-# REQUISITOS PARA QUE ESTO FUNCIONE:
-# 
-# 1. GOOGLE CLOUD PLATFORM:
-#    - Crear proyecto en console.cloud.google.com
-#    - Habilitar "Vertex AI API" y "Cloud Storage API"
-#    - Crear bucket en Cloud Storage (ej: "sylphrena-batch-jobs")
+# USA LA GEMINI BATCH API (50% descuento)
+# Solo necesita: GEMINI_API_KEY (ya lo tienes)
 #
-# 2. CREDENCIALES:
-#    - Crear Service Account con roles:
-#      * "Vertex AI User"
-#      * "Storage Object Admin"
-#    - Descargar JSON de credenciales
-#    - Subir a Azure Function App como variable de entorno
-#
-# 3. VARIABLES DE ENTORNO EN AZURE:
-#    - GCP_PROJECT_ID: tu-proyecto-id
-#    - GCP_BUCKET_NAME: sylphrena-batch-jobs
-#    - GOOGLE_APPLICATION_CREDENTIALS_JSON: (contenido del JSON de credenciales)
+# NO necesita:
+#   - Google Cloud Storage
+#   - Service Account JSON
+#   - GCP_PROJECT_ID
 #
 # =============================================================================
 
 import logging
 import json
 import os
-import time
-
-# Estas librerías necesitan instalarse:
-# pip install google-cloud-storage google-cloud-aiplatform
 
 def main(chapters: list) -> dict:
     """
     Envía todos los capítulos a Gemini Batch API.
     
     Input: Lista de capítulos [{id, title, content}, ...]
-    Output: {batch_job_id, output_uri, chapters_count, status}
+    Output: {batch_job_name, chapters_count, status}
     """
     try:
+        from google import genai
+        
         # ─────────────────────────────────────────────────────────────────
         # A. CONFIGURACIÓN
         # ─────────────────────────────────────────────────────────────────
-        project_id = os.environ.get('GCP_PROJECT_ID')
-        bucket_name = os.environ.get('GCP_BUCKET_NAME', f'{project_id}-sylphrena-batch')
-        
-        if not project_id:
-            return {"error": "GCP_PROJECT_ID no configurado", "status": "config_error"}
-        
-        # Configurar credenciales desde variable de entorno
-        creds_json = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
-        if creds_json:
-            # Escribir credenciales a archivo temporal
-            creds_path = '/tmp/gcp_credentials.json'
-            with open(creds_path, 'w') as f:
-                f.write(creds_json)
-            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = creds_path
+        api_key = os.environ.get('GEMINI_API_KEY')
+        if not api_key:
+            return {"error": "GEMINI_API_KEY no configurada", "status": "config_error"}
         
         logging.info(f"📦 Preparando batch de {len(chapters)} capítulos...")
-        logging.info(f"   Project: {project_id}")
-        logging.info(f"   Bucket: {bucket_name}")
+        
+        # Crear cliente
+        client = genai.Client(api_key=api_key)
         
         # ─────────────────────────────────────────────────────────────────
-        # B. IMPORTAR LIBRERÍAS DE GCP (después de configurar credenciales)
+        # B. PREPARAR REQUESTS INLINE
         # ─────────────────────────────────────────────────────────────────
-        from google.cloud import storage
-        from google.cloud import aiplatform
-        
-        # ─────────────────────────────────────────────────────────────────
-        # C. PREPARAR ARCHIVO JSONL CON REQUESTS
-        # ─────────────────────────────────────────────────────────────────
-        requests_lines = []
+        batch_requests = []
         
         for chapter in chapters:
             chapter_id = chapter.get('id', 0)
@@ -80,76 +51,59 @@ def main(chapters: list) -> dict:
             
             prompt = build_analysis_prompt(chapter_id, title, content, is_fragment)
             
-            # Formato JSONL para Batch API
+            # Formato para Batch API inline
             request = {
-                "request": {
-                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                    "generationConfig": {
-                        "temperature": 0.2,
-                        "maxOutputTokens": 8192,
-                        "responseMimeType": "application/json"
-                    }
-                },
-                "metadata": {
-                    "chapter_id": str(chapter_id),
-                    "title": title
-                }
+                "contents": [{
+                    "parts": [{"text": prompt}],
+                    "role": "user"
+                }],
+                "safetySettings": [
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ]
             }
-            requests_lines.append(json.dumps(request, ensure_ascii=False))
+            batch_requests.append(request)
         
-        jsonl_content = '\n'.join(requests_lines)
+        logging.info(f"📝 {len(batch_requests)} requests preparados")
         
         # ─────────────────────────────────────────────────────────────────
-        # D. SUBIR A CLOUD STORAGE
+        # C. CREAR BATCH JOB
         # ─────────────────────────────────────────────────────────────────
-        storage_client = storage.Client(project=project_id)
-        bucket = storage_client.bucket(bucket_name)
-        
+        import time
         timestamp = int(time.time())
-        input_filename = f"inputs/batch-{timestamp}.jsonl"
-        output_prefix = f"outputs/batch-{timestamp}/"
         
-        blob = bucket.blob(input_filename)
-        blob.upload_from_string(jsonl_content, content_type='application/jsonl')
+        logging.info("🚀 Enviando a Gemini Batch API...")
         
-        input_uri = f"gs://{bucket_name}/{input_filename}"
-        output_uri = f"gs://{bucket_name}/{output_prefix}"
-        
-        logging.info(f"📤 Archivo subido: {input_uri}")
-        
-        # ─────────────────────────────────────────────────────────────────
-        # E. CREAR BATCH JOB EN VERTEX AI
-        # ─────────────────────────────────────────────────────────────────
-        aiplatform.init(project=project_id, location="us-central1")
-        
-        # Usar BatchPredictionJob de Vertex AI
-        batch_job = aiplatform.BatchPredictionJob.create(
-            job_display_name=f"sylphrena-analysis-{timestamp}",
-            model_name="publishers/google/models/gemini-1.5-flash",  # o gemini-2.5-flash cuando esté disponible
-            gcs_source=input_uri,
-            gcs_destination_prefix=output_uri,
-            sync=False  # No esperar, retornar inmediatamente
+        batch_job = client.batches.create(
+            model="models/gemini-2.5-flash",
+            src=batch_requests,
+            config={
+                "display_name": f"sylphrena-{timestamp}",
+            }
         )
         
-        logging.info(f"🚀 Batch Job creado: {batch_job.resource_name}")
+        logging.info(f"✅ Batch Job creado: {batch_job.name}")
+        logging.info(f"   Estado: {batch_job.state}")
         
         return {
-            "batch_job_id": batch_job.resource_name,
-            "batch_job_name": batch_job.display_name,
-            "input_uri": input_uri,
-            "output_uri": output_uri,
+            "batch_job_name": batch_job.name,
             "chapters_count": len(chapters),
-            "status": "submitted"
+            "status": "submitted",
+            "state": str(batch_job.state) if batch_job.state else "PENDING"
         }
         
     except ImportError as e:
-        logging.error(f"❌ Librerías de GCP no instaladas: {e}")
+        logging.error(f"❌ SDK no instalado: {e}")
         return {
-            "error": f"Instala: pip install google-cloud-storage google-cloud-aiplatform",
+            "error": "Instala: pip install google-genai",
             "status": "import_error"
         }
     except Exception as e:
         logging.error(f"❌ Error creando batch: {str(e)}")
+        import traceback
+        logging.error(traceback.format_exc())
         return {
             "error": str(e),
             "status": "error"
@@ -169,29 +123,29 @@ TEXTO A ANALIZAR:
 {content}
 
 INSTRUCCIONES:
-Responde SOLO con JSON válido con esta estructura:
+Responde SOLO con JSON válido (sin markdown, sin ```) con esta estructura exacta:
 {{
   "chapter_id": "{chapter_id}",
   "titulo_real": "{title}",
   "reparto_local": [
-    {{"nombre": "...", "rol": "protagonista|secundario|mencionado", "estado_emocional": "..."}}
+    {{"nombre": "NombrePersonaje", "rol": "protagonista", "estado_emocional": "emocion"}}
   ],
   "eventos": [
-    {{"evento": "...", "tipo": "accion|dialogo|reflexion", "tension": 1-10}}
+    {{"evento": "descripcion breve", "tipo": "accion", "tension": 5}}
   ],
   "metricas": {{
     "total_palabras": 0,
     "porcentaje_dialogo": 0,
-    "clasificacion_ritmo": "RAPIDO|MEDIO|LENTO"
+    "clasificacion_ritmo": "MEDIO"
   }},
   "elementos_narrativos": {{
-    "lugar": "...",
-    "tiempo": "...",
-    "atmosfera": "...",
-    "conflicto_presente": true/false
+    "lugar": "ubicacion",
+    "tiempo": "momento",
+    "atmosfera": "tono",
+    "conflicto_presente": true
   }},
   "senales_edicion": {{
-    "problemas_potenciales": ["..."],
-    "repeticiones": ["..."]
+    "problemas_potenciales": [],
+    "repeticiones": []
   }}
 }}"""
