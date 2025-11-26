@@ -24,7 +24,7 @@ from datetime import datetime
 FUNCTION_APP_BASE = "https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net"
 
 # Tiempo máximo de espera (minutos)
-MAX_WAIT_MINUTES = 45
+MAX_WAIT_MINUTES = 180
 
 # Intervalo de polling (segundos)
 POLL_INTERVAL = 20

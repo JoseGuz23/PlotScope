@@ -1,25 +1,15 @@
 # =============================================================================
 # PollBatchResult/__init__.py
 # =============================================================================
-# 
-# Consulta el estado de un Batch Job y obtiene resultados
-# Solo necesita: GEMINI_API_KEY
-#
-# =============================================================================
 
 import logging
 import json
 import os
+import traceback
 
 def main(batch_info: dict) -> dict:
     """
-    Consulta el estado de un Batch Job y descarga resultados si completó.
-    
-    Input: {batch_job_name, ...}
-    Output: 
-        - Si completó: Lista de análisis JSON
-        - Si procesando: {status: "processing", state: "..."}
-        - Si falló: {status: "failed", error: "..."}
+    Consulta el estado de un Batch Job de Google Gemini y descarga resultados si completó.
     """
     try:
         from google import genai
@@ -40,7 +30,6 @@ def main(batch_info: dict) -> dict:
         
         logging.info(f"🔄 Consultando batch: {batch_job_name}")
         
-        # Crear cliente
         client = genai.Client(api_key=api_key)
         
         # ─────────────────────────────────────────────────────────────────
@@ -51,45 +40,86 @@ def main(batch_info: dict) -> dict:
         job_state = str(job.state) if job.state else "UNKNOWN"
         logging.info(f"📊 Estado: {job_state}")
         
-        # Estados posibles: JOB_STATE_PENDING, JOB_STATE_RUNNING, 
-        #                   JOB_STATE_SUCCEEDED, JOB_STATE_FAILED, JOB_STATE_CANCELLED
-        
         if "SUCCEEDED" in job_state:
             logging.info(f"✅ Job completado, extrayendo resultados...")
             
-            results = []
-            idx = 0  # 🆕 Contador para el mapa
+            # ═══════════════════════════════════════════════════════════
+            # 🔍 DEBUG: Ver estructura del objeto job
+            # ═══════════════════════════════════════════════════════════
+            logging.info(f"🔍 DEBUG - Tipo: {type(job)}")
             
-            # Extraer respuestas
-            if hasattr(job, 'response') and job.response:
+            # Verificar ubicaciones posibles
+            has_response = hasattr(job, 'response') and job.response
+            has_inline = hasattr(job, 'inline_responses') and job.inline_responses
+            has_dest = hasattr(job, 'dest') and job.dest
+            has_results = hasattr(job, 'results') and job.results
+            
+            logging.info(f"🔍 DEBUG - job.dest existe: {has_dest}")
+            
+            # ═══════════════════════════════════════════════════════════
+            # C. EXTRAER RESULTADOS (CORREGIDO)
+            # ═══════════════════════════════════════════════════════════
+            results = []
+            idx = 0
+            
+            # 🆕 INTENTO PRIORITARIO: job.dest.inlined_responses
+            # Esta es la ubicación confirmada por tus logs para Gemini 2.5 Flash Batch
+            if has_dest and hasattr(job.dest, 'inlined_responses') and job.dest.inlined_responses:
+                logging.info(f"📦 Extrayendo de job.dest.inlined_responses...")
+                for resp in job.dest.inlined_responses:
+                    result = extract_from_response(resp, idx, id_map)
+                    if result:
+                        results.append(result)
+                    idx += 1
+
+            # INTENTO 2: job.response (Legacy / Estructuras planas)
+            elif has_response:
+                logging.info(f"📦 Extrayendo de job.response...")
                 for resp in job.response:
-                    try:
-                        if hasattr(resp, 'candidates') and resp.candidates:
-                            candidate = resp.candidates[0]
-                            if hasattr(candidate, 'content') and candidate.content:
-                                text = candidate.content.parts[0].text
-                                
-                                # Limpiar markdown
-                                text = text.replace('```json', '').replace('```', '').strip()
-                                
-                                # Parsear JSON
-                                analysis = json.loads(text)
-                                
-                                # 🆕 ESTAMPAR ID CORRECTO POR POSICIÓN
-                                if idx < len(id_map):
-                                    analysis['chapter_id'] = id_map[idx]
-                                    logging.info(f"✅ Resultado {idx} → ID: {id_map[idx]}")
-                                else:
-                                    analysis['chapter_id'] = f"unknown_{idx}"
-                                    logging.warning(f"⚠️ Resultado {idx} fuera de rango")
-                                
-                                results.append(analysis)
-                                idx += 1
-                                
-                    except Exception as e:
-                        logging.warning(f"⚠️ Error procesando resultado {idx}: {e}")
-                        idx += 1  # IMPORTANTE: avanzar aunque falle
-                        continue
+                    result = extract_from_response(resp, idx, id_map)
+                    if result:
+                        results.append(result)
+                    idx += 1
+            
+            # INTENTO 3: job.inline_responses (Variante SDK)
+            elif not results and has_inline:
+                logging.info(f"📦 Extrayendo de job.inline_responses...")
+                for resp in job.inline_responses:
+                    result = extract_from_response(resp, idx, id_map)
+                    if result:
+                        results.append(result)
+                    idx += 1
+            
+            # INTENTO 4: job.results (Otra variante)
+            elif not results and has_results:
+                logging.info(f"📦 Extrayendo de job.results...")
+                for resp in job.results:
+                    result = extract_from_response(resp, idx, id_map)
+                    if result:
+                        results.append(result)
+                    idx += 1
+            
+            # INTENTO 5: Iterar directamente sobre el job (FALLBACK SEGURO)
+            if not results:
+                logging.info(f"📦 Intentando iterar sobre job directamente (fallback)...")
+                try:
+                    # Verificamos si es iterable y NO es un diccionario/string
+                    if hasattr(job, '__iter__') and not isinstance(job, (str, dict)):
+                        temp_idx = 0
+                        for resp in job:
+                            # 🛡️ Protección contra iteración de atributos (Tuplas)
+                            # Si devuelve ('count', 1) o similar, lo saltamos
+                            if isinstance(resp, tuple) and len(resp) == 2 and isinstance(resp[0], str):
+                                continue 
+                            
+                            result = extract_from_response(resp, temp_idx, id_map)
+                            if result:
+                                results.append(result)
+                            temp_idx += 1
+                except TypeError:
+                    logging.info(f"⚠️ job no es iterable de forma estándar")
+                except Exception as e:
+                    logging.warning(f"⚠️ Error en iteración fallback: {e}")
             
             logging.info(f"🔥 Extraídos {len(results)} análisis con IDs correctos")
             
@@ -99,7 +129,8 @@ def main(batch_info: dict) -> dict:
                 return {
                     "status": "completed_no_results",
                     "job_name": batch_job_name,
-                    "message": "Job completó pero no se pudieron extraer resultados"
+                    "message": "Job completó pero no se pudieron extraer resultados",
+                    "debug_attrs": [a for a in dir(job) if not a.startswith('_')]
                 }
             
         elif "FAILED" in job_state or "CANCELLED" in job_state:
@@ -108,19 +139,71 @@ def main(batch_info: dict) -> dict:
             return {"status": "failed", "error": error_msg, "state": job_state}
             
         else:
-            # PENDING o RUNNING
             logging.info(f"⏳ Job aún procesando...")
             return {
                 "status": "processing",
                 "state": job_state,
-                "batch_job_name": batch_job_name
+                "batch_job_name": batch_job_name,
+                "id_map": id_map
             }
             
-    except ImportError as e:
-        logging.error(f"❌ SDK no instalado: {e}")
-        return {"status": "error", "error": str(e)}
     except Exception as e:
-        logging.error(f"❌ Error consultando batch: {str(e)}")
-        import traceback
+        logging.error(f"❌ Error: {str(e)}")
         logging.error(traceback.format_exc())
         return {"status": "error", "error": str(e)}
+
+
+def extract_from_response(resp, idx, id_map):
+    """Intenta extraer un análisis de diferentes estructuras de respuesta."""
+    try:
+        text = None
+        
+        # Estructura 1: Objeto InlinedResponse (resp.response.candidates...)
+        # Esta es la que se usa dentro de job.dest.inlined_responses
+        if hasattr(resp, 'response'):
+            inner = resp.response
+            if hasattr(inner, 'candidates') and inner.candidates:
+                candidate = inner.candidates[0]
+                if hasattr(candidate, 'content') and candidate.content:
+                    if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                        text = candidate.content.parts[0].text
+
+        # Estructura 2: Objeto Response directo (resp.candidates...)
+        if not text and hasattr(resp, 'candidates') and resp.candidates:
+            candidate = resp.candidates[0]
+            if hasattr(candidate, 'content') and candidate.content:
+                if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                    text = candidate.content.parts[0].text
+        
+        # Estructura 3: resp.text directamente
+        if not text and hasattr(resp, 'text'):
+            text = resp.text
+        
+        # Estructura 4: resp es string (JSON directo)
+        if not text and isinstance(resp, str):
+            text = resp
+        
+        if not text:
+            # Solo logueamos advertencia si NO es una tupla de atributos internos
+            if not (isinstance(resp, tuple) and len(resp) > 0 and isinstance(resp[0], str)):
+                logging.warning(f"⚠️ No se encontró texto en resultado {idx}")
+                logging.warning(f"   Tipo: {type(resp)}")
+            return None
+        
+        # Limpiar markdown
+        text = text.replace('```json', '').replace('```', '').strip()
+        
+        # Parsear JSON
+        analysis = json.loads(text)
+        
+        # Estampar ID correcto
+        if idx < len(id_map):
+            analysis['chapter_id'] = id_map[idx]
+        else:
+            analysis['chapter_id'] = f"unknown_{idx}"
+        
+        return analysis
+        
+    except Exception as e:
+        logging.warning(f"⚠️ Error procesando resultado {idx}: {e}")
+        return None

@@ -35,7 +35,7 @@ BATCH_MAX_WAIT_MINUTES = 30
 # ─────────────────────────────────────────────────────────────────
 CLAUDE_BATCH_MAX_WAIT_MINUTES = 120  # 2 horas máximo (normalmente es menos)
 CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120  # Cada 2 minutos
-USE_LANGUAGETOOL = True  # Habilitar corrección mecánica
+USE_LANGUAGETOOL = False  # Habilitar corrección mecánica
 
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
