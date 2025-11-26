@@ -22,7 +22,6 @@ from datetime import timedelta
 # Cambiar a True cuando tengas GCP configurado
 USE_BATCH_API = True
 
-
 # Tamaños de lote para modo simple
 ANALYSIS_BATCH_SIZE = 5    # Capítulos a analizar con Gemini (simultáneos)
 EDIT_BATCH_SIZE = 3        # Capítulos a editar con Claude (simultáneos)
@@ -44,7 +43,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info("🎬 Iniciando Sylphrena v2.5")
         
         chapters = yield context.call_activity('SegmentBook', book_path)
-        
+
         seg_time = context.current_utc_datetime
         if not chapters:
             raise ValueError("La segmentación no devolvió capítulos.")
@@ -211,7 +210,8 @@ def analyze_with_batch_api(context, chapters):
     if batch_info.get('error'):
         raise Exception(f"Error creando batch: {batch_info.get('error')}")
     
-    logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_id', 'N/A')}")
+    batch_job_name = batch_info.get('batch_job_name')
+    logging.info(f"📦 Batch Job creado: {batch_job_name}")
     
     # Polling hasta completar
     for attempt in range(BATCH_MAX_WAIT_MINUTES):
@@ -231,6 +231,10 @@ def analyze_with_batch_api(context, chapters):
         
         if result.get('status') == 'failed':
             raise Exception(f"Batch falló: {result.get('error')}")
+        
+        if result.get('status') == 'completed_no_results':
+            logging.warning("⚠️ Batch completó pero sin resultados extraíbles")
+            return []
         
         # Sigue procesando, continuar polling
         logging.info(f"⏳ Batch aún procesando... (intento {attempt + 1})")

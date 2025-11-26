@@ -6,7 +6,7 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
     client = df.DurableOrchestrationClient(starter)
     
     # Por ahora usamos un libro de prueba hardcodeado
-    book_path = "test_book.txt"
+    book_path = "2110.docx"
     
     instance_id = await client.start_new("Orchestrator", None, book_path)
     
