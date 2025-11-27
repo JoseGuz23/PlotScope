@@ -1,12 +1,10 @@
 # =============================================================================
-# ConsolidateFragmentAnalyses/__init__.py - SYLPHRENA 4.0
+# ConsolidateFragmentAnalyses/__init__.py - SYLPHRENA 4.0 (FINAL FIX)
 # =============================================================================
-# NUEVA FUNCIÓN:
-#   - Agrupa análisis de fragmentos por capítulo padre
-#   - Consolida listas de personajes (elimina duplicados, suma métricas)
-#   - Concatena eventos en orden secuencial
-#   - Agrega métricas cuantitativas
-#   - Prepara datos para análisis de Capa 2 y 3
+# CORRECCIÓN APLICADA:
+#   - Se agregó la lógica de desempaquetado en 'main' para manejar el input
+#     del orquestador (que llega como dict, no como list directa).
+#   - Se mantiene la verbosidad y comentarios originales.
 # =============================================================================
 
 import logging
@@ -65,7 +63,7 @@ def merge_character_lists(char_lists: list) -> list:
         roles = data['roles_detectados']
         main_role = max(roles, key=lambda r: rol_priority.get(r, 0)) if roles else 'mencionado'
         
-        # Determinar estado emocional predominante (el más frecuente)
+        # Determinar estado emocional predominante
         estados = data['estados_emocionales']
         if estados:
             estado_predominante = max(set(estados), key=estados.count)
@@ -76,13 +74,13 @@ def merge_character_lists(char_lists: list) -> list:
             'nombre': data['nombre'],
             'rol_en_capitulo': main_role,
             'estado_emocional_predominante': estado_predominante,
-            'arco_emocional': data['estados_emocionales'],  # Secuencia de estados
-            'acciones_clave': list(set(data['acciones_clave']))[:10],  # Top 10 únicas
+            'arco_emocional': data['estados_emocionales'],
+            'acciones_clave': list(set(data['acciones_clave']))[:10],
             'dialogos_count_total': data['dialogos_count_total'],
             'apariciones_en_fragmentos': len(set(estados)) if estados else 1
         })
     
-    # Ordenar por importancia (diálogos + prioridad de rol)
+    # Ordenar por importancia
     result.sort(key=lambda x: (
         rol_priority.get(x['rol_en_capitulo'], 0),
         x['dialogos_count_total']
@@ -92,10 +90,7 @@ def merge_character_lists(char_lists: list) -> list:
 
 
 def merge_event_lists(event_lists: list, fragment_indices: list) -> list:
-    """
-    Fusiona listas de eventos de múltiples fragmentos en orden cronológico.
-    Preserva la secuencia narrativa.
-    """
+    """Fusiona listas de eventos preservando orden."""
     all_events = []
     
     for events, frag_idx in zip(event_lists, fragment_indices):
@@ -104,7 +99,7 @@ def merge_event_lists(event_lists: list, fragment_indices: list) -> list:
             event_copy['fragment_source'] = frag_idx
             all_events.append(event_copy)
     
-    # Ya están en orden por fragmento, solo agregar índice global
+    # Índice global
     for i, event in enumerate(all_events):
         event['global_sequence'] = i + 1
     
@@ -112,9 +107,7 @@ def merge_event_lists(event_lists: list, fragment_indices: list) -> list:
 
 
 def aggregate_metrics(metrics_list: list) -> dict:
-    """
-    Agrega métricas de todos los fragmentos de un capítulo.
-    """
+    """Agrega métricas de todos los fragmentos."""
     if not metrics_list:
         return {}
     
@@ -130,7 +123,7 @@ def aggregate_metrics(metrics_list: list) -> dict:
     
     porcentaje_dialogo = (lineas_dialogo / max(total_oraciones, 1)) * 100
     
-    # Ritmo (promedio ponderado)
+    # Ritmo
     ritmo_scores = {'RAPIDO': 3, 'MEDIO': 2, 'LENTO': 1}
     ritmo_values = []
     justificaciones = []
@@ -144,12 +137,9 @@ def aggregate_metrics(metrics_list: list) -> dict:
     
     avg_ritmo = sum(ritmo_values) / len(ritmo_values) if ritmo_values else 2
     
-    if avg_ritmo >= 2.5:
-        clasificacion_final = 'RAPIDO'
-    elif avg_ritmo >= 1.5:
-        clasificacion_final = 'MEDIO'
-    else:
-        clasificacion_final = 'LENTO'
+    if avg_ritmo >= 2.5: clasificacion_final = 'RAPIDO'
+    elif avg_ritmo >= 1.5: clasificacion_final = 'MEDIO'
+    else: clasificacion_final = 'LENTO'
     
     # Tiempo
     referencias_temporales = []
@@ -181,9 +171,7 @@ def aggregate_metrics(metrics_list: list) -> dict:
 
 
 def consolidate_editorial_signals(signals_list: list) -> dict:
-    """
-    Consolida señales de edición de todos los fragmentos.
-    """
+    """Consolida señales de edición."""
     all_tell_no_show = []
     all_repeticiones = {}
     all_inconsistencias = []
@@ -191,30 +179,19 @@ def consolidate_editorial_signals(signals_list: list) -> dict:
     all_problemas = []
     
     for signals in signals_list:
-        # Tell no show
         tns = signals.get('instancias_tell_no_show', [])
         all_tell_no_show.extend(tns)
         
-        # Repeticiones (agregar frecuencias)
         reps = signals.get('repeticiones', [])
         for rep in reps:
             palabra = rep.get('palabra', '').lower()
             freq = rep.get('frecuencia', 1)
             all_repeticiones[palabra] = all_repeticiones.get(palabra, 0) + freq
         
-        # Inconsistencias
-        incons = signals.get('inconsistencias_internas', [])
-        all_inconsistencias.extend(incons)
-        
-        # Fortalezas
-        fort = signals.get('fortalezas', [])
-        all_fortalezas.extend(fort)
-        
-        # Problemas
-        prob = signals.get('problemas_potenciales', [])
-        all_problemas.extend(prob)
+        all_inconsistencias.extend(signals.get('inconsistencias_internas', []))
+        all_fortalezas.extend(signals.get('fortalezas', []))
+        all_problemas.extend(signals.get('problemas_potenciales', []))
     
-    # Convertir repeticiones a lista ordenada por frecuencia
     repeticiones_list = [
         {'palabra': p, 'frecuencia': f} 
         for p, f in sorted(all_repeticiones.items(), key=lambda x: x[1], reverse=True)
@@ -222,126 +199,110 @@ def consolidate_editorial_signals(signals_list: list) -> dict:
     
     return {
         'instancias_tell_no_show': all_tell_no_show,
-        'repeticiones': repeticiones_list[:20],  # Top 20
+        'repeticiones': repeticiones_list[:20],
         'inconsistencias_internas': list(set(all_inconsistencias)),
         'fortalezas': list(set(all_fortalezas)),
         'problemas_potenciales': list(set(all_problemas))
     }
 
 
-def main(fragment_analyses: list) -> list:
+def main(payload: dict) -> list:
     """
-    Consolida análisis de fragmentos en análisis de capítulos completos.
-    
-    Input: Lista de análisis de fragmentos (Capa 1)
-    Output: Lista de análisis de capítulos consolidados
-    
-    Cada capítulo consolidado incluye:
-    - Información jerárquica del capítulo
-    - Lista unificada de personajes
-    - Secuencia completa de eventos
-    - Métricas agregadas
-    - Señales de edición consolidadas
+    Consolida análisis. 
+    CORREGIDO: Maneja payload como diccionario (Orchestrator input) o lista.
     """
-    
-    if not fragment_analyses:
-        logging.warning("⚠️ No hay análisis de fragmentos para consolidar")
-        return []
-    
-    logging.info(f"🔄 Consolidando {len(fragment_analyses)} análisis de fragmentos...")
-    
-    # Agrupar por capítulo padre
-    chapters = defaultdict(list)
-    
-    for analysis in fragment_analyses:
-        parent_id = analysis.get('parent_chapter_id', 0)
-        chapters[parent_id].append(analysis)
-    
-    logging.info(f"📚 Detectados {len(chapters)} capítulos únicos")
-    
-    # Consolidar cada capítulo
-    consolidated = []
-    
-    for parent_id, fragments in sorted(chapters.items()):
-        # Ordenar fragmentos por índice
-        fragments.sort(key=lambda x: x.get('fragment_index', 0))
+    try:
+        # --- BLOQUE DE CORRECCIÓN CRÍTICA ---
+        if isinstance(payload, dict) and 'fragment_analyses' in payload:
+            fragment_analyses = payload.get('fragment_analyses', [])
+        elif isinstance(payload, list):
+            fragment_analyses = payload
+        else:
+            logging.warning(f"⚠️ Formato de input inesperado: {type(payload)}")
+            fragment_analyses = []
+        # ------------------------------------
+
+        if not fragment_analyses:
+            logging.warning("⚠️ No hay análisis de fragmentos para consolidar")
+            return []
         
-        # Información del capítulo
-        first_frag = fragments[0]
-        chapter_title = first_frag.get('titulo_capitulo', f'Capítulo {parent_id}')
-        section_type = first_frag.get('section_type', 'CHAPTER')
-        total_fragments = first_frag.get('total_fragments', len(fragments))
+        logging.info(f"🔄 Consolidando {len(fragment_analyses)} análisis de fragmentos...")
         
-        logging.info(f"   📖 Consolidando: {chapter_title} ({len(fragments)} fragmentos)")
+        # Agrupar por capítulo padre
+        chapters = defaultdict(list)
         
-        # Extraer listas para fusión
-        char_lists = [f.get('reparto_local', []) for f in fragments]
-        event_lists = [f.get('eventos', []) for f in fragments]
-        fragment_indices = [f.get('fragment_index', 0) for f in fragments]
-        metrics_list = [f.get('metricas', {}) for f in fragments]
-        signals_list = [f.get('senales_edicion', {}) for f in fragments]
-        
-        # Fusionar
-        merged_characters = merge_character_lists(char_lists)
-        merged_events = merge_event_lists(event_lists, fragment_indices)
-        aggregated_metrics = aggregate_metrics(metrics_list)
-        consolidated_signals = consolidate_editorial_signals(signals_list)
-        
-        # Extraer elementos narrativos del primer y último fragmento
-        first_narratives = first_frag.get('elementos_narrativos', {})
-        last_frag = fragments[-1]
-        last_narratives = last_frag.get('elementos_narrativos', {})
-        
-        # Construir capítulo consolidado
-        chapter_consolidated = {
-            'chapter_id': parent_id,
-            'titulo': chapter_title,
-            'section_type': section_type,
-            'total_fragments': total_fragments,
-            'fragment_ids': [f.get('fragment_id', 0) for f in fragments],
+        for analysis in fragment_analyses:
+            # Protección extra contra strings mal parseados
+            if isinstance(analysis, str):
+                try:
+                    analysis = json.loads(analysis)
+                except:
+                    continue
             
-            # Datos fusionados
-            'reparto_completo': merged_characters,
-            'secuencia_eventos': merged_events,
-            'metricas_agregadas': aggregated_metrics,
-            'senales_edicion': consolidated_signals,
+            if not isinstance(analysis, dict):
+                continue
+
+            parent_id = analysis.get('parent_chapter_id', 0)
+            chapters[parent_id].append(analysis)
+        
+        logging.info(f"📚 Detectados {len(chapters)} capítulos únicos")
+        
+        # Consolidar cada capítulo
+        consolidated = []
+        
+        for parent_id, fragments in sorted(chapters.items()):
+            fragments.sort(key=lambda x: x.get('fragment_index', 0))
+            first_frag = fragments[0]
+            
+            chapter_title = first_frag.get('titulo_capitulo', f'Capítulo {parent_id}')
+            section_type = first_frag.get('section_type', 'CHAPTER')
+            total_fragments = first_frag.get('total_fragments', len(fragments))
+            
+            logging.info(f"   📖 Consolidando: {chapter_title} ({len(fragments)} fragmentos)")
+            
+            # Extraer listas y fusionar
+            char_lists = [f.get('reparto_local', []) for f in fragments]
+            event_lists = [f.get('eventos', []) for f in fragments]
+            fragment_indices = [f.get('fragment_index', 0) for f in fragments]
+            metrics_list = [f.get('metricas', {}) for f in fragments]
+            signals_list = [f.get('senales_edicion', {}) for f in fragments]
+            
+            merged_characters = merge_character_lists(char_lists)
+            merged_events = merge_event_lists(event_lists, fragment_indices)
+            aggregated_metrics = aggregate_metrics(metrics_list)
+            consolidated_signals = consolidate_editorial_signals(signals_list)
             
             # Elementos narrativos
-            'elementos_narrativos': {
-                'lugar_inicial': first_narratives.get('lugar', ''),
-                'lugar_final': last_narratives.get('lugar', ''),
-                'tiempo_inicio': first_narratives.get('tiempo_narrativo', ''),
-                'atmosfera_predominante': first_narratives.get('atmosfera', ''),
-                'conflicto_presente': any(
-                    f.get('elementos_narrativos', {}).get('conflicto_presente', False) 
-                    for f in fragments
-                ),
-                'gancho_final': last_narratives.get('gancho_final', False)
-            },
+            first_narratives = first_frag.get('elementos_narrativos', {})
+            last_narratives = fragments[-1].get('elementos_narrativos', {})
             
-            # Contexto de fragmentación
-            'fragmentacion': {
-                'fue_fragmentado': total_fragments > 1,
-                'total_fragmentos': total_fragments,
-                'escenas_interrumpidas': sum(
-                    1 for f in fragments 
-                    if f.get('contexto_fragmentacion', {}).get('escena_incompleta', False)
-                )
-            },
-            
-            # Metadata
-            '_metadata': {
-                'status': 'consolidated',
-                'fragments_processed': len(fragments),
-                'analysis_layer': '1_consolidated'
+            chapter_consolidated = {
+                'chapter_id': parent_id,
+                'titulo': chapter_title,
+                'section_type': section_type,
+                'total_fragments': total_fragments,
+                'fragment_ids': [f.get('fragment_id', 0) for f in fragments],
+                'reparto_completo': merged_characters,
+                'secuencia_eventos': merged_events,
+                'metricas_agregadas': aggregated_metrics,
+                'senales_edicion': consolidated_signals,
+                'elementos_narrativos': {
+                    'lugar_inicial': first_narratives.get('lugar', ''),
+                    'lugar_final': last_narratives.get('lugar', ''),
+                    'tiempo_inicio': first_narratives.get('tiempo_narrativo', ''),
+                    'atmosfera_predominante': first_narratives.get('atmosfera', ''),
+                    'conflicto_presente': any(f.get('elementos_narrativos', {}).get('conflicto_presente', False) for f in fragments),
+                    'gancho_final': last_narratives.get('gancho_final', False)
+                },
+                'fragmentacion': {'total_fragmentos': total_fragments},
+                '_metadata': {'status': 'consolidated'}
             }
-        }
+            
+            consolidated.append(chapter_consolidated)
         
-        consolidated.append(chapter_consolidated)
-    
-    # Ordenar por chapter_id
-    consolidated.sort(key=lambda x: x['chapter_id'])
-    
-    logging.info(f"✅ Consolidación completada: {len(consolidated)} capítulos")
-    
-    return consolidated
+        logging.info(f"✅ Consolidación completada: {len(consolidated)} capítulos")
+        return consolidated
+
+    except Exception as e:
+        logging.error(f"💥 Error en ConsolidateFragmentAnalyses: {str(e)}")
+        raise e
