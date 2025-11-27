@@ -213,17 +213,26 @@ def extract_main_characters(chapters_consolidated: list) -> list:
     return sorted_chars[:15]
 
 
-def main(chapters_consolidated: list) -> dict:
+def main(input_data: dict) -> dict:
     """
-    Ejecuta análisis de causalidad sobre todos los eventos del libro.
-    
-    Input: Lista de capítulos consolidados (post-Capa 1)
-    Output: Grafo de causalidad con problemas detectados
+    Ejecuta análisis de causalidad.
+    CORRECCIÓN: Maneja el diccionario enviado por el Orchestrator.
     """
-    
     try:
+        # --- DESEMPAQUETADO CORRECTO ---
+        if isinstance(input_data, dict):
+            # El orquestador envía 'chapters' y 'events'
+            chapters_consolidated = input_data.get('chapters', [])
+            all_events = input_data.get('events', [])
+        elif isinstance(input_data, list):
+            # Soporte legacy
+            chapters_consolidated = input_data
+            all_events = [] # Tendrá que extraerlos de los capítulos
+        else:
+            return {'error': 'Input format not supported'}
+        # -------------------------------
+
         start_time = time.time()
-        
         logging.info(f"🔗 Análisis de Causalidad: {len(chapters_consolidated)} capítulos")
         
         # Configurar cliente

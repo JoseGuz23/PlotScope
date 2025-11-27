@@ -186,25 +186,30 @@ def call_gemini_pro(client, prompt):
 
 
 def main(arc_input: dict) -> dict:
-    """
-    Genera mapa de arco para un capítulo específico.
-    
-    Input: {
-        'chapter_id': int,
-        'chapter_title': str,
-        'chapter_position': int,
-        'total_chapters': int,
-        'section_type': str,
-        'structural_analysis': dict (Capa 2),
-        'qualitative_analysis': dict (Capa 3),
-        'bible_validada': dict
-    }
-    
-    Output: Mapa de arco con restricciones de edición
-    """
+    # ... docstring ...
     
     chapter_id = arc_input.get('chapter_id', 0)
-    chapter_title = arc_input.get('chapter_title', f'Capítulo {chapter_id}')
+    
+    # --- CORRECCIÓN DE EXTRACCIÓN DE DATOS ---
+    # 1. Recuperar Biblia (Orchestrator usa 'bible')
+    bible = arc_input.get('bible_validada') or arc_input.get('bible') or {}
+    
+    # 2. Recuperar Análisis Anidados
+    chapter_analysis = arc_input.get('chapter_analysis', {})
+    
+    # Intentar obtener componentes sueltos o extraerlos del objeto padre
+    structural_analysis = arc_input.get('structural_analysis') or \
+                          chapter_analysis.get('layer2_structural') or \
+                          {}
+                          
+    qualitative_analysis = arc_input.get('qualitative_analysis') or \
+                           chapter_analysis.get('layer3_qualitative') or \
+                           {}
+                           
+    chapter_title = arc_input.get('chapter_title') or \
+                    chapter_analysis.get('titulo') or \
+                    f'Capítulo {chapter_id}'
+    # -----------------------------------------
     
     try:
         start_time = time.time()

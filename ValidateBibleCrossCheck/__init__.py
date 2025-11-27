@@ -222,22 +222,15 @@ def resolve_discrepancy(client, claim: dict, verification: dict) -> dict:
 
 
 def main(validation_input: dict) -> dict:
-    """
-    Ejecuta validación cruzada de la Biblia contra evidencia granular.
-    
-    Input: {
-        'bible': dict - Biblia generada
-        'chapters_consolidated': list - Capítulos consolidados de Capa 1
-    }
-    
-    Output: {
-        'bible_validada': dict - Biblia con correcciones aplicadas
-        'reporte_validacion': dict - Detalles del proceso
-    }
-    """
+    # ... docstring ...
     
     bible = validation_input.get('bible', {})
-    chapters_consolidated = validation_input.get('chapters_consolidated', [])
+    
+    # --- CORRECCIÓN: Nombres de claves robustos ---
+    chapters_consolidated = validation_input.get('chapters_consolidated') or \
+                            validation_input.get('chapter_analyses') or \
+                            []
+    # ----------------------------------------------
     
     try:
         start_time = time.time()
