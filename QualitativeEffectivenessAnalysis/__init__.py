@@ -211,24 +211,31 @@ def call_gemini_pro_deep_think(client, prompt):
 
 def main(analysis_input: dict) -> dict:
     """
-    Ejecuta análisis de Capa 3 (Evaluación Cualitativa) sobre un capítulo.
-    
-    Input: Diccionario con:
-        - chapter_consolidated: Análisis de Capa 1 consolidado
-        - structural_analysis: Análisis de Capa 2
-        - bible_partial: Información global del libro (parcial)
-        - chapter_position: Posición del capítulo en el libro
-        - total_chapters: Total de capítulos
-    
-    Output: Evaluación cualitativa con scores y justificaciones
+    Ejecuta análisis de Capa 3.
+    CORRECCIÓN: Busca datos en múltiples ubicaciones posibles.
     """
+    # 1. Recuperar el análisis consolidado (Capa 1)
+    # Intentamos con ambos nombres posibles
+    chapter_consolidated = analysis_input.get('chapter_consolidated') or \
+                           analysis_input.get('chapter_analysis') or \
+                           {}
     
-    chapter_consolidated = analysis_input.get('chapter_consolidated', {})
-    structural_analysis = analysis_input.get('structural_analysis', {})
+    # 2. Recuperar el análisis estructural (Capa 2)
+    # Puede venir en el root O anidado dentro del capítulo (como lo envía el Orchestrator v4)
+    structural_analysis = analysis_input.get('structural_analysis') or \
+                          chapter_consolidated.get('layer2_structural') or \
+                          {}
+
+    # 3. Recuperar resto de datos
     bible_partial = analysis_input.get('bible_partial', {})
     chapter_position = analysis_input.get('chapter_position', 1)
     total_chapters = analysis_input.get('total_chapters', 1)
     
+    # Validación básica
+    if not chapter_consolidated:
+        logging.warning("⚠️ QualitativeEffectivenessAnalysis recibió input vacío o malformado.")
+        return {'error': 'No input data found'}
+
     chapter_id = chapter_consolidated.get('chapter_id', 0)
     chapter_title = chapter_consolidated.get('titulo', f'Capítulo {chapter_id}')
     

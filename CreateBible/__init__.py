@@ -277,26 +277,27 @@ def prepare_causality_summary(causality_analysis: dict) -> str:
     return json.dumps(summary, indent=2, ensure_ascii=False)
 
 
-def main(bible_input: dict) -> dict:
+def main(bible_input_raw) -> dict:
     """
     Genera la Biblia Narrativa sintetizando todos los análisis.
-    
-    Input: {
-        'holistic_analysis': dict - Análisis holístico del libro completo
-        'chapters_consolidated': list - Capítulos consolidados de Capa 1
-        'structural_analyses': list - Análisis estructurales de Capa 2
-        'qualitative_analyses': list - Evaluaciones cualitativas de Capa 3
-        'causality_analysis': dict - Análisis de causalidad
-    }
-    
-    Output: Biblia Narrativa completa
+    CORRECCIÓN: Maneja input como string (JSON) o dict.
     """
-    
     try:
+        # --- BLOQUE DE SEGURIDAD ---
+        if isinstance(bible_input_raw, str):
+            try:
+                bible_input = json.loads(bible_input_raw)
+            except json.JSONDecodeError:
+                logging.error("❌ Error decodificando JSON en CreateBible")
+                return {}
+        else:
+            bible_input = bible_input_raw
+        # ---------------------------
+
         start_time = time.time()
-        
         logging.info("📜 Generando Biblia Narrativa...")
         
+        # (El resto de tu código sigue igual desde aquí...)
         # Configurar cliente
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
