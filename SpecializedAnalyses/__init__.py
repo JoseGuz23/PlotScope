@@ -45,9 +45,15 @@ async def run_analysis(client, model, prompt_template, data_context, analysis_na
     except Exception as e:
         return analysis_name, {"error": str(e)}
 
-def main(payload: str) -> str:
+def main(payload) -> str:
     try:
-        data = json.loads(payload)
+        # --- BLOQUE DE SEGURIDAD ---
+        if isinstance(payload, str):
+            data = json.loads(payload)
+        else:
+            data = payload
+        # ---------------------------
+        
         bible = data.get('bible', {})
         # Usamos el resumen holístico y una muestra de capítulos para estos análisis
         # para no quemar tokens innecesariamente

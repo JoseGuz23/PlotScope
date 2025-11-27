@@ -339,11 +339,20 @@ def main(analysis_input: dict) -> dict:
         
         # Calcular score promedio si no existe
         if 'evaluacion_global' not in qualitative_analysis:
-            scores = [
-                qualitative_analysis.get('coherencia_personajes', {}).get('score', 5),
-                qualitative_analysis.get('logica_causal', {}).get('score', 5),
-                qualitative_analysis.get('integracion_elementos', {}).get('score', 5)
-            ]
+            # --- CORRECCIÓN: Conversión segura de scores ---
+            def safe_score(val):
+                try:
+                    return float(val)
+                except (ValueError, TypeError):
+                    return 5.0  # Valor neutral por defecto
+
+            s1 = safe_score(qualitative_analysis.get('coherencia_personajes', {}).get('score', 5))
+            s2 = safe_score(qualitative_analysis.get('logica_causal', {}).get('score', 5))
+            s3 = safe_score(qualitative_analysis.get('integracion_elementos', {}).get('score', 5))
+            
+            scores = [s1, s2, s3]
+            # -----------------------------------------------
+            
             avg_score = sum(scores) / len(scores)
             qualitative_analysis['evaluacion_global'] = {
                 'score_promedio': round(avg_score, 1),

@@ -213,24 +213,30 @@ def extract_main_characters(chapters_consolidated: list) -> list:
     return sorted_chars[:15]
 
 
-def main(input_data: dict) -> dict:
+def main(chapters_consolidated) -> dict:
     """
     Ejecuta análisis de causalidad.
-    CORRECCIÓN: Maneja el diccionario enviado por el Orchestrator.
+    El argumento se llama 'chapters_consolidated' por legacy del function.json,
+    pero contiene el payload completo ({chapters, events}).
     """
+    input_data = chapters_consolidated # Alias para tu lógica nueva
+    
     try:
         # --- DESEMPAQUETADO CORRECTO ---
         if isinstance(input_data, dict):
             # El orquestador envía 'chapters' y 'events'
-            chapters_consolidated = input_data.get('chapters', [])
+            chapters_list = input_data.get('chapters', [])
             all_events = input_data.get('events', [])
         elif isinstance(input_data, list):
-            # Soporte legacy
-            chapters_consolidated = input_data
-            all_events = [] # Tendrá que extraerlos de los capítulos
+            chapters_list = input_data
+            all_events = [] 
         else:
             return {'error': 'Input format not supported'}
         # -------------------------------
+        
+        # IMPORTANTE: Asegúrate de usar 'chapters_list' en lugar de 'chapters_consolidated' 
+        # en el resto de tu función para evitar confusiones, o renombra aquí:
+        chapters_consolidated = chapters_list 
 
         start_time = time.time()
         logging.info(f"🔗 Análisis de Causalidad: {len(chapters_consolidated)} capítulos")
@@ -254,8 +260,17 @@ def main(input_data: dict) -> dict:
         
         if len(all_events) > MAX_EVENTS_PER_CALL:
             logging.warning(f"⚠️ Muchos eventos ({len(all_events)}), analizando en chunks...")
-            # Por simplicidad, analizamos los más importantes (alta tensión)
-            all_events.sort(key=lambda x: x.get('tension', 0), reverse=True)
+            
+            # --- CORRECCIÓN: Sort seguro ---
+            def get_safe_tension(x):
+                try:
+                    return int(x.get('tension', 0))
+                except (ValueError, TypeError):
+                    return 0
+            
+            all_events.sort(key=get_safe_tension, reverse=True)
+            # -------------------------------
+            
             all_events = all_events[:MAX_EVENTS_PER_CALL]
             # Re-ordenar cronológicamente
             all_events.sort(key=lambda x: (x['chapter_id'], x['global_id']))

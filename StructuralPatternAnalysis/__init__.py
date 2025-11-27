@@ -166,7 +166,7 @@ def call_gemini_pro(client, prompt):
     )
 
 
-def main(chapter_consolidated: dict) -> dict:
+def main(chapter_consolidated) -> dict:
     """
     Ejecuta análisis de Capa 2 (Patrones Estructurales) sobre un capítulo consolidado.
     
@@ -174,6 +174,36 @@ def main(chapter_consolidated: dict) -> dict:
     Output: Análisis estructural con identificación de componentes narrativos
     """
     
+    # --- BLOQUE DE SEGURIDAD Y NORMALIZACIÓN DE INPUT ---
+    try:
+        # 1. Normalizar String -> Dict (si llega como JSON string)
+        if isinstance(chapter_consolidated, str):
+            try:
+                input_data = json.loads(chapter_consolidated)
+            except Exception:
+                logging.warning("⚠️ Error decodificando JSON string en StructuralPatternAnalysis")
+                input_data = {}
+        else:
+            input_data = chapter_consolidated
+            
+        # 2. Desempaquetar si viene envuelto (Azure a veces anida el input)
+        # Verificamos si existe la llave que coincide con el nombre del binding
+        if isinstance(input_data, dict) and 'chapter_consolidated' in input_data:
+             input_data = input_data['chapter_consolidated']
+        
+        # 3. Validación final de tipo
+        if not isinstance(input_data, dict):
+            logging.warning(f"⚠️ Input inválido recibido: {type(input_data)}")
+            input_data = {}
+
+        # 4. Reasignar variable para usar el código existente sin cambios
+        chapter_consolidated = input_data
+
+    except Exception as e:
+        logging.error(f"💥 Error crítico procesando input: {str(e)}")
+        chapter_consolidated = {}
+    # ----------------------------------------------------
+
     chapter_id = chapter_consolidated.get('chapter_id', 0)
     chapter_title = chapter_consolidated.get('titulo', f'Capítulo {chapter_id}')
     

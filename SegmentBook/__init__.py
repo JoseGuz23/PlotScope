@@ -228,8 +228,9 @@ def main(book_path: str) -> dict:
         # GRUPO B: Estructura Mayor
         acts_and_parts = r'(?:Acto|Parte)\s+(?:\d+|[IVXLCDM]+)'
 
-        # GRUPO C: Capítulos y Variaciones
-        chapter_variations = r'(?:Capítulo\s+(?:\d+|[IVXLCDM]+)|Final|\b[IVXLCDM]+\.|\b\d+\.)'
+        # GRUPO C: Capítulos y Variaciones (CORREGIDO)
+        # Se añade \b a 'Final' para evitar falsos positivos con 'Finalmente'
+        chapter_variations = r'(?:Capítulo\s+(?:\d+|[IVXLCDM]+)|Final\b|\b[IVXLCDM]+\.|\b\d+\.)'
 
         # REGEX MAESTRO
         full_pattern = f'(?mi)(?:^\\s*)(?:{special_keywords}|{acts_and_parts}|{chapter_variations})[^\n]*'

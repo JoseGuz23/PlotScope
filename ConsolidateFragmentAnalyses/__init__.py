@@ -1,10 +1,10 @@
 # =============================================================================
-# ConsolidateFragmentAnalyses/__init__.py - SYLPHRENA 4.0 (FINAL FIX)
+# ConsolidateFragmentAnalyses/__init__.py - SYLPHRENA 4.0 (ULTRA ROBUST)
 # =============================================================================
-# CORRECCIÓN APLICADA:
-#   - Se agregó la lógica de desempaquetado en 'main' para manejar el input
-#     del orquestador (que llega como dict, no como list directa).
-#   - Se mantiene la verbosidad y comentarios originales.
+# CORRECCIONES APLICADAS:
+#   - Safety-checks para conversiones int() en 'frecuencia' y 'dialogos_count'
+#   - Manejo robusto de estructuras malformadas
+#   - Compatibilidad total con function.json (param: fragment_analyses)
 # =============================================================================
 
 import logging
@@ -17,11 +17,10 @@ logging.basicConfig(level=logging.INFO)
 def merge_character_lists(char_lists: list) -> list:
     """
     Fusiona listas de personajes normalizando nombres y roles.
-    CORRECCIÓN: Normaliza roles a minúsculas para detectar correctamente la prioridad.
+    INCLUYE SAFEGUARD PARA ENTEROS.
     """
     characters = {}
     
-    # Definir prioridad de roles (todo en minúsculas)
     rol_priority = {
         'protagonista': 4, 
         'antagonista': 3, 
@@ -30,43 +29,47 @@ def merge_character_lists(char_lists: list) -> list:
     }
 
     for char_list in char_lists:
+        if not isinstance(char_list, list): continue
+        
         for char in char_list:
-            name = char.get('nombre', 'Desconocido').lower().strip()
+            if not isinstance(char, dict): continue
+            
+            name = str(char.get('nombre', 'Desconocido')).lower().strip()
             
             if name not in characters:
                 characters[name] = {
                     'nombre': char.get('nombre', 'Desconocido'),
-                    'roles_detectados': set(),  # Usamos set para evitar duplicados
+                    'roles_detectados': set(),
                     'estados_emocionales': [],
                     'acciones_clave': [],
                     'dialogos_count_total': 0
                 }
             
-            # CORRECCIÓN: Normalizar rol antes de guardar
             raw_role = char.get('rol_en_fragmento', 'mencionado')
             rol = raw_role.lower().strip() if raw_role else 'mencionado'
             characters[name]['roles_detectados'].add(rol)
             
-            # Agregar estado emocional
             estado = char.get('estado_emocional', '')
             if estado:
                 characters[name]['estados_emocionales'].append(estado)
             
-            # Agregar acciones
             acciones = char.get('acciones_clave', [])
-            characters[name]['acciones_clave'].extend(acciones)
+            if isinstance(acciones, list):
+                characters[name]['acciones_clave'].extend([str(a) for a in acciones])
             
-            # Sumar diálogos
-            characters[name]['dialogos_count_total'] += char.get('dialogos_count', 0)
+            # --- SAFEGUARD INT CONVERSION ---
+            try:
+                d_count = int(char.get('dialogos_count', 0))
+            except (ValueError, TypeError):
+                d_count = 0 # Fallback seguro
+            
+            characters[name]['dialogos_count_total'] += d_count
+            # --------------------------------
     
-    # Convertir a lista final
     result = []
     for name, data in characters.items():
         roles = list(data['roles_detectados'])
-        
-        # CORRECCIÓN: Búsqueda segura de prioridad
         main_role = max(roles, key=lambda r: rol_priority.get(r, 0)) if roles else 'mencionado'
-        
         estados = data['estados_emocionales']
         estado_predominante = max(set(estados), key=estados.count) if estados else 'no especificado'
         
@@ -74,13 +77,12 @@ def merge_character_lists(char_lists: list) -> list:
             'nombre': data['nombre'],
             'rol_en_capitulo': main_role,
             'estado_emocional_predominante': estado_predominante,
-            'arco_emocional': estados, # Mantenemos todos para el historial
+            'arco_emocional': estados,
             'acciones_clave': list(set(data['acciones_clave']))[:10],
             'dialogos_count_total': data['dialogos_count_total'],
             'apariciones_en_fragmentos': len(set(estados)) if estados else 1
         })
     
-    # Ordenar por importancia (Rol > Diálogos)
     result.sort(key=lambda x: (
         rol_priority.get(x['rol_en_capitulo'], 0),
         x['dialogos_count_total']
@@ -88,17 +90,19 @@ def merge_character_lists(char_lists: list) -> list:
     
     return result
 
+
 def merge_event_lists(event_lists: list, fragment_indices: list) -> list:
     """Fusiona listas de eventos preservando orden."""
     all_events = []
     
     for events, frag_idx in zip(event_lists, fragment_indices):
+        if not isinstance(events, list): continue
         for event in events:
-            event_copy = event.copy()
-            event_copy['fragment_source'] = frag_idx
-            all_events.append(event_copy)
+            if isinstance(event, dict):
+                event_copy = event.copy()
+                event_copy['fragment_source'] = frag_idx
+                all_events.append(event_copy)
     
-    # Índice global
     for i, event in enumerate(all_events):
         event['global_sequence'] = i + 1
     
@@ -110,41 +114,52 @@ def aggregate_metrics(metrics_list: list) -> dict:
     if not metrics_list:
         return {}
     
-    # Estructura
-    total_palabras = sum(m.get('estructura', {}).get('total_palabras', 0) for m in metrics_list)
-    total_oraciones = sum(m.get('estructura', {}).get('total_oraciones', 0) for m in metrics_list)
-    total_parrafos = sum(m.get('estructura', {}).get('total_parrafos', 0) for m in metrics_list)
-    
-    # Composición
-    lineas_dialogo = sum(m.get('composicion', {}).get('lineas_dialogo', 0) for m in metrics_list)
-    escenas_accion = sum(m.get('composicion', {}).get('escenas_accion', 0) for m in metrics_list)
-    escenas_reflexion = sum(m.get('composicion', {}).get('escenas_reflexion', 0) for m in metrics_list)
-    
-    porcentaje_dialogo = (lineas_dialogo / max(total_oraciones, 1)) * 100
-    
-    # Ritmo
-    ritmo_scores = {'RAPIDO': 3, 'MEDIO': 2, 'LENTO': 1}
+    total_palabras = 0
+    total_oraciones = 0
+    total_parrafos = 0
+    lineas_dialogo = 0
+    escenas_accion = 0
+    escenas_reflexion = 0
     ritmo_values = []
     justificaciones = []
+    referencias_temporales = []
+    
+    ritmo_scores = {'RAPIDO': 3, 'MEDIO': 2, 'LENTO': 1}
     
     for m in metrics_list:
-        ritmo = m.get('ritmo', {})
-        clasificacion = ritmo.get('clasificacion', 'MEDIO')
+        if not isinstance(m, dict): continue
+        
+        est = m.get('estructura', {})
+        comp = m.get('composicion', {})
+        rit = m.get('ritmo', {})
+        tiem = m.get('tiempo', {})
+        
+        # Helper para sumar con seguridad
+        def safe_add(val):
+            try: return int(val)
+            except: return 0
+
+        total_palabras += safe_add(est.get('total_palabras', 0))
+        total_oraciones += safe_add(est.get('total_oraciones', 0))
+        total_parrafos += safe_add(est.get('total_parrafos', 0))
+        
+        lineas_dialogo += safe_add(comp.get('lineas_dialogo', 0))
+        escenas_accion += safe_add(comp.get('escenas_accion', 0))
+        escenas_reflexion += safe_add(comp.get('escenas_reflexion', 0))
+        
+        clasificacion = rit.get('clasificacion', 'MEDIO')
         ritmo_values.append(ritmo_scores.get(clasificacion, 2))
-        if ritmo.get('justificacion'):
-            justificaciones.append(ritmo.get('justificacion'))
+        if rit.get('justificacion'):
+            justificaciones.append(rit.get('justificacion'))
+            
+        referencias_temporales.extend(tiem.get('referencias_explicitas', []))
     
+    porcentaje_dialogo = (lineas_dialogo / max(total_oraciones, 1)) * 100
     avg_ritmo = sum(ritmo_values) / len(ritmo_values) if ritmo_values else 2
     
     if avg_ritmo >= 2.5: clasificacion_final = 'RAPIDO'
     elif avg_ritmo >= 1.5: clasificacion_final = 'MEDIO'
     else: clasificacion_final = 'LENTO'
-    
-    # Tiempo
-    referencias_temporales = []
-    for m in metrics_list:
-        refs = m.get('tiempo', {}).get('referencias_explicitas', [])
-        referencias_temporales.extend(refs)
     
     return {
         'estructura': {
@@ -170,7 +185,10 @@ def aggregate_metrics(metrics_list: list) -> dict:
 
 
 def consolidate_editorial_signals(signals_list: list) -> dict:
-    """Consolida señales de edición."""
+    """
+    Consolida señales de edición de forma robusta.
+    INCLUYE SAFEGUARD PARA ENTEROS EN FRECUENCIA.
+    """
     all_tell_no_show = []
     all_repeticiones = {}
     all_inconsistencias = []
@@ -178,18 +196,55 @@ def consolidate_editorial_signals(signals_list: list) -> dict:
     all_problemas = []
     
     for signals in signals_list:
+        if not isinstance(signals, dict): continue
+
+        # Tell vs Show
         tns = signals.get('instancias_tell_no_show', [])
-        all_tell_no_show.extend(tns)
-        
+        if isinstance(tns, list):
+            for item in tns:
+                if isinstance(item, dict):
+                    all_tell_no_show.append(item)
+                elif isinstance(item, str):
+                    all_tell_no_show.append({'texto': item, 'sugerencia': 'Revisar show vs tell'})
+
+        # Repeticiones - PUNTO DE FALLA CORREGIDO
         reps = signals.get('repeticiones', [])
-        for rep in reps:
-            palabra = rep.get('palabra', '').lower()
-            freq = rep.get('frecuencia', 1)
-            all_repeticiones[palabra] = all_repeticiones.get(palabra, 0) + freq
+        if isinstance(reps, list):
+            for rep in reps:
+                palabra = ""
+                freq = 1
+                
+                if isinstance(rep, dict):
+                    palabra = str(rep.get('palabra', '')).lower()
+                    
+                    # --- SAFEGUARD CRÍTICO ---
+                    # Si 'frecuencia' viene como texto (ej: "Moderada"), int() falla.
+                    try:
+                        freq = int(rep.get('frecuencia', 1))
+                    except (ValueError, TypeError):
+                        # Si falla, asumimos 1. El log indicaba que llegó un string descriptivo.
+                        # Esto evita el crash y cuenta al menos una ocurrencia.
+                        freq = 1
+                    # -------------------------
+                    
+                elif isinstance(rep, str):
+                    palabra = rep.lower()
+                    freq = 1
+                
+                if palabra:
+                    all_repeticiones[palabra] = all_repeticiones.get(palabra, 0) + freq
         
-        all_inconsistencias.extend(signals.get('inconsistencias_internas', []))
-        all_fortalezas.extend(signals.get('fortalezas', []))
-        all_problemas.extend(signals.get('problemas_potenciales', []))
+        # Listas simples (strings)
+        for field, target_list in [
+            ('inconsistencias_internas', all_inconsistencias), 
+            ('fortalezas', all_fortalezas), 
+            ('problemas_potenciales', all_problemas)
+        ]:
+            items = signals.get(field, [])
+            if isinstance(items, list):
+                target_list.extend([str(i) for i in items if i])
+            elif isinstance(items, str):
+                target_list.append(items)
     
     repeticiones_list = [
         {'palabra': p, 'frecuencia': f} 
@@ -205,37 +260,41 @@ def consolidate_editorial_signals(signals_list: list) -> dict:
     }
 
 
-def main(payload: dict) -> list:
+def main(fragment_analyses) -> list:
     """
-    Consolida análisis corrigiendo el desempaquetado y el ordenamiento.
+    Consolida análisis.
+    NOTA: El argumento coincide con function.json ('fragment_analyses').
     """
+    # Alias para lógica interna
+    payload = fragment_analyses 
+    
     try:
-        # --- CORRECCIÓN 1: Desempaquetado robusto ---
-        fragment_analyses = []
+        analyses_list = []
         chapter_map = {}
 
+        # 1. Desempaquetado inteligente
         if isinstance(payload, dict) and 'fragment_analyses' in payload:
-            # Viene del Orchestrator
-            fragment_analyses = payload.get('fragment_analyses', [])
-            chapter_map = payload.get('chapter_map', {}) # Capturamos el mapa
+            analyses_list = payload.get('fragment_analyses', [])
+            chapter_map = payload.get('chapter_map', {}) 
         elif isinstance(payload, list):
-            # Viene de prueba local o legacy
-            fragment_analyses = payload
+            analyses_list = payload
         else:
             logging.warning(f"⚠️ Formato de input inesperado: {type(payload)}")
-            return []
-        # --------------------------------------------
+            if isinstance(payload, dict): 
+                pass 
+            else:
+                return []
 
-        if not fragment_analyses:
+        if not analyses_list:
             logging.warning("⚠️ No hay análisis de fragmentos para consolidar")
             return []
         
-        logging.info(f"🔄 Consolidando {len(fragment_analyses)} análisis...")
+        logging.info(f"🔄 Consolidando {len(analyses_list)} análisis...")
         
         # Agrupar por capítulo padre
         chapters = defaultdict(list)
         
-        for analysis in fragment_analyses:
+        for analysis in analyses_list:
             if isinstance(analysis, str):
                 try:
                     analysis = json.loads(analysis)
@@ -245,7 +304,7 @@ def main(payload: dict) -> list:
             if not isinstance(analysis, dict):
                 continue
 
-            # Convertimos a string para asegurar agrupación consistente
+            # Agrupar usando string para consistencia
             parent_id = str(analysis.get('parent_chapter_id', '0'))
             chapters[parent_id].append(analysis)
         
@@ -253,28 +312,26 @@ def main(payload: dict) -> list:
         
         consolidated = []
         
-        # --- CORRECCIÓN 2: Ordenamiento seguro (key=str) ---
-        # Evita TypeError si hay mezcla de ints y strings en las claves
+        # Ordenar claves de forma segura
         sorted_chapters = sorted(chapters.items(), key=lambda x: str(x[0]))
         
         for parent_id, fragments in sorted_chapters:
             fragments.sort(key=lambda x: x.get('fragment_index', 0))
+            if not fragments: continue
+            
             first_frag = fragments[0]
             
-            # --- CORRECCIÓN 3: Uso de chapter_map ---
-            # Intentamos obtener el título oficial del mapa primero
+            # Obtener título oficial
             map_data = chapter_map.get(parent_id, {})
-            official_title = map_data.get('title')
+            official_title = map_data.get('original_title') # Usar original_title del mapa
             
-            # Fallback al fragmento si no hay mapa, fallback a ID si no hay fragmento
             chapter_title = official_title if official_title else first_frag.get('titulo_capitulo', f'Capítulo {parent_id}')
-            
             section_type = first_frag.get('section_type', 'CHAPTER')
-            total_fragments = len(fragments) # Es más seguro contar lo que tenemos
+            total_fragments = len(fragments)
             
             logging.info(f"   📖 Consolidando: {chapter_title} ({len(fragments)} frags)")
             
-            # Procesamiento (igual que antes pero llamando a las funciones corregidas)
+            # Extraer listas de forma segura
             char_lists = [f.get('reparto_local', []) for f in fragments]
             event_lists = [f.get('eventos', []) for f in fragments]
             fragment_indices = [f.get('fragment_index', 0) for f in fragments]
@@ -284,6 +341,8 @@ def main(payload: dict) -> list:
             merged_characters = merge_character_lists(char_lists)
             merged_events = merge_event_lists(event_lists, fragment_indices)
             aggregated_metrics = aggregate_metrics(metrics_list)
+            
+            # Llamada a función robusta
             consolidated_signals = consolidate_editorial_signals(signals_list)
             
             # Elementos narrativos
@@ -291,6 +350,7 @@ def main(payload: dict) -> list:
             first_narratives = first_frag.get('elementos_narrativos', {})
             last_narratives = last_frag.get('elementos_narrativos', {})
             
+            # Construir objeto consolidado
             chapter_consolidated = {
                 'chapter_id': parent_id,
                 'titulo': chapter_title,

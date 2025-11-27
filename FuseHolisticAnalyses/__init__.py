@@ -133,14 +133,32 @@ def call_gemini_pro(client, prompt):
     )
 
 
-def main(chunk_analyses: list) -> dict:
+def main(chunk_analyses) -> dict:
     """
-    Fusiona 4 análisis parciales en uno completo.
-    
-    Input: Lista de 4 análisis de chunks
-    Output: Análisis holístico fusionado
+    Fusiona análisis parciales.
     """
     try:
+        # --- BLOQUE DE SEGURIDAD ---
+        # 1. Normalizar String -> Objeto
+        raw_input = chunk_analyses
+        if isinstance(raw_input, str):
+            try:
+                raw_input = json.loads(raw_input)
+            except:
+                raw_input = []
+
+        # 2. Extraer lista real
+        target_list = []
+        if isinstance(raw_input, list):
+            target_list = raw_input
+        elif isinstance(raw_input, dict):
+            # Intentar buscar la clave si viene envuelto
+            target_list = raw_input.get('chunk_analyses') or raw_input.get('analyses') or []
+        
+        # Sobreescribir variable para el resto del código
+        chunk_analyses = target_list
+        # ---------------------------
+
         start_time = time.time()
         
         logging.info(f"🔗 Fusionando {len(chunk_analyses)} análisis parciales...")

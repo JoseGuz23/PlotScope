@@ -277,18 +277,19 @@ def prepare_causality_summary(causality_analysis: dict) -> str:
     return json.dumps(summary, indent=2, ensure_ascii=False)
 
 
-def main(bible_input_raw) -> dict:
+def main(bible_input_json) -> dict:
     """
-    Genera la Biblia Narrativa sintetizando todos los análisis.
-    CORRECCIÓN: Maneja input como string (JSON) o dict.
+    Genera la Biblia Narrativa.
+    Nombre del argumento coincide con function.json.
     """
+    bible_input_raw = bible_input_json # Alias
+    
     try:
         # --- BLOQUE DE SEGURIDAD ---
         if isinstance(bible_input_raw, str):
             try:
                 bible_input = json.loads(bible_input_raw)
             except json.JSONDecodeError:
-                logging.error("❌ Error decodificando JSON en CreateBible")
                 return {}
         else:
             bible_input = bible_input_raw
@@ -354,25 +355,40 @@ def main(bible_input_raw) -> dict:
         
         # Calcular métricas globales si no existen
         if 'metricas_globales' not in bible or not bible['metricas_globales'].get('total_palabras'):
+            
+            # --- HELPER DE SEGURIDAD ---
+            def safe_get_score(obj, path_tuple, default=5):
+                try:
+                    val = obj
+                    for key in path_tuple:
+                        val = val.get(key, {})
+                    # El último valor debe ser el número
+                    if isinstance(val, dict): return default 
+                    return float(val)
+                except (ValueError, TypeError, AttributeError):
+                    return default
+            # ---------------------------
+
             total_words = sum(
-                ch.get('metricas_agregadas', {}).get('estructura', {}).get('total_palabras', 0)
+                int(ch.get('metricas_agregadas', {}).get('estructura', {}).get('total_palabras', 0) or 0)
                 for ch in chapters_consolidated
             )
             
             # Promediar scores de evaluaciones cualitativas
             coherencia_scores = [
-                q.get('coherencia_personajes', {}).get('score', 5)
+                safe_get_score(q, ('coherencia_personajes', 'score'))
                 for q in qualitative_analyses if not q.get('error')
             ]
             logica_scores = [
-                q.get('logica_causal', {}).get('score', 5)
+                safe_get_score(q, ('logica_causal', 'score'))
                 for q in qualitative_analyses if not q.get('error')
             ]
             estructura_scores = [
-                s.get('score_estructural_global', {}).get('score', 5)
+                safe_get_score(s, ('score_estructural_global', 'score'))
                 for s in structural_analyses if not s.get('error')
             ]
             
+            # (El resto del cálculo de promedios sigue igual, ahora es seguro)
             bible['metricas_globales'] = {
                 'total_palabras': total_words,
                 'total_capitulos': len(chapters_consolidated),

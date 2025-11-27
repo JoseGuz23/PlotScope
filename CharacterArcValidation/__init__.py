@@ -1,4 +1,4 @@
-# =============================================================================
+genai# =============================================================================
 # CharacterArcValidation/__init__.py - SYLPHRENA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN:
@@ -72,9 +72,15 @@ def get_causal_chain(G, target_event_id, depth=3):
         pass
     return ancestors
 
-def main(payload: str) -> str:
+def main(payload) -> str:
     try:
-        data = json.loads(payload)
+        # --- BLOQUE DE SEGURIDAD ---
+        if isinstance(payload, str):
+            data = json.loads(payload)
+        else:
+            data = payload
+        # ---------------------------
+        
         bible = data.get('bible', {})
         causality_analysis = bible.get('analisis_causalidad', {})
         
@@ -104,7 +110,16 @@ def main(payload: str) -> str:
         validations = []
 
         # Analizamos una muestra de decisiones críticas (top 5 por tensión)
-        decision_events.sort(key=lambda x: x.get('tension', 0), reverse=True)
+        # --- CORRECCIÓN: Sort seguro ---
+        def get_safe_tension(x):
+            try:
+                return int(x.get('tension', 0))
+            except (ValueError, TypeError):
+                return 0
+                
+        decision_events.sort(key=get_safe_tension, reverse=True)
+        # -------------------------------
+        
         top_decisions = decision_events[:5]
 
         for decision in top_decisions:

@@ -466,30 +466,24 @@ def generate_comparative_manuscript(chapters: list, book_name: str) -> str:
     return '\n'.join(html_lines)
 
 
-def main(reconstruct_input: dict) -> dict:
+def main(reconstruct_input) -> dict:
     """
-    Función principal de reconstrucción de manuscrito.
-    
-    Input esperado:
-    {
-        'edited_chapters': [...],   # Lista de capítulos/fragmentos editados
-        'book_name': str,           # Nombre del libro
-        'bible': {...},             # Biblia validada (para anotaciones)
-        'original_chapters': [...]  # Capítulos originales (opcional, para diff)
-    }
-    
-    Output:
-    {
-        'status': 'success',
-        'manuscripts': {
-            'clean_md': str,        # Manuscrito limpio Markdown
-            'enriched_md': str,     # Manuscrito con anotaciones
-            'comparative_html': str # Versión con control de cambios
-        },
-        'statistics': {...}
-    }
+    Función principal de reconstrucción.
     """
     try:
+        # --- BLOQUE DE SEGURIDAD ---
+        if isinstance(reconstruct_input, str):
+            try:
+                input_data = json.loads(reconstruct_input)
+            except:
+                input_data = {}
+        else:
+            input_data = reconstruct_input
+        
+        # Renombrar para usar input_data en las siguientes líneas
+        reconstruct_input = input_data 
+        # ---------------------------
+
         edited_chapters = reconstruct_input.get('edited_chapters', [])
         book_name = reconstruct_input.get('book_name', 'Libro')
         bible = reconstruct_input.get('bible', {})

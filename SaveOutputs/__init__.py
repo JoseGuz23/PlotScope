@@ -17,27 +17,23 @@ from azure.storage.blob import BlobServiceClient, ContentSettings
 logging.basicConfig(level=logging.INFO)
 
 
-def main(save_input: dict) -> dict:
+def main(save_input) -> dict:
     """
-    Guarda todos los outputs de Sylphrena 4.0 en Blob Storage.
-    
-    Input esperado:
-    {
-        'job_id': str,
-        'book_name': str,
-        'bible': dict,                      # Biblia Validada
-        'manuscripts': {                    # Output de ReconstructManuscript
-            'clean_md': str,
-            'enriched_md': str,
-            'comparative_html': str
-        },
-        'consolidated_chapters': [...],     # Capítulos consolidados
-        'original_chapters': [...],         # Capítulos originales
-        'statistics': {...},                # Estadísticas de procesamiento
-        'tiempos': {...}                    # Tiempos por fase
-    }
+    Guarda todos los outputs.
     """
     try:
+        # --- BLOQUE DE SEGURIDAD ---
+        if isinstance(save_input, str):
+            try:
+                input_data = json.loads(save_input)
+            except:
+                input_data = {}
+        else:
+            input_data = save_input
+            
+        save_input = input_data # Alias
+        # ---------------------------
+
         # Extraer inputs
         job_id = save_input.get('job_id', datetime.now().strftime('%Y%m%d_%H%M%S'))
         book_name = save_input.get('book_name', 'libro')

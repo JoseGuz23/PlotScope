@@ -185,7 +185,9 @@ def call_gemini_pro(client, prompt):
     )
 
 
-def main(arc_input: dict) -> dict:
+def main(chapter_consolidated: dict) -> dict:
+    # Alias para coincidir con tu lógica nueva
+    arc_input = chapter_consolidated
     # ... docstring ...
     
     chapter_id = arc_input.get('chapter_id', 0)
