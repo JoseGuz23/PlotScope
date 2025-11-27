@@ -1,42 +1,56 @@
-import google.generativeai as genai
+# test_gemini.py ACTUALIZADO (Para google-genai v1)
+from google import genai
 import os
 import json
 
-# --- CARGA DE VARIABLES (Tu bloque de configuración local) ---
+# --- CARGA DE VARIABLES ---
 if os.path.exists('local.settings.json'):
     with open('local.settings.json') as f:
         config = json.load(f)
         for key, value in config.get("Values", {}).items():
             os.environ[key] = value
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-
 def test_all_available_models():
-    print(f"Buscando modelos disponibles para tu API Key...\n")
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        print("❌ Error: GEMINI_API_KEY no encontrada.")
+        return
+
+    client = genai.Client(api_key=api_key)
     
+    print(f"Buscando modelos disponibles para tu API Key (SDK v1)...\n")
     print(f"{'MODELO':<50} | {'RESULTADO'}")
     print("-" * 70)
 
-    # 1. Obtenemos la lista dinámica de modelos desde Google
-    for m in genai.list_models():
-        
-        # 2. FILTRO: Solo probamos modelos que soporten 'generateContent'
-        # (Ignoramos modelos de embeddings o tuning que darían error aquí)
-        if 'generateContent' in m.supported_generation_methods:
+    try:
+        # En el nuevo SDK, list() devuelve un iterador de modelos
+        for m in client.models.list():
+            # Filtramos modelos que parecen de generación de texto/multimodal
+            # (El nuevo SDK maneja esto diferente, probamos generativos típicos)
             model_name = m.name
             
+            # Filtro simple: ignorar modelos de embedding o tuning si solo queremos probar chat
+            if "embedding" in model_name or "bison" in model_name:
+                continue
+
+            # Probamos generar contenido
             try:
-                # Instanciamos y probamos
-                model = genai.GenerativeModel(model_name)
-                response = model.generate_content("Responde solo con la palabra: Funciona")
-                
-                # Si llega aquí, es exitoso
+                # La llamada es client.models.generate_content
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents="Responde solo con la palabra: Funciona"
+                )
                 print(f"{model_name:<50} | ✅ {response.text.strip()}")
-                
             except Exception as e:
-                # Capturamos errores (ej. modelos deprecados o sin acceso en tu región)
+                # Capturamos errores (404, permisos, etc)
                 error_msg = str(e).split('\n')[0]
-                print(f"{model_name:<50} | ⚠️ Error: {error_msg[:40]}...")
+                if "404" in error_msg:
+                    print(f"{model_name:<50} | ⚠️ No encontrado/Soportado")
+                else:
+                    print(f"{model_name:<50} | ⚠️ Error: {error_msg[:40]}...")
+                    
+    except Exception as e:
+        print(f"Error listando modelos: {e}")
 
 if __name__ == "__main__":
     test_all_available_models()

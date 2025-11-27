@@ -31,20 +31,6 @@ PROMPTS = {
     Responde JSON: {"cumplimiento_genero": 1-10, "elementos_ausentes": [str], "subversiones_intencionales": [str]}"""
 }
 
-async def run_analysis(client, model, prompt_template, data_context, analysis_name):
-    try:
-        # Construir prompt final
-        full_prompt = f"{prompt_template}\n\nCONTEXTO:\n{data_context[:30000]}" # Truncate para evitar overflow masivo si no es DeepThink
-        
-        response = await client.models.generate_content_async(
-            model=model,
-            contents=full_prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
-        )
-        return analysis_name, json.loads(response.text)
-    except Exception as e:
-        return analysis_name, {"error": str(e)}
-
 def main(payload) -> str:
     try:
         # --- BLOQUE DE SEGURIDAD ---
@@ -55,28 +41,23 @@ def main(payload) -> str:
         # ---------------------------
         
         bible = data.get('bible', {})
-        # Usamos el resumen holístico y una muestra de capítulos para estos análisis
-        # para no quemar tokens innecesariamente
         context_text = json.dumps(bible.get('holistic_analysis', {})) 
         genre = data.get('book_metadata', {}).get('genre', 'General Fiction')
         
         api_key = os.environ.get('GEMINI_API_KEY')
         client = genai.Client(api_key=api_key)
         
-        # Ejecutar análisis (usando loop síncrono por simplicidad en Azure Functions v1/wrapper, 
-        # o async si tu runtime lo soporta bien. Aquí uso síncrono secuencial rápido para estabilidad)
-        
         results = {}
         
-        # 1. Clichés (Gemini Flash es suficiente y rápido)
+        # 1. Clichés (Uso gemini-2.5-flash validado)
         r1 = client.models.generate_content(
-            model='gemini-2.5-flash-preview-05-20',
+            model='gemini-2.5-flash',
             contents=PROMPTS['cliches'],
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         results['cliches_analysis'] = json.loads(r1.text)
 
-        # 2. Diálogo (Requiere Pro para matices)
+        # 2. Diálogo (Requiere Pro - Uso gemini-3-pro-preview validado)
         r2 = client.models.generate_content(
             model='gemini-3-pro-preview',
             contents=PROMPTS['dialogue'],
@@ -84,15 +65,15 @@ def main(payload) -> str:
         )
         results['dialogue_analysis'] = json.loads(r2.text)
 
-        # 3. Economía (Gemini Flash)
+        # 3. Economía (Uso gemini-2.5-flash validado)
         r3 = client.models.generate_content(
-            model='gemini-2.5-flash-preview-05-20',
+            model='gemini-2.5-flash',
             contents=PROMPTS['economy'],
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         results['narrative_economy'] = json.loads(r3.text)
 
-        # 4. Género (Gemini Pro)
+        # 4. Género (Uso gemini-3-pro-preview validado)
         r4 = client.models.generate_content(
             model='gemini-3-pro-preview',
             contents=PROMPTS['genre'].format(genre=genre),

@@ -79,7 +79,7 @@ def main(fragment: dict) -> dict:
         )
         
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=4096,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -101,7 +101,7 @@ def main(fragment: dict) -> dict:
         analysis['parent_chapter_id'] = parent_id
         analysis['_metadata'] = {
             'status': 'success',
-            'model': 'claude-sonnet-4',
+            'model': 'Claude Haiku 4.5',
             'fallback': True
         }
         

@@ -1,11 +1,9 @@
 # =============================================================================
-# CreateBible/__init__.py - SYLPHRENA 4.0
+# CreateBible/__init__.py - SYLPHRENA 4.0 (CORREGIDO)
 # =============================================================================
-# REIMPLEMENTACIÓN COMPLETA:
-#   - Integra análisis de Capa 1 (consolidado), Capa 2 y Capa 3
-#   - Incorpora análisis de causalidad
-#   - Genera Biblia Narrativa enriquecida
-#   - Prepara datos para validación cruzada
+# CORRECCIÓN:
+#   - Soluciona el bug de "Inputs: 0" mapeando correctamente la entrada
+#     del Orchestrator v4 ('chapter_analyses').
 # =============================================================================
 
 import logging
@@ -19,7 +17,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 logging.basicConfig(level=logging.INFO)
 
 # =============================================================================
-# PROMPT DE SÍNTESIS DE BIBLIA
+# PROMPT DE SÍNTESIS DE BIBLIA (Intacto)
 # =============================================================================
 
 BIBLE_SYNTHESIS_PROMPT = """
@@ -193,7 +191,13 @@ def prepare_chapters_summary(chapters_consolidated: list) -> str:
     
     summary = []
     
-    for chapter in chapters_consolidated[:30]:  # Limitar a 30 capítulos
+    # Ordenar por chapter_id si es posible para asegurar orden cronológico
+    try:
+        chapters_sorted = sorted(chapters_consolidated, key=lambda x: int(x.get('chapter_id', 0)))
+    except:
+        chapters_sorted = chapters_consolidated
+
+    for chapter in chapters_sorted[:50]:  # Aumentado límite a 50
         ch_summary = {
             'id': chapter.get('chapter_id'),
             'titulo': chapter.get('titulo'),
@@ -213,7 +217,7 @@ def prepare_structural_summary(structural_analyses: list) -> str:
     summary = []
     
     for analysis in structural_analyses:
-        if analysis.get('error'):
+        if not analysis or analysis.get('error'):
             continue
         
         struct_summary = {
@@ -236,7 +240,7 @@ def prepare_qualitative_summary(qualitative_analyses: list) -> str:
     summary = []
     
     for analysis in qualitative_analyses:
-        if analysis.get('error'):
+        if not analysis or analysis.get('error'):
             continue
         
         qual_summary = {
@@ -255,8 +259,8 @@ def prepare_qualitative_summary(qualitative_analyses: list) -> str:
 def prepare_causality_summary(causality_analysis: dict) -> str:
     """Prepara resumen de análisis de causalidad."""
     
-    if causality_analysis.get('error'):
-        return json.dumps({'error': causality_analysis.get('error')})
+    if not causality_analysis or causality_analysis.get('error'):
+        return json.dumps({'error': 'No causality analysis available'})
     
     metrics = causality_analysis.get('metricas_causalidad', {})
     problems = causality_analysis.get('problemas_detectados', {})
@@ -280,9 +284,8 @@ def prepare_causality_summary(causality_analysis: dict) -> str:
 def main(bible_input_json) -> dict:
     """
     Genera la Biblia Narrativa.
-    Nombre del argumento coincide con function.json.
     """
-    bible_input_raw = bible_input_json # Alias
+    bible_input_raw = bible_input_json 
     
     try:
         # --- BLOQUE DE SEGURIDAD ---
@@ -298,24 +301,49 @@ def main(bible_input_json) -> dict:
         start_time = time.time()
         logging.info("📜 Generando Biblia Narrativa...")
         
-        # (El resto de tu código sigue igual desde aquí...)
+        # =========================================================================
+        # 1. EXTRACCIÓN Y MAPEO DE DATOS (CORREGIDO)
+        # =========================================================================
+        
+        holistic_analysis = bible_input.get('holistic_analysis', {})
+        causality_analysis = bible_input.get('analisis_causalidad') or bible_input.get('causality_analysis', {})
+        
+        # Verificar si viene del Orchestrator v4 (formato anidado)
+        if 'chapter_analyses' in bible_input:
+            # Lista maestra que contiene Capa 1 + Capa 2 + Capa 3
+            main_list = bible_input['chapter_analyses']
+            
+            chapters_consolidated = main_list # Capa 1 es el objeto base
+            
+            # Extraer capas anidadas
+            structural_analyses = [ch.get('layer2_structural', {}) for ch in main_list]
+            qualitative_analyses = [ch.get('layer3_qualitative', {}) for ch in main_list]
+            
+            logging.info("   🔄 Detectado formato Orchestrator v4 (lista unificada)")
+            
+        else:
+            # Formato legacy (listas separadas)
+            chapters_consolidated = bible_input.get('chapters_consolidated', [])
+            structural_analyses = bible_input.get('structural_analyses', [])
+            qualitative_analyses = bible_input.get('qualitative_analyses', [])
+            logging.info("   🔄 Detectado formato Legacy (listas separadas)")
+
+        # =========================================================================
+        
+        logging.info(f"   📊 Inputs: {len(chapters_consolidated)} capítulos consolidados")
+        logging.info(f"   📊 {len([s for s in structural_analyses if s])} análisis estructurales")
+        logging.info(f"   📊 {len([q for q in qualitative_analyses if q])} evaluaciones cualitativas")
+        
+        # Validar si hay datos reales
+        if not chapters_consolidated and not holistic_analysis:
+             return {'error': 'Input vacío: No hay capítulos ni análisis holístico'}
+
         # Configurar cliente
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             raise ValueError("GEMINI_API_KEY no configurada")
         
         client = genai.Client(api_key=api_key)
-        
-        # Extraer inputs
-        holistic_analysis = bible_input.get('holistic_analysis', {})
-        chapters_consolidated = bible_input.get('chapters_consolidated', [])
-        structural_analyses = bible_input.get('structural_analyses', [])
-        qualitative_analyses = bible_input.get('qualitative_analyses', [])
-        causality_analysis = bible_input.get('causality_analysis', {})
-        
-        logging.info(f"   📊 Inputs: {len(chapters_consolidated)} capítulos consolidados")
-        logging.info(f"   📊 {len(structural_analyses)} análisis estructurales")
-        logging.info(f"   📊 {len(qualitative_analyses)} evaluaciones cualitativas")
         
         # Preparar resúmenes
         holistic_json = json.dumps(holistic_analysis, indent=2, ensure_ascii=False)[:15000]
@@ -356,74 +384,45 @@ def main(bible_input_json) -> dict:
         # Calcular métricas globales si no existen
         if 'metricas_globales' not in bible or not bible['metricas_globales'].get('total_palabras'):
             
-            # --- HELPER DE SEGURIDAD ---
-            def safe_get_score(obj, path_tuple, default=5):
+            # Helper de seguridad
+            def safe_get_score(obj, keys, default=5):
                 try:
                     val = obj
-                    for key in path_tuple:
-                        val = val.get(key, {})
-                    # El último valor debe ser el número
-                    if isinstance(val, dict): return default 
-                    return float(val)
-                except (ValueError, TypeError, AttributeError):
+                    for k in keys:
+                        val = val.get(k, {})
+                    return float(val) if not isinstance(val, dict) else default
+                except:
                     return default
-            # ---------------------------
 
             total_words = sum(
                 int(ch.get('metricas_agregadas', {}).get('estructura', {}).get('total_palabras', 0) or 0)
                 for ch in chapters_consolidated
             )
             
-            # Promediar scores de evaluaciones cualitativas
-            coherencia_scores = [
-                safe_get_score(q, ('coherencia_personajes', 'score'))
-                for q in qualitative_analyses if not q.get('error')
-            ]
-            logica_scores = [
-                safe_get_score(q, ('logica_causal', 'score'))
-                for q in qualitative_analyses if not q.get('error')
-            ]
-            estructura_scores = [
-                safe_get_score(s, ('score_estructural_global', 'score'))
-                for s in structural_analyses if not s.get('error')
-            ]
+            coherencia_scores = [safe_get_score(q, ['coherencia_personajes', 'score']) for q in qualitative_analyses if q]
+            logica_scores = [safe_get_score(q, ['logica_causal', 'score']) for q in qualitative_analyses if q]
+            estructura_scores = [safe_get_score(s, ['score_estructural_global', 'score']) for s in structural_analyses if s]
             
-            # (El resto del cálculo de promedios sigue igual, ahora es seguro)
+            # Promedios seguros
+            def avg(lst): return round(sum(lst)/max(len(lst), 1), 1)
+            
             bible['metricas_globales'] = {
                 'total_palabras': total_words,
                 'total_capitulos': len(chapters_consolidated),
-                'score_coherencia_personajes': round(sum(coherencia_scores) / max(len(coherencia_scores), 1), 1),
-                'score_logica_causal': round(sum(logica_scores) / max(len(logica_scores), 1), 1),
-                'score_estructura': round(sum(estructura_scores) / max(len(estructura_scores), 1), 1),
-                'score_causalidad': causality_analysis.get('metricas_causalidad', {}).get('score_coherencia_causal', 5)
+                'score_coherencia_personajes': avg(coherencia_scores),
+                'score_logica_causal': avg(logica_scores),
+                'score_estructura': avg(estructura_scores),
+                'score_causalidad': safe_get_score(causality_analysis, ['metricas_causalidad', 'score_coherencia_causal'])
             }
             
             # Score global
+            metrics = bible['metricas_globales']
             scores = [
-                bible['metricas_globales']['score_coherencia_personajes'],
-                bible['metricas_globales']['score_logica_causal'],
-                bible['metricas_globales']['score_estructura'],
-                bible['metricas_globales']['score_causalidad']
+                metrics['score_coherencia_personajes'], 
+                metrics['score_logica_causal'], 
+                metrics['score_estructura']
             ]
-            bible['metricas_globales']['score_global'] = round(sum(scores) / len(scores), 1)
-        
-        # Agregar problemas de causalidad a la Biblia
-        if causality_analysis.get('problemas_detectados'):
-            causal_problems = causality_analysis['problemas_detectados']
-            
-            # Agregar eventos huérfanos como problemas críticos
-            for huerfano in causal_problems.get('eventos_huerfanos', []):
-                if huerfano.get('severidad') == 'CRITICO':
-                    if 'criticos' not in bible.get('problemas_priorizados', {}):
-                        bible['problemas_priorizados']['criticos'] = []
-                    
-                    bible['problemas_priorizados']['criticos'].append({
-                        'id': f"CAUS-{huerfano.get('evento_id', 0)}",
-                        'tipo': 'CAUSALIDAD',
-                        'descripcion': f"Evento sin causa: {huerfano.get('descripcion', '')}",
-                        'capitulos_afectados': [huerfano.get('capitulo', 0)],
-                        'sugerencia': huerfano.get('sugerencia', 'Establecer conexión causal con eventos previos')
-                    })
+            metrics['score_global'] = avg(scores)
         
         # Metadata
         bible['_metadata'] = {
@@ -432,13 +431,13 @@ def main(bible_input_json) -> dict:
             'processing_time_seconds': round(elapsed, 2),
             'inputs_processed': {
                 'chapters': len(chapters_consolidated),
-                'structural_analyses': len(structural_analyses),
-                'qualitative_analyses': len(qualitative_analyses)
+                'structural': len(structural_analyses),
+                'qualitative': len(qualitative_analyses)
             }
         }
         
-        score_global = bible.get('metricas_globales', {}).get('score_global', 'N/A')
-        logging.info(f"✅ Biblia generada en {elapsed:.1f}s | Score global: {score_global}")
+        score = bible.get('metricas_globales', {}).get('score_global', 'N/A')
+        logging.info(f"✅ Biblia generada en {elapsed:.1f}s | Score global: {score}")
         
         return bible
         

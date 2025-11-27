@@ -1,12 +1,6 @@
 # =============================================================================
-# SubmitBatchAnalysis/__init__.py - SYLPHRENA 4.0 (CORREGIDO FINAL)
+# SubmitBatchAnalysis/__init__.py - SYLPHRENA 4.0
 # =============================================================================
-# 
-# CORRECCIÓN CRÍTICA: Google usa "key" NO "custom_id"
-# Documentación: https://ai.google.dev/gemini-api/docs/batch-api
-#
-# =============================================================================
-
 import logging
 import json
 import os
@@ -15,7 +9,6 @@ import tempfile
 from google import genai
 
 logging.basicConfig(level=logging.INFO)
-
 
 def build_analysis_prompt(chapter_id, title, content, is_fragment):
     """Construye el prompt de análisis para un capítulo."""
@@ -63,7 +56,6 @@ def main(chapters: list) -> dict:
     Envía todos los fragmentos a Gemini Batch API mediante archivo JSONL.
     """
     try:
-        # A. CONFIGURACIÓN
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             return {"error": "GEMINI_API_KEY no configurada", "status": "config_error"}
@@ -72,7 +64,6 @@ def main(chapters: list) -> dict:
         
         client = genai.Client(api_key=api_key)
         
-        # B. CONSTRUIR LÍNEAS JSONL
         jsonl_lines = []
         id_map = []
         
@@ -83,14 +74,13 @@ def main(chapters: list) -> dict:
             content = chapter.get('content', '')
             is_fragment = chapter.get('is_fragment', False)
             
-            # ⚠️ CRÍTICO: Google usa "key", NO "custom_id"
+            # Usamos "key" para correlación (estándar Google GenAI)
             key = f"frag_{fragment_id}_parent_{parent_id}"
             
             prompt = build_analysis_prompt(fragment_id, title, content, is_fragment)
             
-            # Estructura JSONL oficial de Google (con "key")
             jsonl_entry = {
-                "key": key,  # ← CORRECTO según documentación Google
+                "key": key,
                 "request": {
                     "contents": [
                         {
@@ -107,14 +97,13 @@ def main(chapters: list) -> dict:
             jsonl_lines.append(json.dumps(jsonl_entry, ensure_ascii=False))
             
             id_map.append({
-                'key': key,  # ← Cambiado a "key" para consistencia
+                'key': key,
                 'fragment_id': fragment_id,
                 'parent_chapter_id': parent_id
             })
         
         logging.info(f"📝 {len(jsonl_lines)} requests preparados en formato JSONL")
         
-        # C. ESCRIBIR ARCHIVO TEMPORAL JSONL
         timestamp = int(time.time())
         temp_dir = tempfile.gettempdir()
         temp_filename = os.path.join(temp_dir, f"batch_requests_{timestamp}.jsonl")
@@ -125,7 +114,6 @@ def main(chapters: list) -> dict:
         
         logging.info(f"📄 Archivo JSONL creado en: {temp_filename}")
         
-        # D. SUBIR ARCHIVO A GOOGLE FILES API
         logging.info("☁️ Subiendo archivo a Google Files API...")
         
         uploaded_file = client.files.upload(
@@ -138,9 +126,9 @@ def main(chapters: list) -> dict:
         
         logging.info(f"✅ Archivo subido: {uploaded_file.name}")
         
-        # E. CREAR BATCH JOB
         logging.info("🚀 Creando Batch Job...")
         
+        # USO MODELO CONFIRMADO POR EL USUARIO: gemini-2.5-flash
         batch_job = client.batches.create(
             model="models/gemini-2.5-flash",
             src=uploaded_file.name,
@@ -152,13 +140,11 @@ def main(chapters: list) -> dict:
         logging.info(f"✅ Batch Job creado: {batch_job.name}")
         logging.info(f"📊 Estado inicial: {batch_job.state}")
         
-        # F. LIMPIAR ARCHIVO TEMPORAL LOCAL
         try:
             os.remove(temp_filename)
         except:
             pass
         
-        # G. RETORNAR RESULTADO
         return {
             "batch_job_name": batch_job.name,
             "uploaded_file_name": uploaded_file.name,

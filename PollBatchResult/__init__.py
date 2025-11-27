@@ -1,15 +1,6 @@
 # =============================================================================
-# PollBatchResult/__init__.py - SYLPHRENA 4.0 (CORREGIDO FINAL)
+# PollBatchResult/__init__.py - SYLPHRENA 4.0
 # =============================================================================
-# 
-# CORRECCIÓN CRÍTICA: 
-# - Resultado está en: batch_job.dest.file_name
-# - Descarga con: client.files.download(file=file_name)
-# - Google usa "key" en respuesta, NO "custom_id"
-#
-# Documentación: https://ai.google.dev/gemini-api/docs/batch-api
-# =============================================================================
-
 import logging
 import json
 import os
@@ -33,19 +24,15 @@ def main(batch_info: dict) -> dict:
         if not batch_job_name:
             return {"status": "error", "error": "No Job Name"}
         
-        # Mapa de IDs (ahora usa "key" en lugar de "custom_id")
         id_map_list = batch_info.get('id_map', [])
         id_map_lookup = {item['key']: item for item in id_map_list if item.get('key')}
         
         logging.info(f"🔍 Consultando estado de: {batch_job_name}")
-        logging.info(f"📋 Mapa de IDs tiene {len(id_map_lookup)} entradas")
         
         client = genai.Client(api_key=api_key)
         
-        # Consultar estado
         job = client.batches.get(name=batch_job_name)
         
-        # Obtener estado como string
         if hasattr(job.state, 'name'):
             job_state = job.state.name
         else:
@@ -57,7 +44,6 @@ def main(batch_info: dict) -> dict:
         if job_state == 'JOB_STATE_SUCCEEDED' or 'SUCCEEDED' in job_state:
             logging.info("✅ Job completado exitosamente!")
             
-            # CORRECCIÓN: El archivo está en job.dest.file_name
             result_file_name = None
             
             if job.dest:
@@ -66,14 +52,9 @@ def main(batch_info: dict) -> dict:
                     logging.info(f"📄 Archivo de resultados: {result_file_name}")
             
             if not result_file_name:
-                # Debug: mostrar qué tiene job.dest
-                logging.error(f"❌ No se encontró archivo de salida")
-                logging.info(f"🔍 job.dest = {job.dest}")
-                if job.dest:
-                    logging.info(f"🔍 dir(job.dest) = {[a for a in dir(job.dest) if not a.startswith('_')]}")
+                logging.error(f"❌ No se encontró archivo de salida en job.dest")
                 return {"status": "error", "error": "No output file found in job.dest"}
             
-            # Descargar archivo de resultados
             logging.info(f"⬇️ Descargando resultados...")
             
             try:
@@ -84,7 +65,6 @@ def main(batch_info: dict) -> dict:
                 logging.error(f"❌ Error descargando archivo: {download_error}")
                 return {"status": "error", "error": f"Download failed: {str(download_error)}"}
             
-            # Procesar JSONL de resultados
             results = []
             error_count = 0
             
@@ -94,90 +74,61 @@ def main(batch_info: dict) -> dict:
                 
                 try:
                     result_item = json.loads(line)
-                except json.JSONDecodeError as e:
-                    logging.warning(f"⚠️ Línea {line_num} no es JSON válido: {e}")
+                except json.JSONDecodeError:
                     error_count += 1
                     continue
                 
-                # Google usa "key" en la respuesta
                 key = result_item.get('key')
-                
-                if not key:
-                    logging.warning(f"⚠️ Línea {line_num} sin 'key'")
-                    error_count += 1
-                    continue
-                
-                if key not in id_map_lookup:
-                    logging.warning(f"⚠️ Key '{key}' no está en el mapa de IDs")
+                if not key or key not in id_map_lookup:
                     error_count += 1
                     continue
                 
                 original_meta = id_map_lookup[key]
                 
-                # Extraer respuesta del modelo
                 response_obj = result_item.get('response', {})
                 text = None
                 
                 try:
-                    # Estructura: response.candidates[0].content.parts[0].text
                     candidates = response_obj.get('candidates', [])
                     if candidates:
                         content = candidates[0].get('content', {})
                         parts = content.get('parts', [])
                         if parts:
                             text = parts[0].get('text')
-                except Exception as e:
-                    logging.warning(f"⚠️ Error extrayendo texto de respuesta: {e}")
+                except Exception:
+                    pass
                 
                 if not text:
-                    logging.warning(f"⚠️ Key '{key}' sin texto en respuesta")
                     error_count += 1
                     continue
                 
-                # Limpiar y parsear JSON del modelo
                 text = text.replace('```json', '').replace('```', '').strip()
                 
                 try:
                     analysis = json.loads(text)
-                    
-                    # Estampar metadatos de trazabilidad
                     analysis['fragment_id'] = original_meta['fragment_id']
                     analysis['parent_chapter_id'] = original_meta['parent_chapter_id']
-                    
                     results.append(analysis)
                     
-                except json.JSONDecodeError as e:
-                    logging.warning(f"⚠️ Key '{key}' - respuesta no es JSON válido: {e}")
+                except json.JSONDecodeError:
                     error_count += 1
             
             logging.info(f"✅ Procesados {len(results)} resultados exitosamente")
-            if error_count > 0:
-                logging.warning(f"⚠️ {error_count} items con errores")
             
-            # Limpiar archivos (best effort)
+            # Limpieza
             try:
                 client.files.delete(name=result_file_name)
-                logging.info(f"🗑️ Archivo de resultados eliminado")
-            except:
-                pass
-            
-            try:
                 uploaded_file = batch_info.get('uploaded_file_name')
                 if uploaded_file:
                     client.files.delete(name=uploaded_file)
-                    logging.info(f"🗑️ Archivo de entrada eliminado")
             except:
                 pass
             
-            # Retornar lista de análisis
             return results
         
         # ============ JOB FAILED ============
         elif 'FAILED' in job_state or 'CANCELLED' in job_state:
-            error_msg = "Unknown error"
-            if hasattr(job, 'error') and job.error:
-                error_msg = str(job.error)
-            
+            error_msg = str(getattr(job, 'error', 'Unknown error'))
             logging.error(f"❌ Job falló: {error_msg}")
             return {
                 "status": "failed",
@@ -187,7 +138,6 @@ def main(batch_info: dict) -> dict:
         
         # ============ JOB STILL PROCESSING ============
         else:
-            logging.info(f"⏳ Job aún procesando: {job_state}")
             return {
                 "status": "processing",
                 "state": job_state,
