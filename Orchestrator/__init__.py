@@ -448,8 +448,12 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
 # FUNCIONES AUXILIARES
 # =============================================================================
 
+# =============================================================================
+# REEMPLAZA tu función analyze_with_batch_api en Orchestrator/__init__.py
+# =============================================================================
+
 def analyze_with_batch_api(context, fragments):
-    """Analiza fragmentos usando Gemini Batch API."""
+    """Analiza fragmentos usando Gemini Batch API con retry + fallback a Claude."""
     logging.info(f"📦 Modo BATCH API: {len(fragments)} fragmentos")
     
     context.set_custom_status("📤 Enviando a Gemini Batch API...")
@@ -461,6 +465,8 @@ def analyze_with_batch_api(context, fragments):
     
     logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_name', 'N/A')}")
     
+    # Esperar resultado del batch
+    batch_results = []
     for attempt in range(BATCH_MAX_WAIT_MINUTES):
         context.set_custom_status(f"⏳ Esperando Batch API... ({attempt + 1}/{BATCH_MAX_WAIT_MINUTES} min)")
         
@@ -470,17 +476,91 @@ def analyze_with_batch_api(context, fragments):
         result = yield context.call_activity('PollBatchResult', batch_info)
         
         if isinstance(result, list):
-            logging.info(f"✅ Batch completado: {len(result)} análisis")
-            return result
+            batch_results = result
+            logging.info(f"✅ Batch completado: {len(batch_results)} análisis")
+            break
         
         if result.get('status') == 'failed':
             raise Exception(f"Batch falló: {result.get('error')}")
         
         batch_info = result
         logging.info(f"⏳ Batch aún procesando... (intento {attempt + 1})")
+    else:
+        raise Exception(f"Batch no completó en {BATCH_MAX_WAIT_MINUTES} minutos")
     
-    raise Exception(f"Batch no completó en {BATCH_MAX_WAIT_MINUTES} minutos")
-
+    # =========================================================================
+    # RETRY + FALLBACK: Procesar fragmentos que fallaron
+    # =========================================================================
+    MAX_RETRY_FRAGMENTS = 10  # Límite para evitar timeout de Azure
+    
+    # Identificar fragmentos exitosos (por fragment_id)
+    successful_ids = set()
+    for analysis in batch_results:
+        fid = analysis.get('fragment_id') or analysis.get('chapter_id')
+        if fid:
+            successful_ids.add(str(fid))
+    
+    # Encontrar fragmentos que fallaron
+    failed_fragments = []
+    for frag in fragments:
+        frag_id = str(frag.get('id', ''))
+        if frag_id not in successful_ids:
+            failed_fragments.append(frag)
+    
+    if not failed_fragments:
+        logging.info("✅ Todos los fragmentos procesados exitosamente")
+        return batch_results
+    
+    logging.warning(f"⚠️ {len(failed_fragments)} fragmentos fallaron en batch")
+    
+    # Limitar cantidad de retries
+    if len(failed_fragments) > MAX_RETRY_FRAGMENTS:
+        logging.warning(f"⚠️ Demasiados fallos ({len(failed_fragments)}), limitando a {MAX_RETRY_FRAGMENTS}")
+        failed_fragments = failed_fragments[:MAX_RETRY_FRAGMENTS]
+    
+    # PASO 1: Reintentar con Gemini síncrono
+    context.set_custom_status(f"🔄 Reintentando {len(failed_fragments)} fragmentos con Gemini...")
+    
+    still_failed = []
+    for i, frag in enumerate(failed_fragments):
+        frag_id = frag.get('id', '?')
+        context.set_custom_status(f"🔄 Retry Gemini {i+1}/{len(failed_fragments)}: frag {frag_id}")
+        
+        try:
+            retry_result = yield context.call_activity('AnalyzeChapter', frag)
+            
+            if retry_result.get('error') or retry_result.get('status') == 'error':
+                logging.warning(f"⚠️ Retry Gemini falló para frag {frag_id}")
+                still_failed.append(frag)
+            else:
+                logging.info(f"✅ Retry Gemini exitoso para frag {frag_id}")
+                batch_results.append(retry_result)
+        except Exception as e:
+            logging.warning(f"⚠️ Retry Gemini excepción para frag {frag_id}: {e}")
+            still_failed.append(frag)
+    
+    # PASO 2: Fallback a Claude para los que siguen fallando
+    if still_failed:
+        context.set_custom_status(f"🔀 Fallback Claude: {len(still_failed)} fragmentos...")
+        logging.info(f"🔀 Enviando {len(still_failed)} fragmentos a Claude como fallback")
+        
+        for i, frag in enumerate(still_failed):
+            frag_id = frag.get('id', '?')
+            context.set_custom_status(f"🔀 Claude fallback {i+1}/{len(still_failed)}: frag {frag_id}")
+            
+            try:
+                claude_result = yield context.call_activity('AnalyzeChapterWithClaude', frag)
+                
+                if claude_result and not claude_result.get('error'):
+                    logging.info(f"✅ Claude fallback exitoso para frag {frag_id}")
+                    batch_results.append(claude_result)
+                else:
+                    logging.error(f"❌ Claude fallback también falló para frag {frag_id}")
+            except Exception as e:
+                logging.error(f"❌ Claude fallback excepción para frag {frag_id}: {e}")
+    
+    logging.info(f"✅ Total análisis finales: {len(batch_results)}/{len(fragments)}")
+    return batch_results
 
 def analyze_with_simple_batches(context, fragments):
     """Analiza fragmentos en lotes pequeños (sin Batch API)."""

@@ -1,112 +1,20 @@
 # =============================================================================
-# SubmitBatchAnalysis/__init__.py
+# SubmitBatchAnalysis/__init__.py - SYLPHRENA 4.0 (CORREGIDO FINAL)
 # =============================================================================
 # 
-# USA LA GEMINI BATCH API (50% descuento)
-# Solo necesita: GEMINI_API_KEY (ya lo tienes)
-#
-# NO necesita:
-#   - Google Cloud Storage
-#   - Service Account JSON
-#   - GCP_PROJECT_ID
+# CORRECCIÓN CRÍTICA: Google usa "key" NO "custom_id"
+# Documentación: https://ai.google.dev/gemini-api/docs/batch-api
 #
 # =============================================================================
 
 import logging
 import json
 import os
+import time
+import tempfile
+from google import genai
 
-def main(chapters: list) -> dict:
-    """
-    Envía todos los capítulos a Gemini Batch API.
-    
-    Input: Lista de capítulos [{id, title, content}, ...]
-    Output: {batch_job_name, chapters_count, status}
-    """
-    try:
-        from google import genai
-        
-        # ─────────────────────────────────────────────────────────────────
-        # A. CONFIGURACIÓN
-        # ─────────────────────────────────────────────────────────────────
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            return {"error": "GEMINI_API_KEY no configurada", "status": "config_error"}
-        
-        logging.info(f"📦 Preparando batch de {len(chapters)} capítulos...")
-        
-        # Crear cliente
-        client = genai.Client(api_key=api_key)
-
-        # 🆕 GUARDAR ORDEN DE IDs
-        ordered_ids = [str(ch.get('id', '?')) for ch in chapters]
-        logging.info(f"📋 IDs en orden: {ordered_ids[:5]}...")
-        
-        # ─────────────────────────────────────────────────────────────────
-        # B. PREPARAR REQUESTS INLINE
-        # ─────────────────────────────────────────────────────────────────
-        batch_requests = []
-        
-        for chapter in chapters:
-            chapter_id = chapter.get('id', 0)
-            title = chapter.get('title', 'Sin título')
-            content = chapter.get('content', '')
-            is_fragment = chapter.get('is_fragment', False)
-            
-            prompt = build_analysis_prompt(chapter_id, title, content, is_fragment)
-            
-            # Formato para Batch API inline
-            request = {
-                "contents": [{
-                    "parts": [{"text": prompt}],
-                    "role": "user"
-                }]
-            }
-            batch_requests.append(request)
-        
-        logging.info(f"📝 {len(batch_requests)} requests preparados")
-        
-        # ─────────────────────────────────────────────────────────────────
-        # C. CREAR BATCH JOB
-        # ─────────────────────────────────────────────────────────────────
-        import time
-        timestamp = int(time.time())
-        
-        logging.info("🚀 Enviando a Gemini Batch API...")
-        
-        batch_job = client.batches.create(
-            model="models/gemini-2.5-flash",
-            src=batch_requests,
-            config={
-                "display_name": f"sylphrena-{timestamp}",
-            }
-        )
-        
-        logging.info(f"✅ Batch Job creado: {batch_job.name}")
-        logging.info(f"   Estado: {batch_job.state}")
-        
-        return {
-            "batch_job_name": batch_job.name,
-            "chapters_count": len(chapters),
-            "status": "submitted",
-            "state": str(batch_job.state) if batch_job.state else "PENDING",
-            "id_map": ordered_ids  # 🆕 MAPA DE IDs
-        }
-    
-    except ImportError as e:
-        logging.error(f"❌ SDK no instalado: {e}")
-        return {
-            "error": "Instala: pip install google-genai",
-            "status": "import_error"
-        }
-    except Exception as e:
-        logging.error(f"❌ Error creando batch: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
-        return {
-            "error": str(e),
-            "status": "error"
-        }
+logging.basicConfig(level=logging.INFO)
 
 
 def build_analysis_prompt(chapter_id, title, content, is_fragment):
@@ -148,3 +56,123 @@ Responde SOLO con JSON válido (sin markdown, sin ```) con esta estructura exact
     "repeticiones": []
   }}
 }}"""
+
+
+def main(chapters: list) -> dict:
+    """
+    Envía todos los fragmentos a Gemini Batch API mediante archivo JSONL.
+    """
+    try:
+        # A. CONFIGURACIÓN
+        api_key = os.environ.get('GEMINI_API_KEY')
+        if not api_key:
+            return {"error": "GEMINI_API_KEY no configurada", "status": "config_error"}
+        
+        logging.info(f"📦 Preparando batch de {len(chapters)} fragmentos...")
+        
+        client = genai.Client(api_key=api_key)
+        
+        # B. CONSTRUIR LÍNEAS JSONL
+        jsonl_lines = []
+        id_map = []
+        
+        for chapter in chapters:
+            fragment_id = chapter.get('id', 'ID_NULO')
+            parent_id = chapter.get('parent_chapter_id', 'PARENT_NULO')
+            title = chapter.get('original_title', chapter.get('title', 'Sin título'))
+            content = chapter.get('content', '')
+            is_fragment = chapter.get('is_fragment', False)
+            
+            # ⚠️ CRÍTICO: Google usa "key", NO "custom_id"
+            key = f"frag_{fragment_id}_parent_{parent_id}"
+            
+            prompt = build_analysis_prompt(fragment_id, title, content, is_fragment)
+            
+            # Estructura JSONL oficial de Google (con "key")
+            jsonl_entry = {
+                "key": key,  # ← CORRECTO según documentación Google
+                "request": {
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [{"text": prompt}]
+                        }
+                    ],
+                    "generationConfig": {
+                        "responseMimeType": "application/json"
+                    }
+                }
+            }
+            
+            jsonl_lines.append(json.dumps(jsonl_entry, ensure_ascii=False))
+            
+            id_map.append({
+                'key': key,  # ← Cambiado a "key" para consistencia
+                'fragment_id': fragment_id,
+                'parent_chapter_id': parent_id
+            })
+        
+        logging.info(f"📝 {len(jsonl_lines)} requests preparados en formato JSONL")
+        
+        # C. ESCRIBIR ARCHIVO TEMPORAL JSONL
+        timestamp = int(time.time())
+        temp_dir = tempfile.gettempdir()
+        temp_filename = os.path.join(temp_dir, f"batch_requests_{timestamp}.jsonl")
+        
+        with open(temp_filename, 'w', encoding='utf-8') as f:
+            for line in jsonl_lines:
+                f.write(line + "\n")
+        
+        logging.info(f"📄 Archivo JSONL creado en: {temp_filename}")
+        
+        # D. SUBIR ARCHIVO A GOOGLE FILES API
+        logging.info("☁️ Subiendo archivo a Google Files API...")
+        
+        uploaded_file = client.files.upload(
+            file=temp_filename,
+            config={
+                'display_name': f"sylphrena-batch-{timestamp}",
+                'mime_type': "application/jsonl"
+            }
+        )
+        
+        logging.info(f"✅ Archivo subido: {uploaded_file.name}")
+        
+        # E. CREAR BATCH JOB
+        logging.info("🚀 Creando Batch Job...")
+        
+        batch_job = client.batches.create(
+            model="models/gemini-2.5-flash",
+            src=uploaded_file.name,
+            config={
+                'display_name': f"sylphrena-analysis-{timestamp}"
+            }
+        )
+        
+        logging.info(f"✅ Batch Job creado: {batch_job.name}")
+        logging.info(f"📊 Estado inicial: {batch_job.state}")
+        
+        # F. LIMPIAR ARCHIVO TEMPORAL LOCAL
+        try:
+            os.remove(temp_filename)
+        except:
+            pass
+        
+        # G. RETORNAR RESULTADO
+        return {
+            "batch_job_name": batch_job.name,
+            "uploaded_file_name": uploaded_file.name,
+            "chapters_count": len(chapters),
+            "status": "submitted",
+            "state": str(batch_job.state),
+            "id_map": id_map
+        }
+    
+    except Exception as e:
+        logging.error(f"❌ Error creando batch: {str(e)}")
+        import traceback
+        logging.error(traceback.format_exc())
+        return {
+            "error": str(e),
+            "status": "error"
+        }

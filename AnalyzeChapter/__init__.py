@@ -1,20 +1,18 @@
 # =============================================================================
-# AnalyzeChapter/__init__.py - SYLPHRENA 4.0
+# AnalyzeChapter/__init__.py - SYLPHRENA 4.0 (MIGRADO A SDK V1)
 # =============================================================================
-# CAMBIOS DESDE 3.1:
-#   - Recibe y procesa metadatos jerárquicos completos
-#   - Prompt contextualizado según posición del fragmento
-#   - Advertencias específicas para fragmentos intermedios/finales
-#   - Métricas expandidas para análisis de Capa 2 y 3
+# CAMBIOS:
+#   - Migrado a 'google-genai' (SDK nuevo) para eliminar conflicto de dependencias.
+#   - Modelo actualizado a 'gemini-2.5-flash' (Estable).
+#   - Estructura de configuración actualizada.
 # =============================================================================
 
 import logging
 import json
 import os
-import re
 import time as time_module
-import google.generativeai as genai
-from google.api_core import exceptions
+from google import genai
+from google.genai import types
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 logging.basicConfig(level=logging.INFO)
@@ -224,33 +222,29 @@ def get_context_warning(fragment: dict) -> str:
 
 # Estrategia de reintentos
 retry_strategy = retry(
-    retry=retry_if_exception_type((
-        exceptions.ResourceExhausted, 
-        exceptions.ServiceUnavailable, 
-        exceptions.DeadlineExceeded
-    )),
+    retry=retry_if_exception_type((Exception,)), # Captura genérica segura para nuevo SDK
     wait=wait_exponential(multiplier=1.5, min=2, max=30),
     stop=stop_after_attempt(5),
     reraise=True
 )
 
 @retry_strategy
-def call_gemini_with_retry(model, prompt):
-    """Llamada a Gemini con reintentos y safety settings."""
-    return model.generate_content(
-        prompt,
-        generation_config={
-            "temperature": 0.2,
-            "max_output_tokens": 8192,
-            "response_mime_type": "application/json"
-        },
-        request_options={'timeout': 90},
-        safety_settings={
-            "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
-            "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
-            "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
-            "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
-        }
+def call_gemini_with_retry(client, prompt):
+    """Llamada a Gemini con reintentos usando SDK google-genai v1."""
+    return client.models.generate_content(
+        model='gemini-2.5-flash', # Modelo estable actualizado
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.2,
+            max_output_tokens=8192,
+            response_mime_type="application/json",
+            safety_settings=[
+                types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+                types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+                types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+                types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+            ]
+        )
     )
 
 
@@ -277,9 +271,7 @@ def build_analysis_prompt(fragment: dict) -> str:
 def main(fragment_json) -> dict:
     """
     Analiza un fragmento con Gemini 2.5 Flash, preservando contexto jerárquico.
-    
-    Input: Fragmento con metadatos jerárquicos completos
-    Output: Análisis de Capa 1 con toda la información estructurada
+    MIGRADO A SDK google-genai
     """
     fragment_id = "Desconocido"
     parent_chapter = "Sin título"
@@ -304,25 +296,24 @@ def main(fragment_json) -> dict:
         
         logging.info(f"🔍 Analizando fragmento {fragment_id} | Cap: {parent_chapter} | Frag {fragment_index}/{total_fragments}")
 
-        # C. Configurar Gemini
+        # C. Configurar Gemini (SDK Nuevo)
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             return {"error": "No API Key", "fragment_id": fragment_id}
 
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('models/gemini-2.5-flash-preview-05-20')
+        client = genai.Client(api_key=api_key)
 
         # D. Construir prompt contextualizado
         prompt = build_analysis_prompt(fragment)
         
         # E. Llamar a Gemini
         start_gemini = time_module.time()
-        response = call_gemini_with_retry(model, prompt)
+        response = call_gemini_with_retry(client, prompt)
         gemini_elapsed = time_module.time() - start_gemini
         
         logging.info(f"⏱️ Análisis completado en {gemini_elapsed:.2f}s")
         
-        if not response.candidates:
+        if not response.text:
             raise ValueError("Respuesta vacía o bloqueada")
 
         # F. Parsear respuesta
@@ -350,6 +341,7 @@ def main(fragment_json) -> dict:
         analysis['_metadata'] = {
             'status': 'success', 
             'model': 'gemini-2.5-flash',
+            'sdk': 'google-genai-v1',
             'processing_time_seconds': round(gemini_elapsed, 2),
             'analysis_layer': 1
         }
