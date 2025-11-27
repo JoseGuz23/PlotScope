@@ -2,7 +2,7 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "chunk_input",
+      "name": "chapter_consolidated",
       "type": "activityTrigger",
       "direction": "in"
     }

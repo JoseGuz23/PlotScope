@@ -1,6 +1,16 @@
 # =============================================================================
-# Orchestrator/__init__.py - VERSIÓN 3.1 COMPLETA (CORREGIDA)
+# Orchestrator/__init__.py - SYLPHRENA 4.0
 # =============================================================================
+# CAMBIOS DESDE 3.1:
+#   - Pipeline de análisis multi-capa (Capa 1, 2, 3)
+#   - Consolidación de fragmentos con contexto jerárquico
+#   - Análisis de causalidad narrativa
+#   - Validación cruzada de Biblia
+#   - Generación de mapas de arco por capítulo
+#   - Edición con validación de impacto
+#   - Reconstrucción de manuscrito normalizado
+# =============================================================================
+
 import azure.functions as func
 import azure.durable_functions as df
 import logging
@@ -8,23 +18,46 @@ import json
 from datetime import timedelta
 
 # =============================================================================
-# CONFIGURACIÓN
+# CONFIGURACIÓN SYLPHRENA 4.0
 # =============================================================================
 
-USE_BATCH_API = True
-USE_LANGUAGETOOL = False  # Desactivado (rate limit + poco beneficio)
+# Modos de procesamiento
+USE_BATCH_API = True                    # Usar Gemini Batch API (50% descuento)
+USE_CLAUDE_BATCH = True                 # Usar Claude Batch API (50% descuento)
+ENABLE_IMPACT_VALIDATION = True         # Validar impacto de ediciones
+ENABLE_CAUSALITY_ANALYSIS = True        # Análisis de causalidad narrativa
+ENABLE_CROSS_VALIDATION = True          # Validación cruzada de Biblia
 
+# Límites de concurrencia
 ANALYSIS_BATCH_SIZE = 5
 EDIT_BATCH_SIZE = 3
 
+# Tiempos de espera para Batch APIs
 BATCH_POLL_INTERVAL_SECONDS = 60
-BATCH_MAX_WAIT_MINUTES = 30
-
+BATCH_MAX_WAIT_MINUTES = 45
 CLAUDE_BATCH_MAX_WAIT_MINUTES = 120
 CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120
 
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
+    """
+    Orquestador principal de Sylphrena 4.0.
+    
+    Pipeline completo:
+    1. Segmentación con metadatos jerárquicos
+    2. Análisis Capa 1 (Gemini Flash) - Extracción factual
+    3. Consolidación de fragmentos por capítulo
+    4. Análisis Capa 2 (Gemini Pro) - Patrones estructurales
+    5. Análisis Capa 3 (Gemini Pro Deep Think) - Evaluación cualitativa
+    6. Lectura Holística
+    7. Síntesis de Biblia inicial
+    8. Análisis de Causalidad
+    9. Validación Cruzada de Biblia
+    10. Generación de Mapas de Arco
+    11. Edición con Claude (validación de impacto)
+    12. Reconstrucción de Manuscrito
+    13. Guardado de Outputs
+    """
     try:
         book_path = context.get_input()
         start_time = context.current_utc_datetime
@@ -33,223 +66,367 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         # Extraer nombre del libro
         book_name = book_path.split('/')[-1].split('.')[0] if book_path else "libro"
         
-        # =================================================================
-        # 1. SEGMENTACIÓN
-        # =================================================================
-        context.set_custom_status("📚 Segmentando libro...")
-        logging.info("🎬 Iniciando Sylphrena v3.1")
+        tiempos = {}
         
-        chapters = yield context.call_activity('SegmentBook', book_path)
+        # =================================================================
+        # FASE 1: SEGMENTACIÓN CON METADATOS JERÁRQUICOS
+        # =================================================================
+        context.set_custom_status("📚 Fase 1/13: Segmentando libro con contexto jerárquico...")
+        logging.info("🎬 Iniciando Sylphrena v4.0")
+        
+        segmentation_result = yield context.call_activity('SegmentBook', book_path)
+        
+        # Extraer componentes del resultado
+        fragments = segmentation_result.get('fragments', [])
+        book_metadata = segmentation_result.get('book_metadata', {})
+        chapter_map = segmentation_result.get('chapter_map', {})
         
         seg_time = context.current_utc_datetime
-        if not chapters:
-            raise ValueError("La segmentación no devolvió capítulos.")
+        tiempos['segmentacion'] = f"{(seg_time - start_time).total_seconds():.1f}s"
+        
+        if not fragments:
+            raise ValueError("La segmentación no devolvió fragmentos.")
 
-        total_chapters = len(chapters)
-        seg_seconds = (seg_time - start_time).total_seconds()
-        logging.info(f"✅ Segmentación: {total_chapters} capítulos en {seg_seconds:.1f}s")
+        total_fragments = len(fragments)
+        total_chapters = len(chapter_map)
+        total_words = book_metadata.get('total_words', 0)
+        
+        logging.info(f"✅ Segmentación: {total_chapters} capítulos, {total_fragments} fragmentos, {total_words:,} palabras")
         
         # =================================================================
-        # 2. ANÁLISIS
+        # FASE 2: ANÁLISIS CAPA 1 (EXTRACCIÓN FACTUAL)
         # =================================================================
+        context.set_custom_status(f"🔍 Fase 2/13: Análisis Capa 1 ({total_fragments} fragmentos)...")
+        
         if USE_BATCH_API:
-            chapter_analyses = yield from analyze_with_batch_api(context, chapters)
+            fragment_analyses = yield from analyze_with_batch_api(context, fragments)
         else:
-            chapter_analyses = yield from analyze_with_simple_batches(context, chapters)
+            fragment_analyses = yield from analyze_with_simple_batches(context, fragments)
         
         analysis_time = context.current_utc_datetime
-        analysis_seconds = (analysis_time - seg_time).total_seconds()
-        logging.info(f"✅ Análisis completado en {analysis_seconds:.1f}s")
+        tiempos['analisis_capa1'] = f"{(analysis_time - seg_time).total_seconds():.1f}s"
+        logging.info(f"✅ Análisis Capa 1 completado: {len(fragment_analyses)} fragmentos analizados")
         
         # =================================================================
-        # 3. LECTURA HOLÍSTICA
+        # FASE 3: CONSOLIDACIÓN DE FRAGMENTOS POR CAPÍTULO
         # =================================================================
-        context.set_custom_status("📖 Lectura holística del libro...")
+        context.set_custom_status("🔧 Fase 3/13: Consolidando fragmentos por capítulo...")
         
+        consolidated_analyses = yield context.call_activity(
+            'ConsolidateFragmentAnalyses',
+            {
+                'fragment_analyses': fragment_analyses,
+                'chapter_map': chapter_map
+            }
+        )
+        
+        consolidation_time = context.current_utc_datetime
+        tiempos['consolidacion'] = f"{(consolidation_time - analysis_time).total_seconds():.1f}s"
+        logging.info(f"✅ Consolidación: {len(consolidated_analyses)} capítulos")
+        
+        # =================================================================
+        # FASE 4: ANÁLISIS CAPA 2 (PATRONES ESTRUCTURALES)
+        # =================================================================
+        context.set_custom_status(f"📊 Fase 4/13: Análisis Capa 2 - Patrones estructurales...")
+        
+        layer2_analyses = []
+        for i, chapter_analysis in enumerate(consolidated_analyses):
+            context.set_custom_status(f"📊 Fase 4/13: Capa 2 - Capítulo {i+1}/{len(consolidated_analyses)}")
+            
+            layer2_result = yield context.call_activity(
+                'StructuralPatternAnalysis',
+                chapter_analysis
+            )
+            
+            # Enriquecer el análisis consolidado con Capa 2
+            chapter_analysis['layer2_structural'] = layer2_result
+            layer2_analyses.append(chapter_analysis)
+        
+        layer2_time = context.current_utc_datetime
+        tiempos['analisis_capa2'] = f"{(layer2_time - consolidation_time).total_seconds():.1f}s"
+        logging.info(f"✅ Análisis Capa 2 completado")
+        
+        # =================================================================
+        # FASE 5: ANÁLISIS CAPA 3 (EVALUACIÓN CUALITATIVA)
+        # =================================================================
+        context.set_custom_status(f"🧠 Fase 5/13: Análisis Capa 3 - Evaluación cualitativa (Deep Think)...")
+        
+        layer3_analyses = []
+        for i, chapter_analysis in enumerate(layer2_analyses):
+            context.set_custom_status(f"🧠 Fase 5/13: Capa 3 - Capítulo {i+1}/{len(layer2_analyses)}")
+            
+            layer3_result = yield context.call_activity(
+                'QualitativeEffectivenessAnalysis',
+                {
+                    'chapter_analysis': chapter_analysis,
+                    'previous_chapters': layer3_analyses  # Contexto de capítulos previos
+                }
+            )
+            
+            # Enriquecer con Capa 3
+            chapter_analysis['layer3_qualitative'] = layer3_result
+            layer3_analyses.append(chapter_analysis)
+        
+        layer3_time = context.current_utc_datetime
+        tiempos['analisis_capa3'] = f"{(layer3_time - layer2_time).total_seconds():.1f}s"
+        logging.info(f"✅ Análisis Capa 3 completado")
+        
+        # =================================================================
+        # FASE 6: LECTURA HOLÍSTICA
+        # =================================================================
+        context.set_custom_status("📖 Fase 6/13: Lectura holística del libro completo...")
+        
+        # Reconstruir texto completo desde fragmentos originales
         full_book_text = "\n\n---\n\n".join([
-            f"CAPÍTULO: {ch['title']}\n\n{ch['content']}" 
-            for ch in chapters
+            f"CAPÍTULO: {frag['title']}\n\n{frag['content']}" 
+            for frag in fragments
         ])
-        
-        word_count = len(full_book_text.split())
-        logging.info(f"📖 Enviando {word_count:,} palabras a lectura holística...")
         
         holistic_analysis = yield context.call_activity('HolisticReading', full_book_text)
         
         holistic_time = context.current_utc_datetime
-        holistic_seconds = (holistic_time - analysis_time).total_seconds()
-        logging.info(f"✅ Lectura holística en {holistic_seconds:.1f}s")
-
+        tiempos['holistica'] = f"{(holistic_time - layer3_time).total_seconds():.1f}s"
+        logging.info(f"✅ Lectura holística completada")
+        
         # =================================================================
-        # 4. CREAR BIBLIA
+        # FASE 7: SÍNTESIS DE BIBLIA INICIAL
         # =================================================================
-        context.set_custom_status("📜 Construyendo Biblia Narrativa...")
+        context.set_custom_status("📜 Fase 7/13: Construyendo Biblia Narrativa...")
         
         bible_input = {
-            "chapter_analyses": chapter_analyses,
-            "holistic_analysis": holistic_analysis
+            "chapter_analyses": layer3_analyses,  # Incluye Capa 1, 2, 3
+            "holistic_analysis": holistic_analysis,
+            "book_metadata": book_metadata
         }
         
-        bible = yield context.call_activity('CreateBible', json.dumps(bible_input))
+        bible_initial = yield context.call_activity('CreateBible', json.dumps(bible_input))
         
         bible_time = context.current_utc_datetime
-        bible_seconds = (bible_time - holistic_time).total_seconds()
-        logging.info(f"✅ Biblia creada en {bible_seconds:.1f}s")
-
+        tiempos['biblia_inicial'] = f"{(bible_time - holistic_time).total_seconds():.1f}s"
+        logging.info(f"✅ Biblia inicial creada")
+        
         # =================================================================
-        # 5. CORRECCIÓN MECÁNICA (opcional)
+        # FASE 8: ANÁLISIS DE CAUSALIDAD (OPCIONAL)
         # =================================================================
-        if USE_LANGUAGETOOL:
-            context.set_custom_status("🔧 Corrección mecánica...")
-            corrected_chapters = yield from apply_mechanical_corrections(context, chapters)
-            mechanical_seconds = (context.current_utc_datetime - bible_time).total_seconds()
+        if ENABLE_CAUSALITY_ANALYSIS:
+            context.set_custom_status("🔗 Fase 8/13: Análisis de causalidad narrativa...")
+            
+            # Extraer todos los eventos de todos los análisis
+            all_events = []
+            for chapter in layer3_analyses:
+                eventos = chapter.get('eventos', [])
+                chapter_id = chapter.get('chapter_id', '?')
+                for evento in eventos:
+                    evento['source_chapter'] = chapter_id
+                    all_events.append(evento)
+            
+            causality_result = yield context.call_activity(
+                'CausalityGraphAnalysis',
+                {'events': all_events, 'chapters': layer3_analyses}
+            )
+            
+            # Agregar a la Biblia
+            bible_initial['analisis_causalidad'] = causality_result
+            
+            causality_time = context.current_utc_datetime
+            tiempos['causalidad'] = f"{(causality_time - bible_time).total_seconds():.1f}s"
+            logging.info(f"✅ Análisis de causalidad completado")
         else:
-            corrected_chapters = chapters
-            mechanical_seconds = 0
-            logging.info("⏭️ LanguageTool deshabilitado")
-
+            causality_time = bible_time
+            tiempos['causalidad'] = "omitido"
+        
         # =================================================================
-        # 6. EDICIÓN CON CLAUDE BATCH API (LÓGICA CORREGIDA AQUI ABAJO)
+        # FASE 9: VALIDACIÓN CRUZADA DE BIBLIA
         # =================================================================
-        context.set_custom_status("✏️ Edición con Claude Batch...")
+        if ENABLE_CROSS_VALIDATION:
+            context.set_custom_status("✅ Fase 9/13: Validación cruzada de Biblia...")
+            
+            validation_result = yield context.call_activity(
+                'ValidateBibleCrossCheck',
+                {
+                    'bible': bible_initial,
+                    'chapter_analyses': layer3_analyses
+                }
+            )
+            
+            # La Biblia validada reemplaza a la inicial
+            bible_validated = validation_result.get('bible_validated', bible_initial)
+            bible_validated['validacion_cruzada'] = validation_result.get('validation_report', {})
+            
+            validation_time = context.current_utc_datetime
+            tiempos['validacion_cruzada'] = f"{(validation_time - causality_time).total_seconds():.1f}s"
+            logging.info(f"✅ Validación cruzada completada")
+        else:
+            bible_validated = bible_initial
+            validation_time = causality_time
+            tiempos['validacion_cruzada'] = "omitido"
+        
+        # =================================================================
+        # FASE 10: GENERACIÓN DE MAPAS DE ARCO POR CAPÍTULO
+        # =================================================================
+        context.set_custom_status("🗺️ Fase 10/13: Generando mapas de arco por capítulo...")
+        
+        arc_maps = {}
+        for i, chapter in enumerate(layer3_analyses):
+            chapter_id = chapter.get('chapter_id', i)
+            
+            arc_map = yield context.call_activity(
+                'GenerateArcMapForChapter',
+                {
+                    'bible': bible_validated,
+                    'chapter_id': chapter_id,
+                    'chapter_analysis': chapter
+                }
+            )
+            arc_maps[str(chapter_id)] = arc_map
+        
+        arcmap_time = context.current_utc_datetime
+        tiempos['mapas_arco'] = f"{(arcmap_time - validation_time).total_seconds():.1f}s"
+        logging.info(f"✅ {len(arc_maps)} mapas de arco generados")
+        
+        # =================================================================
+        # FASE 11: EDICIÓN CON CLAUDE (VALIDACIÓN DE IMPACTO)
+        # =================================================================
+        context.set_custom_status("✏️ Fase 11/13: Edición con Claude...")
         pre_edit_time = context.current_utc_datetime
         
-        edited_chapters = yield from edit_with_claude_batch(context, corrected_chapters, chapter_analyses, bible)
-
-        edit_time = context.current_utc_datetime
-        edit_seconds = (edit_time - pre_edit_time).total_seconds()
-        logging.info(f"✅ Edición completada en {edit_seconds:.1f}s")
-
-        # =================================================================
-        # 7. GUARDAR OUTPUTS ORGANIZADOS
-        # =================================================================
-        context.set_custom_status("💾 Guardando resultados...")
+        # Preparar datos para edición
+        edit_requests = []
+        for fragment in fragments:
+            parent_id = fragment.get('parent_chapter_id', fragment.get('id'))
+            
+            # Encontrar análisis correspondiente
+            analysis = next(
+                (a for a in layer3_analyses if str(a.get('chapter_id')) == str(parent_id)),
+                {}
+            )
+            
+            # Obtener mapa de arco
+            arc_map = arc_maps.get(str(parent_id), {})
+            
+            # Determinar si es capítulo crítico (requiere validación de impacto)
+            is_critical = arc_map.get('es_critico_estructuralmente', False)
+            
+            edit_requests.append({
+                'chapter': fragment,
+                'bible': bible_validated,
+                'analysis': analysis,
+                'arc_map': arc_map,
+                'is_critical': is_critical and ENABLE_IMPACT_VALIDATION
+            })
         
-        tiempos = {
-            'segmentacion': f"{seg_seconds:.1f}s",
-            'analisis': f"{analysis_seconds:.1f}s",
-            'holistica': f"{holistic_seconds:.1f}s",
-            'biblia': f"{bible_seconds:.1f}s",
-            'mecanica': f"{mechanical_seconds:.1f}s",
-            'edicion': f"{edit_seconds:.1f}s",
-            'total': f"{(edit_time - start_time).total_seconds()/60:.1f} min"
-        }
+        # Ejecutar edición (batch o secuencial)
+        if USE_CLAUDE_BATCH:
+            edited_fragments = yield from edit_with_claude_batch(
+                context, edit_requests, bible_validated, layer3_analyses, arc_maps
+            )
+        else:
+            edited_fragments = yield from edit_sequentially(context, edit_requests)
+        
+        edit_time = context.current_utc_datetime
+        tiempos['edicion'] = f"{(edit_time - pre_edit_time).total_seconds():.1f}s"
+        logging.info(f"✅ Edición completada: {len(edited_fragments)} fragmentos")
+        
+        # =================================================================
+        # FASE 12: RECONSTRUCCIÓN DE MANUSCRITO
+        # =================================================================
+        context.set_custom_status("📄 Fase 12/13: Reconstruyendo manuscrito...")
+        
+        reconstruct_result = yield context.call_activity(
+            'ReconstructManuscript',
+            {
+                'edited_chapters': edited_fragments,
+                'book_name': book_name,
+                'bible': bible_validated
+            }
+        )
+        
+        manuscripts = reconstruct_result.get('manuscripts', {})
+        consolidated_chapters = reconstruct_result.get('consolidated_chapters', [])
+        reconstruction_stats = reconstruct_result.get('statistics', {})
+        
+        reconstruct_time = context.current_utc_datetime
+        tiempos['reconstruccion'] = f"{(reconstruct_time - edit_time).total_seconds():.1f}s"
+        logging.info(f"✅ Manuscrito reconstruido")
+        
+        # =================================================================
+        # FASE 13: GUARDADO DE OUTPUTS
+        # =================================================================
+        context.set_custom_status("💾 Fase 13/13: Guardando resultados...")
         
         save_input = {
             'job_id': instance_id,
             'book_name': book_name,
-            'bible': bible,
-            'edited_chapters': edited_chapters,
-            'original_chapters': chapters,
+            'bible': bible_validated,
+            'manuscripts': manuscripts,
+            'consolidated_chapters': consolidated_chapters,
+            'original_chapters': fragments,
+            'statistics': reconstruction_stats,
             'tiempos': tiempos
         }
         
         save_result = yield context.call_activity('SaveOutputs', save_input)
         
-        logging.info(f"💾 Outputs guardados: {save_result.get('status')}")
-
-        # =================================================================
-        # 8. RESULTADO FINAL CON COSTOS
-        # =================================================================
-        context.set_custom_status("✅ Completado")
+        save_time = context.current_utc_datetime
+        tiempos['guardado'] = f"{(save_time - reconstruct_time).total_seconds():.1f}s"
+        tiempos['total'] = f"{(save_time - start_time).total_seconds() / 60:.1f} min"
         
-        total_seconds = (edit_time - start_time).total_seconds()
-        tokens_libro = int(word_count * 1.33)
+        logging.info(f"💾 Outputs guardados: {save_result.get('status')}")
+        
+        # =================================================================
+        # RESULTADO FINAL
+        # =================================================================
+        context.set_custom_status("✅ Completado - Sylphrena 4.0")
         
         # Calcular costos estimados
-        costos = {
-            'segmentacion': round(tokens_libro * 0.10 / 1_000_000, 4),
-            'analisis_batch': round(tokens_libro * 0.05 / 1_000_000, 4),
-            'holistica': round(tokens_libro * 1.25 / 1_000_000 + 5000 * 5.00 / 1_000_000, 4),
-            'biblia': round(len(chapter_analyses) * 300 * 1.25 / 1_000_000 + 8000 * 5.00 / 1_000_000, 4),
-            'edicion_input': round(tokens_libro * 2 * 1.50 / 1_000_000, 4),
-            'edicion_output': round(tokens_libro * 1.1 * 7.50 / 1_000_000, 4),
-            'infraestructura': 0.05
-        }
-        costos['total'] = round(sum(costos.values()), 2)
+        costos = calculate_costs_v4(
+            total_words, total_chapters, total_fragments,
+            len(layer3_analyses), len(edited_fragments)
+        )
         
         logging.info(f"💰 COSTO TOTAL ESTIMADO: ${costos['total']:.2f}")
         
         return {
             'status': 'completed',
-            'version': 'v3.1',
+            'version': 'v4.0',
             'job_id': instance_id,
             'book_name': book_name,
-            'palabras': word_count,
+            'palabras': total_words,
             'total_chapters': total_chapters,
-            'chapters_analyzed': len(chapter_analyses),
-            'chapters_edited': len(edited_chapters),
+            'total_fragments': total_fragments,
+            'chapters_analyzed': len(layer3_analyses),
+            'fragments_edited': len(edited_fragments),
             'tiempos': tiempos,
             'costos': costos,
             'outputs': save_result.get('urls', {}),
             'outputs_container': save_result.get('container', 'sylphrena-outputs'),
             'outputs_path': save_result.get('base_path', instance_id),
+            'reconstruction_stats': reconstruction_stats
         }
         
     except Exception as e:
-        logging.error(f"💥 Error fatal: {str(e)}")
+        logging.error(f"💥 Error fatal en Orchestrator 4.0: {str(e)}")
         import traceback
         logging.error(traceback.format_exc())
         
         return {
             'status': 'error',
+            'version': 'v4.0',
             'message': str(e)
         }
 
 
 # =============================================================================
-# ANÁLISIS CON LOTES SIMPLES
+# FUNCIONES AUXILIARES
 # =============================================================================
 
-def analyze_with_simple_batches(context, chapters):
-    """Analiza capítulos en lotes pequeños (sin Batch API)."""
-    total_chapters = len(chapters)
-    total_batches = (total_chapters + ANALYSIS_BATCH_SIZE - 1) // ANALYSIS_BATCH_SIZE
-    
-    logging.info(f"📊 Modo LOTES SIMPLES: {total_batches} lotes de {ANALYSIS_BATCH_SIZE}")
-    
-    all_analyses = []
-    failed = []
-    
-    for batch_num, i in enumerate(range(0, total_chapters, ANALYSIS_BATCH_SIZE), 1):
-        batch = chapters[i:i + ANALYSIS_BATCH_SIZE]
-        batch_ids = [ch.get('id', '?') for ch in batch]
-        
-        context.set_custom_status(f"🔍 Analizando lote {batch_num}/{total_batches}")
-        logging.info(f"🔍 Lote {batch_num}/{total_batches}: IDs {batch_ids}")
-        
-        try:
-            tasks = [context.call_activity('AnalyzeChapter', ch) for ch in batch]
-            results = yield context.task_all(tasks)
-            
-            for result in results:
-                if result.get('error') or result.get('status') == 'fatal_error':
-                    failed.append(result)
-                else:
-                    all_analyses.append(result)
-            
-            logging.info(f"✅ Lote {batch_num} completado")
-            
-        except Exception as e:
-            logging.error(f"❌ Error en lote {batch_num}: {e}")
-            for ch in batch:
-                failed.append({'chapter_id': ch.get('id'), 'error': str(e)})
-    
-    logging.info(f"📊 Análisis: {len(all_analyses)} OK, {len(failed)} fallidos")
-    return all_analyses
-
-
-# =============================================================================
-# ANÁLISIS CON BATCH API
-# =============================================================================
-
-def analyze_with_batch_api(context, chapters):
-    """Analiza capítulos usando Gemini Batch API."""
-    logging.info(f"📦 Modo BATCH API: {len(chapters)} capítulos")
+def analyze_with_batch_api(context, fragments):
+    """Analiza fragmentos usando Gemini Batch API."""
+    logging.info(f"📦 Modo BATCH API: {len(fragments)} fragmentos")
     
     context.set_custom_status("📤 Enviando a Gemini Batch API...")
     
-    batch_info = yield context.call_activity('SubmitBatchAnalysis', chapters)
+    batch_info = yield context.call_activity('SubmitBatchAnalysis', fragments)
     
     if batch_info.get('error'):
         raise Exception(f"Error creando batch: {batch_info.get('error')}")
@@ -277,67 +454,48 @@ def analyze_with_batch_api(context, chapters):
     raise Exception(f"Batch no completó en {BATCH_MAX_WAIT_MINUTES} minutos")
 
 
-# =============================================================================
-# CORRECCIÓN MECÁNICA
-# =============================================================================
-
-def apply_mechanical_corrections(context, chapters):
-    """Aplica corrección mecánica a todos los capítulos."""
-    logging.info(f"🔧 Aplicando corrección mecánica a {len(chapters)} capítulos...")
-    context.set_custom_status("🔧 Corrección mecánica (LanguageTool)")
+def analyze_with_simple_batches(context, fragments):
+    """Analiza fragmentos en lotes pequeños (sin Batch API)."""
+    total_fragments = len(fragments)
+    total_batches = (total_fragments + ANALYSIS_BATCH_SIZE - 1) // ANALYSIS_BATCH_SIZE
     
-    corrected_chapters = []
-    total_corrections = 0
+    logging.info(f"📊 Modo LOTES SIMPLES: {total_batches} lotes de {ANALYSIS_BATCH_SIZE}")
     
-    MECHANICAL_BATCH_SIZE = 5
+    all_analyses = []
     
-    for i in range(0, len(chapters), MECHANICAL_BATCH_SIZE):
-        batch = chapters[i:i + MECHANICAL_BATCH_SIZE]
+    for batch_num, i in enumerate(range(0, total_fragments, ANALYSIS_BATCH_SIZE), 1):
+        batch = fragments[i:i + ANALYSIS_BATCH_SIZE]
         
-        tasks = [context.call_activity('MechanicalCorrection', ch) for ch in batch]
+        context.set_custom_status(f"🔍 Analizando lote {batch_num}/{total_batches}")
+        
+        tasks = [context.call_activity('AnalyzeChapter', frag) for frag in batch]
         results = yield context.task_all(tasks)
         
         for result in results:
-            corrected_chapters.append(result)
-            total_corrections += result.get('corrections_count', 0)
+            if not result.get('error'):
+                all_analyses.append(result)
     
-    logging.info(f"✅ Corrección mecánica: {total_corrections} correcciones totales")
-    return corrected_chapters
+    return all_analyses
 
 
-# =============================================================================
-# EDICIÓN CON CLAUDE BATCH API
-# =============================================================================
-
-def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
-    """Edita capítulos usando Claude Batch API (50% descuento)."""
+def edit_with_claude_batch(context, edit_requests, bible, analyses, arc_maps):
+    """Edita capítulos usando Claude Batch API."""
     
-    chapters_to_edit = []
-    for chapter in chapters:
-        ch_id = str(chapter.get('id'))
-        analysis = next(
-            (a for a in chapter_analyses if str(a.get('chapter_id')) == ch_id),
-            None
-        )
-        if analysis:
-            chapters_to_edit.append(chapter)
+    # Extraer solo los datos necesarios para el batch
+    chapters = [req['chapter'] for req in edit_requests]
     
-    total_to_edit = len(chapters_to_edit)
-    logging.info(f"✏️ Enviando {total_to_edit} capítulos a Claude Batch API")
-    
-    if total_to_edit == 0:
-        logging.warning("⚠️ No hay capítulos para editar")
-        return []
+    logging.info(f"✏️ Enviando {len(chapters)} fragmentos a Claude Batch API")
     
     context.set_custom_status("📤 Enviando a Claude Batch API...")
     
-    edit_request = {
-        'chapters': chapters_to_edit,
+    batch_request = {
+        'chapters': chapters,
         'bible': bible,
-        'analyses': chapter_analyses
+        'analyses': analyses,
+        'arc_maps': arc_maps
     }
     
-    batch_info = yield context.call_activity('SubmitClaudeBatch', edit_request)
+    batch_info = yield context.call_activity('SubmitClaudeBatch', batch_request)
     
     if batch_info.get('error'):
         raise Exception(f"Error creando Claude batch: {batch_info.get('error')}")
@@ -348,40 +506,81 @@ def edit_with_claude_batch(context, chapters, chapter_analyses, bible):
     for attempt in range(CLAUDE_BATCH_MAX_WAIT_MINUTES):
         context.set_custom_status(f"⏳ Esperando Claude Batch... ({attempt + 1}/{CLAUDE_BATCH_MAX_WAIT_MINUTES} min)")
         
-        # Esperar
         next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_BATCH_POLL_INTERVAL_SECONDS)
         yield context.create_timer(next_check)
         
-        # Consultar
         result = yield context.call_activity('PollClaudeBatchResult', batch_info)
         
-        # === 🛡️ LOGGING DE DIAGNÓSTICO (PARA VERIFICAR QUE NO ESTÁ VACÍO) ===
-        res_type = "LISTA" if isinstance(result, list) else "DICT"
-        res_status = result.get('status', 'N/A') if isinstance(result, dict) else 'COMPLETADO'
-        logging.info(f"🕵️ DEBUG Claude Poll: Tipo={res_type}, Status={res_status}, Attempt={attempt}")
-        # ===================================================================
-
         if isinstance(result, list):
-            if not result and attempt < 2:
-                 logging.warning("⚠️ ALERTA: Claude devolvió lista vacía muy rápido.")
-            
-            logging.info(f"✅ Claude Batch completado: {len(result)} capítulos editados")
+            logging.info(f"✅ Claude Batch completado: {len(result)} fragmentos editados")
             return result
         
         if result.get('status') == 'error':
             raise Exception(f"Claude Batch falló: {result.get('error')}")
         
-        if result.get('status') == 'completed_no_results':
-            logging.warning("⚠️ Claude Batch completó pero sin resultados")
-            return []
-        
-        # Actualizar info para siguiente poll
         batch_info = result
-        
         counts = result.get('request_counts', {})
-        logging.info(f"⏳ Claude procesando... ({counts.get('succeeded', 0)} OK, {counts.get('processing', 0)} pendientes)")
+        logging.info(f"⏳ Claude procesando... ({counts.get('succeeded', 0)} OK)")
     
     raise Exception(f"Claude Batch no completó en {CLAUDE_BATCH_MAX_WAIT_MINUTES} minutos")
+
+
+def edit_sequentially(context, edit_requests):
+    """Edita capítulos secuencialmente (sin Batch API)."""
+    edited = []
+    total = len(edit_requests)
+    
+    for i, req in enumerate(edit_requests, 1):
+        context.set_custom_status(f"✏️ Editando {i}/{total}")
+        
+        result = yield context.call_activity('EditChapter', req)
+        edited.append(result)
+    
+    return edited
+
+
+def calculate_costs_v4(total_words, total_chapters, total_fragments, 
+                       chapters_analyzed, fragments_edited):
+    """Calcula costos estimados para Sylphrena 4.0."""
+    
+    tokens = int(total_words * 1.33)
+    
+    costs = {
+        # Segmentación (Gemini Flash)
+        'segmentacion': round(tokens * 0.10 / 1_000_000, 4),
+        
+        # Capa 1 - Análisis (Gemini Flash Batch)
+        'analisis_capa1': round(tokens * 0.05 / 1_000_000, 4),
+        
+        # Capa 2 - Patrones (Gemini Pro)
+        'analisis_capa2': round(chapters_analyzed * 5000 * 1.25 / 1_000_000 + 
+                                chapters_analyzed * 500 * 5.00 / 1_000_000, 4),
+        
+        # Capa 3 - Cualitativo (Gemini Pro Deep Think)
+        'analisis_capa3': round(chapters_analyzed * 10000 * 1.25 / 1_000_000 + 
+                                chapters_analyzed * 1000 * 5.00 / 1_000_000, 4),
+        
+        # Holística (Gemini Pro)
+        'holistica': round(tokens * 1.25 / 1_000_000 + 5000 * 5.00 / 1_000_000, 4),
+        
+        # Biblia + Causalidad + Validación
+        'sintesis': round(30000 * 1.25 / 1_000_000 + 10000 * 5.00 / 1_000_000, 4),
+        
+        # Mapas de arco (Gemini Pro)
+        'mapas_arco': round(chapters_analyzed * 3000 * 1.25 / 1_000_000 + 
+                           chapters_analyzed * 500 * 5.00 / 1_000_000, 4),
+        
+        # Edición (Claude Sonnet Batch - 50% descuento)
+        'edicion_input': round(tokens * 2 * 1.50 / 1_000_000, 4),
+        'edicion_output': round(tokens * 1.1 * 7.50 / 1_000_000, 4),
+        
+        # Infraestructura Azure
+        'infraestructura': 0.15
+    }
+    
+    costs['total'] = round(sum(costs.values()), 2)
+    
+    return costs
 
 
 main = df.Orchestrator.create(orchestrator_function)

@@ -2,7 +2,7 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "chunk_input",
+      "name": "fragment_analyses",
       "type": "activityTrigger",
       "direction": "in"
     }

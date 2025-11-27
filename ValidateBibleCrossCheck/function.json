@@ -2,7 +2,7 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "chunk_input",
+      "name": "validation_input",
       "type": "activityTrigger",
       "direction": "in"
     }
