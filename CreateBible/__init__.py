@@ -1,40 +1,109 @@
 # =============================================================================
-# CreateBible/__init__.py - DEPLOY 3.1 (SDK UPDATE)
+# HolisticReading/__init__.py - DEPLOY 3.1 (SDK UPDATE)
 # =============================================================================
 # CAMBIOS:
-#   - Actualizado a SDK 'google-genai' (v1.0).
-#   - LÓGICA PRESERVADA: Prompt de Biblia, Agrupación, Tenacity, Metadata.
+#   - Actualizado a SDK 'google-genai' (v1.0) para compatibilidad con Batch.
+#   - LÓGICA PRESERVADA: Prompts, Tenacity, Safety Settings y Metadata intactos.
 # =============================================================================
 
 import logging
 import json
 import os
-import time as time_module
-from collections import defaultdict
+import time
 from google import genai
 from google.genai import types
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 logging.basicConfig(level=logging.INFO)
-logging.getLogger('tenacity').setLevel(logging.WARNING)
 
-# Reintentos (Tu configuración original)
-retry_strategy = retry(
-    retry=retry_if_exception_type((Exception,)), # Simplificado para atrapar errores del nuevo SDK
+# Prompt OPTIMIZADO - (TU PROMPT ORIGINAL INTACTO)
+HOLISTIC_READING_PROMPT = """
+Eres un LECTOR EXPERTO. Tu trabajo es COMPRENDER esta obra antes de que otros la editen.
+
+NOVELA COMPLETA:
+{full_book_text}
+
+ANÁLISIS REQUERIDO:
+
+1. GÉNERO: Principal, subgénero, convenciones seguidas/rotas, contrato con lector
+
+2. ARCO NARRATIVO: Identifica capítulo y descripción de:
+   - Gancho inicial, Inciting incident, Primer giro
+   - Punto medio, Crisis, Clímax, Resolución
+
+3. RITMO POR CAPÍTULO: Para cada capítulo indica:
+   - Clasificación: RAPIDO|MEDIO|LENTO
+   - Si es INTENCIONAL o CUESTIONABLE
+   - Justificación breve
+
+4. VOZ DEL AUTOR:
+   - Estilo de prosa (minimalista/equilibrado/barroco)
+   - Longitud de oraciones predominante
+   - Densidad de diálogo
+   - Lista de elementos que NO deben corregirse (son voz del autor)
+
+5. TEMAS: Tema central y motivos recurrentes
+
+6. ADVERTENCIAS PARA EDITOR: Lista de cosas que podrían malinterpretarse:
+   - Ritmo lento intencional
+   - Inconsistencias intencionales  
+   - Estilo "incorrecto" que es voz del autor
+
+RESPONDE JSON:
+{
+  "genero": {
+    "principal": "",
+    "subgenero": "",
+    "convenciones_seguidas": [],
+    "convenciones_rotas_intencionalmente": [],
+    "contrato_con_lector": ""
+  },
+  "arco_narrativo": {
+    "gancho_inicial": {"capitulo": 0, "descripcion": ""},
+    "inciting_incident": {"capitulo": 0, "descripcion": ""},
+    "primer_giro": {"capitulo": 0, "descripcion": ""},
+    "punto_medio": {"capitulo": 0, "descripcion": ""},
+    "crisis": {"capitulo": 0, "descripcion": ""},
+    "climax": {"capitulo": 0, "descripcion": ""},
+    "resolucion": {"capitulo": 0, "descripcion": ""}
+  },
+  "analisis_ritmo": {
+    "patron_general": "",
+    "por_capitulo": [
+      {"capitulo": 0, "titulo": "", "ritmo": "MEDIO", "intencion": "INTENCIONAL", "justificacion": ""}
+    ]
+  },
+  "voz_autor": {
+    "estilo_prosa": "",
+    "longitud_oraciones": {"predominante": "", "patron": ""},
+    "densidad_dialogo": "",
+    "recursos_distintivos": [],
+    "advertencia_editorial": ""
+  },
+  "temas": {
+    "tema_central": "",
+    "motivos_recurrentes": []
+  },
+  "advertencias_para_editor": [
+    {"tipo": "", "ubicacion": "", "descripcion": "", "razon_es_intencional": ""}
+  ]
+}
+"""
+
+@retry(
+    retry=retry_if_exception_type((Exception,)),
     wait=wait_exponential(multiplier=2, min=4, max=60),
     stop=stop_after_attempt(3),
     reraise=True
 )
-
-@retry_strategy
-def call_gemini_pro_new(client, prompt):
-    """Llamada a Gemini Pro con SDK Nuevo y tus settings"""
+def call_gemini_pro_new_sdk(client, prompt):
+    """Llamada a Gemini Pro con el SDK NUEVO y tus Safety Settings"""
     return client.models.generate_content(
-        model='models/gemini-3-pro-preview', # Usamos 3 Pro
+        model='models/gemini-3-pro-preview', # Usamos 1.5 Pro estable (o 3.0-preview si tienes acceso)
         contents=prompt,
         config=types.GenerateContentConfig(
-            temperature=0.1,
-            max_output_tokens=8192, # Ajustado a un valor seguro estándar
+            temperature=0.2,
+            max_output_tokens=8192,
             response_mime_type="application/json",
             safety_settings=[
                 types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
@@ -45,179 +114,43 @@ def call_gemini_pro_new(client, prompt):
         )
     )
 
-def agrupar_fragmentos(analyses):
-    """Agrupa fragmentos por capítulo padre (TU LÓGICA ORIGINAL)"""
-    capitulos_consolidados = defaultdict(lambda: {
-        "titulo": "",
-        "section_type": "UNKNOWN",
-        "fragmentos": [],
-        "metadata_agregada": {"ids_involucrados": []}
-    })
-
-    for analysis in analyses:
-        if not analysis: continue
-        
-        clean_title = (
-            analysis.get("titulo_real") or 
-            analysis.get("original_title") or 
-            analysis.get("parent_chapter") or 
-            "Sin Título"
-        )
-        
-        capitulos_consolidados[clean_title]["titulo"] = clean_title
-        
-        section_type = analysis.get("section_type")
-        if section_type:
-             capitulos_consolidados[clean_title]["section_type"] = section_type
-             
-        capitulos_consolidados[clean_title]["fragmentos"].append(analysis)
-        capitulos_consolidados[clean_title]["metadata_agregada"]["ids_involucrados"].append(
-            analysis.get("id") or analysis.get("chapter_id", "?")
-        )
-
-    resultado = list(capitulos_consolidados.values())
-    logging.info(f"📦 Agrupación: {len(analyses)} fragmentos → {len(resultado)} capítulos")
-    return resultado
-
-# (TU PROMPT ORIGINAL INTACTO)
-CREATE_BIBLE_PROMPT_TEMPLATE = """
-Eres el EDITOR JEFE del Proyecto Sylphrena. Crea la BIBLIA NARRATIVA DEFINITIVA.
-
-Tienes DOS fuentes:
-1. ANÁLISIS HOLÍSTICO: Visión de quien leyó el libro COMPLETO
-2. ANÁLISIS DETALLADOS: Métricas precisas de cada capítulo
-
-═══════════════════════════════════════════════════════════════════════════════
-FUENTE 1: ANÁLISIS HOLÍSTICO
-═══════════════════════════════════════════════════════════════════════════════
-{{HOLISTIC_DATA}}
-
-═══════════════════════════════════════════════════════════════════════════════
-FUENTE 2: ANÁLISIS POR CAPÍTULO
-═══════════════════════════════════════════════════════════════════════════════
-{{CHAPTERS_DATA}}
-
-═══════════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES
-═══════════════════════════════════════════════════════════════════════════════
-1. IDENTIDAD: Usa holístico como base, confirma con métricas
-2. REPARTO: Fusiona apariciones, deduplica nombres
-3. ARCO: Usa arco holístico, valida con curvas de tensión
-4. RITMO: Cruza ritmo detectado vs intencionalidad
-5. VOZ: Protege estilo del autor
-6. PROBLEMAS: Prioriza agujeros de trama sobre errores de estilo
-
-RESPONDE JSON:
-{
-  "metadata_biblia": {"version": "3.0"},
-  
-  "identidad_obra": {
-    "genero": "",
-    "subgenero": "",
-    "tono_predominante": "",
-    "tema_central": "",
-    "contrato_con_lector": ""
-  },
-  
-  "arco_narrativo": {
-    "estructura_detectada": "",
-    "puntos_clave": {
-      "gancho": {"capitulo": 0, "descripcion": ""},
-      "inciting_incident": {"capitulo": 0, "descripcion": ""},
-      "primer_giro": {"capitulo": 0, "descripcion": ""},
-      "punto_medio": {"capitulo": 0, "descripcion": ""},
-      "crisis": {"capitulo": 0, "descripcion": ""},
-      "climax": {"capitulo": 0, "descripcion": ""},
-      "resolucion": {"capitulo": 0, "descripcion": ""}
-    },
-    "evaluacion": "SOLIDO"
-  },
-  
-  "reparto_completo": {
-    "protagonistas": [{"nombre": "", "aliases": [], "rol_arquetipo": "", "arco_personaje": "", "capitulos_aparicion": [], "consistencia": "CONSISTENTE"}],
-    "antagonistas": [],
-    "secundarios": []
-  },
-  
-  "mapa_de_ritmo": {
-    "patron_global": "",
-    "capitulos": [{"numero": 0, "titulo": "", "clasificacion": "MEDIO", "es_intencional": true, "justificacion": "", "posicion_en_arco": ""}],
-    "alertas_pacing": []
-  },
-  
-  "voz_del_autor": {
-    "estilo_detectado": "",
-    "caracteristicas": {"longitud_oraciones": "", "densidad_dialogo": ""},
-    "NO_CORREGIR": []
-  },
-  
-  "reglas_del_mundo": [],
-  
-  "problemas_priorizados": {
-    "criticos": [{"id": "", "tipo": "", "descripcion": "", "capitulos_afectados": [], "sugerencia": ""}],
-    "medios": [],
-    "menores": []
-  },
-  
-  "guia_para_claude": {
-    "instrucciones_globales": [],
-    "capitulos_especiales": [],
-    "patrones_a_mantener": []
-  }
-}
-"""
-
-def main(bible_input_json) -> dict:
-    """Fusiona análisis detallados + lectura holística (SDK Nuevo)"""
+def main(full_book_text: str) -> dict:
+    """Lectura Holística del libro completo"""
     try:
-        # 1. Parseo (Tu lógica original)
-        if isinstance(bible_input_json, str):
-            try:
-                bible_input = json.loads(bible_input_json)
-            except json.JSONDecodeError:
-                bible_input = {}
-        else:
-            bible_input = bible_input_json
+        start_time = time.time()
         
-        chapter_analyses = bible_input.get('chapter_analyses', [])
-        holistic_analysis = bible_input.get('holistic_analysis', {})
-        has_holistic = bool(holistic_analysis and holistic_analysis.get('genero'))
+        # --- Lógica de estimación de tokens original ---
+        word_count = len(full_book_text.split())
+        token_estimate = int(word_count * 1.33)
+        logging.info(f"📖 Lectura Holística: {word_count:,} palabras (~{token_estimate:,} tokens)")
         
-        logging.info(f"📚 CreateBible v3.1 - {len(chapter_analyses)} análisis")
-        
-        # 2. Agrupación (Tu función)
-        capitulos_estructurados = agrupar_fragmentos(chapter_analyses)
-        
-        # 3. Cliente Nuevo
+        # --- Configuración Cliente (SDK Nuevo) ---
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
             raise ValueError("GEMINI_API_KEY no configurada")
-            
+        
         client = genai.Client(api_key=api_key)
         
-        # 4. Construir Prompt (Tu lógica)
-        str_holistic = json.dumps(holistic_analysis, indent=2, ensure_ascii=False) if has_holistic else "NO DISPONIBLE"
-        str_chapters = json.dumps(capitulos_estructurados, indent=2, ensure_ascii=False)
-        # Recorte de seguridad por si es gigante
-        str_chapters = str_chapters[:3000000]
+        # --- Construcción Prompt (Original) ---
+        # Recortamos preventivamente solo si excede límites locos (2M), 
+        # pero mantenemos tu lógica intacta.
+        safe_text = full_book_text[:3000000] 
+        prompt = HOLISTIC_READING_PROMPT.replace("{full_book_text}", safe_text)
         
-        prompt = CREATE_BIBLE_PROMPT_TEMPLATE.replace("{{HOLISTIC_DATA}}", str_holistic)
-        prompt = prompt.replace("{{CHAPTERS_DATA}}", str_chapters)
+        logging.info("🧠 Gemini Pro leyendo libro completo (SDK v1.0)...")
         
-        start_time = time_module.time()
-        logging.info("🧠 Construyendo Biblia v3.1...")
+        # --- Llamada ---
+        response = call_gemini_pro_new_sdk(client, prompt)
         
-        # 5. Llamada
-        response = call_gemini_pro_new(client, prompt)
-        
-        elapsed = time_module.time() - start_time
-        logging.info(f"⏱️ Biblia creada en {elapsed:.2f}s")
+        elapsed = time.time() - start_time
+        logging.info(f"⏱️ Lectura completada en {elapsed:.1f}s")
         
         if not response.text:
             raise ValueError("Respuesta vacía o bloqueada")
         
-        # 6. Parseo (Limpieza Markdown)
         response_text = response.text.strip()
+        
+        # --- Limpieza Markdown (Tu lógica original) ---
         if response_text.startswith("```json"):
             response_text = response_text[7:]
         elif response_text.startswith("```"):
@@ -225,29 +158,26 @@ def main(bible_input_json) -> dict:
         if response_text.endswith("```"):
             response_text = response_text[:-3]
         
-        bible = json.loads(response_text.strip())
+        holistic_analysis = json.loads(response_text.strip())
         
-        # 7. Metadata (Original)
-        bible['_metadata'] = {
-            'status': 'success',
-            'version': '3.1',
-            'modelo': 'models/gemini-3-pro-preview',
-            'tiempo_segundos': round(elapsed, 2),
-            'capitulos_procesados': len(capitulos_estructurados),
-            'tiene_holistic': has_holistic
+        # --- Metadata (Tu lógica original) ---
+        holistic_analysis["_metadata"] = {
+            "status": "success",
+            "palabras_analizadas": word_count,
+            "tokens_estimados": token_estimate,
+            "tiempo_segundos": round(elapsed, 1),
+            "modelo": "models/gemini-3-pro-preview", # Actualizado el string
+            "sdk": "google-genai-v1"
         }
         
-        problemas = bible.get('problemas_priorizados', {})
-        logging.info(f"✅ Biblia lista. Problemas críticos: {len(problemas.get('criticos', []))}")
+        logging.info(f"✅ ADN extraído - Género: {holistic_analysis.get('genero', {}).get('principal', 'N/A')}")
         
-        return bible
-            
+        return holistic_analysis
+        
+    except json.JSONDecodeError as e:
+        logging.error(f"Error parseando JSON: {e}")
+        # Retorno de emergencia para no romper la orquestación
+        return {"error": f"JSON Error: {str(e)}", "_metadata": {"status": "error"}}
     except Exception as e:
-        logging.error(f"💥 Error en CreateBible: {str(e)}")
-        # Estructura de error para no romper orquestador
-        return {
-            "metadata_biblia": {"error": True},
-            "identidad_obra": {"genero": "Error", "tema_central": f"Fallo: {str(e)}"},
-            "problemas_priorizados": {"criticos": [], "medios": [], "menores": []},
-            "_metadata": {"status": "error", "error_msg": str(e)}
-        }
+        logging.error(f"Error en Lectura Holística: {str(e)}")
+        raise

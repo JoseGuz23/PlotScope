@@ -2,6 +2,7 @@ azure-functions>=1.21.0
 azure-functions-durable>=1.2.9
 azure-storage-blob
 google-genai
+google-generativeai
 requests
 regex
 tenacity
