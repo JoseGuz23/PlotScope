@@ -262,6 +262,34 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             tiempos['validacion_cruzada'] = "omitido"
         
         # =================================================================
+        # FASE 9.5: VALIDACIÓN DE ARCOS Y ANÁLISIS ESPECIALIZADOS
+        # =================================================================
+        context.set_custom_status("🔬 Fase 9.5/13: Ejecutando análisis especializados y validación de arcos...")
+        
+        # Ejecutar en paralelo para ahorrar tiempo
+        tasks_specialized = []
+        
+        # Tarea 1: Validación de Arcos (usa el grafo generado en Fase 8)
+        tasks_specialized.append(context.call_activity(
+            'CharacterArcValidation', 
+            json.dumps({'bible': bible_validated})
+        ))
+        
+        # Tarea 2: Análisis Especializados (Cliché, Voces, Economía, Género)
+        tasks_specialized.append(context.call_activity(
+            'SpecializedAnalyses', 
+            json.dumps({'bible': bible_validated, 'book_metadata': book_metadata})
+        ))
+        
+        results_specialized = yield context.task_all(tasks_specialized)
+        
+        # Integrar resultados en la Biblia Validada
+        bible_validated['validacion_arcos'] = results_specialized[0]
+        bible_validated['analisis_profundos'] = results_specialized[1]
+        
+        logging.info("✅ Análisis especializados y validación de arcos completados")
+
+        # =================================================================
         # FASE 10: GENERACIÓN DE MAPAS DE ARCO POR CAPÍTULO
         # =================================================================
         context.set_custom_status("🗺️ Fase 10/13: Generando mapas de arco por capítulo...")
