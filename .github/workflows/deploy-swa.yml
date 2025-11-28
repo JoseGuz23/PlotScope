@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'client/**' # Solo se ejecuta si cambias algo en la web
+      - 'CLIENT/**' # Solo se ejecuta si cambias algo en la web
 
 jobs:
   build_and_deploy_job:
@@ -23,7 +23,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### CONFIGURACIÓN ######
-          app_location: "/client" 
+          app_location: "/CLIENT"
           api_location: "" # <--- DEJAR VACÍO (Importante)
           output_location: "." 
           ###########################
