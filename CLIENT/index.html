@@ -3,120 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LYA: Reporte de Manuscrito</title> 
+    <title>LYA: Developmental AI Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // Paleta monocromática de impresión
                         theme: {
-                            bg: '#F7F7F7',      // Fondo Papel (Blanco Hueso)
-                            card: '#FFFFFF',    // Tarjetas (Blanco Puro)
-                            primary: '#2F855A', // Verde Bosque (Acento)
-                            text: '#111111',    // Texto Principal (Negro)
-                            muted: '#525252'    // Gris Oscuro (Líneas/Subtítulos)
+                            bg: '#F7F7F7',      // Papel/Crema (Fondo de la página)
+                            header: '#FFFFFF',  // Fondo del Header (Blanco Puro)
+                            primary: '#2F855A', // Verde Bosque (Acento para Status OK)
+                            text: '#1A1A1A',    // Texto Principal (Negro Profundo)
+                            subtle: '#374151',  // Gris para encabezados de sección/metadata
+                            border: '#D1D5DB'   // Gris para líneas de separación claras
                         }
                     },
                     fontFamily: {
-                        // Fuente de máquina de escribir/terminal
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-                        // Usaremos mono por defecto en el body
+                        // Estilo "Mecánico" para el cuerpo y datos
+                        'report-mono': ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                        // Estilo "Periodico/Título Serio" para encabezados
+                        'report-serif': ['ui-serif', 'Georgia', 'serif'],
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Estilos generales para quitar sombras modernas */
-        .report-section { 
-            @apply border-b border-gray-300 pb-4 mb-6; 
-        }
-        .report-header {
-             @apply font-bold border-b border-gray-800 pb-1 mb-2 text-sm;
-        }
-        .data-label {
-            @apply text-theme-muted text-xs uppercase tracking-widest;
-        }
+        /* Estilo para los botones de navegación activos/inactivos */
+        .nav-link { @apply text-sm uppercase tracking-wider font-bold py-1 px-3 transition-colors duration-200; }
+        /* Para simular la línea divisora fuerte de un reporte/periódico */
+        .report-divider { @apply border-b-4 border-t-4 border-theme-text/80 my-8; }
+        /* Estilo para el texto principal del reporte (el cuerpo) */
+        .report-body { @apply font-report-mono text-theme-text text-sm leading-relaxed; }
+        /* Clases de texto específicas para el estilo de impresión */
+        .data-label { @apply text-theme-subtle text-xs uppercase tracking-widest font-bold; }
     </style>
 </head>
-<body class="bg-theme-bg text-theme-text font-mono antialiased p-8">
+<body class="bg-theme-bg text-theme-text antialiased">
 
-    <div class="max-w-4xl mx-auto bg-theme-card p-10 border border-theme-muted shadow-lg">
+    <nav class="bg-theme-header shadow-md border-b-2 border-theme-border/50 fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl font-report-serif font-extrabold text-theme-text">LYA</span>
+                    <span class="text-xs text-theme-subtle font-report-mono">v4.1.0 (Developmental Editor)</span>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="nav-link text-theme-primary border-b-2 border-theme-primary">Dashboard</a>
+                    <a href="#" class="nav-link text-theme-subtle hover:text-theme-text">Biblioteca</a>
+                    <a href="#" class="nav-link text-theme-subtle hover:text-theme-text">Configuración IA</a>
+                    <a href="#" class="nav-link text-theme-subtle hover:text-theme-text">API Console</a>
+                </div>
+                <div class="flex items-center">
+                    <button class="bg-theme-primary text-white text-xs font-bold px-4 py-2 rounded-sm uppercase tracking-wider hover:bg-theme-primary/80 transition duration-150">
+                        Compilar & Desplegar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 max-w-7xl mx-auto px-8">
         
-        <header class="report-section pt-0">
-            <h1 class="text-xl font-extrabold text-center mb-1 uppercase">
-                SUMNER_SUMMER_78
+        <header class="report-divider">
+            <h1 class="text-4xl font-report-serif font-extrabold text-theme-text mb-2 tracking-tight">
+                ANÁLISIS DE MANUSCRITO ACTIVO
             </h1>
-            <p class="text-center text-xs text-theme-muted">
-                Control de Cambios – LYA 4.0 – 2025-11-28 08:15
+            <p class="text-sm font-report-mono text-theme-subtle">
+                DOCUMENTO CLASIFICADO: SUMNER_SUMMER_78 | ID: AD6B467 | Sincronización: 2025-11-28 08:15 MST
             </p>
         </header>
 
-        <div class="report-section">
-            <h2 class="report-header">RESUMEN DEL MANUSCRITO</h2>
-            <div class="grid grid-cols-3 gap-6 text-sm">
-                <div class="border-r border-theme-muted pr-6">
-                    <p class="data-label">Palabras</p>
-                    <span class="text-3xl font-extrabold text-theme-text">85,240</span>
-                    <p class="text-xs text-theme-primary mt-1 font-bold">
-                        ▲ 2.5% vs ayer
-                    </p>
-                </div>
-                <div class="border-r border-theme-muted pr-6">
-                    <p class="data-label">Capítulos</p>
-                    <span class="text-3xl font-extrabold text-theme-text">24</span>
-                    <p class="text-xs text-theme-muted mt-1">
-                        En progreso: Cap. 25
-                    </p>
-                </div>
-                <div>
-                    <p class="data-label">Legibilidad</p>
-                    <span class="text-3xl font-extrabold text-theme-text">A+</span>
-                    <p class="text-xs text-theme-muted mt-1">
-                        Público: Adulto Joven
-                    </p>
-                </div>
+        <section class="grid grid-cols-4 gap-6 mb-10">
+            <div class="border border-theme-border p-5 rounded-sm bg-white">
+                <p class="data-label">Palabras (Total)</p>
+                <span class="text-4xl font-report-mono font-bold text-theme-text block mt-1">85,240</span>
+                <p class="text-xs text-theme-primary font-bold mt-2 font-report-mono">
+                    [+] 2.5% vs último reporte
+                </p>
             </div>
-        </div>
-
-        <div class="report-section">
-            <h2 class="report-header">DETALLE DE CAMBIOS (Último Commit)</h2>
-            <div class="mt-4 flex space-x-4 mb-4 text-xs font-bold">
-                <button class="px-3 py-1 bg-green-100 text-green-700 border border-green-700">Texto añadido</button>
-                <button class="px-3 py-1 text-red-700 border border-red-700">Texto eliminado</button>
-                <button class="px-3 py-1 text-theme-muted border border-theme-muted">Sin cambios</button>
-            </div>
-
-            <p class="text-sm font-bold mb-4">
-                Resumen: 32 capítulos | 105 cambios totales
-            </p>
-        </div>
-
-        <div class="report-section border-none">
             
-            <h3 class="text-lg font-bold uppercase mb-2">CAPÍTULO 1</h3>
-            <p class="text-sm text-theme-muted mb-6">
-                o cambios en este capítulo
-            </p>
+            <div class="border border-theme-border p-5 rounded-sm bg-white">
+                <p class="data-label">Capítulos Analizados</p>
+                <span class="text-4xl font-report-mono font-bold text-theme-text block mt-1">24/25</span>
+                <p class="text-xs text-theme-subtle mt-2 font-report-mono">
+                    Próximo: Capítulo 25
+                </p>
+            </div>
 
-            <h3 class="text-lg font-bold uppercase mb-2 mt-8">CAPÍTULO 2</h3>
-            <p class="text-sm text-theme-muted mb-2">
-                5 cambios en este capítulo
-            </p>
-            <pre class="text-sm leading-relaxed whitespace-pre-wrap">
+            <div class="border border-theme-border p-5 rounded-sm bg-white">
+                <p class="data-label">Nivel de Lectura</p>
+                <span class="text-4xl font-report-mono font-bold text-theme-text block mt-1">A+</span>
+                <p class="text-xs text-theme-subtle mt-2 font-report-mono">
+                    Público objetivo: Adulto Joven
+                </p>
+            </div>
+
+            <div class="border border-theme-border p-5 rounded-sm bg-white">
+                <p class="data-label">Estado del Análisis IA</p>
+                <div class="flex items-center space-x-2 mt-2">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme-primary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-theme-primary"></span>
+                    </span>
+                    <span class="text-sm font-bold text-theme-text font-report-mono">Análisis en curso...</span>
+                </div>
+                <p class="text-xs text-theme-subtle mt-2 font-report-mono">
+                    <span class="text-theme-primary">45%</span> de Tono Procesado
+                </p>
+            </div>
+        </section>
+
+        <section class="border border-theme-border p-8 bg-white mb-10">
+            <h2 class="text-xl font-report-serif font-bold text-theme-subtle border-b-2 border-theme-border pb-2 mb-6">
+                CONTENIDO ANALIZADO (ÚLTIMA EDICIÓN)
+            </h2>
+
+            <div class="report-body">
+                <h3 class="text-base font-extrabold uppercase mb-3 border-b border-theme-border pb-1">CAPÍTULO 2</h3>
+                <p class="text-xs text-theme-subtle mb-4">5 revisiones detectadas por el Orquestador.</p>
+
+                <pre class="whitespace-pre-wrap leading-snug">
 Ángel se acercó despacio.
 
 -No para encerrarlo... pero sí para retenerlo un tiempo. Tal vez el suficiente para que cante.
 Henry negó con la cabeza. Sin dejar de mirar el horizonte.
 -No es suficiente, muchacho. Toda esta situación me huele a mierda.
 Guardó silencio unos segundos.
--<span style="color: red; text-decoration: line-through;">¿Tú crees que Emma alucinó lo del espía?</span>
-<span style="color: green; font-weight: bold;">-Sabemos que el espía existe. Solo falta encontrarlo.</span>
+<span class="text-red-700 line-through">¿Tú crees que Emma alucinó lo del espía?</span>
+<span class="text-theme-primary font-extrabold">Sabemos que el espía existe. Solo falta encontrarlo.</span>
 Ángel se apoyó en la parte trasera de la valla, con un salto ágil, se sentó en el borde.
-            </pre>
-        </div>
-    </div>
+                </pre>
+            </div>
+        </section>
+
+        <footer class="text-center text-xs text-theme-subtle pt-4 border-t border-theme-border font-report-mono">
+            LYA Orquestador de Edición &copy; 2025. Todos los derechos reservados. Ejecutándose en Azure Static Web Apps.
+        </footer>
+    </main>
 </body>
 </html>
