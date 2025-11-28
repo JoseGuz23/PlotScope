@@ -3,124 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sylphrena - Legado Literario</title>
+    <title>LYA: Reporte de Manuscrito</title> 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
+                        // Paleta monocromática de impresión
                         theme: {
-                            bg: '#0C1115',       // Carbón
-                            card: '#161F28',     // Carbón ligeramente más claro
-                            primary: '#2F855A',  // Verde Bosque (Forest Green)
-                            secondary: '#9FB3C8',// Plata Mate (Silver Blue)
-                            text: '#E2E8F0',     // Blanco Hueso
-                            muted: '#64748B'     // Gris pizarra
+                            bg: '#F7F7F7',      // Fondo Papel (Blanco Hueso)
+                            card: '#FFFFFF',    // Tarjetas (Blanco Puro)
+                            primary: '#2F855A', // Verde Bosque (Acento)
+                            text: '#111111',    // Texto Principal (Negro)
+                            muted: '#525252'    // Gris Oscuro (Líneas/Subtítulos)
                         }
                     },
                     fontFamily: {
-                        serif: ['Georgia', 'serif'], // Toque clásico en encabezados
-                        sans: ['ui-sans-serif', 'system-ui', 'sans-serif']
+                        // Fuente de máquina de escribir/terminal
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                        // Usaremos mono por defecto en el body
                     }
                 }
             }
         }
     </script>
     <style>
-        .chart-bar { @apply bg-theme-primary/80 hover:bg-theme-primary transition-all duration-300 rounded-t-sm; }
-        .chart-point { @apply absolute w-3 h-3 rounded-full bg-theme-primary border-2 border-theme-bg z-10; margin-left: -6px; margin-bottom: -6px; }
-        .chart-line-segment { @apply absolute h-0.5 bg-theme-secondary/40 origin-left; }
+        /* Estilos generales para quitar sombras modernas */
+        .report-section { 
+            @apply border-b border-gray-300 pb-4 mb-6; 
+        }
+        .report-header {
+             @apply font-bold border-b border-gray-800 pb-1 mb-2 text-sm;
+        }
+        .data-label {
+            @apply text-theme-muted text-xs uppercase tracking-widest;
+        }
     </style>
 </head>
-<body class="bg-theme-bg text-theme-text font-sans antialiased">
+<body class="bg-theme-bg text-theme-text font-mono antialiased p-8">
 
-    <nav class="flex items-center justify-between px-8 py-4 border-b border-gray-800 bg-theme-bg/95 fixed w-full z-50">
-        <div class="flex items-center space-x-3">
-            <div class="h-8 w-8 bg-theme-primary/20 flex items-center justify-center rounded-sm border border-theme-primary/50">
-                <span class="text-theme-primary font-serif font-bold text-lg">S</span>
-            </div>
-            <span class="text-xl font-serif tracking-wide text-gray-200">SYLPHRENA</span>
-        </div>
-        <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-theme-secondary">
-            <a href="#" class="text-theme-primary border-b border-theme-primary pb-0.5">Dashboard</a>
-            <a href="#" class="hover:text-white transition">Biblioteca</a>
-            <a href="#" class="hover:text-white transition">Análisis</a>
-        </div>
-        <div class="h-8 w-8 rounded-full bg-theme-card border border-theme-secondary/30 flex items-center justify-center text-xs text-theme-secondary">KG</div>
-    </nav>
-
-    <main class="p-8 pt-24 max-w-7xl mx-auto">
-        <header class="mb-10 border-b border-gray-800 pb-6">
-            <h1 class="text-3xl font-serif text-white tracking-tight">Manuscrito Activo</h1>
-            <p class="text-theme-secondary mt-1 text-sm">Edición Inteligente • Última sincronización: 11:30 AM</p>
+    <div class="max-w-4xl mx-auto bg-theme-card p-10 border border-theme-muted shadow-lg">
+        
+        <header class="report-section pt-0">
+            <h1 class="text-xl font-extrabold text-center mb-1 uppercase">
+                SUMNER_SUMMER_78
+            </h1>
+            <p class="text-center text-xs text-theme-muted">
+                Control de Cambios – LYA 4.0 – 2025-11-28 08:15
+            </p>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-theme-card p-6 rounded-sm shadow-md border-l-4 border-theme-primary">
-                <h3 class="text-theme-secondary text-xs font-bold uppercase tracking-widest">Palabras</h3>
-                <div class="mt-3 flex items-baseline">
-                    <span class="text-3xl font-serif text-white">85,240</span>
+        <div class="report-section">
+            <h2 class="report-header">RESUMEN DEL MANUSCRITO</h2>
+            <div class="grid grid-cols-3 gap-6 text-sm">
+                <div class="border-r border-theme-muted pr-6">
+                    <p class="data-label">Palabras</p>
+                    <span class="text-3xl font-extrabold text-theme-text">85,240</span>
+                    <p class="text-xs text-theme-primary mt-1 font-bold">
+                        ▲ 2.5% vs ayer
+                    </p>
                 </div>
-                <p class="text-xs text-theme-primary mt-2 font-medium">▲ 2.5% vs ayer</p>
+                <div class="border-r border-theme-muted pr-6">
+                    <p class="data-label">Capítulos</p>
+                    <span class="text-3xl font-extrabold text-theme-text">24</span>
+                    <p class="text-xs text-theme-muted mt-1">
+                        En progreso: Cap. 25
+                    </p>
+                </div>
+                <div>
+                    <p class="data-label">Legibilidad</p>
+                    <span class="text-3xl font-extrabold text-theme-text">A+</span>
+                    <p class="text-xs text-theme-muted mt-1">
+                        Público: Adulto Joven
+                    </p>
+                </div>
             </div>
+        </div>
+
+        <div class="report-section">
+            <h2 class="report-header">DETALLE DE CAMBIOS (Último Commit)</h2>
+            <div class="mt-4 flex space-x-4 mb-4 text-xs font-bold">
+                <button class="px-3 py-1 bg-green-100 text-green-700 border border-green-700">Texto añadido</button>
+                <button class="px-3 py-1 text-red-700 border border-red-700">Texto eliminado</button>
+                <button class="px-3 py-1 text-theme-muted border border-theme-muted">Sin cambios</button>
+            </div>
+
+            <p class="text-sm font-bold mb-4">
+                Resumen: 32 capítulos | 105 cambios totales
+            </p>
+        </div>
+
+        <div class="report-section border-none">
             
-            <div class="bg-theme-card p-6 rounded-sm shadow-md border-l-4 border-gray-700">
-                <h3 class="text-theme-secondary text-xs font-bold uppercase tracking-widest">Capítulos</h3>
-                <div class="mt-3">
-                    <span class="text-3xl font-serif text-white">24</span>
-                </div>
-                <p class="text-xs text-theme-secondary mt-2">En progreso: Cap. 25</p>
-            </div>
+            <h3 class="text-lg font-bold uppercase mb-2">CAPÍTULO 1</h3>
+            <p class="text-sm text-theme-muted mb-6">
+                o cambios en este capítulo
+            </p>
 
-            <div class="bg-theme-card p-6 rounded-sm shadow-md border-l-4 border-theme-primary">
-                <h3 class="text-theme-secondary text-xs font-bold uppercase tracking-widest">Legibilidad</h3>
-                <div class="mt-3">
-                    <span class="text-3xl font-serif text-white">A+</span>
-                    <span class="text-sm text-theme-secondary ml-1">Alta</span>
-                </div>
-                <p class="text-xs text-theme-secondary mt-2">Público: Adulto Joven</p>
-            </div>
+            <h3 class="text-lg font-bold uppercase mb-2 mt-8">CAPÍTULO 2</h3>
+            <p class="text-sm text-theme-muted mb-2">
+                5 cambios en este capítulo
+            </p>
+            <pre class="text-sm leading-relaxed whitespace-pre-wrap">
+Ángel se acercó despacio.
 
-            <div class="bg-theme-card p-6 rounded-sm shadow-md border-l-4 border-gray-700">
-                <h3 class="text-theme-secondary text-xs font-bold uppercase tracking-widest">Estado IA</h3>
-                <div class="mt-3 flex items-center space-x-2">
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme-primary opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-theme-primary"></span>
-                    </span>
-                    <span class="text-sm text-white">Analizando tono...</span>
-                </div>
-                <div class="w-full bg-gray-700 h-1 mt-4">
-                    <div class="bg-theme-primary h-1" style="width: 45%"></div>
-                </div>
-            </div>
+-No para encerrarlo... pero sí para retenerlo un tiempo. Tal vez el suficiente para que cante.
+Henry negó con la cabeza. Sin dejar de mirar el horizonte.
+-No es suficiente, muchacho. Toda esta situación me huele a mierda.
+Guardó silencio unos segundos.
+-<span style="color: red; text-decoration: line-through;">¿Tú crees que Emma alucinó lo del espía?</span>
+<span style="color: green; font-weight: bold;">-Sabemos que el espía existe. Solo falta encontrarlo.</span>
+Ángel se apoyó en la parte trasera de la valla, con un salto ágil, se sentó en el borde.
+            </pre>
         </div>
-
-        <div class="bg-theme-card p-8 rounded-sm shadow-md border border-gray-800">
-            <h3 class="text-lg font-serif text-white mb-6">Arco de Tensión Dramática</h3>
-            <div class="relative h-48 border-l border-b border-gray-700">
-                <div class="chart-point" style="bottom: 20%; left: 10%;"></div>
-                <div class="chart-line-segment" style="bottom: 20%; left: 10%; width: 20%; transform: rotate(15deg);"></div>
-                
-                <div class="chart-point" style="bottom: 40%; left: 30%;"></div>
-                <div class="chart-line-segment" style="bottom: 40%; left: 30%; width: 20%; transform: rotate(-5deg);"></div>
-                
-                <div class="chart-point" style="bottom: 35%; left: 50%;"></div>
-                <div class="chart-line-segment" style="bottom: 35%; left: 50%; width: 20%; transform: rotate(35deg);"></div>
-                
-                <div class="chart-point" style="bottom: 70%; left: 70%;"></div>
-                <div class="chart-line-segment" style="bottom: 70%; left: 70%; width: 20%; transform: rotate(-10deg);"></div>
-                
-                <div class="chart-point" style="bottom: 60%; left: 90%;"></div>
-            </div>
-            <div class="flex justify-between text-xs text-theme-secondary mt-2 font-mono">
-                <span>Inicio</span>
-                <span>Desarrollo</span>
-                <span>Clímax</span>
-            </div>
-        </div>
-
-    </main>
+    </div>
 </body>
 </html>
