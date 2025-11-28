@@ -23,7 +23,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### CONFIGURACIÓN ######
-          app_location: "/CLIENT"
-          api_location: "" # <--- DEJAR VACÍO (Importante)
-          output_location: "." 
+          app_location: "/CLIENT"  # Asegúrate que coincida con tu carpeta (mayúsculas/minúsculas)
+          api_location: "" 
+          output_location: "dist"  # <--- CAMBIO CRUCIAL AQUÍ
           ###########################
