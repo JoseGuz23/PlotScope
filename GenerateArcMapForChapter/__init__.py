@@ -173,7 +173,7 @@ def call_gemini_pro(client, prompt):
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.3,
-            max_output_tokens=4096,
+            max_output_tokens=8192,
             response_mime_type="application/json",
             safety_settings=[
                 types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),

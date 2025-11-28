@@ -80,7 +80,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         fragments = segmentation_result.get('fragments', [])
         book_metadata = segmentation_result.get('book_metadata', {})
         chapter_map = segmentation_result.get('chapter_map', {})
-        
+
         seg_time = context.current_utc_datetime
         tiempos['segmentacion'] = f"{(seg_time - start_time).total_seconds():.1f}s"
         

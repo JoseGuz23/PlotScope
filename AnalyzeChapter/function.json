@@ -2,7 +2,7 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "chapter_json",
+      "name": "fragment_json",
       "type": "activityTrigger",
       "direction": "in"
     }

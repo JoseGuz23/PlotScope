@@ -5,6 +5,7 @@ import logging
 import json
 import os
 import traceback
+from google import genai
 
 logging.basicConfig(level=logging.INFO)
 
@@ -14,7 +15,6 @@ def main(batch_info: dict) -> dict:
     Consulta el estado del batch job y extrae resultados cuando complete.
     """
     try:
-        from google import genai
         
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
