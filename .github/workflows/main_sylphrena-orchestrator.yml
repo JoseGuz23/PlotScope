@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  # CAMBIO 1: Apuntamos a tu nueva carpeta de backend
+  # RUTA DE CÓDIGO: Apuntamos a tu carpeta de backend
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './API_DURABLE' 
   PYTHON_VERSION: '3.12'
 
@@ -38,16 +38,19 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      # CAMBIO 2: Buscamos el requirements.txt en la carpeta correcta
+      # Buscamos el requirements.txt en la carpeta correcta
       - name: Install dependencies
         run: |
           source venv/bin/activate
           pip install -r ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/requirements.txt
 
-      # CAMBIO 3: Zipeamos SOLAMENTE la carpeta API_DURABLE
-      # Esto genera un zip que al abrirse contiene la carpeta "API_DURABLE"
+      # 🚨 CORRECCIÓN CRUCIAL: Zipeamos SOLO el contenido de API_DURABLE, no la carpeta.
+      # Esto asegura que host.json quede en la raíz del servidor de Azure.
       - name: Zip artifact for deployment
-        run: zip -r release.zip ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        run: |
+          cd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          zip -r ../release.zip ./*
+          cd ..
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -70,10 +73,12 @@ jobs:
         with:
           name: python-app
 
-      - name: Unzip artifact for deployment
-        run: |
-          unzip release.zip
-          rm release.zip
+      # 🚨 CAMBIO CRUCIAL: Eliminamos el paso de Unzip manual.
+      # La acción de Azure Functions desempaquetará el ZIP automáticamente en la raíz.
+      # - name: Unzip artifact for deployment
+      #   run: |
+      #     unzip release.zip
+      #     rm release.zip
         
       - name: Login to Azure
         uses: azure/login@v2
@@ -88,6 +93,6 @@ jobs:
         with:
           app-name: 'sylphrena-orchestrator'
           slot-name: 'Production'
-          # Aquí usa la variable ./API_DURABLE, lo cual coincide 
-          # con la carpeta que acabamos de descomprimir.
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          # CRUCIAL: Apuntamos directamente al archivo ZIP. 
+          # La acción lo desempaqueta correctamente.
+          package: release.zip

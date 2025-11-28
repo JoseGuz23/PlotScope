@@ -131,7 +131,20 @@ def start_orchestration(book_input="test_book.txt"):
             }
         else:
             print(f"\n❌ Error al iniciar: HTTP {response.status_code}")
-            print(f"   Respuesta: {response.text[:500]}")
+            
+            # Diagnóstico de respuesta del servidor:
+            print(f"   Respuesta del servidor: {response.text[:500]}")
+            
+            # Nuevo: Mostrar Headers (puede revelar políticas de seguridad o CORS)
+            print("\n   Headers de Respuesta:")
+            for key, value in response.headers.items():
+                 # Mostrar solo algunos headers relevantes para no saturar
+                 if key.lower() in ['server', 'date', 'www-authenticate', 'content-type']:
+                     print(f"   - {key}: {value}")
+            
+            # Opcional: imprimir el JSON de solicitud si el error fuera 400
+            # print(f"   JSON Enviado: {book_input}")
+            
             return None
             
     except requests.exceptions.Timeout:
