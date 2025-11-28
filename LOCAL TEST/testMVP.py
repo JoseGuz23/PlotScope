@@ -38,7 +38,7 @@ def get_function_key():
     """Obtiene la API key de local.settings.json o variables de entorno."""
     
     # Primero intentar leer de local.settings.json
-    local_settings_path = os.path.join(os.path.dirname(__file__), 'local.settings.json')
+    local_settings_path = os.getenv("LOCAL_SETTINGS_PATH", os.path.join(os.path.dirname(__file__), 'local.settings.json'))
     
     if os.path.exists(local_settings_path):
         try:

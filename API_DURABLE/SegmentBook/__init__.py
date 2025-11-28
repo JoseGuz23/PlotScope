@@ -197,21 +197,31 @@ def generate_hierarchical_metadata(chapters_raw: list) -> list:
 def main(book_path: str) -> dict:
     """
     Función principal que segmenta un libro en capítulos con metadatos jerárquicos.
-    
-    Args:
-        book_path: Ruta al archivo del libro (.pdf, .docx, o .txt)
-    
-    Returns:
-        Diccionario con:
-        - fragments: Lista de fragmentos con metadatos jerárquicos completos
-        - book_metadata: Información global del libro
-        - chapter_map: Mapa de capítulos para referencia rápida
+    NOTA: Para testing, ignora 'book_path' externo y usa el archivo local adjunto.
     """
     try:
+        logging.info(f"🚀 Iniciando SegmentBook. Input original: {book_path}")
+
+        # ============================================
+        # FASE 0: CORRECCIÓN DE RUTA (FIX DE TESTING)
+        # ============================================
+        # 1. Obtener directorio actual del script (__init__.py)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # 2. Construir ruta absoluta al archivo local (Piel_Morena.docx)
+        # Esto asume que moviste el .docx a la carpeta API_DURABLE/SegmentBook/
+        local_path = os.path.join(script_dir, 'Piel_Morena.docx')
+        
+        logging.info(f"📍 Redirigiendo lectura a archivo local: {local_path}")
+
+        if not os.path.exists(local_path):
+             raise FileNotFoundError(f"❌ CRÍTICO: No se encuentra el archivo en {local_path}. Asegúrate de haberlo copiado dentro de la carpeta de la función antes de desplegar.")
+
         # ============================================
         # FASE 1: EXTRAER TEXTO DEL ARCHIVO
         # ============================================
-        sample_text = extract_text_from_file(book_path)
+        # Usamos local_path en vez de book_path
+        sample_text = extract_text_from_file(local_path)
         
         logging.info(f"📖 Texto extraído: {len(sample_text)} caracteres")
         
@@ -228,8 +238,7 @@ def main(book_path: str) -> dict:
         # GRUPO B: Estructura Mayor
         acts_and_parts = r'(?:Acto|Parte)\s+(?:\d+|[IVXLCDM]+)'
 
-        # GRUPO C: Capítulos y Variaciones (CORREGIDO)
-        # Se añade \b a 'Final' para evitar falsos positivos con 'Finalmente'
+        # GRUPO C: Capítulos y Variaciones
         chapter_variations = r'(?:Capítulo\s+(?:\d+|[IVXLCDM]+)|Final\b|\b[IVXLCDM]+\.|\b\d+\.)'
 
         # REGEX MAESTRO
@@ -304,7 +313,7 @@ def main(book_path: str) -> dict:
             'total_words': total_words,
             'total_chapters': total_chapters,
             'total_fragments': total_fragments,
-            'source_file': book_path,
+            'source_file': local_path, # Guardamos la ruta real usada
             'fragmentation_threshold': MAX_CHARS_PER_CHUNK
         }
         
@@ -314,12 +323,6 @@ def main(book_path: str) -> dict:
         logging.info(f"   📄 Fragmentos: {total_fragments}")
         logging.info(f"   📝 Palabras totales: {total_words:,}")
         
-        for frag in fragments[:5]:  # Log primeros 5
-            logging.info(f"   ID: {frag['id']} | [{frag['section_type']}] {frag['title']} | Palabras: {frag['word_count']}")
-        
-        if total_fragments > 5:
-            logging.info(f"   ... y {total_fragments - 5} fragmentos más")
-
         return {
             'fragments': fragments,
             'book_metadata': book_metadata,
