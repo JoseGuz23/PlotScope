@@ -297,7 +297,7 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
             annotation_lines.append(f'CAMBIOS REALIZADOS ({len(cambios)}):')
             for i, cambio in enumerate(cambios[:5], 1):  # Limitar a 5
                 tipo = cambio.get('tipo', 'otro')
-                justificacion = cambio.get('justificacion', '')[:80]
+                justificacion = cambio.get('justificacion', '')
                 annotation_lines.append(f'  {i}. [{tipo}] {justificacion}')
             if len(cambios) > 5:
                 annotation_lines.append(f'  ... y {len(cambios) - 5} cambios más')
@@ -308,14 +308,14 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
         if preservados:
             annotation_lines.append(f'ELEMENTOS PRESERVADOS INTENCIONALMENTE:')
             for elem in preservados[:3]:
-                annotation_lines.append(f'  - {elem[:60]}')
+                annotation_lines.append(f'  - {elem}')
             annotation_lines.append('')
         
         # Notas del editor
         notas = chapter.get('notas_editor', '')
         if notas:
             annotation_lines.append(f'NOTAS DEL EDITOR:')
-            annotation_lines.append(f'  {notas[:200]}')
+            annotation_lines.append(f'  {notas}')
             annotation_lines.append('')
         
         # Métricas
@@ -340,45 +340,47 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
 
 def generate_diff_html(original: str, edited: str) -> str:
     """
-    Genera diff visual entre texto original y editado.
-    Retorna fragmento HTML con estilos inline.
+    Genera diff visual palabra por palabra.
     """
-    # Dividir en líneas para diff
-    original_lines = original.splitlines(keepends=True)
-    edited_lines = edited.splitlines(keepends=True)
+    # 1. Tokenizar por palabras (manteniendo espacios para reconstruir)
+    def tokenize(text):
+        return re.split(r'(\s+)', text)
+
+    original_tokens = tokenize(original)
+    edited_tokens = tokenize(edited)
     
-    # Usar SequenceMatcher para diff más detallado
-    matcher = SequenceMatcher(None, original_lines, edited_lines)
+    # 2. Comparar tokens en lugar de líneas completas
+    matcher = SequenceMatcher(None, original_tokens, edited_tokens)
     
     html_parts = []
     
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
         if tag == 'equal':
             # Texto sin cambios
-            for line in original_lines[i1:i2]:
-                escaped = line.replace('<', '&lt;').replace('>', '&gt;')
-                html_parts.append(f'<span class="unchanged">{escaped}</span>')
+            text = "".join(original_tokens[i1:i2])
+            escaped = text.replace('<', '&lt;').replace('>', '&gt;')
+            html_parts.append(f'<span class="unchanged">{escaped}</span>')
                 
         elif tag == 'delete':
-            # Texto eliminado (rojo, tachado)
-            for line in original_lines[i1:i2]:
-                escaped = line.replace('<', '&lt;').replace('>', '&gt;')
-                html_parts.append(f'<span class="deleted" style="color: #dc3545; text-decoration: line-through; background-color: #f8d7da;">{escaped}</span>')
+            # Texto eliminado
+            text = "".join(original_tokens[i1:i2])
+            escaped = text.replace('<', '&lt;').replace('>', '&gt;')
+            html_parts.append(f'<span class="deleted" style="color: #dc3545; text-decoration: line-through; background-color: #f8d7da;">{escaped}</span>')
                 
         elif tag == 'insert':
-            # Texto añadido (verde)
-            for line in edited_lines[j1:j2]:
-                escaped = line.replace('<', '&lt;').replace('>', '&gt;')
-                html_parts.append(f'<span class="inserted" style="color: #28a745; background-color: #d4edda;">{escaped}</span>')
+            # Texto añadido
+            text = "".join(edited_tokens[j1:j2])
+            escaped = text.replace('<', '&lt;').replace('>', '&gt;')
+            html_parts.append(f'<span class="inserted" style="color: #28a745; background-color: #d4edda;">{escaped}</span>')
                 
         elif tag == 'replace':
-            # Texto reemplazado (mostrar ambos)
-            for line in original_lines[i1:i2]:
-                escaped = line.replace('<', '&lt;').replace('>', '&gt;')
-                html_parts.append(f'<span class="deleted" style="color: #dc3545; text-decoration: line-through; background-color: #f8d7da;">{escaped}</span>')
-            for line in edited_lines[j1:j2]:
-                escaped = line.replace('<', '&lt;').replace('>', '&gt;')
-                html_parts.append(f'<span class="inserted" style="color: #28a745; background-color: #d4edda;">{escaped}</span>')
+            # Reemplazo palabra por palabra
+            text_del = "".join(original_tokens[i1:i2])
+            text_ins = "".join(edited_tokens[j1:j2])
+            escaped_del = text_del.replace('<', '&lt;').replace('>', '&gt;')
+            escaped_ins = text_ins.replace('<', '&lt;').replace('>', '&gt;')
+            html_parts.append(f'<span class="deleted" style="color: #dc3545; text-decoration: line-through; background-color: #f8d7da;">{escaped_del}</span>')
+            html_parts.append(f'<span class="inserted" style="color: #28a745; background-color: #d4edda;">{escaped_ins}</span>')
     
     return ''.join(html_parts)
 

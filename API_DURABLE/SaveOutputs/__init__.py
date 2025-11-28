@@ -199,7 +199,7 @@ def main(save_input) -> dict:
             ch_title = chapter.get('display_title', f'Capitulo_{ch_id}')
             
             # Sanitizar título
-            safe_title = "".join(c for c in ch_title if c.isalnum() or c in ' _-').strip()[:50]
+            safe_title = "".join(c for c in ch_title if c.isalnum() or c in ' _-').strip()
             
             # --- CORRECCIÓN: Formato seguro de ID ---
             try:
@@ -273,7 +273,7 @@ def bible_to_markdown_v4(bible: dict) -> str:
         lines.append("## 🔗 ANÁLISIS DE CAUSALIDAD\n")
         problemas = causalidad.get('problemas_detectados', [])
         if isinstance(problemas, list):
-            for prob in problemas[:5]:
+            for prob in problemas:
                 if isinstance(prob, dict):
                     lines.append(f"- ⚠️ {prob.get('descripcion', 'Sin descripción')}")
         lines.append("")
@@ -281,9 +281,47 @@ def bible_to_markdown_v4(bible: dict) -> str:
         # Si es un string de error, lo mostramos sin que truene
         lines.append(f"## 🔗 ANÁLISIS DE CAUSALIDAD\n⚠️ Estado: {str(causalidad)}\n")
 
-    # ... (Asegúrate de que el resto del código use lógica similar) ...
-    
+    # 3. ARCO NARRATIVO
+    arco = bible.get('arco_narrativo', {})
+    if isinstance(arco, dict):
+        lines.append("## 📈 ARCO NARRATIVO\n")
+        lines.append(f"- **Estructura:** {safe_get(arco, 'estructura_detectada')}")
+        puntos = arco.get('puntos_clave', {})
+        if puntos:
+            lines.append("\n### Puntos Clave:")
+            for key, val in puntos.items():
+                if isinstance(val, dict):
+                    desc = val.get('descripcion', '-')
+                    cap = val.get('capitulo', '-')
+                    lines.append(f"- **{key.replace('_', ' ').title()}** (Cap {cap}): {desc}")
+        lines.append("")
+
+    # 4. REPARTO (PERSONAJES)
+    reparto = bible.get('reparto_completo', {})
+    if isinstance(reparto, dict):
+        lines.append("## 👥 REPARTO\n")
+        for categoria, personajes in reparto.items():
+            if personajes and isinstance(personajes, list):
+                lines.append(f"### {categoria.upper()}")
+                for p in personajes:
+                    nombre = safe_get(p, 'nombre')
+                    rol = safe_get(p, 'rol_arquetipo')
+                    lines.append(f"- **{nombre}** ({rol})")
+                lines.append("")
+
+    # 5. ANÁLISIS PROFUNDOS
+    profundos = bible.get('analisis_profundos', {})
+    if isinstance(profundos, dict):
+        lines.append("## 🧠 ANÁLISIS PROFUNDOS\n")
+        # Temas
+        temas = profundos.get('temas_detectados', [])
+        if temas:
+            lines.append(f"**Temas Centrales:** {', '.join(temas)}")
+        lines.append("")
+
     return "\n".join(lines)
+    
+
 
 def generate_changes_report_v4(chapters: list) -> str:
     """
@@ -333,8 +371,8 @@ def generate_changes_report_v4(chapters: list) -> str:
             lines.append("")
             for i, c in enumerate(cambios, 1):
                 tipo = c.get('tipo', 'otro')
-                original = c.get('original', '')[:80]
-                editado = c.get('editado', '')[:80]
+                original = c.get('original', '')
+                editado = c.get('editado', '')
                 justificacion = c.get('justificacion', '')
                 impacto = c.get('impacto_narrativo', 'N/A')
                 
