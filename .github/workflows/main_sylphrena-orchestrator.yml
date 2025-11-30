@@ -9,6 +9,10 @@ on:
       - '.github/workflows/main_sylphrena-orchestrator.yml'
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+  
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './API_DURABLE'
   PYTHON_VERSION: '3.12'
