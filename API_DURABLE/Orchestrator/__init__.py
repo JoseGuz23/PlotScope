@@ -1,14 +1,10 @@
 # =============================================================================
-# Orchestrator/__init__.py - SYLPHRENA 4.0
+# Orchestrator/__init__.py - SYLPHRENA 4.0 (OPTIMIZED)
 # =============================================================================
-# CAMBIOS DESDE 3.1:
-#   - Pipeline de análisis multi-capa (Capa 1, 2, 3)
-#   - Consolidación de fragmentos con contexto jerárquico
-#   - Análisis de causalidad narrativa
-#   - Validación cruzada de Biblia
-#   - Generación de mapas de arco por capítulo
-#   - Edición con validación de impacto
-#   - Reconstrucción de manuscrito normalizado
+# CAMBIOS APLICADOS:
+#   - Modo Prueba (Limit to 5 chapters)
+#   - Fix de Ordenamiento (Sort by ID)
+#   - Paralelización de Fases 4, 5 y 10 (Task.all)
 # =============================================================================
 
 import azure.functions as func
@@ -28,7 +24,11 @@ ENABLE_IMPACT_VALIDATION = True         # Validar impacto de ediciones
 ENABLE_CAUSALITY_ANALYSIS = True        # Análisis de causalidad narrativa
 ENABLE_CROSS_VALIDATION = True          # Validación cruzada de Biblia
 
-# Límites de concurrencia
+# --- MODO DE PRUEBA (BOTÓN DE PÁNICO) ---
+LIMIT_TO_FIRST_5_CHAPTERS = True        # <--- CAMBIAR A FALSE EN PRODUCCIÓN
+# ----------------------------------------
+
+# Límites de concurrencia (Ignorados por Batch API, usados para fallback)
 ANALYSIS_BATCH_SIZE = 5
 EDIT_BATCH_SIZE = 3
 
@@ -42,21 +42,6 @@ CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120
 def orchestrator_function(context: df.DurableOrchestrationContext):
     """
     Orquestador principal de Sylphrena 4.0.
-    
-    Pipeline completo:
-    1. Segmentación con metadatos jerárquicos
-    2. Análisis Capa 1 (Gemini Flash) - Extracción factual
-    3. Consolidación de fragmentos por capítulo
-    4. Análisis Capa 2 (Gemini Pro) - Patrones estructurales
-    5. Análisis Capa 3 (Gemini Pro Deep Think) - Evaluación cualitativa
-    6. Lectura Holística
-    7. Síntesis de Biblia inicial
-    8. Análisis de Causalidad
-    9. Validación Cruzada de Biblia
-    10. Generación de Mapas de Arco
-    11. Edición con Claude (validación de impacto)
-    12. Reconstrucción de Manuscrito
-    13. Guardado de Outputs
     """
     try:
         book_path = context.get_input()
@@ -86,6 +71,26 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         
         if not fragments:
             raise ValueError("La segmentación no devolvió fragmentos.")
+            
+        # -----------------------------------------------------------------
+        # LIMITAR A 5 CAPÍTULOS SI EL MODO DE PRUEBA ESTÁ ACTIVO
+        # -----------------------------------------------------------------
+        if LIMIT_TO_FIRST_5_CHAPTERS:
+            logging.warning("⚠️ MODO PRUEBA ACTIVO: Limitando a los primeros 5 capítulos.")
+            
+            # Filtramos los fragmentos cuyo 'parent_chapter_id' sea <= 5
+            fragments = [f for f in fragments if int(f.get('parent_chapter_id', 999)) <= 5]
+            
+            # Ajustamos también el mapa de capítulos
+            chapter_map = {k: v for k, v in chapter_map.items() if int(k) <= 5}
+            
+            # Ajustamos metadatos
+            book_metadata['total_chapters'] = len(chapter_map)
+            book_metadata['total_fragments'] = len(fragments)
+            book_metadata['total_words'] = sum(f.get('word_count', 0) for f in fragments)
+            
+            logging.warning(f"⚠️ PROCESANDO SOLO: {len(fragments)} fragmentos de {len(chapter_map)} capítulos.")
+        # -----------------------------------------------------------------
 
         total_fragments = len(fragments)
         total_chapters = len(chapter_map)
@@ -102,6 +107,10 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             fragment_analyses = yield from analyze_with_batch_api(context, fragments)
         else:
             fragment_analyses = yield from analyze_with_simple_batches(context, fragments)
+            
+        # [FIX 1] ORDENAR RESULTADOS DEL BATCH
+        fragment_analyses.sort(key=lambda x: int(x.get('fragment_id', 0) or x.get('id', 0)))
+        logging.info("✅ Fragmentos ordenados numéricamente tras el análisis.")
         
         analysis_time = context.current_utc_datetime
         tiempos['analisis_capa1'] = f"{(analysis_time - seg_time).total_seconds():.1f}s"
@@ -125,58 +134,60 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"✅ Consolidación: {len(consolidated_analyses)} capítulos")
         
         # =================================================================
-        # FASE 4: ANÁLISIS CAPA 2 (PATRONES ESTRUCTURALES)
+        # FASE 4: ANÁLISIS CAPA 2 (PARALELIZADO - TURBO)
         # =================================================================
         context.set_custom_status(f"📊 Fase 4/13: Análisis Capa 2 - Patrones estructurales...")
         
+        tasks_layer2 = []
+        for chapter_analysis in consolidated_analyses:
+            tasks_layer2.append(context.call_activity('StructuralPatternAnalysis', chapter_analysis))
+        
+        # Ejecutar en paralelo
+        results_layer2 = yield context.task_all(tasks_layer2)
+        
+        # Reconstruir lista ordenada
         layer2_analyses = []
-        for i, chapter_analysis in enumerate(consolidated_analyses):
-            context.set_custom_status(f"📊 Fase 4/13: Capa 2 - Capítulo {i+1}/{len(consolidated_analyses)}")
-            
-            layer2_result = yield context.call_activity(
-                'StructuralPatternAnalysis',
-                chapter_analysis
-            )
-            
-            # Enriquecer el análisis consolidado con Capa 2
-            chapter_analysis['layer2_structural'] = layer2_result
-            layer2_analyses.append(chapter_analysis)
+        for i, result in enumerate(results_layer2):
+            chapter_data = consolidated_analyses[i]
+            chapter_data['layer2_structural'] = result
+            layer2_analyses.append(chapter_data)
         
         layer2_time = context.current_utc_datetime
         tiempos['analisis_capa2'] = f"{(layer2_time - consolidation_time).total_seconds():.1f}s"
-        logging.info(f"✅ Análisis Capa 2 completado")
+        logging.info(f"✅ Análisis Capa 2 completado (Paralelo)")
         
         # =================================================================
-        # FASE 5: ANÁLISIS CAPA 3 (EVALUACIÓN CUALITATIVA)
+        # FASE 5: ANÁLISIS CAPA 3 (PARALELIZADO - TURBO)
         # =================================================================
         context.set_custom_status(f"🧠 Fase 5/13: Análisis Capa 3 - Evaluación cualitativa (Deep Think)...")
         
-        layer3_analyses = []
+        tasks_layer3 = []
         for i, chapter_analysis in enumerate(layer2_analyses):
-            context.set_custom_status(f"🧠 Fase 5/13: Capa 3 - Capítulo {i+1}/{len(layer2_analyses)}")
-            
-            layer3_result = yield context.call_activity(
+            tasks_layer3.append(context.call_activity(
                 'QualitativeEffectivenessAnalysis',
                 {
                     'chapter_analysis': chapter_analysis,
-                    'previous_chapters': layer3_analyses  # Contexto de capítulos previos
+                    'previous_chapters': [] # En paralelo perdemos contexto inmediato, priorizamos velocidad
                 }
-            )
+            ))
             
-            # Enriquecer con Capa 3
-            chapter_analysis['layer3_qualitative'] = layer3_result
-            layer3_analyses.append(chapter_analysis)
+        results_layer3 = yield context.task_all(tasks_layer3)
+        
+        layer3_analyses = []
+        for i, result in enumerate(results_layer3):
+            chapter_data = layer2_analyses[i]
+            chapter_data['layer3_qualitative'] = result
+            layer3_analyses.append(chapter_data)
         
         layer3_time = context.current_utc_datetime
         tiempos['analisis_capa3'] = f"{(layer3_time - layer2_time).total_seconds():.1f}s"
-        logging.info(f"✅ Análisis Capa 3 completado")
+        logging.info(f"✅ Análisis Capa 3 completado (Paralelo)")
         
         # =================================================================
         # FASE 6: LECTURA HOLÍSTICA
         # =================================================================
         context.set_custom_status("📖 Fase 6/13: Lectura holística del libro completo...")
         
-        # Reconstruir texto completo desde fragmentos originales
         full_book_text = "\n\n---\n\n".join([
             f"CAPÍTULO: {frag['title']}\n\n{frag['content']}" 
             for frag in fragments
@@ -194,7 +205,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         context.set_custom_status("📜 Fase 7/13: Construyendo Biblia Narrativa...")
         
         bible_input = {
-            "chapter_analyses": layer3_analyses,  # Incluye Capa 1, 2, 3
+            "chapter_analyses": layer3_analyses,
             "holistic_analysis": holistic_analysis,
             "book_metadata": book_metadata
         }
@@ -211,7 +222,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         if ENABLE_CAUSALITY_ANALYSIS:
             context.set_custom_status("🔗 Fase 8/13: Análisis de causalidad narrativa...")
             
-            # Extraer todos los eventos de todos los análisis
             all_events = []
             for chapter in layer3_analyses:
                 eventos = chapter.get('eventos', [])
@@ -224,8 +234,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 'CausalityGraphAnalysis',
                 {'events': all_events, 'chapters': layer3_analyses}
             )
-            
-            # Agregar a la Biblia
             bible_initial['analisis_causalidad'] = causality_result
             
             causality_time = context.current_utc_datetime
@@ -249,7 +257,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 }
             )
             
-            # La Biblia validada reemplaza a la inicial
             bible_validated = validation_result.get('bible_validated', bible_initial)
             bible_validated['validacion_cruzada'] = validation_result.get('validation_report', {})
             
@@ -266,16 +273,11 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         # =================================================================
         context.set_custom_status("🔬 Fase 9.5/13: Ejecutando análisis especializados y validación de arcos...")
         
-        # Ejecutar en paralelo para ahorrar tiempo
         tasks_specialized = []
-        
-        # Tarea 1: Validación de Arcos (usa el grafo generado en Fase 8)
         tasks_specialized.append(context.call_activity(
             'CharacterArcValidation', 
             json.dumps({'bible': bible_validated})
         ))
-        
-        # Tarea 2: Análisis Especializados (Cliché, Voces, Economía, Género)
         tasks_specialized.append(context.call_activity(
             'SpecializedAnalyses', 
             json.dumps({'bible': bible_validated, 'book_metadata': book_metadata})
@@ -283,34 +285,38 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         
         results_specialized = yield context.task_all(tasks_specialized)
         
-        # Integrar resultados en la Biblia Validada
         bible_validated['validacion_arcos'] = results_specialized[0]
         bible_validated['analisis_profundos'] = results_specialized[1]
         
         logging.info("✅ Análisis especializados y validación de arcos completados")
 
         # =================================================================
-        # FASE 10: GENERACIÓN DE MAPAS DE ARCO POR CAPÍTULO
+        # FASE 10: GENERACIÓN DE MAPAS DE ARCO (PARALELIZADO - TURBO)
         # =================================================================
         context.set_custom_status("🗺️ Fase 10/13: Generando mapas de arco por capítulo...")
         
-        arc_maps = {}
+        tasks_arc = []
         for i, chapter in enumerate(layer3_analyses):
             chapter_id = chapter.get('chapter_id', i)
-            
-            arc_map = yield context.call_activity(
+            tasks_arc.append(context.call_activity(
                 'GenerateArcMapForChapter',
                 {
                     'bible': bible_validated,
                     'chapter_id': chapter_id,
                     'chapter_analysis': chapter
                 }
-            )
+            ))
+            
+        results_arc = yield context.task_all(tasks_arc)
+        
+        arc_maps = {}
+        for i, arc_map in enumerate(results_arc):
+            chapter_id = layer3_analyses[i].get('chapter_id', i)
             arc_maps[str(chapter_id)] = arc_map
         
         arcmap_time = context.current_utc_datetime
         tiempos['mapas_arco'] = f"{(arcmap_time - validation_time).total_seconds():.1f}s"
-        logging.info(f"✅ {len(arc_maps)} mapas de arco generados")
+        logging.info(f"✅ {len(arc_maps)} mapas de arco generados (Paralelo)")
         
         # =================================================================
         # FASE 11: EDICIÓN CON CLAUDE (VALIDACIÓN DE IMPACTO)
@@ -318,21 +324,11 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         context.set_custom_status("✏️ Fase 11/13: Edición con Claude...")
         pre_edit_time = context.current_utc_datetime
         
-        # Preparar datos para edición
         edit_requests = []
         for fragment in fragments:
             parent_id = fragment.get('parent_chapter_id', fragment.get('id'))
-            
-            # Encontrar análisis correspondiente
-            analysis = next(
-                (a for a in layer3_analyses if str(a.get('chapter_id')) == str(parent_id)),
-                {}
-            )
-            
-            # Obtener mapa de arco
+            analysis = next((a for a in layer3_analyses if str(a.get('chapter_id')) == str(parent_id)), {})
             arc_map = arc_maps.get(str(parent_id), {})
-            
-            # Determinar si es capítulo crítico (requiere validación de impacto)
             is_critical = arc_map.get('es_critico_estructuralmente', False)
             
             edit_requests.append({
@@ -343,7 +339,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 'is_critical': is_critical and ENABLE_IMPACT_VALIDATION
             })
         
-        # Ejecutar edición (batch o secuencial)
         if USE_CLAUDE_BATCH:
             edited_fragments = yield from edit_with_claude_batch(
                 context, edit_requests, bible_validated, layer3_analyses, arc_maps
@@ -351,6 +346,10 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         else:
             edited_fragments = yield from edit_sequentially(context, edit_requests)
         
+        # [FIX 2] ORDENAR RESULTADOS DE EDICIÓN
+        edited_fragments.sort(key=lambda x: int(x.get('fragment_id', 0) or x.get('chapter_id', 0)))
+        logging.info("✅ Capítulos editados ordenados correctamente.")
+
         edit_time = context.current_utc_datetime
         tiempos['edicion'] = f"{(edit_time - pre_edit_time).total_seconds():.1f}s"
         logging.info(f"✅ Edición completada: {len(edited_fragments)} fragmentos")
@@ -406,7 +405,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         # =================================================================
         context.set_custom_status("✅ Completado - Sylphrena 4.0")
         
-        # Calcular costos estimados
         costos = calculate_costs_v4(
             total_words, total_chapters, total_fragments,
             len(layer3_analyses), len(edited_fragments)
@@ -446,10 +444,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
 
 # =============================================================================
 # FUNCIONES AUXILIARES
-# =============================================================================
-
-# =============================================================================
-# REEMPLAZA tu función analyze_with_batch_api en Orchestrator/__init__.py
 # =============================================================================
 
 def analyze_with_batch_api(context, fragments):
@@ -493,14 +487,12 @@ def analyze_with_batch_api(context, fragments):
     # =========================================================================
     MAX_RETRY_FRAGMENTS = 10  # Límite para evitar timeout de Azure
     
-    # Identificar fragmentos exitosos (por fragment_id)
     successful_ids = set()
     for analysis in batch_results:
         fid = analysis.get('fragment_id') or analysis.get('chapter_id')
         if fid:
             successful_ids.add(str(fid))
     
-    # Encontrar fragmentos que fallaron
     failed_fragments = []
     for frag in fragments:
         frag_id = str(frag.get('id', ''))
@@ -513,7 +505,6 @@ def analyze_with_batch_api(context, fragments):
     
     logging.warning(f"⚠️ {len(failed_fragments)} fragmentos fallaron en batch")
     
-    # Limitar cantidad de retries
     if len(failed_fragments) > MAX_RETRY_FRAGMENTS:
         logging.warning(f"⚠️ Demasiados fallos ({len(failed_fragments)}), limitando a {MAX_RETRY_FRAGMENTS}")
         failed_fragments = failed_fragments[:MAX_RETRY_FRAGMENTS]
@@ -561,6 +552,7 @@ def analyze_with_batch_api(context, fragments):
     
     logging.info(f"✅ Total análisis finales: {len(batch_results)}/{len(fragments)}")
     return batch_results
+
 
 def analyze_with_simple_batches(context, fragments):
     """Analiza fragmentos en lotes pequeños (sin Batch API)."""
@@ -654,40 +646,22 @@ def calculate_costs_v4(total_words, total_chapters, total_fragments,
     tokens = int(total_words * 1.33)
     
     costs = {
-        # Segmentación (Gemini Flash)
         'segmentacion': round(tokens * 0.10 / 1_000_000, 4),
-        
-        # Capa 1 - Análisis (Gemini Flash Batch)
         'analisis_capa1': round(tokens * 0.05 / 1_000_000, 4),
-        
-        # Capa 2 - Patrones (Gemini Pro)
         'analisis_capa2': round(chapters_analyzed * 5000 * 1.25 / 1_000_000 + 
                                 chapters_analyzed * 500 * 5.00 / 1_000_000, 4),
-        
-        # Capa 3 - Cualitativo (Gemini Pro Deep Think)
         'analisis_capa3': round(chapters_analyzed * 10000 * 1.25 / 1_000_000 + 
                                 chapters_analyzed * 1000 * 5.00 / 1_000_000, 4),
-        
-        # Holística (Gemini Pro)
         'holistica': round(tokens * 1.25 / 1_000_000 + 5000 * 5.00 / 1_000_000, 4),
-        
-        # Biblia + Causalidad + Validación
         'sintesis': round(30000 * 1.25 / 1_000_000 + 10000 * 5.00 / 1_000_000, 4),
-        
-        # Mapas de arco (Gemini Pro)
         'mapas_arco': round(chapters_analyzed * 3000 * 1.25 / 1_000_000 + 
                            chapters_analyzed * 500 * 5.00 / 1_000_000, 4),
-        
-        # Edición (Claude Sonnet Batch - 50% descuento)
         'edicion_input': round(tokens * 2 * 1.50 / 1_000_000, 4),
         'edicion_output': round(tokens * 1.1 * 7.50 / 1_000_000, 4),
-        
-        # Infraestructura Azure
         'infraestructura': 0.15
     }
     
     costs['total'] = round(sum(costs.values()), 2)
-    
     return costs
 
 

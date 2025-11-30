@@ -197,7 +197,7 @@ def prepare_chapters_summary(chapters_consolidated: list) -> str:
     except:
         chapters_sorted = chapters_consolidated
 
-    for chapter in chapters_sorted[:50]:  # Aumentado límite a 50
+    for chapter in chapters_sorted:  # Aumentado límite a 50
         ch_summary = {
             'id': chapter.get('chapter_id'),
             'titulo': chapter.get('titulo'),

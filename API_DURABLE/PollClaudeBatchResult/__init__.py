@@ -8,14 +8,6 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 def main(batch_info: dict) -> object:
-    """
-    Consulta el estado de un Claude Batch Job.
-    
-    LÓGICA BLINDADA:
-    - Si status está en progreso -> Devuelve diccionario (Orchestrator sigue esperando).
-    - Si status == 'ended' -> Descarga y devuelve lista (Orchestrator avanza).
-    """
-    
     try:
         from anthropic import Anthropic
         
@@ -39,29 +31,18 @@ def main(batch_info: dict) -> object:
         processing = counts.processing if counts else 0
         
         logging.info(f"🤖 Claude Status: [{status.upper()}] - ID: {batch_id}")
-        logging.info(f"📊 Métricas: {succeeded} OK | {processing} Pendientes")
-
-        # ─────────────────────────────────────────────────────────────────
-        # CASO A: AÚN PROCESANDO (O CANCELANDO) -> DEVOLVER DICCIONARIO
-        # ─────────────────────────────────────────────────────────────────
+        
+        # CASO A: PROCESANDO
         if status in ['in_progress', 'canceling']:
             return {
-                "status": "processing", # Esto le dice al orquestador que espere
+                "status": "processing",
                 "processing_status": status,
                 "batch_id": batch_id,
-                "request_counts": {
-                    "succeeded": succeeded,
-                    "processing": processing,
-                    "errored": counts.errored if counts else 0,
-                    "canceled": counts.canceled if counts else 0,
-                    "expired": counts.expired if counts else 0
-                },
+                "request_counts": {"succeeded": succeeded, "processing": processing},
                 "id_map": batch_info.get('id_map', [])
             }
 
-        # ─────────────────────────────────────────────────────────────────
-        # CASO B: TERMINÓ -> DESCARGAR RESULTADOS
-        # ─────────────────────────────────────────────────────────────────
+        # CASO B: TERMINADO
         elif status == "ended":
             logging.info(f"✅ Batch finalizado. Descargando resultados...")
             
@@ -69,77 +50,72 @@ def main(batch_info: dict) -> object:
             for entry in client.messages.batches.results(batch_id):
                 try:
                     if entry.result.type == "succeeded":
-                        # Extraer contenido
+                        # 1. Extraer texto crudo
                         custom_id = entry.custom_id
                         chapter_id = custom_id.replace("chapter-", "")
                         message = entry.result.message
                         response_text = message.content[0].text
                         
-                        # Parsear JSON (Limpieza de markdown)
+                        # 2. LÓGICA BLINDADA DE LIMPIEZA
                         clean_response = response_text.strip()
-                        if clean_response.startswith("```json"): clean_response = clean_response[7:]
-                        if clean_response.startswith("```"): clean_response = clean_response[3:]
-                        if clean_response.endswith("```"): clean_response = clean_response[:-3]
+                        start_idx = clean_response.find('{')
+                        end_idx = clean_response.rfind('}')
                         
-                        try:
-                            edit_data = json.loads(clean_response.strip())
-                            
-                            # Calcular costo (TU LÓGICA ORIGINAL)
-                            input_tokens = message.usage.input_tokens
-                            output_tokens = message.usage.output_tokens
-                            cost_input = input_tokens * 1.50 / 1_000_000 
-                            cost_output = output_tokens * 7.50 / 1_000_000
-                            total_cost = cost_input + cost_output
+                        edit_data = {}
+                        parse_success = False
+                        
+                        # Intentar extraer JSON puro entre llaves
+                        if start_idx != -1 and end_idx != -1:
+                            json_str = clean_response[start_idx : end_idx + 1]
+                            try:
+                                edit_data = json.loads(json_str)
+                                parse_success = True
+                            except json.JSONDecodeError:
+                                logging.warning(f"⚠️ JSON decode falló en {custom_id} incluso tras limpieza.")
+                        
+                        # 3. Determinar contenido final
+                        final_content = response_text # Fallback por defecto
+                        if parse_success:
+                            # Si hay JSON, sacamos el campo limpio
+                            final_content = edit_data.get('capitulo_editado', response_text)
+                            # Log para confirmar que el fix funcionó
+                            if start_idx > 0 or end_idx < len(clean_response) - 1:
+                                logging.info(f"🧹 JSON limpiado exitosamente en {custom_id}")
+                        else:
+                            logging.warning(f"⚠️ Usando TEXTO CRUDO para {custom_id} (No se detectó JSON válido)")
 
-                            # Estructura final
-                            item = {
-                                'chapter_id': chapter_id,
-                                'contenido_editado': edit_data.get('capitulo_editado', response_text),
-                                'cambios_realizados': edit_data.get('cambios_realizados', []),
-                                'problemas_corregidos': edit_data.get('problemas_corregidos', []),
-                                'notas_editor': edit_data.get('notas_editor', ''),
-                                'metadata': {
-                                    'status': 'success',
-                                    'costo_usd': round(total_cost, 4),
-                                    'tokens_in': input_tokens,
-                                    'tokens_out': output_tokens
-                                }
+                        # 4. Calcular Costos
+                        input_tokens = message.usage.input_tokens
+                        output_tokens = message.usage.output_tokens
+                        total_cost = (input_tokens * 1.50 / 1_000_000) + (output_tokens * 7.50 / 1_000_000)
+
+                        # 5. Construir Item Final
+                        item = {
+                            'chapter_id': chapter_id,
+                            'contenido_editado': final_content, # ¡AQUÍ ESTÁ LA CLAVE!
+                            'cambios_realizados': edit_data.get('cambios_realizados', []),
+                            'problemas_corregidos': edit_data.get('problemas_corregidos', []),
+                            'notas_editor': edit_data.get('notas_editor', ''),
+                            'metadata': {
+                                'status': 'success',
+                                'costo_usd': round(total_cost, 4),
+                                'parsed_json': parse_success
                             }
-                            results.append(item)
-                            logging.info(f"✅ {custom_id} procesado | Costo: ${total_cost:.4f}")
-
-                        except json.JSONDecodeError:
-                            results.append({
-                                'chapter_id': chapter_id,
-                                'contenido_editado': response_text,
-                                'metadata': {'status': 'error_parse'}
-                            })
+                        }
+                        results.append(item)
                             
                     elif entry.result.type == "errored":
-                        error_msg = str(entry.result.error) if hasattr(entry.result, 'error') else "Unknown error"
-                        logging.warning(f"⚠️ Error en item {entry.custom_id}: {error_msg}")
+                        logging.error(f"❌ Item error: {entry.custom_id}")
                         
                 except Exception as inner_e:
-                    logging.error(f"❌ Error procesando item individual: {inner_e}")
+                    logging.error(f"❌ Error procesando item: {inner_e}")
                     continue
 
-            if not results:
-                return {"status": "completed_no_results", "batch_id": batch_id}
-            
-            logging.info(f"📥 {len(results)} capítulos descargados correctamente.")
-            return results # DEVOLVER LISTA -> ESTO ROMPE EL BUCLE DEL ORQUESTADOR
+            return results
 
-        # ─────────────────────────────────────────────────────────────────
-        # CASO C: ESTADO DESCONOCIDO
-        # ─────────────────────────────────────────────────────────────────
         else:
-            return {"status": "error", "error": f"Estado desconocido o expirado: {status}"}
+            return {"status": "error", "error": f"Estado: {status}"}
 
-    except ImportError as e:
-        logging.error(f"❌ SDK no instalado: {e}")
-        return {"status": "error", "error": str(e)}
     except Exception as e:
-        logging.error(f"❌ Error crítico en PollClaude: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
+        logging.error(f"❌ Error crítico: {str(e)}")
         return {"status": "error", "error": str(e)}

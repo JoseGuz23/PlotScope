@@ -271,14 +271,27 @@ def bible_to_markdown_v4(bible: dict) -> str:
     causalidad = bible.get('analisis_causalidad')
     if isinstance(causalidad, dict):
         lines.append("## 🔗 ANÁLISIS DE CAUSALIDAD\n")
-        problemas = causalidad.get('problemas_detectados', [])
-        if isinstance(problemas, list):
+        problemas = causalidad.get('problemas_detectados', {})
+        
+        # Caso A: Es un diccionario con categorías (lo más probable)
+        if isinstance(problemas, dict):
+            for categoria, items in problemas.items():
+                if items and isinstance(items, list):
+                    cat_title = categoria.replace('_', ' ').upper()
+                    lines.append(f"### {cat_title}")
+                    for prob in items:
+                        desc = prob.get('descripcion', 'Sin descripción')
+                        lines.append(f"- ⚠️ {desc}")
+                    lines.append("")
+        
+        # Caso B: Es una lista directa (legacy)
+        elif isinstance(problemas, list):
             for prob in problemas:
-                if isinstance(prob, dict):
-                    lines.append(f"- ⚠️ {prob.get('descripcion', 'Sin descripción')}")
-        lines.append("")
+                 lines.append(f"- ⚠️ {prob.get('descripcion', 'Sin descripción')}")
+            lines.append("")
+            
     elif causalidad:
-        # Si es un string de error, lo mostramos sin que truene
+        # Fallback de error
         lines.append(f"## 🔗 ANÁLISIS DE CAUSALIDAD\n⚠️ Estado: {str(causalidad)}\n")
 
     # 3. ARCO NARRATIVO
