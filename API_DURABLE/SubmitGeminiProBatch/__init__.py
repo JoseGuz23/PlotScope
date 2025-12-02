@@ -1,12 +1,14 @@
 # =============================================================================
-# SubmitGeminiProBatch/__init__.py - BATCH GENÉRICO GEMINI PRO
+# SubmitGeminiProBatch/__init__.py - BATCH GENÉRICO GEMINI PRO (v2 FIXED)
 # =============================================================================
 # Soporta: layer2_structural, layer3_qualitative, arc_maps
+# FIX: Escribe archivo temporal antes de subir (requerido por API)
 # =============================================================================
 
 import logging
 import json
 import os
+import tempfile
 from google import genai
 
 logging.basicConfig(level=logging.INFO)
@@ -256,42 +258,66 @@ def main(batch_input: dict) -> dict:
         if not requests:
             return {'error': 'No valid requests generated', 'status': 'error'}
         
-        # Crear archivo JSONL
+        # =========================================================================
+        # FIX: Escribir a archivo temporal ANTES de subir
+        # La API de Gemini requiere una RUTA DE ARCHIVO, no contenido directo
+        # =========================================================================
         jsonl_content = "\n".join([json.dumps(r, ensure_ascii=False) for r in requests])
         
-        # Subir archivo
-        logging.info(f"📤 Subiendo {len(requests)} requests...")
+        # Crear archivo temporal
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='.jsonl',
+            encoding='utf-8',
+            delete=False
+        ) as tmp_file:
+            tmp_file.write(jsonl_content)
+            tmp_file_path = tmp_file.name
         
-        uploaded_file = client.files.upload(
-            file=jsonl_content.encode('utf-8'),
-            config={
-                'display_name': f'batch_{analysis_type}_{len(requests)}.jsonl',
-                'mime_type': 'application/jsonl'
+        logging.info(f"📁 Archivo temporal creado: {tmp_file_path} ({len(requests)} requests)")
+        
+        try:
+            # Subir archivo usando la RUTA del archivo temporal
+            logging.info(f"📤 Subiendo batch a Gemini...")
+            
+            uploaded_file = client.files.upload(
+                file=tmp_file_path,  # ← FIX: Ahora es una RUTA, no contenido
+                config={
+                    'display_name': f'batch_{analysis_type}_{len(requests)}.jsonl',
+                    'mime_type': 'application/jsonl'
+                }
+            )
+            
+            logging.info(f"📁 Archivo subido: {uploaded_file.name}")
+            
+            # Crear batch job
+            batch_job = client.batches.create(
+                model="models/gemini-3-pro-preview",
+                src=uploaded_file.name,
+                config={
+                    'display_name': f'sylphrena_{analysis_type}'
+                }
+            )
+            
+            job_name = batch_job.name if hasattr(batch_job, 'name') else str(batch_job)
+            
+            logging.info(f"✅ Batch Job creado: {job_name}")
+            
+            return {
+                'status': 'submitted',
+                'batch_job_name': job_name,
+                'analysis_type': analysis_type,
+                'total_requests': len(requests),
+                'id_map': id_map
             }
-        )
-        
-        logging.info(f"📁 Archivo subido: {uploaded_file.name}")
-        
-        # Crear batch job
-        batch_job = client.batches.create(
-            model="models/gemini-3-pro-preview",
-            src=uploaded_file.name,
-            config={
-                'display_name': f'sylphrena_{analysis_type}'
-            }
-        )
-        
-        job_name = batch_job.name if hasattr(batch_job, 'name') else str(batch_job)
-        
-        logging.info(f"✅ Batch Job creado: {job_name}")
-        
-        return {
-            'status': 'submitted',
-            'batch_job_name': job_name,
-            'analysis_type': analysis_type,
-            'total_requests': len(requests),
-            'id_map': id_map
-        }
+            
+        finally:
+            # Limpiar archivo temporal
+            try:
+                os.unlink(tmp_file_path)
+                logging.info(f"🗑️ Archivo temporal eliminado")
+            except Exception as cleanup_error:
+                logging.warning(f"⚠️ No se pudo eliminar archivo temporal: {cleanup_error}")
         
     except Exception as e:
         logging.error(f"❌ Error en SubmitGeminiProBatch: {str(e)}")
