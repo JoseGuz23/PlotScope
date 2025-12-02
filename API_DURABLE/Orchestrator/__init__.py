@@ -38,6 +38,56 @@ BATCH_MAX_WAIT_MINUTES = 45
 CLAUDE_BATCH_MAX_WAIT_MINUTES = 120
 CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120
 
+GEMINI_PRO_BATCH_POLL_INTERVAL = 60  # segundos
+GEMINI_PRO_BATCH_MAX_WAIT = 30       # minutos
+
+def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict = None):
+    """
+    Ejecuta un batch de Gemini Pro y espera resultados.
+    
+    Args:
+        context: DurableOrchestrationContext
+        analysis_type: "layer2_structural" | "layer3_qualitative" | "arc_maps"
+        items: Lista de capítulos/análisis a procesar
+        bible: Biblia validada (solo para arc_maps)
+    
+    Returns:
+        Lista de resultados del análisis
+    """
+    # Enviar batch
+    batch_input = {
+        'analysis_type': analysis_type,
+        'items': items,
+        'bible': bible or {}
+    }
+    
+    batch_info = yield context.call_activity('SubmitGeminiProBatch', batch_input)
+    
+    if batch_info.get('status') == 'error':
+        raise Exception(f"Error creando batch {analysis_type}: {batch_info.get('error')}")
+    
+    logging.info(f"📦 Batch {analysis_type} creado: {batch_info.get('batch_job_name')}")
+    
+    # Esperar resultados
+    for attempt in range(GEMINI_PRO_BATCH_MAX_WAIT):
+        context.set_custom_status(f"⏳ Esperando Batch {analysis_type}... ({attempt + 1}/{GEMINI_PRO_BATCH_MAX_WAIT} min)")
+        
+        next_check = context.current_utc_datetime + timedelta(seconds=GEMINI_PRO_BATCH_POLL_INTERVAL)
+        yield context.create_timer(next_check)
+        
+        result = yield context.call_activity('PollGeminiProBatchResult', batch_info)
+        
+        if result.get('status') == 'success':
+            logging.info(f"✅ Batch {analysis_type} completado: {result.get('total')} resultados")
+            return result.get('results', [])
+        
+        if result.get('status') == 'failed':
+            raise Exception(f"Batch {analysis_type} falló: {result.get('error')}")
+        
+        # Actualizar batch_info para siguiente poll
+        batch_info = result
+    
+    raise Exception(f"Batch {analysis_type} no completó en {GEMINI_PRO_BATCH_MAX_WAIT} minutos")
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
     """
@@ -134,22 +184,23 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"✅ Consolidación: {len(consolidated_analyses)} capítulos")
         
         # =================================================================
-        # FASE 4: ANÁLISIS CAPA 2 (PARALELIZADO - TURBO)
+        # FASE 4: ANÁLISIS CAPA 2 (GEMINI PRO BATCH)
         # =================================================================
-        context.set_custom_status(f"📊 Fase 4/13: Análisis Capa 2 - Patrones estructurales...")
+        context.set_custom_status(f"📊 Fase 4/13: Análisis Capa 2 - Patrones estructurales (Batch)...")
         
-        tasks_layer2 = []
-        for chapter_analysis in consolidated_analyses:
-            tasks_layer2.append(context.call_activity('StructuralPatternAnalysis', chapter_analysis))
+        results_layer2 = yield from run_gemini_pro_batch(
+            context, 
+            'layer2_structural', 
+            consolidated_analyses
+        )
         
-        # Ejecutar en paralelo
-        results_layer2 = yield context.task_all(tasks_layer2)
+        # Mapear resultados por chapter_id
+        layer2_by_id = {r.get('chapter_id'): r for r in results_layer2}
         
-        # Reconstruir lista ordenada
         layer2_analyses = []
-        for i, result in enumerate(results_layer2):
-            chapter_data = consolidated_analyses[i]
-            chapter_data['layer2_structural'] = result
+        for chapter_data in consolidated_analyses:
+            cid = chapter_data.get('chapter_id', 0)
+            chapter_data['layer2_structural'] = layer2_by_id.get(cid, {})
             layer2_analyses.append(chapter_data)
         
         layer2_time = context.current_utc_datetime
@@ -157,26 +208,28 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"✅ Análisis Capa 2 completado (Paralelo)")
         
         # =================================================================
-        # FASE 5: ANÁLISIS CAPA 3 (PARALELIZADO - TURBO)
+        # FASE 5: ANÁLISIS CAPA 3 (GEMINI PRO BATCH)
         # =================================================================
-        context.set_custom_status(f"🧠 Fase 5/13: Análisis Capa 3 - Evaluación cualitativa (Deep Think)...")
+        context.set_custom_status(f"🧠 Fase 5/13: Análisis Capa 3 - Evaluación cualitativa (Batch)...")
         
-        tasks_layer3 = []
-        for i, chapter_analysis in enumerate(layer2_analyses):
-            tasks_layer3.append(context.call_activity(
-                'QualitativeEffectivenessAnalysis',
-                {
-                    'chapter_analysis': chapter_analysis,
-                    'previous_chapters': [] # En paralelo perdemos contexto inmediato, priorizamos velocidad
-                }
-            ))
-            
-        results_layer3 = yield context.task_all(tasks_layer3)
+        # Agregar posición a cada capítulo para el prompt
+        for i, chapter in enumerate(layer2_analyses):
+            chapter['chapter_position'] = i + 1
+            chapter['total_chapters'] = len(layer2_analyses)
+        
+        results_layer3 = yield from run_gemini_pro_batch(
+            context,
+            'layer3_qualitative',
+            layer2_analyses
+        )
+        
+        # Mapear resultados por chapter_id
+        layer3_by_id = {r.get('chapter_id'): r for r in results_layer3}
         
         layer3_analyses = []
-        for i, result in enumerate(results_layer3):
-            chapter_data = layer2_analyses[i]
-            chapter_data['layer3_qualitative'] = result
+        for chapter_data in layer2_analyses:
+            cid = chapter_data.get('chapter_id', 0)
+            chapter_data['layer3_qualitative'] = layer3_by_id.get(cid, {})
             layer3_analyses.append(chapter_data)
         
         layer3_time = context.current_utc_datetime
@@ -291,28 +344,27 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info("✅ Análisis especializados y validación de arcos completados")
 
         # =================================================================
-        # FASE 10: GENERACIÓN DE MAPAS DE ARCO (PARALELIZADO - TURBO)
+        # FASE 10: GENERACIÓN DE MAPAS DE ARCO (GEMINI PRO BATCH)
         # =================================================================
-        context.set_custom_status("🗺️ Fase 10/13: Generando mapas de arco por capítulo...")
+        context.set_custom_status("🗺️ Fase 10/13: Generando mapas de arco (Batch)...")
         
-        tasks_arc = []
+        # Preparar items con posición
         for i, chapter in enumerate(layer3_analyses):
-            chapter_id = chapter.get('chapter_id', i)
-            tasks_arc.append(context.call_activity(
-                'GenerateArcMapForChapter',
-                {
-                    'bible': bible_validated,
-                    'chapter_id': chapter_id,
-                    'chapter_analysis': chapter
-                }
-            ))
-            
-        results_arc = yield context.task_all(tasks_arc)
+            chapter['chapter_position'] = i + 1
+            chapter['total_chapters'] = len(layer3_analyses)
         
+        results_arc = yield from run_gemini_pro_batch(
+            context,
+            'arc_maps',
+            layer3_analyses,
+            bible=bible_validated
+        )
+        
+        # Construir diccionario de arc_maps
         arc_maps = {}
-        for i, arc_map in enumerate(results_arc):
-            chapter_id = layer3_analyses[i].get('chapter_id', i)
-            arc_maps[str(chapter_id)] = arc_map
+        for arc_map in results_arc:
+            cid = arc_map.get('chapter_id', 0)
+            arc_maps[cid] = arc_map
         
         arcmap_time = context.current_utc_datetime
         tiempos['mapas_arco'] = f"{(arcmap_time - validation_time).total_seconds():.1f}s"

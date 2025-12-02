@@ -170,7 +170,7 @@ RESPONDE CON JSON VÁLIDO:
 def call_gemini_pro(client, prompt):
     """Llamada a Gemini Pro para síntesis de Biblia."""
     return client.models.generate_content(
-        model='gemini-3-pro-preview',
+        model='gemini-2.5-pro',
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.3,
