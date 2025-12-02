@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 # =============================================================================
 GEMINI_MODEL_FAST = 'gemini-2.5-flash'
 GEMINI_MODEL_SMART = 'gemini-3-pro-preview' # O 'gemini-3-pro-preview' si tienes acceso
-CLAUDE_MODEL = 'claude-sonnet-4-20250514 '
+CLAUDE_MODEL = 'claude-sonnet-4-20250514'
 
 PROMPTS = {
     "cliches": """Eres un editor literario experto. Analiza este texto buscando patrones lingüísticos repetitivos, muletillas y clichés.
@@ -28,8 +28,9 @@ PROMPTS = {
     "economy": """Evalúa la economía narrativa. ¿El texto es eficiente o tiene "grasa"?
     Responde SOLO con este JSON: {"score_eficiencia": 0, "capitulos_baja_densidad": ["string"], "sugerencias": ["string"]}""",
     
+    # CORRECCIÓN AQUÍ: Doble llave {{ }} para el JSON, llave simple { } para la variable
     "genre": """Compara la estructura de este texto con las convenciones del género {genre}.
-    Responde SOLO con este JSON: {"cumplimiento_genero": 0, "elementos_ausentes": ["string"], "subversiones_intencionales": ["string"]}"""
+    Responde SOLO con este JSON: {{"cumplimiento_genero": 0, "elementos_ausentes": ["string"], "subversiones_intencionales": ["string"]}}"""
 }
 
 def clean_json_text(text):

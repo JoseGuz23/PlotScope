@@ -1,12 +1,9 @@
 # =============================================================================
-# SubmitClaudeBatch/__init__.py - PUNTO ÓPTIMO v2.0
+# SubmitClaudeBatch/__init__.py - SYLPHRENA 4.0 (FIXED)
 # =============================================================================
-# 
-# Optimizaciones:
-#   - Prompt reducido ~40% (mantiene ejemplos clave)
-#   - RAG selectivo (solo contexto relevante por capítulo)
-#   - Métricas de tokens estimados
-#
+# FIX APLICADO:
+#   - Ahora devuelve 'fragment_metadata_map' con metadatos jerárquicos completos
+#   - Esto permite que PollClaudeBatchResult reconstruya parent_chapter_id, etc.
 # =============================================================================
 
 import logging
@@ -15,161 +12,146 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# PROMPT PUNTO ÓPTIMO
-# - Mantiene 4 ejemplos esenciales (2 buenos, 2 malos)
-# - Elimina decoraciones y repeticiones
-# - ~1200 tokens vs ~2000 original
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# PROMPT OPTIMIZADO PARA EDICIÓN
+# =============================================================================
 
-EDIT_PROMPT_OPTIMAL = """Eres un EDITOR DE DESARROLLO profesional trabajando en una novela de {genero}.
+EDIT_PROMPT_OPTIMAL = """Eres un EDITOR PROFESIONAL especializado en {genero}.
 
-IDENTIDAD DE LA OBRA
-- Género: {genero} | Tono: {tono} | Tema: {tema}
-- Estilo de prosa: {estilo}
+IDENTIDAD DE LA OBRA:
+- Género: {genero}
+- Tono: {tono}
+- Tema: {tema}
+- Estilo: {estilo}
 
-VOZ DEL AUTOR - NO MODIFICAR:
+RESTRICCIONES (NO MODIFICAR):
 {no_corregir}
 
-CAPÍTULO ACTUAL
-- Título: {titulo}
-- Posición en arco: {posicion}
-- Ritmo: {ritmo}{advertencia_ritmo}
+═══════════════════════════════════════════════════════════════════════════════
+CAPÍTULO A EDITAR: {titulo}
+Posición en estructura: {posicion}
+Ritmo detectado: {ritmo}{advertencia_ritmo}
+═══════════════════════════════════════════════════════════════════════════════
 
 PERSONAJES EN ESTE CAPÍTULO:
 {personajes}
 
-PROBLEMAS A CORREGIR:
+PROBLEMAS ESPECÍFICOS A CORREGIR:
 {problemas}
 
-EJEMPLOS DE EDICIÓN:
-
-✅ CORRECTO - Show don't tell:
-Original: "María estaba muy triste por la noticia."
-Editado: "María apartó la mirada. Sus dedos se clavaron en el borde de la mesa."
-Razón: Muestra la emoción en lugar de declararla.
-
-✅ CORRECTO - Continuidad:
-Original: "Pedro sacó su espada del cinturón" (pero la perdió en cap anterior)
-Editado: "Pedro buscó su espada, recordando que la había perdido en el río."
-Razón: Corrige inconsistencia manteniendo la narrativa.
-
-❌ RECHAZADO - Cambia la voz:
-Original: "Era de noche. Fría. La luna no daba calor."
-Incorrecto: "La noche envolvía todo con su manto gélido mientras la luna observaba desde lo alto."
-Razón: El autor usa oraciones cortas. La "corrección" destruye su estilo.
-
-❌ RECHAZADO - Expande ritmo intencional:
-Original (capítulo lento): "Caminó por el jardín. Las flores estaban marchitas."
-Incorrecto: "Caminó lentamente por el sendero, observando con melancolía las flores marchitas..."
-Razón: Si el ritmo es intencional, expandir ROMPE la narrativa.
-
-TEXTO A EDITAR:
-
+═══════════════════════════════════════════════════════════════════════════════
+CONTENIDO:
+═══════════════════════════════════════════════════════════════════════════════
 {contenido}
 
-TU TAREA:
-1. Corrige SOLO: problemas listados + "tell vs show" + redundancias + continuidad
-2. NO toques: voz del autor, ritmo intencional, diálogos breves
-3. Ante la duda: NO edites
+═══════════════════════════════════════════════════════════════════════════════
+INSTRUCCIONES DE EDICIÓN:
+═══════════════════════════════════════════════════════════════════════════════
 
-RESPONDE JSON (sin markdown):
-{{"capitulo_editado": "texto completo", "cambios_realizados": [{{"tipo": "redundancia|show_tell|continuidad|otro", "original": "texto", "editado": "texto", "justificacion": "razón"}}], "problemas_corregidos": ["ID-001"], "notas_editor": "observaciones opcionales"}}"""
+1. CORRIGE problemas de show vs tell, redundancias y formato de diálogo
+2. PRESERVA la voz del autor, ritmo intencional y elementos de setup
+3. MANTÉN consistencia con personajes y tono establecido
+4. NO añadas contenido nuevo, solo mejora lo existente
+
+RESPONDE ÚNICAMENTE con un JSON válido (sin texto adicional):
+{{
+    "capitulo_editado": "...[texto completo editado]...",
+    "cambios_realizados": [
+        {{"tipo": "redundancia|show_tell|dialogo|otro", "original": "...", "editado": "...", "justificacion": "..."}}
+    ],
+    "problemas_corregidos": ["ID1", "ID2"],
+    "notas_editor": "..."
+}}
+"""
 
 
 def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict:
-    """
-    RAG SELECTIVO: Extrae SOLO lo relevante para este capítulo.
-    ~800-1000 tokens vs ~5000 de la biblia completa.
-    """
+    """Extrae contexto relevante para la edición."""
+    
     chapter_id = chapter.get('id', 0)
+    parent_id = chapter.get('parent_chapter_id', chapter_id)
+    
     try:
-        chapter_num = int(chapter_id) if str(chapter_id).isdigit() else 0
+        chapter_num = int(parent_id) if str(parent_id).isdigit() else 0
     except:
         chapter_num = 0
     
-    # 1. IDENTIDAD (~50 tokens)
-    identidad = bible.get('identidad_obra', {})
     context = {
-        'genero': identidad.get('genero', 'ficción'),
-        'tono': identidad.get('tono_predominante', 'neutro'),
-        'tema': identidad.get('tema_central', 'no especificado'),
+        'genero': 'ficción',
+        'tono': 'neutro',
+        'tema': '',
+        'estilo': 'equilibrado',
+        'no_corregir': [],
+        'posicion': 'desarrollo',
+        'ritmo': 'MEDIO',
+        'es_intencional': False,
+        'justificacion_ritmo': '',
+        'personajes': [],
+        'problemas': []
     }
     
-    # 2. VOZ (~150 tokens)
+    # 1. IDENTIDAD desde la Biblia
+    identidad = bible.get('identidad_obra', {})
+    context['genero'] = identidad.get('genero', 'ficción')
+    context['tono'] = identidad.get('tono_predominante', 'neutro')
+    context['tema'] = identidad.get('tema_central', '')
+    
+    # 2. VOZ DEL AUTOR
     voz = bible.get('voz_del_autor', {})
     context['estilo'] = voz.get('estilo_detectado', 'equilibrado')
-    context['no_corregir'] = voz.get('NO_CORREGIR', [])[:7]  # Max 7 items
+    context['no_corregir'] = voz.get('NO_CORREGIR', [])
     
-    # 3. RITMO de este capítulo (~50 tokens)
-    context['ritmo'] = 'MEDIO'
-    context['posicion'] = 'desarrollo'
-    context['es_intencional'] = False
-    context['justificacion_ritmo'] = ''
+    # 3. POSICIÓN EN ARCO
+    arco = bible.get('arco_narrativo', {})
+    puntos = arco.get('puntos_clave', {})
     
+    for punto, data in puntos.items():
+        if isinstance(data, dict) and data.get('capitulo') == chapter_num:
+            context['posicion'] = punto
+            break
+    
+    # 4. RITMO del capítulo
     mapa_ritmo = bible.get('mapa_de_ritmo', {})
     for cap in mapa_ritmo.get('capitulos', []):
         if cap.get('numero') == chapter_num or cap.get('capitulo') == chapter_num:
             context['ritmo'] = cap.get('clasificacion', 'MEDIO')
-            context['posicion'] = cap.get('posicion_en_arco', 'desarrollo')
             context['es_intencional'] = cap.get('es_intencional', False)
             context['justificacion_ritmo'] = cap.get('justificacion', '')
             break
     
-    # 4. PERSONAJES solo los presentes (~200 tokens max)
-    local_chars = analysis.get('reparto_local', [])
-    nombres_locales = set()
-    for p in local_chars:
-        if isinstance(p, dict):
-            nombre = p.get('nombre', '')
-            if nombre:
-                nombres_locales.add(nombre.lower())
-    
-    personajes_relevantes = []
+    # 5. PERSONAJES relevantes
     reparto = bible.get('reparto_completo', {})
+    personajes_capitulo = []
     
-    for categoria in ['protagonistas', 'antagonistas', 'secundarios']:
-        for char in reparto.get(categoria, []):
-            char_name = char.get('nombre', '').lower()
-            aliases = [a.lower() for a in char.get('aliases', [])]
-            
-            if char_name in nombres_locales or any(a in nombres_locales for a in aliases):
-                info = {
-                    'nombre': char.get('nombre'),
-                    'rol': char.get('rol_arquetipo', categoria),
-                }
-                # Solo agregar arco si existe y es corto
-                arco = char.get('arco_personaje', '')
-                if arco and len(arco) < 80:
-                    info['arco'] = arco
-                
-                # Marcar si tiene inconsistencias
-                if char.get('consistencia') != 'CONSISTENTE':
-                    notas = char.get('notas_inconsistencia', [])
-                    if notas:
-                        info['alerta'] = notas[0][:60]
-                
-                personajes_relevantes.append(info)
+    for tipo in ['protagonistas', 'antagonistas', 'secundarios']:
+        for personaje in reparto.get(tipo, []):
+            caps_clave = personaje.get('capitulos_clave', [])
+            if chapter_num in caps_clave or not caps_clave:
+                personajes_capitulo.append({
+                    'nombre': personaje.get('nombre', ''),
+                    'rol': personaje.get('rol_arquetipo', tipo),
+                    'arco': personaje.get('arco_personaje', ''),
+                    'alerta': personaje.get('notas_inconsistencia', [''])[0] if personaje.get('notas_inconsistencia') else ''
+                })
     
-    context['personajes'] = personajes_relevantes[:8]  # Max 8
+    context['personajes'] = personajes_capitulo[:5]
     
-    # 5. PROBLEMAS que afectan ESTE capítulo (~150 tokens max)
+    # 6. PROBLEMAS específicos
+    causalidad = bible.get('analisis_causalidad', {})
+    problemas_detectados = causalidad.get('problemas_detectados', {})
+    
     problemas_relevantes = []
-    problemas = bible.get('problemas_priorizados', {})
-    
-    for severidad in ['criticos', 'medios']:
-        for problema in problemas.get(severidad, []):
-            caps_afectados = problema.get('capitulos_afectados', [])
-            
-            if chapter_num in caps_afectados or str(chapter_num) in [str(c) for c in caps_afectados]:
+    for tipo_problema in ['eventos_huerfanos', 'cadenas_rotas', 'contradicciones']:
+        for problema in problemas_detectados.get(tipo_problema, []):
+            if str(problema.get('capitulo')) == str(chapter_num):
                 problemas_relevantes.append({
-                    'id': problema.get('id', '?'),
-                    'tipo': problema.get('tipo', 'otro'),
+                    'id': problema.get('evento_id', ''),
+                    'tipo': problema.get('tipo_problema', 'otro'),
                     'desc': problema.get('descripcion', '')[:100],
                     'fix': problema.get('sugerencia', '')[:60]
                 })
     
-    context['problemas'] = problemas_relevantes[:5]  # Max 5
+    context['problemas'] = problemas_relevantes[:5]
     
     return context
 
@@ -220,7 +202,7 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
         tema=context['tema'],
         estilo=context['estilo'],
         no_corregir=no_corregir_str,
-        titulo=chapter.get('title', 'Sin título'),
+        titulo=chapter.get('title', chapter.get('original_title', 'Sin título')),
         posicion=context['posicion'],
         ritmo=context['ritmo'],
         advertencia_ritmo=advertencia_ritmo,
@@ -234,6 +216,7 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
 
 def main(edit_requests: dict) -> dict:
     """Envía capítulos a Claude Batch API con contexto optimizado."""
+    
     try:
         from anthropic import Anthropic
         
@@ -251,15 +234,36 @@ def main(edit_requests: dict) -> dict:
         
         batch_requests = []
         ordered_ids = []
+        
+        # =====================================================================
+        # FIX: Crear mapa de metadatos jerárquicos para cada fragmento
+        # =====================================================================
+        fragment_metadata_map = {}
+        
         total_prompt_tokens = 0
         
         for chapter in chapters:
             ch_id = str(chapter.get('id', '?'))
             ordered_ids.append(ch_id)
             
+            # =====================================================================
+            # FIX: Guardar metadatos jerárquicos completos
+            # =====================================================================
+            fragment_metadata_map[ch_id] = {
+                'fragment_id': chapter.get('id', 0),
+                'parent_chapter_id': chapter.get('parent_chapter_id', chapter.get('id', 0)),
+                'fragment_index': chapter.get('fragment_index', 1),
+                'total_fragments': chapter.get('total_fragments', 1),
+                'original_title': chapter.get('original_title', chapter.get('title', 'Sin título')),
+                'section_type': chapter.get('section_type', 'CHAPTER'),
+                'is_first_fragment': chapter.get('is_first_fragment', True),
+                'is_last_fragment': chapter.get('is_last_fragment', True),
+                'content': chapter.get('content', '')  # Contenido original
+            }
+            
             # Buscar análisis
             analysis = next(
-                (a for a in analyses if str(a.get('chapter_id')) == ch_id),
+                (a for a in analyses if str(a.get('chapter_id')) == ch_id or str(a.get('fragment_id')) == ch_id),
                 {}
             )
             
@@ -298,6 +302,10 @@ def main(edit_requests: dict) -> dict:
             "status": "submitted",
             "processing_status": message_batch.processing_status,
             "id_map": ordered_ids,
+            # =====================================================================
+            # FIX: Incluir mapa de metadatos para PollClaudeBatchResult
+            # =====================================================================
+            "fragment_metadata_map": fragment_metadata_map,
             "metrics": {
                 "estimated_input_tokens": int(total_prompt_tokens),
                 "estimated_input_cost_usd": round(total_prompt_tokens * 1.50 / 1_000_000, 4)

@@ -1,11 +1,18 @@
 # =============================================================================
-# PollClaudeBatchResult/__init__.py
+# PollClaudeBatchResult/__init__.py - SYLPHRENA 4.0 (FIXED)
 # =============================================================================
+# FIX APLICADO:
+#   - Ahora recupera metadatos jerárquicos desde 'fragment_metadata_map'
+#   - Incluye parent_chapter_id, fragment_index, total_fragments en cada resultado
+#   - Esto permite que ReconstructManuscript consolide correctamente los fragmentos
+# =============================================================================
+
 import logging
 import json
 import os
 
 logging.basicConfig(level=logging.INFO)
+
 
 def main(batch_info: dict) -> object:
     try:
@@ -19,7 +26,12 @@ def main(batch_info: dict) -> object:
         batch_id = batch_info.get('batch_id')
         if not batch_id:
             return {"status": "error", "error": "No batch_id provided"}
-            
+        
+        # =====================================================================
+        # FIX: Recuperar el mapa de metadatos jerárquicos
+        # =====================================================================
+        fragment_metadata_map = batch_info.get('fragment_metadata_map', {})
+        
         client = Anthropic(api_key=api_key)
         
         # B. CONSULTAR ESTADO
@@ -39,7 +51,11 @@ def main(batch_info: dict) -> object:
                 "processing_status": status,
                 "batch_id": batch_id,
                 "request_counts": {"succeeded": succeeded, "processing": processing},
-                "id_map": batch_info.get('id_map', [])
+                "id_map": batch_info.get('id_map', []),
+                # =====================================================================
+                # FIX: Pasar el mapa de metadatos para el siguiente poll
+                # =====================================================================
+                "fragment_metadata_map": fragment_metadata_map
             }
 
         # CASO B: TERMINADO
@@ -74,11 +90,9 @@ def main(batch_info: dict) -> object:
                                 logging.warning(f"⚠️ JSON decode falló en {custom_id} incluso tras limpieza.")
                         
                         # 3. Determinar contenido final
-                        final_content = response_text # Fallback por defecto
+                        final_content = response_text  # Fallback por defecto
                         if parse_success:
-                            # Si hay JSON, sacamos el campo limpio
                             final_content = edit_data.get('capitulo_editado', response_text)
-                            # Log para confirmar que el fix funcionó
                             if start_idx > 0 or end_idx < len(clean_response) - 1:
                                 logging.info(f"🧹 JSON limpiado exitosamente en {custom_id}")
                         else:
@@ -89,20 +103,50 @@ def main(batch_info: dict) -> object:
                         output_tokens = message.usage.output_tokens
                         total_cost = (input_tokens * 1.50 / 1_000_000) + (output_tokens * 7.50 / 1_000_000)
 
-                        # 5. Construir Item Final
+                        # =====================================================================
+                        # FIX: Recuperar metadatos jerárquicos del mapa
+                        # =====================================================================
+                        frag_meta = fragment_metadata_map.get(chapter_id, {})
+                        
+                        # 5. Construir Item Final CON METADATOS JERÁRQUICOS
                         item = {
                             'chapter_id': chapter_id,
-                            'contenido_editado': final_content, # ¡AQUÍ ESTÁ LA CLAVE!
+                            
+                            # =====================================================================
+                            # FIX: Incluir TODOS los metadatos jerárquicos necesarios
+                            # =====================================================================
+                            'fragment_id': frag_meta.get('fragment_id', int(chapter_id) if chapter_id.isdigit() else 0),
+                            'parent_chapter_id': frag_meta.get('parent_chapter_id', int(chapter_id) if chapter_id.isdigit() else 0),
+                            'fragment_index': frag_meta.get('fragment_index', 1),
+                            'total_fragments': frag_meta.get('total_fragments', 1),
+                            'titulo_original': frag_meta.get('original_title', 'Sin título'),
+                            'titulo': frag_meta.get('original_title', 'Sin título'),
+                            'section_type': frag_meta.get('section_type', 'CHAPTER'),
+                            'is_first_fragment': frag_meta.get('is_first_fragment', True),
+                            'is_last_fragment': frag_meta.get('is_last_fragment', True),
+                            
+                            # Contenido
+                            'contenido_editado': final_content,
+                            'contenido_original': frag_meta.get('content', ''),
+                            
+                            # Datos de edición
                             'cambios_realizados': edit_data.get('cambios_realizados', []),
                             'problemas_corregidos': edit_data.get('problemas_corregidos', []),
                             'notas_editor': edit_data.get('notas_editor', ''),
+                            
+                            # Metadata
                             'metadata': {
                                 'status': 'success',
                                 'costo_usd': round(total_cost, 4),
-                                'parsed_json': parse_success
+                                'parsed_json': parse_success,
+                                'tokens_in': input_tokens,
+                                'tokens_out': output_tokens
                             }
                         }
                         results.append(item)
+                        
+                        # Log para confirmar que los metadatos se recuperaron
+                        logging.info(f"✅ {custom_id}: parent_chapter_id={item['parent_chapter_id']}, frag={item['fragment_index']}/{item['total_fragments']}")
                             
                     elif entry.result.type == "errored":
                         logging.error(f"❌ Item error: {entry.custom_id}")
@@ -111,11 +155,14 @@ def main(batch_info: dict) -> object:
                     logging.error(f"❌ Error procesando item: {inner_e}")
                     continue
 
+            logging.info(f"📦 Total resultados procesados: {len(results)}")
             return results
 
         else:
-            return {"status": "error", "error": f"Estado: {status}"}
+            return {"status": "error", "error": f"Estado inesperado: {status}"}
 
     except Exception as e:
         logging.error(f"❌ Error crítico: {str(e)}")
+        import traceback
+        logging.error(traceback.format_exc())
         return {"status": "error", "error": str(e)}

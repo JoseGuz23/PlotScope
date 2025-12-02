@@ -40,7 +40,13 @@ def main(save_input) -> dict:
         bible = save_input.get('bible', {})
         manuscripts = save_input.get('manuscripts', {})
         consolidated_chapters = save_input.get('consolidated_chapters', [])
-        original_chapters = save_input.get('original_chapters', [])
+        
+        # [FIX] Recibir contadores explícitos del Orchestrator
+        metadata_counts = save_input.get('metadata_counts', {})
+        
+        # Fallback para compatibilidad hacia atrás si metadata_counts no existe
+        original_fragments = save_input.get('original_fragments', save_input.get('original_chapters', []))
+        
         statistics = save_input.get('statistics', {})
         tiempos = save_input.get('tiempos', {})
         
@@ -59,37 +65,29 @@ def main(save_input) -> dict:
         # Crear container si no existe
         try:
             blob_service.create_container(container_name)
-            logging.info(f"📦 Container '{container_name}' creado")
         except Exception:
-            pass  # Ya existe
+            pass 
         
         container_client = blob_service.get_container_client(container_name)
-        
-        # Estructura de carpetas: job_id/
         base_path = f"{job_id}"
         urls = {}
         
         # ─────────────────────────────────────────────────────────────────
-        # B. GUARDAR BIBLIA VALIDADA
+        # B. GUARDAR BIBLIA VALIDADA (JSON y MD)
         # ─────────────────────────────────────────────────────────────────
-        
-        # B1. Biblia JSON (datos crudos)
+        # B1. JSON
         biblia_json_path = f"{base_path}/biblia_validada.json"
-        biblia_json_content = json.dumps(bible, indent=2, ensure_ascii=False)
-        
         blob_client = container_client.get_blob_client(biblia_json_path)
         blob_client.upload_blob(
-            biblia_json_content, 
+            json.dumps(bible, indent=2, ensure_ascii=False), 
             overwrite=True,
             content_settings=ContentSettings(content_type='application/json')
         )
         urls['biblia_json'] = blob_client.url
-        logging.info(f"✅ Guardado: {biblia_json_path}")
-        
-        # B2. Biblia Markdown (legible)
+
+        # B2. MD
         biblia_md_content = bible_to_markdown_v4(bible)
         biblia_md_path = f"{base_path}/biblia_validada.md"
-        
         blob_client = container_client.get_blob_client(biblia_md_path)
         blob_client.upload_blob(
             biblia_md_content, 
@@ -97,13 +95,13 @@ def main(save_input) -> dict:
             content_settings=ContentSettings(content_type='text/markdown')
         )
         urls['biblia_md'] = blob_client.url
-        logging.info(f"✅ Guardado: {biblia_md_path}")
         
+        logging.info("✅ Biblia guardada")
+
         # ─────────────────────────────────────────────────────────────────
-        # C. GUARDAR MANUSCRITOS (3 versiones)
+        # C. GUARDAR MANUSCRITOS
         # ─────────────────────────────────────────────────────────────────
-        
-        # C1. Manuscrito Limpio (Markdown)
+        # C1. Limpio
         if manuscripts.get('clean_md'):
             clean_path = f"{base_path}/manuscrito_editado.md"
             blob_client = container_client.get_blob_client(clean_path)
@@ -113,9 +111,8 @@ def main(save_input) -> dict:
                 content_settings=ContentSettings(content_type='text/markdown')
             )
             urls['manuscrito_limpio'] = blob_client.url
-            logging.info(f"✅ Guardado: {clean_path}")
-        
-        # C2. Manuscrito Enriquecido (Markdown con anotaciones)
+
+        # C2. Enriquecido
         if manuscripts.get('enriched_md'):
             enriched_path = f"{base_path}/manuscrito_anotado.md"
             blob_client = container_client.get_blob_client(enriched_path)
@@ -125,9 +122,8 @@ def main(save_input) -> dict:
                 content_settings=ContentSettings(content_type='text/markdown')
             )
             urls['manuscrito_anotado'] = blob_client.url
-            logging.info(f"✅ Guardado: {enriched_path}")
-        
-        # C3. Manuscrito Comparativo (HTML con control de cambios)
+
+        # C3. Comparativo
         if manuscripts.get('comparative_html'):
             comparative_path = f"{base_path}/control_cambios.html"
             blob_client = container_client.get_blob_client(comparative_path)
@@ -137,15 +133,14 @@ def main(save_input) -> dict:
                 content_settings=ContentSettings(content_type='text/html')
             )
             urls['control_cambios'] = blob_client.url
-            logging.info(f"✅ Guardado: {comparative_path}")
-        
+            
+        logging.info("✅ Manuscritos guardados")
+
         # ─────────────────────────────────────────────────────────────────
-        # D. GUARDAR REPORTE DE CAMBIOS DETALLADO
+        # D. GUARDAR REPORTE DE CAMBIOS
         # ─────────────────────────────────────────────────────────────────
-        
         cambios_md = generate_changes_report_v4(consolidated_chapters)
         cambios_path = f"{base_path}/reporte_cambios.md"
-        
         blob_client = container_client.get_blob_client(cambios_path)
         blob_client.upload_blob(
             cambios_md, 
@@ -153,19 +148,26 @@ def main(save_input) -> dict:
             content_settings=ContentSettings(content_type='text/markdown')
         )
         urls['reporte_cambios'] = blob_client.url
-        logging.info(f"✅ Guardado: {cambios_path}")
-        
+
         # ─────────────────────────────────────────────────────────────────
-        # E. GUARDAR RESUMEN EJECUTIVO (JSON)
+        # E. GUARDAR RESUMEN EJECUTIVO (FIXED)
         # ─────────────────────────────────────────────────────────────────
         
+        # [FIX] Usar lógica prioritaria: Metadata explícita > Cálculo sobre lista > 0
+        total_caps_orig = metadata_counts.get('original_chapters', 0)
+        if total_caps_orig == 0 and original_fragments:
+             # Fallback: si no hay metadata, usamos len de fragmentos (aunque sea inexacto es mejor que 0)
+             total_caps_orig = len(original_fragments)
+
         resumen = {
             'job_id': job_id,
             'book_name': book_name,
             'version': 'Sylphrena 4.0',
             'fecha_procesamiento': datetime.now().isoformat(),
-            'capitulos_originales': len(original_chapters),
+            # Aquí está el arreglo visual para el reporte:
+            'capitulos_originales': total_caps_orig, 
             'capitulos_procesados': len(consolidated_chapters),
+            'fragmentos_totales': metadata_counts.get('original_fragments', len(original_fragments)),
             'estadisticas': statistics,
             'tiempos': tiempos,
             'archivos_generados': {
@@ -187,12 +189,11 @@ def main(save_input) -> dict:
             content_settings=ContentSettings(content_type='application/json')
         )
         urls['resumen'] = blob_client.url
-        logging.info(f"✅ Guardado: {resumen_path}")
-        
+        logging.info("✅ Resumen ejecutivo guardado")
+
         # ─────────────────────────────────────────────────────────────────
-        # F. GUARDAR CAPÍTULOS INDIVIDUALES (para referencia)
+        # F. GUARDAR CAPÍTULOS INDIVIDUALES
         # ─────────────────────────────────────────────────────────────────
-        
         chapters_folder = f"{base_path}/capitulos"
         for chapter in consolidated_chapters:
             ch_id = chapter.get('chapter_id', 'unknown')
@@ -201,17 +202,13 @@ def main(save_input) -> dict:
             # Sanitizar título
             safe_title = "".join(c for c in ch_title if c.isalnum() or c in ' _-').strip()
             
-            # --- CORRECCIÓN: Formato seguro de ID ---
             try:
-                # Intentar convertir a número para usar formato 001
                 ch_num = int(ch_id)
                 file_name = f"{ch_num:03d}_{safe_title}.md"
             except ValueError:
-                # Si no es número (ej: "Prologo"), usar tal cual
                 file_name = f"{ch_id}_{safe_title}.md"
             
             ch_path = f"{chapters_folder}/{file_name}"
-            # ----------------------------------------
             
             ch_content = f"# {ch_title}\n\n"
             ch_content += chapter.get('contenido_editado', '')
@@ -222,12 +219,6 @@ def main(save_input) -> dict:
                 overwrite=True,
                 content_settings=ContentSettings(content_type='text/markdown')
             )
-        
-        logging.info(f"✅ Guardados {len(consolidated_chapters)} capítulos individuales")
-        
-        # ─────────────────────────────────────────────────────────────────
-        # G. RESULTADO FINAL
-        # ─────────────────────────────────────────────────────────────────
         
         logging.info(f"💾 Todos los archivos guardados en: {container_name}/{base_path}/")
         
@@ -245,7 +236,6 @@ def main(save_input) -> dict:
         import traceback
         logging.error(traceback.format_exc())
         return {"status": "error", "error": str(e)}
-
 
 def bible_to_markdown_v4(bible: dict) -> str:
     """Convierte la Biblia a MD con validación de tipos segura."""

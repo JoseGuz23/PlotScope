@@ -347,8 +347,12 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             edited_fragments = yield from edit_sequentially(context, edit_requests)
         
         # [FIX 2] ORDENAR RESULTADOS DE EDICIÓN
-        edited_fragments.sort(key=lambda x: int(x.get('fragment_id', 0) or x.get('chapter_id', 0)))
-        logging.info("✅ Capítulos editados ordenados correctamente.")
+        # Ordenar primero por ID de capítulo padre, y luego por índice de fragmento
+        edited_fragments.sort(key=lambda x: (
+            int(x.get('parent_chapter_id', 0) or x.get('chapter_id', 0)), # Criterio 1: Capítulo
+            int(x.get('fragment_index', 0))                               # Criterio 2: Orden dentro del cap
+        ))
+        logging.info("✅ Capítulos editados ordenados jerárquicamente (Capítulo -> Índice).")
 
         edit_time = context.current_utc_datetime
         tiempos['edicion'] = f"{(edit_time - pre_edit_time).total_seconds():.1f}s"
@@ -387,7 +391,14 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             'bible': bible_validated,
             'manuscripts': manuscripts,
             'consolidated_chapters': consolidated_chapters,
-            'original_chapters': fragments,
+            # Pasamos los datos crudos pero con nombres claros
+            'original_fragments': fragments, 
+            # Pasamos los conteos explícitos calculados al inicio
+            'metadata_counts': {
+                'original_chapters': total_chapters,    # Este es el número real (5)
+                'original_fragments': total_fragments,  # Este es 13
+                'total_words': total_words
+            },
             'statistics': reconstruction_stats,
             'tiempos': tiempos
         }

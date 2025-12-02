@@ -1,11 +1,10 @@
 # =============================================================================
-# ReconstructManuscript/__init__.py - SYLPHRENA 4.0
+# ReconstructManuscript/__init__.py - SYLPHRENA 4.0 (FIXED)
 # =============================================================================
-# NUEVA FUNCIÓN:
-#   - Consolida fragmentos editados en capítulos completos
-#   - Normaliza numeración y títulos de capítulos
-#   - Genera 3 versiones: limpia, enriquecida, comparativa
-#   - Resuelve el Problema Crítico 6: Salida Fragmentada Sin Formato Editorial
+# FIXES APLICADOS:
+#   1. consolidate_fragments ahora agrupa correctamente por parent_chapter_id
+#   2. Las anotaciones ahora usan display_title en lugar de chapter_id interno
+#   3. Mejor logging para debug
 # =============================================================================
 
 import logging
@@ -26,11 +25,34 @@ def consolidate_fragments(edited_chapters: list) -> list:
     """
     logging.info(f"🔧 Consolidando {len(edited_chapters)} fragmentos...")
     
+    # =========================================================================
+    # FIX: Debug - mostrar qué parent_chapter_id tiene cada fragmento
+    # =========================================================================
+    for frag in edited_chapters:
+        frag_id = frag.get('fragment_id', frag.get('chapter_id', '?'))
+        parent_id = frag.get('parent_chapter_id', 'NO_PARENT')
+        frag_idx = frag.get('fragment_index', '?')
+        total = frag.get('total_fragments', '?')
+        logging.info(f"   📄 Fragmento {frag_id}: parent={parent_id}, idx={frag_idx}/{total}")
+    
     # Agrupar por parent_chapter_id
     chapters_by_parent = {}
     
     for frag in edited_chapters:
-        parent_id = frag.get('parent_chapter_id', frag.get('chapter_id', 0))
+        # =========================================================================
+        # FIX: Usar parent_chapter_id correctamente, con fallbacks robustos
+        # =========================================================================
+        parent_id = frag.get('parent_chapter_id')
+        
+        # Si no hay parent_chapter_id, intentar inferirlo
+        if parent_id is None or parent_id == 0:
+            parent_id = frag.get('chapter_id', 0)
+        
+        # Convertir a int para consistencia
+        try:
+            parent_id = int(parent_id)
+        except (ValueError, TypeError):
+            parent_id = 0
         
         if parent_id not in chapters_by_parent:
             chapters_by_parent[parent_id] = {
@@ -42,6 +64,8 @@ def consolidate_fragments(edited_chapters: list) -> list:
         
         chapters_by_parent[parent_id]['fragments'].append(frag)
     
+    logging.info(f"📚 Agrupados en {len(chapters_by_parent)} capítulos únicos")
+    
     # Consolidar cada capítulo
     consolidated_chapters = []
     
@@ -51,6 +75,8 @@ def consolidate_fragments(edited_chapters: list) -> list:
         
         # Ordenar fragmentos por fragment_index
         fragments.sort(key=lambda f: f.get('fragment_index', 1))
+        
+        logging.info(f"   📖 Consolidando parent_id={parent_id}: {len(fragments)} fragmentos")
         
         # Concatenar contenido con sutura inteligente
         consolidated_content = smart_stitch_fragments(fragments)
@@ -195,7 +221,6 @@ def normalize_chapter_titles(chapters: list) -> list:
             
             # Extraer título descriptivo si existe (después de número)
             descriptive_title = ''
-            # Buscar título después de "Capítulo X:" o "X." 
             match = re.search(r'(?:Capítulo\s+\d+[:\.\s]+|^\d+[:\.\s]+|\b[IVXLCDM]+[:\.\s]+)(.+)', 
                             original_title, re.IGNORECASE)
             if match:
@@ -279,7 +304,10 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
     for chapter in chapters:
         display_title = chapter.get('display_title', 'Sin título')
         content = chapter.get('contenido_editado', '')
-        chapter_id = chapter.get('chapter_id', '?')
+        
+        # =========================================================================
+        # FIX: Usar display_title en las anotaciones, no chapter_id interno
+        # =========================================================================
         
         # Encabezado de capítulo
         lines.append(f'## {display_title}')
@@ -288,14 +316,17 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
         # Anotaciones editoriales (comentario HTML)
         annotation_lines = []
         annotation_lines.append(f'<!-- ')
-        annotation_lines.append(f'ANOTACIONES EDITORIALES - Capítulo {chapter_id}')
+        # =========================================================================
+        # FIX: Usar display_title en lugar de chapter_id
+        # =========================================================================
+        annotation_lines.append(f'ANOTACIONES EDITORIALES - {display_title}')
         annotation_lines.append(f'')
         
         # Cambios realizados
         cambios = chapter.get('cambios_realizados', [])
         if cambios:
             annotation_lines.append(f'CAMBIOS REALIZADOS ({len(cambios)}):')
-            for i, cambio in enumerate(cambios[:5], 1):  # Limitar a 5
+            for i, cambio in enumerate(cambios[:5], 1):
                 tipo = cambio.get('tipo', 'otro')
                 justificacion = cambio.get('justificacion', '')
                 annotation_lines.append(f'  {i}. [{tipo}] {justificacion}')
@@ -342,52 +373,43 @@ def generate_diff_html(original: str, edited: str) -> str:
     """
     Genera diff visual palabra por palabra.
     """
-    # 1. Tokenizar por palabras (manteniendo espacios para reconstruir)
     def tokenize(text):
         return re.split(r'(\s+)', text)
 
     original_tokens = tokenize(original)
     edited_tokens = tokenize(edited)
     
-    # 2. Comparar tokens en lugar de líneas completas
     matcher = SequenceMatcher(None, original_tokens, edited_tokens)
     
     html_parts = []
     
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
         if tag == 'equal':
-            # Texto sin cambios
-            text = "".join(original_tokens[i1:i2])
+            text = ''.join(original_tokens[i1:i2])
             escaped = text.replace('<', '&lt;').replace('>', '&gt;')
             html_parts.append(f'<span class="unchanged">{escaped}</span>')
-                
         elif tag == 'delete':
-            # Texto eliminado
-            text = "".join(original_tokens[i1:i2])
+            text = ''.join(original_tokens[i1:i2])
             escaped = text.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="deleted" style="color: #dc3545; text-decoration: line-through; background-color: #f8d7da;">{escaped}</span>')
-                
+            html_parts.append(f'<span class="deleted">{escaped}</span>')
         elif tag == 'insert':
-            # Texto añadido
-            text = "".join(edited_tokens[j1:j2])
+            text = ''.join(edited_tokens[j1:j2])
             escaped = text.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="inserted" style="color: #28a745; background-color: #d4edda;">{escaped}</span>')
-                
+            html_parts.append(f'<span class="inserted">{escaped}</span>')
         elif tag == 'replace':
-            # Reemplazo palabra por palabra
-            text_del = "".join(original_tokens[i1:i2])
-            text_ins = "".join(edited_tokens[j1:j2])
-            escaped_del = text_del.replace('<', '&lt;').replace('>', '&gt;')
-            escaped_ins = text_ins.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="deleted" style="color: #dc3545; text-decoration: line-through; background-color: #f8d7da;">{escaped_del}</span>')
-            html_parts.append(f'<span class="inserted" style="color: #28a745; background-color: #d4edda;">{escaped_ins}</span>')
+            old_text = ''.join(original_tokens[i1:i2])
+            new_text = ''.join(edited_tokens[j1:j2])
+            old_escaped = old_text.replace('<', '&lt;').replace('>', '&gt;')
+            new_escaped = new_text.replace('<', '&lt;').replace('>', '&gt;')
+            html_parts.append(f'<span class="deleted">{old_escaped}</span>')
+            html_parts.append(f'<span class="inserted">{new_escaped}</span>')
     
     return ''.join(html_parts)
 
 
 def generate_comparative_manuscript(chapters: list, book_name: str) -> str:
     """
-    Genera versión comparativa con control de cambios en HTML.
+    Genera versión HTML con control de cambios visual.
     Muestra texto eliminado (tachado rojo) y añadido (verde).
     """
     html_lines = []
@@ -482,7 +504,6 @@ def main(reconstruct_input) -> dict:
         else:
             input_data = reconstruct_input
         
-        # Renombrar para usar input_data en las siguientes líneas
         reconstruct_input = input_data 
         # ---------------------------
 
