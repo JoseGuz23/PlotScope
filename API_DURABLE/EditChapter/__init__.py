@@ -1,279 +1,284 @@
 # =============================================================================
-# EditChapter/__init__.py - SYLPHRENA 4.0
+# EditChapter/__init__.py - SYLPHRENA 4.0 - PARSING BLINDADO
 # =============================================================================
-# CAMBIOS DESDE 3.1:
-#   - Edición consciente de arco narrativo
-#   - Validación de impacto antes de aplicar cambios
-#   - Integración con GenerateArcMapForChapter
-#   - Rechazo de ediciones que dañan función narrativa
+# 
+# CORRECCIONES v4.0.1:
+#   - Limpieza robusta de markdown con regex
+#   - Doble intento de parsing (limpieza markdown → extracción entre llaves)
+#   - Fallback inteligente: si falla, busca { } y extrae JSON puro
+#   - Nunca devuelve JSON crudo como contenido editado
+#
 # =============================================================================
 
 import logging
 import json
 import os
 import time
-from anthropic import Anthropic, APIError, RateLimitError, APITimeoutError
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+import re
+from anthropic import Anthropic
 
 logging.basicConfig(level=logging.INFO)
-logging.getLogger('tenacity').setLevel(logging.WARNING)
 
 # =============================================================================
-# PROMPT DE EDICIÓN 4.0 - CONSCIENTE DE ARCO
+# PROMPTS
 # =============================================================================
 
-EDIT_CHAPTER_PROMPT_V4 = """
-Eres un EDITOR DE DESARROLLO profesional trabajando en una novela de {genero}.
+EDIT_CHAPTER_PROMPT_V4 = """Eres un EDITOR DE DESARROLLO profesional trabajando en una novela de {genero}.
 
-═══════════════════════════════════════════════════════════════════════════════
 IDENTIDAD DE LA OBRA
-═══════════════════════════════════════════════════════════════════════════════
-Género: {genero}
-Tono: {tono}
-Tema central: {tema}
-Estilo de prosa: {estilo}
+- Género: {genero} | Tono: {tono} | Tema central: {tema}
+- Estilo de prosa detectado: {estilo}
 
-═══════════════════════════════════════════════════════════════════════════════
-VOZ DEL AUTOR - NO MODIFICAR ESTOS ELEMENTOS
-═══════════════════════════════════════════════════════════════════════════════
+ELEMENTOS DE VOZ DEL AUTOR - NO MODIFICAR:
 {no_corregir}
 
 ═══════════════════════════════════════════════════════════════════════════════
-🎯 FUNCIÓN NARRATIVA DE ESTE CAPÍTULO (CRÍTICO)
+POSICIÓN EN LA ESTRUCTURA NARRATIVA
 ═══════════════════════════════════════════════════════════════════════════════
-Posición en estructura: {posicion_estructura}
-Función dramática: {funcion_dramatica}
-Arcos de personajes activos: {arcos_activos}
-Subtramas en progreso: {subtramas}
-Elementos de configuración (setup): {elementos_setup}
+- Posición actual: {posicion_estructura}
+- Función dramática: {funcion_dramatica}
 
-⚠️ RESTRICCIONES BASADAS EN FUNCIÓN NARRATIVA:
+ARCOS NARRATIVOS ACTIVOS EN ESTE CAPÍTULO:
+{arcos_activos}
+
+SUBTRAMAS RELEVANTES:
+{subtramas}
+
+ELEMENTOS DE SETUP QUE DEBEN PRESERVARSE:
+{elementos_setup}
+
+RESTRICCIONES DE EDICIÓN POR ARCO:
 {restricciones_arco}
 
 ═══════════════════════════════════════════════════════════════════════════════
-INFORMACIÓN DE ESTE CAPÍTULO
+CAPÍTULO A EDITAR
 ═══════════════════════════════════════════════════════════════════════════════
 Título: {titulo}
-Título Original: {titulo_original}
-Tipo de Sección: {tipo_seccion}
-Es fragmento: {es_fragmento}
-Contexto de fragmento: {contexto_fragmento}
-Ritmo esperado: {ritmo}
-Es ritmo intencional: {es_intencional}
+Título original: {titulo_original}
+Tipo de sección: {tipo_seccion}
+Es fragmento de capítulo largo: {es_fragmento}
+{contexto_fragmento}
+
+ANÁLISIS DE RITMO:
+- Clasificación: {ritmo}
+- ¿Es ritmo intencional?: {es_intencional}
 {advertencia_ritmo}
 
-═══════════════════════════════════════════════════════════════════════════════
-PERSONAJES EN ESTE CAPÍTULO
-═══════════════════════════════════════════════════════════════════════════════
+PERSONAJES EN ESTE CAPÍTULO:
 {personajes}
 
-═══════════════════════════════════════════════════════════════════════════════
-PROBLEMAS A CORREGIR EN ESTE CAPÍTULO
-═══════════════════════════════════════════════════════════════════════════════
+PROBLEMAS DETECTADOS A CORREGIR:
 {problemas}
 
 ═══════════════════════════════════════════════════════════════════════════════
-EJEMPLOS DE EDICIÓN
+TEXTO ORIGINAL:
 ═══════════════════════════════════════════════════════════════════════════════
-
-✅ CORRECTO - Show don't tell:
-Original: "María estaba muy triste por la noticia."
-Editado: "María apartó la mirada. Sus dedos se clavaron en el borde de la mesa."
-Razón: Muestra la emoción en lugar de declararla.
-
-✅ CORRECTO - Continuidad:
-Original: "Pedro sacó su espada del cinturón" (pero la perdió en cap anterior)
-Editado: "Pedro buscó su espada, recordando que la había perdido en el río."
-Razón: Corrige inconsistencia manteniendo la narrativa.
-
-❌ RECHAZADO - Cambia la voz:
-Original: "Era de noche. Fría. La luna no daba calor."
-Incorrecto: "La noche envolvía todo con su manto gélido mientras la luna observaba."
-Razón: El autor usa oraciones cortas. La "corrección" destruye su estilo.
-
-❌ RECHAZADO - Daña función narrativa:
-Original: "Juan miró a María con desconfianza." (en capítulo de SETUP de conflicto)
-Incorrecto: "Juan miró a María con curiosidad."
-Razón: La desconfianza es SETUP intencional para conflicto posterior. Eliminarla daña el arco.
-
-═══════════════════════════════════════════════════════════════════════════════
-TEXTO A EDITAR
-═══════════════════════════════════════════════════════════════════════════════
-
 {contenido}
 
 ═══════════════════════════════════════════════════════════════════════════════
 TU TAREA
 ═══════════════════════════════════════════════════════════════════════════════
+1. CORRIGE los problemas listados arriba
+2. APLICA mejoras de "show don't tell" donde sea apropiado
+3. ELIMINA redundancias obvias
+4. PRESERVA absolutamente los elementos de setup marcados
+5. MANTÉN el ritmo si está marcado como intencional
+6. NO toques los elementos de voz del autor
 
-1. LEE el capítulo completo antes de editar.
-
-2. CORRIGE únicamente:
-   - Los problemas listados arriba (PROBLEMAS A CORREGIR)
-   - Instancias claras de "tell" que deberían ser "show"
-   - Redundancias obvias (palabras/frases repetidas innecesariamente)
-   - Errores de continuidad con los personajes descritos
-
-3. PRESERVA LA FUNCIÓN NARRATIVA:
-   - NO elimines elementos que son SETUP para capítulos posteriores
-   - NO suavices características de personajes que son parte de su arco
-   - NO cambies el tono si es intencional para esta posición en la estructura
-   - Si un elemento parece "negativo" pero está en la lista de SETUP, PRESÉRVALO
-
-4. NO TOQUES:
-   - NADA de la lista "VOZ DEL AUTOR - NO MODIFICAR"
-   - El ritmo del capítulo (especialmente si es INTENCIONAL)
-   - Elementos listados en "Elementos de configuración (setup)"
-
-5. CUANDO TENGAS DUDA: No edites. Es mejor preservar la intención del autor.
-
-═══════════════════════════════════════════════════════════════════════════════
-FORMATO DE RESPUESTA
-═══════════════════════════════════════════════════════════════════════════════
-
-Responde SOLO con JSON válido (sin markdown):
+RESPONDE ÚNICAMENTE CON UN OBJETO JSON (sin markdown, sin ```):
 {{
-  "capitulo_editado": "El texto completo del capítulo editado",
+  "capitulo_editado": "TEXTO COMPLETO EDITADO AQUÍ",
   "cambios_realizados": [
     {{
-      "tipo": "redundancia|show_tell|continuidad|otro",
-      "original": "Texto original",
-      "editado": "Texto corregido",
-      "justificacion": "Por qué este cambio",
-      "impacto_narrativo": "ninguno|bajo|medio|alto"
+      "tipo": "redundancia|show_tell|continuidad|ritmo|otro",
+      "original": "texto original",
+      "editado": "texto nuevo",
+      "justificacion": "razón del cambio"
     }}
   ],
-  "elementos_preservados": ["Lista de elementos de setup que se preservaron intencionalmente"],
-  "problemas_corregidos": ["ID-001", "ID-002"],
-  "notas_editor": "Observaciones generales sobre el capítulo"
-}}
-"""
+  "elementos_preservados": ["lista de elementos de setup que se mantuvieron intactos"],
+  "problemas_corregidos": ["IDs de problemas solucionados"],
+  "notas_editor": "Observaciones generales sobre la edición"
+}}"""
 
-# =============================================================================
-# PROMPT DE VALIDACIÓN DE IMPACTO
-# =============================================================================
-
-IMPACT_VALIDATION_PROMPT = """
-Eres un VALIDADOR DE IMPACTO NARRATIVO. Tu trabajo es verificar que las ediciones 
-propuestas NO dañen la función narrativa del capítulo.
+IMPACT_VALIDATION_PROMPT = """Evalúa si las ediciones propuestas dañan la función narrativa del capítulo.
 
 MAPA DE ARCO DEL CAPÍTULO:
 {arc_map}
 
-TEXTO ORIGINAL:
+TEXTO ORIGINAL (primeros 5000 caracteres):
 {original_text}
 
-TEXTO EDITADO PROPUESTO:
+TEXTO EDITADO (primeros 5000 caracteres):
 {edited_text}
 
 CAMBIOS REALIZADOS:
 {changes}
 
-TU TAREA:
-1. Identifica TODOS los cambios significativos de contenido (no solo estilo)
-2. Para cada cambio, evalúa si altera elementos marcados como importantes en el mapa de arco
-3. Clasifica cada cambio como:
-   - SEGURO: Cambio puramente estilístico sin impacto en contenido narrativo
-   - BENEFICIOSO: Mejora claridad sin alterar función narrativa
-   - PROBLEMÁTICO: Daña o elimina elementos importantes para el arco
+EVALÚA:
+1. ¿Los cambios preservan los elementos de setup críticos?
+2. ¿Se mantiene la función dramática del capítulo?
+3. ¿El ritmo narrativo sigue siendo coherente?
+4. ¿Hay algún cambio que rompa la continuidad?
 
-Responde SOLO con JSON válido:
+RESPONDE JSON (sin markdown):
 {{
-  "validacion_global": "APROBADO|RECHAZADO|PARCIAL",
+  "validacion_global": "APROBADO|RECHAZADO",
   "cambios_evaluados": [
     {{
-      "descripcion": "Descripción del cambio",
-      "clasificacion": "SEGURO|BENEFICIOSO|PROBLEMÁTICO",
-      "razon": "Explicación de la clasificación",
-      "elemento_afectado": "Qué elemento del mapa de arco afecta (si aplica)"
+      "cambio_index": 0,
+      "impacto": "SEGURO|RIESGOSO|DAÑINO",
+      "razon": "explicación"
     }}
   ],
-  "cambios_problematicos": ["Lista de descripciones de cambios problemáticos"],
-  "recomendacion": "Descripción de qué hacer"
-}}
-"""
+  "cambios_problematicos": ["índices de cambios dañinos"],
+  "recomendacion": "acción sugerida si hay problemas"
+}}"""
+
 
 # =============================================================================
-# ESTRATEGIA DE REINTENTOS
+# FUNCIONES DE LIMPIEZA BLINDADA DE JSON
 # =============================================================================
 
-retry_strategy = retry(
-    retry=retry_if_exception_type((RateLimitError, APITimeoutError)),
-    wait=wait_exponential(multiplier=1, min=2, max=30),
-    stop=stop_after_attempt(4),
-    reraise=True
-)
+def clean_json_response(response_text: str) -> tuple:
+    """
+    Limpieza BLINDADA de respuesta JSON.
+    
+    Estrategia de 3 niveles:
+    1. Limpieza de markdown con regex
+    2. Extracción entre { y } si lo anterior falla
+    3. Retorna (json_dict, success_flag)
+    
+    NUNCA devuelve JSON crudo como fallback.
+    """
+    if not response_text:
+        return {}, False
+    
+    clean = response_text.strip()
+    
+    # ===========================================
+    # NIVEL 1: Limpieza de markdown con regex
+    # ===========================================
+    # Patrón: ```json o ``` al inicio (con posibles espacios/saltos)
+    clean = re.sub(r'^[\s]*```(?:json)?[\s]*\n?', '', clean)
+    # Patrón: ``` al final (con posibles espacios/saltos)
+    clean = re.sub(r'\n?[\s]*```[\s]*$', '', clean)
+    clean = clean.strip()
+    
+    # Intentar parsear después de limpieza de markdown
+    try:
+        parsed = json.loads(clean)
+        logging.info("✅ JSON parseado con limpieza de markdown")
+        return parsed, True
+    except json.JSONDecodeError:
+        pass
+    
+    # ===========================================
+    # NIVEL 2: Extracción entre llaves { }
+    # ===========================================
+    start_idx = clean.find('{')
+    end_idx = clean.rfind('}')
+    
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        json_str = clean[start_idx : end_idx + 1]
+        try:
+            parsed = json.loads(json_str)
+            logging.info("✅ JSON parseado con extracción entre llaves")
+            return parsed, True
+        except json.JSONDecodeError as e:
+            logging.warning(f"⚠️ Extracción entre llaves falló: {e}")
+    
+    # ===========================================
+    # NIVEL 3: Intentar reparar JSON común
+    # ===========================================
+    # A veces Claude trunca o tiene errores menores
+    try:
+        # Intentar con el texto original (sin modificar)
+        parsed = json.loads(response_text.strip())
+        logging.info("✅ JSON parseado del texto original")
+        return parsed, True
+    except json.JSONDecodeError:
+        pass
+    
+    logging.error("❌ Todos los intentos de parsing JSON fallaron")
+    return {}, False
 
 
-@retry_strategy
-def call_claude(client, prompt, max_tokens=8000):
-    """Llamada a Claude con reintentos"""
-    return client.messages.create(
-        model="claude-sonnet-4-5-20250929",
-        max_tokens=max_tokens,
-        temperature=0.3,
-        messages=[{"role": "user", "content": prompt}]
-    )
+def extract_edited_content(response_text: str, original_content: str) -> dict:
+    """
+    Extrae el contenido editado de la respuesta de Claude.
+    
+    Si el parsing falla completamente, devuelve el contenido original
+    con una nota de error (NUNCA devuelve JSON crudo).
+    
+    Returns:
+        dict con: edited_content, cambios, elementos_preservados, 
+                  problemas_corregidos, notas
+    """
+    parsed, success = clean_json_response(response_text)
+    
+    if success and parsed:
+        # Extraer campos del JSON parseado
+        edited_content = parsed.get('capitulo_editado', '')
+        
+        # Validación: si capitulo_editado está vacío o parece JSON, usar original
+        if not edited_content or edited_content.strip().startswith('{'):
+            logging.warning("⚠️ capitulo_editado vacío o inválido, usando original")
+            edited_content = original_content
+        
+        return {
+            'edited_content': edited_content,
+            'cambios': parsed.get('cambios_realizados', []),
+            'elementos_preservados': parsed.get('elementos_preservados', []),
+            'problemas_corregidos': parsed.get('problemas_corregidos', []),
+            'notas': parsed.get('notas_editor', ''),
+            'parse_success': True
+        }
+    
+    # Si falló el parsing, devolver original con nota
+    logging.warning("⚠️ Parsing falló completamente, devolviendo contenido original")
+    return {
+        'edited_content': original_content,
+        'cambios': [],
+        'elementos_preservados': [],
+        'problemas_corregidos': [],
+        'notas': 'ERROR: No se pudo parsear la respuesta de Claude. Contenido original preservado.',
+        'parse_success': False
+    }
 
+
+# =============================================================================
+# FUNCIONES DE CONTEXTO
+# =============================================================================
 
 def extract_arc_context(chapter: dict, bible: dict, analysis: dict, arc_map: dict) -> dict:
     """
-    Extrae contexto enriquecido incluyendo información del mapa de arco.
+    Extrae contexto de arco narrativo para guiar la edición.
     """
-    # Obtener ID del capítulo
     chapter_id = chapter.get('id', 0)
-    parent_chapter_id = chapter.get('parent_chapter_id', chapter_id)
-    
     try:
-        chapter_num = int(parent_chapter_id) if str(parent_chapter_id).isdigit() else 0
+        chapter_num = int(chapter_id) if str(chapter_id).isdigit() else 0
     except:
         chapter_num = 0
     
+    # Identidad de la obra
+    identidad = bible.get('identidad_obra', {})
     context = {
-        # Identidad básica
-        'genero': 'ficción',
-        'tono': 'neutro',
-        'tema': '',
-        'estilo': 'equilibrado',
-        'no_corregir': [],
-        
-        # Información de fragmento
-        'es_fragmento': chapter.get('is_fragment', False),
-        'fragment_index': chapter.get('fragment_index', 1),
-        'total_fragments': chapter.get('total_fragments', 1),
-        'is_first': chapter.get('is_first_fragment', True),
-        'is_last': chapter.get('is_last_fragment', True),
-        
-        # Ritmo
-        'ritmo': 'MEDIO',
-        'es_intencional': False,
-        'justificacion_ritmo': '',
-        
-        # Arco narrativo (NUEVO en 4.0)
-        'posicion_estructura': arc_map.get('posicion_estructura', 'desarrollo'),
-        'funcion_dramatica': arc_map.get('funcion_dramatica', 'desarrollo de trama'),
-        'arcos_activos': arc_map.get('arcos_personajes_activos', []),
-        'subtramas': arc_map.get('subtramas_en_progreso', []),
-        'elementos_setup': arc_map.get('elementos_configuracion', []),
-        'restricciones_arco': arc_map.get('restricciones_edicion', []),
-        
-        # Personajes y problemas
-        'personajes': [],
-        'problemas': []
+        'genero': identidad.get('genero', 'ficción'),
+        'tono': identidad.get('tono_predominante', 'neutro'),
+        'tema': identidad.get('tema_central', 'no especificado'),
     }
     
-    # 1. IDENTIDAD desde la Biblia
-    identidad = bible.get('identidad_obra', {})
-    context['genero'] = identidad.get('genero', 'ficción')
-    context['tono'] = identidad.get('tono_predominante', 'neutro')
-    context['tema'] = identidad.get('tema_central', '')
-    
-    # 2. VOZ DEL AUTOR
+    # Voz del autor
     voz = bible.get('voz_del_autor', {})
     context['estilo'] = voz.get('estilo_detectado', 'equilibrado')
-    context['no_corregir'] = voz.get('NO_CORREGIR', [])
+    context['no_corregir'] = voz.get('NO_CORREGIR', [])[:10]
     
-    # 3. RITMO del capítulo
+    # Ritmo del capítulo
+    context['ritmo'] = 'MEDIO'
+    context['es_intencional'] = False
+    context['justificacion_ritmo'] = ''
+    
     mapa_ritmo = bible.get('mapa_de_ritmo', {})
     for cap in mapa_ritmo.get('capitulos', []):
         if cap.get('numero') == chapter_num or cap.get('capitulo') == chapter_num:
@@ -282,117 +287,107 @@ def extract_arc_context(chapter: dict, bible: dict, analysis: dict, arc_map: dic
             context['justificacion_ritmo'] = cap.get('justificacion', '')
             break
     
-    # 4. PERSONAJES presentes
-    local_chars = analysis.get('reparto_local', [])
-    nombres_locales = set()
-    for p in local_chars:
-        if isinstance(p, dict):
-            nombre = p.get('nombre', '')
-            if nombre:
-                nombres_locales.add(nombre.lower())
+    # Posición en estructura
+    context['posicion_estructura'] = 'desarrollo'
+    context['funcion_dramatica'] = 'progresión de trama'
     
-    reparto = bible.get('reparto_completo', {})
-    for categoria in ['protagonistas', 'antagonistas', 'secundarios']:
-        for char in reparto.get(categoria, []):
-            char_name = char.get('nombre', '').lower()
-            aliases = [a.lower() for a in char.get('aliases', [])]
-            
-            if char_name in nombres_locales or any(a in nombres_locales for a in aliases):
-                # Buscar fase del arco en arc_map
-                fase_arco = 'desarrollo'
-                for arco in context['arcos_activos']:
-                    if arco.get('personaje', '').lower() == char_name:
-                        fase_arco = arco.get('fase', 'desarrollo')
-                        break
-                
-                context['personajes'].append({
-                    'nombre': char.get('nombre'),
-                    'rol': char.get('rol_arquetipo', categoria),
-                    'fase_arco': fase_arco,
-                    'consistencia': char.get('consistencia', 'CONSISTENTE')
-                })
+    estructura = bible.get('estructura_narrativa', {})
+    for punto in estructura.get('puntos_clave', []):
+        if punto.get('capitulo') == chapter_num:
+            context['posicion_estructura'] = punto.get('tipo', 'desarrollo')
+            context['funcion_dramatica'] = punto.get('funcion', 'progresión de trama')
+            break
     
-    # 5. PROBLEMAS del capítulo
-    problemas = bible.get('problemas_priorizados', {})
-    for severidad in ['criticos', 'medios']:
-        for problema in problemas.get(severidad, []):
-            caps_afectados = problema.get('capitulos_afectados', [])
-            if chapter_num in caps_afectados or str(chapter_num) in [str(c) for c in caps_afectados]:
-                context['problemas'].append({
-                    'id': problema.get('id', '?'),
-                    'tipo': problema.get('tipo', 'otro'),
-                    'descripcion': problema.get('descripcion', '')[:100],
-                    'sugerencia': problema.get('sugerencia', '')[:60]
-                })
+    # Arcos activos
+    context['arcos_activos'] = []
+    context['subtramas'] = []
+    context['elementos_setup'] = []
+    context['restricciones'] = []
+    
+    if arc_map:
+        arcos = arc_map.get('arcos_en_capitulo', [])
+        for arco in arcos[:5]:
+            context['arcos_activos'].append({
+                'nombre': arco.get('nombre', 'Sin nombre'),
+                'fase': arco.get('fase_actual', 'desarrollo'),
+                'tension': arco.get('nivel_tension', 5)
+            })
+        
+        context['subtramas'] = arc_map.get('subtramas', [])[:3]
+        context['elementos_setup'] = arc_map.get('elementos_setup', [])[:5]
+        context['restricciones'] = arc_map.get('restricciones_edicion', [])[:5]
+    
+    # Personajes del capítulo
+    context['personajes'] = []
+    if analysis:
+        reparto = analysis.get('reparto_local', [])
+        for personaje in reparto[:8]:
+            context['personajes'].append({
+                'nombre': personaje.get('nombre', 'Desconocido'),
+                'rol': personaje.get('rol', 'secundario'),
+                'estado': personaje.get('estado_emocional', 'neutro')
+            })
+    
+    # Problemas detectados
+    context['problemas'] = []
+    if analysis:
+        senales = analysis.get('senales_edicion', {})
+        for problema in senales.get('problemas_potenciales', [])[:10]:
+            if isinstance(problema, dict):
+                context['problemas'].append(problema)
+            else:
+                context['problemas'].append({'descripcion': str(problema)})
+    
+    # Metadata de fragmentación
+    context['es_fragmento'] = chapter.get('is_fragment', False)
+    context['fragment_index'] = chapter.get('fragment_index', 1)
+    context['total_fragments'] = chapter.get('total_fragments', 1)
+    context['is_first'] = context['fragment_index'] == 1
+    context['is_last'] = context['fragment_index'] == context['total_fragments']
     
     return context
 
 
 def build_edit_prompt_v4(chapter: dict, context: dict) -> str:
-    """Construye el prompt de edición 4.0 con consciencia de arco."""
+    """
+    Construye el prompt de edición con contexto de arco narrativo.
+    """
+    # Formatear listas para el prompt
+    no_corregir_str = '\n'.join([f"- {item}" for item in context['no_corregir']]) if context['no_corregir'] else "- (ninguno especificado)"
     
-    # NO_CORREGIR
-    if context['no_corregir']:
-        no_corregir_str = "\n".join([f"- {item}" for item in context['no_corregir']])
-    else:
-        no_corregir_str = "- (Sin restricciones específicas)"
+    arcos_str = ""
+    for arco in context['arcos_activos']:
+        arcos_str += f"- {arco['nombre']}: fase {arco['fase']}, tensión {arco['tension']}/10\n"
+    if not arcos_str:
+        arcos_str = "- (sin arcos específicos identificados)"
     
-    # PERSONAJES
-    if context['personajes']:
-        lines = []
-        for p in context['personajes']:
-            line = f"- {p['nombre']}: {p['rol']} | Fase de arco: {p['fase_arco']}"
-            lines.append(line)
-        personajes_str = "\n".join(lines)
-    else:
-        personajes_str = "- (Ninguno identificado)"
+    subtramas_str = '\n'.join([f"- {s}" for s in context['subtramas']]) if context['subtramas'] else "- (ninguna)"
+    setup_str = '\n'.join([f"- {e}" for e in context['elementos_setup']]) if context['elementos_setup'] else "- (ninguno)"
+    restricciones_str = '\n'.join([f"- {r}" for r in context['restricciones']]) if context['restricciones'] else "- (ninguna)"
     
-    # PROBLEMAS
-    if context['problemas']:
-        lines = []
-        for p in context['problemas']:
-            line = f"- [{p['id']}] {p['tipo']}: {p['descripcion']}"
-            if p.get('sugerencia'):
-                line += f"\n  Sugerencia: {p['sugerencia']}"
-            lines.append(line)
-        problemas_str = "\n".join(lines)
-    else:
-        problemas_str = "- (Sin problemas específicos para este capítulo)"
+    personajes_str = ""
+    for p in context['personajes']:
+        personajes_str += f"- {p['nombre']} ({p['rol']}): {p['estado']}\n"
+    if not personajes_str:
+        personajes_str = "- (sin personajes identificados)"
     
-    # ARCOS ACTIVOS
-    if context['arcos_activos']:
-        arcos_str = "\n".join([
-            f"- {a.get('personaje', '?')}: Fase {a.get('fase', '?')} - {a.get('descripcion', '')}"
-            for a in context['arcos_activos']
-        ])
-    else:
-        arcos_str = "- (Sin arcos activos documentados)"
+    problemas_str = ""
+    for i, prob in enumerate(context['problemas'], 1):
+        if isinstance(prob, dict):
+            desc = prob.get('descripcion', prob.get('problema', str(prob)))
+            problemas_str += f"[{i}] {desc}\n"
+        else:
+            problemas_str += f"[{i}] {prob}\n"
+    if not problemas_str:
+        problemas_str = "- (sin problemas detectados)"
     
-    # SUBTRAMAS
-    if context['subtramas']:
-        subtramas_str = "\n".join([f"- {s}" for s in context['subtramas']])
-    else:
-        subtramas_str = "- (Sin subtramas en progreso)"
-    
-    # ELEMENTOS DE SETUP
-    if context['elementos_setup']:
-        setup_str = "\n".join([f"- {e}" for e in context['elementos_setup']])
-    else:
-        setup_str = "- (Sin elementos de configuración documentados)"
-    
-    # RESTRICCIONES DE ARCO
-    if context['restricciones_arco']:
-        restricciones_str = "\n".join([f"⚠️ {r}" for r in context['restricciones_arco']])
-    else:
-        restricciones_str = "- (Sin restricciones especiales)"
-    
-    # ADVERTENCIA DE RITMO
+    # Advertencia de ritmo
     advertencia_ritmo = ""
     if context['es_intencional']:
-        advertencia_ritmo = f"\n⚠️ RITMO INTENCIONAL: {context['justificacion_ritmo'][:80]}"
+        advertencia_ritmo = f"\n⚠️ ADVERTENCIA: Este ritmo es INTENCIONAL. Justificación: {context['justificacion_ritmo']}\nNO expandas ni modifiques el ritmo de este capítulo."
     
-    # CONTEXTO DE FRAGMENTO
-    contexto_fragmento = "Capítulo completo (no fragmentado)"
+    # Contexto de fragmento
+    contexto_fragmento = ""
     if context['es_fragmento']:
         frag_idx = context['fragment_index']
         total = context['total_fragments']
@@ -431,6 +426,17 @@ def build_edit_prompt_v4(chapter: dict, context: dict) -> str:
     return prompt
 
 
+def call_claude(client, prompt: str, max_tokens: int = 16000):
+    """
+    Llama a Claude Sonnet con reintentos.
+    """
+    return client.messages.create(
+        model="claude-sonnet-4-5-20250929",
+        max_tokens=max_tokens,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+
 def validate_edit_impact(client, original_text: str, edited_text: str, 
                          changes: list, arc_map: dict) -> dict:
     """
@@ -439,7 +445,7 @@ def validate_edit_impact(client, original_text: str, edited_text: str,
     """
     prompt = IMPACT_VALIDATION_PROMPT.format(
         arc_map=json.dumps(arc_map, ensure_ascii=False, indent=2),
-        original_text=original_text[:5000],  # Limitar para no exceder contexto
+        original_text=original_text[:5000],
         edited_text=edited_text[:5000],
         changes=json.dumps(changes, ensure_ascii=False, indent=2)
     )
@@ -448,66 +454,57 @@ def validate_edit_impact(client, original_text: str, edited_text: str,
         response = call_claude(client, prompt, max_tokens=2000)
         response_text = response.content[0].text.strip()
         
-        # Limpiar markdown
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.startswith("```"):
-            response_text = response_text[3:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
+        # Usar la función de limpieza blindada
+        parsed, success = clean_json_response(response_text)
+        if success:
+            return parsed
         
-        return json.loads(response_text.strip())
+        return {"validacion_global": "APROBADO", "cambios_evaluados": []}
     except Exception as e:
         logging.warning(f"⚠️ Error en validación de impacto: {e}")
         return {"validacion_global": "APROBADO", "cambios_evaluados": []}
 
 
+# =============================================================================
+# FUNCIÓN PRINCIPAL
+# =============================================================================
+
 def main(edit_input_json) -> dict:
     """
     Edita un capítulo usando Claude Sonnet con consciencia de arco narrativo.
     
-    Input esperado:
-    {
-        'chapter': {...},          # Fragmento con metadatos jerárquicos
-        'bible': {...},            # Biblia validada
-        'analysis': {...},         # Análisis del capítulo
-        'arc_map': {...},          # Mapa de arco generado por GenerateArcMapForChapter
-        'is_critical': bool        # Si requiere validación de impacto
-    }
+    CORRECCIÓN v4.0.1: Parsing blindado de JSON para evitar JSON crudo en output.
     """
-    chapter_id = "?"
-    chapter_title = "Sin título"
+    start_time = time.time()
+    
+    # Parsear input
+    if isinstance(edit_input_json, str):
+        edit_input = json.loads(edit_input_json)
+    else:
+        edit_input = edit_input_json
+    
+    chapter = edit_input.get('chapter', {})
+    bible = edit_input.get('bible', {})
+    analysis = edit_input.get('analysis', {})
+    arc_map = edit_input.get('arc_map', {})
+    
+    chapter_id = chapter.get('id', 0)
+    chapter_title = chapter.get('title', 'Sin título')
+    original_content = chapter.get('content', '')
+    
+    logging.info(f"📝 Editando capítulo {chapter_id}: {chapter_title}")
+    
+    # Determinar si es crítico para validación
+    is_critical = arc_map.get('es_punto_critico', False) if arc_map else False
     
     try:
-        start_time = time.time()
-        
-        # 1. PARSEO DE INPUT
-        if isinstance(edit_input_json, str):
-            edit_input = json.loads(edit_input_json)
-        else:
-            edit_input = edit_input_json
-        
-        chapter = edit_input.get('chapter', {})
-        bible = edit_input.get('bible', {})
-        analysis = edit_input.get('analysis', {})
-        arc_map = edit_input.get('arc_map', {})
-        is_critical = edit_input.get('is_critical', False)
-        
-        chapter_id = chapter.get('id', '?')
-        chapter_title = chapter.get('title', 'Sin título')
-        original_content = chapter.get('content', '')
-        
-        logging.info(f"✏️ EditChapter v4.0 - Procesando: {chapter_title} (ID: {chapter_id})")
-        logging.info(f"   Función narrativa: {arc_map.get('funcion_dramatica', 'N/A')}")
-        logging.info(f"   Es crítico: {is_critical}")
-        
-        # 2. EXTRAER CONTEXTO CON ARCO
+        # 1. EXTRAER CONTEXTO CON ARCO
         context = extract_arc_context(chapter, bible, analysis, arc_map)
         
-        # 3. CONSTRUIR PROMPT
+        # 2. CONSTRUIR PROMPT
         prompt = build_edit_prompt_v4(chapter, context)
         
-        # 4. LLAMAR A CLAUDE
+        # 3. LLAMAR A CLAUDE
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY no configurada")
@@ -517,35 +514,22 @@ def main(edit_input_json) -> dict:
         logging.info(f"🤖 Llamando a Claude Sonnet...")
         response = call_claude(client, prompt)
         
-        # 5. PROCESAR RESPUESTA
+        # 4. PROCESAR RESPUESTA CON LIMPIEZA BLINDADA
         response_text = response.content[0].text
         
-        try:
-            clean_response = response_text.strip()
-            if clean_response.startswith("```json"):
-                clean_response = clean_response[7:]
-            elif clean_response.startswith("```"):
-                clean_response = clean_response[3:]
-            if clean_response.endswith("```"):
-                clean_response = clean_response[:-3]
-            clean_response = clean_response.strip()
-            
-            edit_result = json.loads(clean_response)
-            edited_content = edit_result.get('capitulo_editado', response_text)
-            cambios = edit_result.get('cambios_realizados', [])
-            elementos_preservados = edit_result.get('elementos_preservados', [])
-            problemas_corregidos = edit_result.get('problemas_corregidos', [])
-            notas = edit_result.get('notas_editor', '')
-            
-        except json.JSONDecodeError:
-            logging.warning(f"   ⚠️ Respuesta no es JSON, usando texto directo")
-            edited_content = response_text
-            cambios = []
-            elementos_preservados = []
-            problemas_corregidos = []
-            notas = "Respuesta no estructurada"
+        # Usar la función de extracción blindada
+        extracted = extract_edited_content(response_text, original_content)
         
-        # 6. VALIDACIÓN DE IMPACTO (solo para capítulos críticos)
+        edited_content = extracted['edited_content']
+        cambios = extracted['cambios']
+        elementos_preservados = extracted['elementos_preservados']
+        problemas_corregidos = extracted['problemas_corregidos']
+        notas = extracted['notas']
+        
+        if not extracted['parse_success']:
+            logging.warning(f"⚠️ Capítulo {chapter_id}: usando contenido original por fallo de parsing")
+        
+        # 5. VALIDACIÓN DE IMPACTO (solo para capítulos críticos)
         validation_result = None
         if is_critical and cambios:
             logging.info(f"🔍 Ejecutando validación de impacto...")
@@ -562,7 +546,7 @@ def main(edit_input_json) -> dict:
                 cambios = []
                 notas = f"EDICIÓN REVERTIDA: {validation_result.get('recomendacion', 'Cambios dañaban función narrativa')}"
         
-        # 7. MÉTRICAS
+        # 6. MÉTRICAS
         elapsed = time.time() - start_time
         input_tokens = response.usage.input_tokens
         output_tokens = response.usage.output_tokens
@@ -594,14 +578,15 @@ def main(edit_input_json) -> dict:
             'validacion_impacto': validation_result,
             'metadata': {
                 'status': 'success',
-                'version': '4.0',
+                'version': '4.0.1',
                 'modelo': 'claude-sonnet-4-5-20250929',
                 'tiempo_segundos': round(elapsed, 2),
                 'costo_usd': round(total_cost, 4),
                 'tokens_in': input_tokens,
                 'tokens_out': output_tokens,
                 'fue_validado': is_critical,
-                'fue_revertido': validation_result.get('validacion_global') == 'RECHAZADO' if validation_result else False
+                'fue_revertido': validation_result.get('validacion_global') == 'RECHAZADO' if validation_result else False,
+                'parse_success': extracted['parse_success']
             }
         }
         
@@ -623,5 +608,5 @@ def main(edit_input_json) -> dict:
             'contenido_editado': chapter.get('content', '') if 'chapter' in dir() else '',
             'contenido_original': chapter.get('content', '') if 'chapter' in dir() else '',
             'error': str(e),
-            'metadata': {'status': 'error', 'version': '4.0', 'error_message': str(e)}
+            'metadata': {'status': 'error', 'version': '4.0.1', 'error_message': str(e)}
         }

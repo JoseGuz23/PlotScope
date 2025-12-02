@@ -1,10 +1,12 @@
 # =============================================================================
-# ReconstructManuscript/__init__.py - SYLPHRENA 4.0 (FIXED)
+# ReconstructManuscript/__init__.py - SYLPHRENA 4.0.1
 # =============================================================================
-# FIXES APLICADOS:
-#   1. consolidate_fragments ahora agrupa correctamente por parent_chapter_id
-#   2. Las anotaciones ahora usan display_title en lugar de chapter_id interno
-#   3. Mejor logging para debug
+# 
+# CORRECCIONES v4.0.1:
+#   - NUEVA función sanitize_content() que detecta y limpia JSON residual
+#   - Segunda línea de defensa contra JSON crudo en contenido editado
+#   - Logging mejorado para detectar problemas de parsing upstream
+#
 # =============================================================================
 
 import logging
@@ -16,43 +18,142 @@ from difflib import unified_diff, SequenceMatcher
 logging.basicConfig(level=logging.INFO)
 
 
+# =============================================================================
+# FUNCIÓN DE SANITIZACIÓN - SEGUNDA LÍNEA DE DEFENSA
+# =============================================================================
+
+def sanitize_content(content: str, fragment_id: str = "?") -> str:
+    """
+    SEGUNDA LÍNEA DE DEFENSA: Detecta y limpia JSON residual en contenido.
+    
+    Si el contenido parece ser JSON (empieza con { o ```json), intenta
+    extraer el campo 'capitulo_editado' y devolver solo el texto.
+    
+    Args:
+        content: El contenido a sanitizar
+        fragment_id: ID del fragmento para logging
+    
+    Returns:
+        Contenido limpio (texto puro, sin JSON)
+    """
+    if not content:
+        return ""
+    
+    content = content.strip()
+    
+    # ===========================================
+    # DETECCIÓN 1: Contenido envuelto en markdown
+    # ===========================================
+    if content.startswith("```json") or content.startswith("```"):
+        logging.warning(f"⚠️ Fragmento {fragment_id}: Detectado markdown en contenido, limpiando...")
+        
+        # Limpiar markdown
+        clean = re.sub(r'^[\s]*```(?:json)?[\s]*\n?', '', content)
+        clean = re.sub(r'\n?[\s]*```[\s]*$', '', clean)
+        content = clean.strip()
+    
+    # ===========================================
+    # DETECCIÓN 2: Contenido es JSON puro
+    # ===========================================
+    if content.startswith('{'):
+        logging.warning(f"⚠️ Fragmento {fragment_id}: Detectado JSON en contenido, extrayendo texto...")
+        
+        try:
+            # Intentar parsear como JSON
+            parsed = json.loads(content)
+            
+            # Buscar el campo de contenido editado
+            if isinstance(parsed, dict):
+                # Intentar múltiples nombres de campo posibles
+                for field_name in ['capitulo_editado', 'contenido_editado', 'edited_content', 'content', 'texto']:
+                    if field_name in parsed:
+                        extracted = parsed[field_name]
+                        if extracted and isinstance(extracted, str) and not extracted.strip().startswith('{'):
+                            logging.info(f"✅ Fragmento {fragment_id}: Texto extraído exitosamente del campo '{field_name}'")
+                            return extracted.strip()
+                
+                logging.error(f"❌ Fragmento {fragment_id}: JSON parseado pero no se encontró campo de texto válido")
+        
+        except json.JSONDecodeError:
+            # JSON parcial o inválido - intentar extraer entre llaves
+            start_idx = content.find('{')
+            end_idx = content.rfind('}')
+            
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                json_str = content[start_idx : end_idx + 1]
+                try:
+                    parsed = json.loads(json_str)
+                    if isinstance(parsed, dict):
+                        for field_name in ['capitulo_editado', 'contenido_editado', 'edited_content', 'content', 'texto']:
+                            if field_name in parsed:
+                                extracted = parsed[field_name]
+                                if extracted and isinstance(extracted, str):
+                                    logging.info(f"✅ Fragmento {fragment_id}: Texto extraído con extracción entre llaves")
+                                    return extracted.strip()
+                except:
+                    pass
+            
+            logging.error(f"❌ Fragmento {fragment_id}: No se pudo parsear JSON residual")
+    
+    # ===========================================
+    # DETECCIÓN 3: JSON embebido en texto normal
+    # ===========================================
+    # Buscar patrón {"capitulo_editado": "..." en medio del contenido
+    json_pattern = r'\{"capitulo_editado"\s*:\s*"'
+    if re.search(json_pattern, content):
+        logging.warning(f"⚠️ Fragmento {fragment_id}: Detectado JSON embebido, intentando extraer...")
+        
+        # Encontrar el inicio del JSON
+        match = re.search(r'\{[^{}]*"capitulo_editado"', content)
+        if match:
+            start_pos = match.start()
+            # Intentar encontrar el JSON completo
+            try:
+                # Buscar el final balanceado
+                brace_count = 0
+                end_pos = start_pos
+                for i, char in enumerate(content[start_pos:], start_pos):
+                    if char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            end_pos = i + 1
+                            break
+                
+                if end_pos > start_pos:
+                    json_str = content[start_pos:end_pos]
+                    parsed = json.loads(json_str)
+                    if 'capitulo_editado' in parsed:
+                        logging.info(f"✅ Fragmento {fragment_id}: Extraído de JSON embebido")
+                        return parsed['capitulo_editado'].strip()
+            except:
+                pass
+    
+    # Si no se detectó JSON, devolver contenido original
+    return content
+
+
+# =============================================================================
+# CONSOLIDACIÓN DE FRAGMENTOS
+# =============================================================================
+
 def consolidate_fragments(edited_chapters: list) -> list:
     """
     Consolida fragmentos editados en capítulos completos.
     
     Agrupa por parent_chapter_id y concatena en orden de fragment_index.
     Aplica lógica de sutura inteligente para eliminar artefactos de fragmentación.
+    
+    NUEVO v4.0.1: Sanitiza contenido antes de consolidar.
     """
     logging.info(f"🔧 Consolidando {len(edited_chapters)} fragmentos...")
-    
-    # =========================================================================
-    # FIX: Debug - mostrar qué parent_chapter_id tiene cada fragmento
-    # =========================================================================
-    for frag in edited_chapters:
-        frag_id = frag.get('fragment_id', frag.get('chapter_id', '?'))
-        parent_id = frag.get('parent_chapter_id', 'NO_PARENT')
-        frag_idx = frag.get('fragment_index', '?')
-        total = frag.get('total_fragments', '?')
-        logging.info(f"   📄 Fragmento {frag_id}: parent={parent_id}, idx={frag_idx}/{total}")
     
     # Agrupar por parent_chapter_id
     chapters_by_parent = {}
     
     for frag in edited_chapters:
-        # =========================================================================
-        # FIX: Usar parent_chapter_id correctamente, con fallbacks robustos
-        # =========================================================================
-        parent_id = frag.get('parent_chapter_id')
-        
-        # Si no hay parent_chapter_id, intentar inferirlo
-        if parent_id is None or parent_id == 0:
-            parent_id = frag.get('chapter_id', 0)
-        
-        # Convertir a int para consistencia
-        try:
-            parent_id = int(parent_id)
-        except (ValueError, TypeError):
-            parent_id = 0
+        parent_id = frag.get('parent_chapter_id', frag.get('chapter_id', 0))
         
         if parent_id not in chapters_by_parent:
             chapters_by_parent[parent_id] = {
@@ -64,8 +165,6 @@ def consolidate_fragments(edited_chapters: list) -> list:
         
         chapters_by_parent[parent_id]['fragments'].append(frag)
     
-    logging.info(f"📚 Agrupados en {len(chapters_by_parent)} capítulos únicos")
-    
     # Consolidar cada capítulo
     consolidated_chapters = []
     
@@ -76,7 +175,19 @@ def consolidate_fragments(edited_chapters: list) -> list:
         # Ordenar fragmentos por fragment_index
         fragments.sort(key=lambda f: f.get('fragment_index', 1))
         
-        logging.info(f"   📖 Consolidando parent_id={parent_id}: {len(fragments)} fragmentos")
+        # NUEVO: Sanitizar contenido de cada fragmento antes de concatenar
+        for frag in fragments:
+            frag_id = f"{parent_id}-{frag.get('fragment_index', 1)}"
+            
+            # Sanitizar contenido editado
+            original_content = frag.get('contenido_editado', frag.get('content', ''))
+            sanitized_content = sanitize_content(original_content, frag_id)
+            frag['contenido_editado'] = sanitized_content
+            
+            # También sanitizar original si es necesario
+            original_original = frag.get('contenido_original', '')
+            if original_original.strip().startswith('{') or original_original.strip().startswith('```'):
+                frag['contenido_original'] = sanitize_content(original_original, f"{frag_id}-orig")
         
         # Concatenar contenido con sutura inteligente
         consolidated_content = smart_stitch_fragments(fragments)
@@ -127,6 +238,7 @@ def smart_stitch_fragments(fragments: list, use_original: bool = False) -> str:
     """
     Concatena fragmentos aplicando lógica de sutura inteligente.
     
+    Reglas:
     - Si fragmento N termina sin puntuación terminal y N+1 empieza con minúscula: unir sin salto
     - Si fragmento N termina con diálogo abierto y N+1 continúa diálogo: preservar continuidad
     - En otros casos: insertar doble salto de línea
@@ -174,71 +286,65 @@ def smart_stitch_fragments(fragments: list, use_original: bool = False) -> str:
     return ''.join(result_parts)
 
 
+# =============================================================================
+# NORMALIZACIÓN DE TÍTULOS
+# =============================================================================
+
 def normalize_chapter_titles(chapters: list) -> list:
     """
     Normaliza la numeración y títulos de capítulos para consistencia editorial.
-    
-    - Prólogo/Epílogo/Interludio: Preservar nombre en mayúsculas
-    - Capítulos regulares: "Capítulo N" + título original si existe
-    - Actos/Partes: "PRIMERA PARTE" / "ACTO I"
     """
-    logging.info(f"📝 Normalizando títulos de {len(chapters)} capítulos...")
-    
+    normalized = []
     chapter_counter = 0
     
     for chapter in chapters:
+        original_title = chapter.get('original_title', 'Sin título')
         section_type = chapter.get('section_type', 'CHAPTER')
-        original_title = chapter.get('original_title', '')
         
+        # Determinar título normalizado según tipo
         if section_type == 'PROLOGUE':
-            chapter['normalized_title'] = 'PRÓLOGO'
-            chapter['display_title'] = 'PRÓLOGO'
-            
+            display_title = 'PRÓLOGO'
         elif section_type == 'EPILOGUE':
-            chapter['normalized_title'] = 'EPÍLOGO'
-            chapter['display_title'] = 'EPÍLOGO'
-            
+            display_title = 'EPÍLOGO'
         elif section_type == 'INTERLUDE':
-            chapter['normalized_title'] = 'INTERLUDIO'
-            chapter['display_title'] = 'INTERLUDIO'
-            
+            display_title = original_title
         elif section_type == 'ACT':
-            # Extraer número si existe
-            match = re.search(r'(\d+|[IVXLCDM]+)', original_title, re.IGNORECASE)
-            if match:
-                num = match.group(1)
-                chapter['normalized_title'] = f'PARTE {num}'
-            else:
-                chapter['normalized_title'] = original_title.upper()
-            chapter['display_title'] = chapter['normalized_title']
-            
-        elif section_type == 'CONTEXT':
-            chapter['normalized_title'] = 'INTRODUCCIÓN'
-            chapter['display_title'] = 'INTRODUCCIÓN'
-            
-        else:  # CHAPTER
+            display_title = original_title
+        else:
+            # Es un capítulo regular
             chapter_counter += 1
             
-            # Extraer título descriptivo si existe (después de número)
-            descriptive_title = ''
-            match = re.search(r'(?:Capítulo\s+\d+[:\.\s]+|^\d+[:\.\s]+|\b[IVXLCDM]+[:\.\s]+)(.+)', 
-                            original_title, re.IGNORECASE)
-            if match:
-                descriptive_title = match.group(1).strip()
-            
-            chapter['normalized_title'] = f'Capítulo {chapter_counter}'
-            
-            if descriptive_title and descriptive_title.lower() not in ['sin título', 'untitled']:
-                chapter['display_title'] = f'Capítulo {chapter_counter}: {descriptive_title}'
+            # Intentar extraer título si existe
+            title_match = re.match(r'^(?:Capítulo|Cap\.?|Chapter)\s*\d+[:\.\s]*(.+)?$', original_title, re.IGNORECASE)
+            if title_match and title_match.group(1):
+                subtitle = title_match.group(1).strip()
+                display_title = f'Capítulo {chapter_counter}: {subtitle}'
             else:
-                chapter['display_title'] = f'Capítulo {chapter_counter}'
+                # Verificar si es solo número
+                if re.match(r'^\d+$', original_title.strip()):
+                    display_title = f'Capítulo {chapter_counter}'
+                elif original_title.lower() in ['sin título', 'untitled', '']:
+                    display_title = f'Capítulo {chapter_counter}'
+                else:
+                    display_title = f'Capítulo {chapter_counter}: {original_title}'
+        
+        normalized_chapter = chapter.copy()
+        normalized_chapter['display_title'] = display_title
+        normalized_chapter['normalized_title'] = display_title
+        normalized_chapter['chapter_number'] = chapter_counter if section_type == 'CHAPTER' else 0
+        
+        normalized.append(normalized_chapter)
     
-    return chapters
+    return normalized
 
+
+# =============================================================================
+# GENERACIÓN DE MANUSCRITOS
+# =============================================================================
 
 def generate_clean_manuscript(chapters: list, book_name: str) -> str:
     """
-    Genera manuscrito limpio en formato Markdown puro.
+    Genera manuscrito limpio en formato editorial estándar.
     Sin metadatos técnicos, solo texto editorial estándar.
     """
     lines = []
@@ -304,10 +410,7 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
     for chapter in chapters:
         display_title = chapter.get('display_title', 'Sin título')
         content = chapter.get('contenido_editado', '')
-        
-        # =========================================================================
-        # FIX: Usar display_title en las anotaciones, no chapter_id interno
-        # =========================================================================
+        chapter_id = chapter.get('chapter_id', '?')
         
         # Encabezado de capítulo
         lines.append(f'## {display_title}')
@@ -316,9 +419,6 @@ def generate_enriched_manuscript(chapters: list, book_name: str, bible: dict) ->
         # Anotaciones editoriales (comentario HTML)
         annotation_lines = []
         annotation_lines.append(f'<!-- ')
-        # =========================================================================
-        # FIX: Usar display_title en lugar de chapter_id
-        # =========================================================================
         annotation_lines.append(f'ANOTACIONES EDITORIALES - {display_title}')
         annotation_lines.append(f'')
         
@@ -373,43 +473,52 @@ def generate_diff_html(original: str, edited: str) -> str:
     """
     Genera diff visual palabra por palabra.
     """
+    # 1. Tokenizar por palabras (manteniendo espacios para reconstruir)
     def tokenize(text):
         return re.split(r'(\s+)', text)
 
     original_tokens = tokenize(original)
     edited_tokens = tokenize(edited)
     
+    # 2. Usar SequenceMatcher para encontrar diferencias
     matcher = SequenceMatcher(None, original_tokens, edited_tokens)
     
-    html_parts = []
+    result_parts = []
     
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
         if tag == 'equal':
+            # Texto sin cambios
             text = ''.join(original_tokens[i1:i2])
             escaped = text.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="unchanged">{escaped}</span>')
+            result_parts.append(f'<span class="unchanged">{escaped}</span>')
+        
         elif tag == 'delete':
+            # Texto eliminado
             text = ''.join(original_tokens[i1:i2])
             escaped = text.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="deleted">{escaped}</span>')
+            result_parts.append(f'<span class="deleted">{escaped}</span>')
+        
         elif tag == 'insert':
+            # Texto añadido
             text = ''.join(edited_tokens[j1:j2])
             escaped = text.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="inserted">{escaped}</span>')
+            result_parts.append(f'<span class="inserted">{escaped}</span>')
+        
         elif tag == 'replace':
+            # Texto reemplazado (mostrar eliminado + añadido)
             old_text = ''.join(original_tokens[i1:i2])
             new_text = ''.join(edited_tokens[j1:j2])
             old_escaped = old_text.replace('<', '&lt;').replace('>', '&gt;')
             new_escaped = new_text.replace('<', '&lt;').replace('>', '&gt;')
-            html_parts.append(f'<span class="deleted">{old_escaped}</span>')
-            html_parts.append(f'<span class="inserted">{new_escaped}</span>')
+            result_parts.append(f'<span class="deleted">{old_escaped}</span>')
+            result_parts.append(f'<span class="inserted">{new_escaped}</span>')
     
-    return ''.join(html_parts)
+    return ''.join(result_parts)
 
 
 def generate_comparative_manuscript(chapters: list, book_name: str) -> str:
     """
-    Genera versión HTML con control de cambios visual.
+    Genera documento HTML con control de cambios visual.
     Muestra texto eliminado (tachado rojo) y añadido (verde).
     """
     html_lines = []
@@ -490,9 +599,15 @@ def generate_comparative_manuscript(chapters: list, book_name: str) -> str:
     return '\n'.join(html_lines)
 
 
+# =============================================================================
+# FUNCIÓN PRINCIPAL
+# =============================================================================
+
 def main(reconstruct_input) -> dict:
     """
     Función principal de reconstrucción.
+    
+    CORRECCIÓN v4.0.1: Sanitización de contenido antes de procesar.
     """
     try:
         # --- BLOQUE DE SEGURIDAD ---
@@ -520,7 +635,7 @@ def main(reconstruct_input) -> dict:
         logging.info(f"📚 Iniciando reconstrucción de manuscrito: {book_name}")
         logging.info(f"   Fragmentos de entrada: {len(edited_chapters)}")
         
-        # 1. CONSOLIDAR FRAGMENTOS
+        # 1. CONSOLIDAR FRAGMENTOS (incluye sanitización)
         consolidated = consolidate_fragments(edited_chapters)
         
         # 2. NORMALIZAR TÍTULOS
