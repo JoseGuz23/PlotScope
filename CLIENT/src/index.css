@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Utilidades personalizadas (solo las válidas) */
+/* Utilidades personalizadas */
 @layer utilities {
   .font-report-mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -14,15 +14,15 @@
   }
 }
 
+/* Componentes */
 @layer components {
   .nav-link {
     @apply text-sm uppercase tracking-wider font-bold py-1 px-3 transition-colors duration-200;
   }
 
-  /* YA NO USAMOS border-theme-border */
   .report-divider {
     @apply border-b-4 border-t-4 my-8;
-    border-color: #D1D5DB; /* tu theme.border */
+    border-color: #D1D5DB; /* theme.border */
   }
 
   .report-body {
@@ -34,3 +34,11 @@
     @apply text-xs uppercase tracking-widest font-bold;
     color: #374151; /* theme.subtle */
   }
+}
+
+/* Body */
+body {
+  @apply antialiased;
+  background-color: #F7F7F7; /* theme.bg */
+  color: #1A1A1A;           /* theme.text */
+}
