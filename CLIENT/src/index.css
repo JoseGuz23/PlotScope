@@ -1,10 +1,10 @@
+@reference "@tailwind utilities";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer components {
-  /* Copia exacta de tus estilos en syltest.html */
-  
   .nav-link {
     @apply text-sm uppercase tracking-wider font-bold py-1 px-3 transition-colors duration-200;
   }
@@ -22,7 +22,6 @@
   }
 }
 
-/* Asegurar el fondo color "Papel" en toda la app */
 body {
   @apply bg-theme-bg text-theme-text antialiased;
 }
