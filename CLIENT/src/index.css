@@ -9,8 +9,9 @@
     @apply text-sm uppercase tracking-wider font-bold py-1 px-3 transition-colors duration-200;
   }
 
+  /* Corrección definitiva para Tailwind v4 */
   .report-divider {
-    @apply border-b-4 border-t-4 border-theme-border border-opacity-80 my-8;
+    @apply border-b-4 border-t-4 border-[var(--theme-border)] border-opacity-80 my-8;
   }
 
   .report-body {
