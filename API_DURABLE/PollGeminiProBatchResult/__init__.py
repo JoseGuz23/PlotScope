@@ -1,5 +1,5 @@
 # =============================================================================
-# PollGeminiProBatchResult/__init__.py
+# PollGeminiProBatchResult/__init__.py - DEBUG EDITION
 # =============================================================================
 import logging
 import json
@@ -11,43 +11,43 @@ logging.basicConfig(level=logging.INFO)
 
 def main(batch_info: dict) -> dict:
     """
-    Activity Function que consulta el estado de un Batch Job en Google.
-    
-    Retorna:
-      - {'status': 'processing'}: Si sigue trabajando.
-      - {'status': 'success', 'results': [...]}: Si terminó bien.
-      - {'status': 'failed', 'error': ...}: Si falló.
+    Activity Function: Consulta estado de Batch Job.
+    VERSIÓN ROBUSTA: Maneja errores de atributos y loguea la estructura real.
     """
     try:
-        # Recuperar info del input
         job_name = batch_info.get('batch_job_name')
-        id_map = batch_info.get('id_map', [])  # Mapa clave para saber qué ID es qué
+        id_map = batch_info.get('id_map', [])
         
         if not job_name:
             return {'status': 'error', 'error': 'No batch_job_name provided'}
 
         api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            return {'status': 'error', 'error': 'GEMINI_API_KEY not found'}
-
         client = genai.Client(api_key=api_key)
 
-        logging.info(f"🔍 Consultando estado de batch: {job_name}")
+        logging.info(f"🔍 Consultando: {job_name}")
         
-        # 1. Llamada a la API de Google para ver el estado
-        job = client.batches.get(name=job_name)
-        state = job.state.name 
-        logging.info(f"📊 Estado actual Google: {state}")
+        # 1. Obtener Job
+        try:
+            job = client.batches.get(name=job_name)
+        except Exception as api_err:
+            logging.error(f"❌ Error conectando con Google API: {api_err}")
+            # Si falla la conexión, decimos 'processing' para que reintente luego
+            return {'status': 'processing', 'batch_job_name': job_name, 'id_map': id_map}
+
+        # Recuperar estado de forma segura
+        state = getattr(job, 'state', None)
+        if hasattr(state, 'name'): state = state.name # Si es un Enum, sacar el nombre
+        
+        logging.info(f"📊 Estado Google: {state}")
 
         # --- LÓGICA DE ESTADOS ---
 
-        # CASO A: Aún trabajando
-        if state in ["JOB_STATE_NEW", "JOB_STATE_PENDING", "JOB_STATE_PROCESSING"]:
+        # CASO A: Aún trabajando (o estado desconocido que tratamos como espera)
+        if state in ["JOB_STATE_NEW", "JOB_STATE_PENDING", "JOB_STATE_PROCESSING", None]:
             return {
                 'status': 'processing', 
                 'batch_job_name': job_name,
-                'id_map': id_map,
-                'google_state': state
+                'id_map': id_map
             }
 
         # CASO B: Fallo definitivo
@@ -59,56 +59,74 @@ def main(batch_info: dict) -> dict:
 
         # CASO C: Éxito -> Descargar resultados
         if state == "JOB_STATE_SUCCEEDED":
-            logging.info("✅ Batch completado en Google. Iniciando descarga...")
+            logging.info("✅ Batch completado. Buscando archivo de salida...")
             
-            # La propiedad output_file tiene el nombre del recurso (ej. files/xxxx)
-            output_file_name = job.output_file
+            # --- DEBUGGING EXTREMO (Para ver por qué fallaba) ---
+            logging.info(f"🕵️ OBJETO JOB RAW: {job}")
+            logging.info(f"🕵️ ATRIBUTOS DISPONIBLES: {dir(job)}")
+            # -----------------------------------------------------
+
+            # Intentar obtener el nombre del archivo de varias formas
+            output_file_name = getattr(job, 'output_file', None)
             
-            # Descargar el contenido del archivo .jsonl
+            # Si no está como atributo, buscar en diccionario (si aplica)
+            if not output_file_name and hasattr(job, 'to_dict'):
+                 output_file_name = job.to_dict().get('output_file')
+            
+            # Si sigue vacío, lanzar error pero con info útil
+            if not output_file_name:
+                raise Exception(f"El job terminó pero no encuentro 'output_file'. Revisa los logs 'ATRIBUTOS DISPONIBLES'.")
+
+            logging.info(f"📥 Descargando archivo: {output_file_name}")
+            
+            # Descargar contenido
             file_content_bytes = client.files.content(name=output_file_name)
             content_str = file_content_bytes.decode('utf-8')
             
             results = []
             
-            # Procesar línea por línea el JSONL
             for line in content_str.strip().split('\n'):
                 if not line.strip(): continue
-                
                 try:
                     row = json.loads(line)
-                    
-                    # 'custom_id' es lo que usamos para enlazar la respuesta con la pregunta
                     custom_id = row.get('custom_id')
                     
-                    # Extraer el cuerpo de la respuesta del modelo
-                    # La estructura de Google Batch suele ser: response -> body
-                    response_payload = row.get('response', {}).get('body', {})
+                    # Extraer body con seguridad
+                    response_part = row.get('response', {})
+                    # A veces viene en 'body', a veces directo, depende del modelo
+                    resp_body = response_part.get('body', {})
                     
-                    # A veces el modelo devuelve el JSON como string dentro del campo
-                    if isinstance(response_payload, str):
-                         response_payload = json.loads(response_payload)
+                    # Si es string JSON, parsearlo
+                    if isinstance(resp_body, str):
+                         try:
+                             resp_body = json.loads(resp_body)
+                         except:
+                             pass # Dejarlo como string si falla
                     
-                    # Buscar los metadatos originales (titulo, ids, etc) usando el custom_id
-                    # Esto es crucial para saber a qué capítulo pertenece este análisis
+                    # Unir con metadatos
                     meta = next((x for x in id_map if x['key'] == custom_id), {})
                     
-                    # Combinar todo en un solo objeto limpio
-                    final_item = {**meta, **response_payload}
+                    # Si resp_body es dict, hacemos merge. Si no, lo asignamos a un campo 'result'
+                    if isinstance(resp_body, dict):
+                        final_item = {**meta, **resp_body}
+                    else:
+                        final_item = {**meta, 'raw_result': resp_body}
+                        
                     results.append(final_item)
                     
                 except Exception as parse_e:
-                    logging.error(f"⚠️ Error parseando una línea del batch: {parse_e}")
+                    logging.error(f"⚠️ Error línea JSONL: {parse_e}")
 
-            logging.info(f"✅ Resultados procesados: {len(results)}")
+            logging.info(f"✅ {len(results)} resultados procesados.")
             return {
                 'status': 'success',
                 'total': len(results),
                 'results': results
             }
 
-        # Estado desconocido
-        return {'status': 'unknown', 'state': state}
+        return {'status': 'unknown', 'state': str(state)}
 
     except Exception as e:
         logging.error(f"❌ Error Crítico en Poll: {str(e)}")
-        return {'status': 'error', 'error': str(e)}
+        # Importante: Retornar 'failed' para que el orquestador aborte y no se quede esperando eternamente
+        return {'status': 'failed', 'error': str(e)}
