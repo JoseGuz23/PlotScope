@@ -4,16 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Utilidades personalizadas */
-@layer utilities {
-  .font-report-mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  }
-  .font-report-serif {
-    font-family: ui-serif, Georgia, serif;
-  }
-}
-
 /* Componentes */
 @layer components {
   .nav-link {
@@ -26,11 +16,13 @@
   }
 
   .report-body {
-    @apply font-report-mono text-sm leading-relaxed;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    @apply text-sm leading-relaxed;
     color: #1A1A1A; /* theme.text */
   }
 
   .data-label {
+    font-family: ui-serif, Georgia, serif;
     @apply text-xs uppercase tracking-widest font-bold;
     color: #374151; /* theme.subtle */
   }
