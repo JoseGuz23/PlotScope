@@ -3,55 +3,50 @@ import { Link } from 'react-router-dom';
 
 const Layout = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen bg-theme-bg text-theme-text font-sans antialiased selection:bg-theme-primary selection:text-white">
+    // No necesitamos bg-theme-bg aquí porque ya está en el body via index.css
+    <div className="min-h-screen"> 
       
-      {/* NAVBAR: Estilo Consola de Mando */}
-      <nav className="bg-theme-header border-b-2 border-theme-text/10 fixed w-full z-50 h-16 shadow-sm backdrop-blur-sm bg-opacity-95">
-        <div className="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
-          
-          {/* Identidad de la Herramienta */}
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="text-2xl font-report-serif font-black tracking-tighter leading-none">LYA</span>
-              <span className="text-[0.6rem] font-report-mono uppercase tracking-widest text-theme-subtle">Developmental Core</span>
+      {/* NAVBAR: Réplica exacta de syltest.html */}
+      <nav className="bg-theme-header shadow-md border-b-2 border-theme-border/50 fixed w-full z-10">
+        <div className="max-w-7xl mx-auto px-8">
+            <div className="flex justify-between h-16 items-center">
+                
+                {/* Logo e Identidad */}
+                <div className="flex items-center space-x-2">
+                    <span className="text-2xl font-report-serif font-extrabold text-theme-text">LYA</span>
+                    <span className="text-xs text-theme-subtle font-report-mono">v4.1.0 (Developmental Editor)</span>
+                </div>
+                
+                {/* Links de Navegación usando las clases .nav-link definidas en CSS */}
+                <div className="flex space-x-4">
+                    <Link to="/" className="nav-link text-theme-primary border-b-2 border-theme-primary">
+                      Dashboard
+                    </Link>
+                    <Link to="/library" className="nav-link text-theme-subtle hover:text-theme-text">
+                      Biblioteca
+                    </Link>
+                    <Link to="/config" className="nav-link text-theme-subtle hover:text-theme-text">
+                      Configuración IA
+                    </Link>
+                    <Link to="/api" className="nav-link text-theme-subtle hover:text-theme-text">
+                      API Console
+                    </Link>
+                </div>
+                
+                {/* Botón de Acción */}
+                <div className="flex items-center">
+                    <button className="bg-theme-primary text-white text-xs font-bold px-4 py-2 rounded-sm uppercase tracking-wider hover:bg-theme-primary/80 transition duration-150">
+                        Compilar & Desplegar
+                    </button>
+                </div>
             </div>
-            <span className="h-8 w-px bg-theme-border/50 mx-2"></span>
-            <div className="hidden md:flex gap-6">
-                <Link to="/" className="text-xs font-bold font-report-mono uppercase tracking-widest text-theme-primary hover:text-theme-text transition-colors">Dashboard</Link>
-                <Link to="/projects" className="text-xs font-bold font-report-mono uppercase tracking-widest text-theme-subtle hover:text-theme-text transition-colors">Manuscritos</Link>
-                <Link to="/api" className="text-xs font-bold font-report-mono uppercase tracking-widest text-theme-subtle hover:text-theme-text transition-colors">API Logs</Link>
-            </div>
-          </div>
-
-          {/* Indicador de Operación */}
-          <button className="bg-theme-text text-white text-xs font-report-mono font-bold px-4 py-2 hover:bg-theme-primary transition-all shadow-sm flex items-center gap-2">
-            <span>+ NUEVO PROYECTO</span>
-          </button>
         </div>
       </nav>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <main className="flex-grow pt-28 pb-16 max-w-7xl mx-auto w-full px-6">
+      {/* Contenedor Principal: Padding top 24 para compensar el navbar fixed */}
+      <main className="pt-24 max-w-7xl mx-auto px-8 pb-12">
         {children}
       </main>
-
-      {/* FOOTER TÉCNICO (STATUS BAR) - Tipo VS Code */}
-      <footer className="fixed bottom-0 w-full bg-theme-text text-theme-bg h-8 border-t border-theme-subtle flex items-center justify-between px-4 text-[10px] font-report-mono z-40">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-theme-primary animate-pulse"></span>
-            ORCHESTRATOR: ONLINE
-          </span>
-          <span className="opacity-50">|</span>
-          <span>AZURE REGION: US-EAST-2</span>
-          <span className="opacity-50">|</span>
-          <span>LATENCY: 45ms</span>
-        </div>
-        <div className="flex items-center gap-4 opacity-80">
-          <span>MEM: 24%</span>
-          <span>v4.1.2-stable</span>
-        </div>
-      </footer>
     </div>
   );
 };

@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Copia exacta de tus estilos en syltest.html */
+  
+  .nav-link {
+    @apply text-sm uppercase tracking-wider font-bold py-1 px-3 transition-colors duration-200;
+  }
+  
+  .report-divider {
+    @apply border-b-4 border-t-4 border-theme-text/80 my-8;
+  }
+  
+  .report-body {
+    @apply font-report-mono text-theme-text text-sm leading-relaxed;
+  }
+  
+  .data-label {
+    @apply text-theme-subtle text-xs uppercase tracking-widest font-bold;
+  }
+}
+
+/* Asegurar el fondo color "Papel" en toda la app */
+body {
+  @apply bg-theme-bg text-theme-text antialiased;
+}
