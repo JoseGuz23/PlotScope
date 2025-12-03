@@ -1,12 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Home from './pages/Home';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Aquí pondremos tus páginas pronto */}
-        <Route path="/" element={<h1 className="text-3xl font-bold text-theme-primary p-10">LYA está lista para configurarse.</h1>} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* Futuras rutas:
+          <Route path="/project/:id" element={<ProjectDashboard />} />
+          <Route path="/config" element={<ConfigPage />} />
+          */}
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }

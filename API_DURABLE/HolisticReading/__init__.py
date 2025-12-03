@@ -99,7 +99,7 @@ RESPONDE JSON:
 def call_gemini_pro_new_sdk(client, prompt):
     """Llamada a Gemini Pro con el SDK NUEVO y tus Safety Settings"""
     return client.models.generate_content(
-        model='models/gemini-2.5-pro', # Usamos 1.5 Pro estable (o 3.0-preview si tienes acceso)
+        model='models/gemini-3-pro-preview', # Usamos 1.5 Pro estable (o 3.0-preview si tienes acceso)
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.2,
@@ -166,7 +166,7 @@ def main(full_book_text: str) -> dict:
             "palabras_analizadas": word_count,
             "tokens_estimados": token_estimate,
             "tiempo_segundos": round(elapsed, 1),
-            "modelo": "models/gemini-2.5-pro", # Actualizado el string
+            "modelo": "models/gemini-3-pro-preview", # Actualizado el string
             "sdk": "google-genai-v1"
         }
         

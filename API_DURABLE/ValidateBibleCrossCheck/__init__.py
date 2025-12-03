@@ -85,7 +85,7 @@ RESPONDE CON JSON:
 def call_gemini_pro(client, prompt):
     """Llamada a Gemini Pro para validación."""
     return client.models.generate_content(
-        model='gemini-2.5-pro',
+        model='models/gemini-3-pro-preview',
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.2,
