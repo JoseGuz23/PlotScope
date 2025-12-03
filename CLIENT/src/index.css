@@ -4,19 +4,45 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
+/* ------------------------------
+   Definimos utilidades personalizadas
+   (font-report-mono, font-report-serif, etc.)
+   ------------------------------ */
+@layer utilities {
+  /* utilidades de fuente (equivalente a theme.fontFamily) */
+  .font-report-mono {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  }
 
+  .font-report-serif {
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+  }
+
+  /* Si quieres exponer varibles temáticas como utilidades, puedes añadirlas aquí también */
+  /* ejemplo: .border-theme-border => border-color: var(--theme-border) */
+  .border-theme-border {
+    border-color: var(--theme-border);
+  }
+}
+
+/* ------------------------------
+   Componentes que usan @apply
+   ------------------------------ */
+@layer components {
   .nav-link {
     @apply text-sm uppercase tracking-wider font-bold py-1 px-3 transition-colors duration-200;
   }
 
-  /* Divider FIX DEFINITIVO */
+  /* Divider: usamos la utilidad border-theme-border (definida arriba)
+     y una forma compatible para la opacidad si necesitas 80% */
   .report-divider {
-    @apply border-b-4 border-t-4 my-8;
-    border-color: rgb(from var(--theme-border) r g b / 0.80);
+    @apply border-b-4 border-t-4 border-theme-border my-8;
+    /* si quieres controlar opacidad del color del borde de forma segura: */
+    /* border-color: rgb(from var(--theme-border) r g b / 0.8); */
   }
 
   .report-body {
+    /* ahora sí existe font-report-mono */
     @apply font-report-mono text-[var(--theme-text)] text-sm leading-relaxed;
   }
 
@@ -25,6 +51,7 @@
   }
 }
 
+/* Fondo y texto principal usando variables de tema */
 body {
   @apply bg-[var(--theme-bg)] text-[var(--theme-text)] antialiased;
 }
