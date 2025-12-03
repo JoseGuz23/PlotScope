@@ -1,7 +1,6 @@
-export default {
+module.exports = {
   plugins: {
-    // Revertimos a la sintaxis del paquete para pasar la validación inicial del sistema
-    '@tailwindcss/postcss': {},
+    tailwindcss: {},
     autoprefixer: {},
   },
-}
+};
