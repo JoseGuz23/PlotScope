@@ -1,6 +1,7 @@
 export default {
   plugins: {
-    // CORRECCIÓN: Usar el nombre de plugin estándar 'tailwindcss'
+    // Usamos 'tailwindcss' como clave para asegurar que el motor de PostCSS
+    // pueda procesar las directivas @apply en index.css
     tailwindcss: {},
     autoprefixer: {},
   },
