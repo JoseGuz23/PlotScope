@@ -1,5 +1,10 @@
 # =============================================================================
-# SegmentBook/__init__.py
+# SegmentBook/__init__.py - SYLPHRENA 4.0.3 (MEJORADO)
+# =============================================================================
+# MEJORAS:
+#   - Filtra encabezados de sección vacíos (Acto I, Parte 1, etc.)
+#   - Detecta y marca section_type correctamente (PROLOGUE, ACT, CHAPTER, etc.)
+#   - Logging detallado de capítulos detectados
 # =============================================================================
 
 import azure.functions as func
@@ -10,7 +15,7 @@ import os
 import sys
 import traceback
 
-# Importaciones opcionales (Manejo de errores si faltan librerías)
+# Importaciones opcionales
 try:
     import pdfplumber
     PDF_AVAILABLE = True
@@ -24,8 +29,8 @@ except ImportError:
     DOCX_AVAILABLE = False
 
 MAX_CHARS_PER_CHUNK = 12000
-# Este valor ahora es solo un DEFAULT. Si el orquestador manda otro valor (o None), este se ignora.
 DEFAULT_LIMIT_CHAPTERS = 2 
+MIN_CONTENT_CHARS = 100  # Mínimo de caracteres para considerar un capítulo válido
 
 logging.basicConfig(level=logging.INFO)
 
@@ -62,21 +67,46 @@ def extract_text_from_file(file_path: str) -> str:
         logging.error(f"❌ Error extrayendo texto: {e}")
         raise
 
+
+def detect_section_type(title: str) -> str:
+    """Detecta el tipo de sección basado en el título."""
+    title_lower = title.lower().strip()
+    
+    if any(kw in title_lower for kw in ['prólogo', 'prologo', 'prefacio']):
+        return 'PROLOGUE'
+    elif any(kw in title_lower for kw in ['epílogo', 'epilogo']):
+        return 'EPILOGUE'
+    elif any(kw in title_lower for kw in ['interludio', 'intermedio']):
+        return 'INTERLUDE'
+    elif any(kw in title_lower for kw in ['introducción', 'introduccion']):
+        return 'INTRODUCTION'
+    elif 'acto' in title_lower:
+        return 'ACT_HEADER'  # Encabezado de acto (probablemente vacío)
+    elif 'parte' in title_lower:
+        return 'PART_HEADER'  # Encabezado de parte (probablemente vacío)
+    elif 'capítulo' in title_lower or 'capitulo' in title_lower:
+        return 'CHAPTER'
+    elif 'nota' in title_lower and 'editor' in title_lower:
+        return 'EDITOR_NOTE'
+    else:
+        return 'CHAPTER'  # Default
+
+
 def smart_split(text: str, max_chars: int) -> list:
     """Divide texto largo en fragmentos respetando párrafos."""
     if len(text) <= max_chars: return [text]
     chunks = []
     while len(text) > max_chars:
-        # Intentar cortar en doble salto de línea
         split_point = text.rfind('\n\n', 0, max_chars)
         if split_point == -1: split_point = text.rfind('\n', 0, max_chars)
         if split_point == -1: split_point = text.rfind('. ', 0, max_chars) + 1
-        if split_point <= 0: split_point = max_chars # Corte forzoso si no hay signos
+        if split_point <= 0: split_point = max_chars
         
         chunks.append(text[:split_point].strip())
         text = text[split_point:].strip()
     if text: chunks.append(text)
     return chunks
+
 
 def generate_hierarchical_metadata(chapters_raw: list) -> list:
     """Genera la estructura plana de fragmentos con metadatos."""
@@ -124,6 +154,7 @@ def generate_hierarchical_metadata(chapters_raw: list) -> list:
         chapter_id += 1
     return final_list
 
+
 # -----------------------------------------------------------------------------
 # MAIN FUNCTION (ACTIVITY TRIGGER)
 # -----------------------------------------------------------------------------
@@ -134,25 +165,20 @@ def main(book_path) -> str:
     """
     try:
         logging.info("=" * 80)
-        logging.info("🚀 SegmentBook (Activity) iniciado")
+        logging.info("🚀 SegmentBook (Activity) v4.0.3 iniciado")
         
-        # --- PASO 1: RECUPERAR CONFIGURACIÓN (LOGICA CORREGIDA) ---
+        # --- PASO 1: RECUPERAR CONFIGURACIÓN ---
         real_path = ""
-        limit_chapters = DEFAULT_LIMIT_CHAPTERS # Valor inicial por defecto
+        limit_chapters = DEFAULT_LIMIT_CHAPTERS
         
-        # Si el input es un diccionario (lo normal desde el orquestador)
         if isinstance(book_path, dict):
             real_path = book_path.get('book_path', '')
-            
-            # Si 'limit_chapters' existe en el diccionario, tiene prioridad absoluta
-            # (Incluso si es None, que significa "procesar todo")
             if 'limit_chapters' in book_path:
                 limit_chapters = book_path['limit_chapters']
                 logging.info(f"⚙️ Límite establecido por Orquestador: {limit_chapters}")
             else:
                 logging.info(f"⚙️ Usando límite por defecto local: {limit_chapters}")
                 
-        # Si el input es string (casos legacy o pruebas simples)
         elif isinstance(book_path, str):
             if book_path.strip().startswith('{'):
                 try:
@@ -175,6 +201,7 @@ def main(book_path) -> str:
             raise FileNotFoundError(f"No encuentro el archivo: {local_file_path}")
 
         text = extract_text_from_file(local_file_path)
+        logging.info(f"📄 Texto extraído: {len(text):,} caracteres")
         
         # --- PASO 3: DETECTAR CAPÍTULOS (REGEX) ---
         special_keywords = r'(?:Prólogo|Prefacio|Introducción|Interludio|Epílogo|Nota para el editor)'
@@ -182,19 +209,59 @@ def main(book_path) -> str:
         original_chapters = re.split(f'(?={full_pattern})', text)
         
         chapters_raw = []
+        skipped_headers = []
+        
         for raw_chapter in original_chapters:
-            if not raw_chapter.strip(): continue
+            if not raw_chapter.strip(): 
+                continue
+            
             lines = raw_chapter.strip().split('\n')
+            title = lines[0].strip()
+            content = '\n'.join(lines[1:]).strip()
+            section_type = detect_section_type(title)
+            
+            # =====================================================================
+            # FIX: Filtrar SOLO encabezados de Acto/Parte vacíos
+            # Los capítulos cortos son válidos y deben procesarse
+            # =====================================================================
+            content_length = len(content)
+            
+            # Solo saltar si es encabezado de Acto/Parte Y está vacío
+            is_structural_header = section_type in ('ACT_HEADER', 'PART_HEADER')
+            
+            if is_structural_header and content_length < MIN_CONTENT_CHARS:
+                # Es un divisor estructural sin contenido propio
+                logging.warning(f"⚠️ Saltando encabezado estructural vacío: '{title[:50]}' ({content_length} chars)")
+                skipped_headers.append({
+                    'title': title,
+                    'chars': content_length,
+                    'type': section_type
+                })
+                continue
+            
+            # Capítulos cortos son válidos (ej: "Capítulo 3. Muerte." con 30 chars)
+            if content_length < MIN_CONTENT_CHARS:
+                logging.info(f"📝 Capítulo corto pero válido: '{title[:50]}' ({content_length} chars)")
+            
             chapters_raw.append({
-                'title': lines[0].strip(),
-                'content': '\n'.join(lines[1:]),
-                'section_type': "CHAPTER"
+                'title': title,
+                'content': content,
+                'section_type': section_type
             })
+            
+            logging.info(f"📖 Capítulo detectado: '{title[:50]}' ({content_length:,} chars) - tipo: {section_type}")
 
         # --- PASO 4: APLICAR LÍMITE ---
         total_detected = len(chapters_raw)
+        logging.info(f"📊 Total capítulos con contenido: {total_detected}")
+        
+        if skipped_headers:
+            logging.warning(f"⚠️ Encabezados vacíos saltados: {len(skipped_headers)}")
+            for h in skipped_headers:
+                logging.warning(f"   - '{h['title'][:40]}' ({h['chars']} chars)")
+        
         if limit_chapters is not None and isinstance(limit_chapters, int) and limit_chapters > 0:
-            logging.warning(f"✂️ RECORTANDO LIBRO: Procesando solo los primeros {limit_chapters} de {total_detected} capítulos.")
+            logging.warning(f"✂️ RECORTANDO: Procesando {limit_chapters} de {total_detected} capítulos válidos.")
             chapters_raw = chapters_raw[:limit_chapters]
         else:
             logging.info(f"✅ PROCESANDO LIBRO COMPLETO ({total_detected} capítulos).")
@@ -202,7 +269,7 @@ def main(book_path) -> str:
         # --- PASO 5: SEGMENTAR ---
         fragments = generate_hierarchical_metadata(chapters_raw) 
 
-        # Crear mapa de capítulos para reconstrucción rápida
+        # Crear mapa de capítulos
         chapter_map = {}
         for frag in fragments:
             p_id = frag['parent_chapter_id']
@@ -215,12 +282,21 @@ def main(book_path) -> str:
             'book_metadata': {
                 'total_chapters': len(chapter_map),
                 'total_fragments': len(fragments),
+                'skipped_headers': len(skipped_headers),
                 'source': real_path
             },
-            'chapter_map': chapter_map
+            'chapter_map': chapter_map,
+            'skipped_headers': skipped_headers
         }
 
-        logging.warning(f"✅ Segmentación terminada. Total fragmentos: {len(fragments)}")
+        logging.info(f"")
+        logging.info(f"{'='*60}")
+        logging.info(f"✅ SEGMENTACIÓN COMPLETADA")
+        logging.info(f"   Capítulos válidos: {len(chapter_map)}")
+        logging.info(f"   Fragmentos totales: {len(fragments)}")
+        logging.info(f"   Encabezados saltados: {len(skipped_headers)}")
+        logging.info(f"{'='*60}")
+        
         return json.dumps(result, ensure_ascii=False)
 
     except Exception as e:

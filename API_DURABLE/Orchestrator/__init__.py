@@ -570,7 +570,11 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             'status': 'success',
             'job_id': context.instance_id,
             'book_name': book_name,
-            'manuscript': manuscript,
+            # Extraer campos de manuscript para que SaveOutputs los encuentre
+            'manuscripts': manuscript.get('manuscripts', {}),
+            'consolidated_chapters': manuscript.get('consolidated_chapters', []),
+            'statistics': manuscript.get('statistics', {}),
+            'bible': bible,
             'tiempos': tiempos,
             'stats': {
                 'fragmentos_entrada': len(fragments),
