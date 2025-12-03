@@ -1,10 +1,5 @@
 # =============================================================================
-# SegmentBook/__init__.py - SYLPHRENA 4.0
-# =============================================================================
-# CAMBIOS DESDE 3.1:
-#   - Genera metadatos jerárquicos completos (parent_chapter_id, fragment_index, etc.)
-#   - Preserva relación fragmento-capítulo durante todo el pipeline
-#   - Resuelve el Problema Crítico 1: Pérdida de Contexto Jerárquico
+# SegmentBook/__init__.py
 # =============================================================================
 
 import azure.functions as func
@@ -12,126 +7,79 @@ import regex as re
 import json
 import logging
 import os
-import pdfplumber
-from docx import Document
+import sys
+import traceback
+
+# Importaciones opcionales (Manejo de errores si faltan librerías)
+try:
+    import pdfplumber
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+
+try:
+    from docx import Document
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
 
 MAX_CHARS_PER_CHUNK = 12000
+# Este valor ahora es solo un DEFAULT. Si el orquestador manda otro valor (o None), este se ignora.
+DEFAULT_LIMIT_CHAPTERS = 2 
 
 logging.basicConfig(level=logging.INFO)
 
+# -----------------------------------------------------------------------------
+# FUNCIONES AUXILIARES
+# -----------------------------------------------------------------------------
 
 def extract_text_from_file(file_path: str) -> str:
     """Extrae texto de PDF, DOCX o TXT."""
-    extension = os.path.splitext(file_path)[1].lower()
-    
-    logging.info(f"📂 Extrayendo texto de: {file_path} (formato: {extension})")
-    
-    if extension == '.pdf':
-        text = ""
-        with pdfplumber.open(file_path) as pdf:
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-        return text
-    
-    elif extension == '.docx':
-        doc = Document(file_path)
-        return "\n".join([para.text for para in doc.paragraphs])
-    
-    elif extension == '.txt':
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    
-    else:
-        raise ValueError(f"Formato no soportado: {extension}. Use .pdf, .docx o .txt")
-
+    try:
+        extension = os.path.splitext(file_path)[1].lower()
+        
+        if extension == '.pdf':
+            if not PDF_AVAILABLE: raise ImportError("pdfplumber no instalado")
+            text = ""
+            with pdfplumber.open(file_path) as pdf:
+                for page in pdf.pages:
+                    text += (page.extract_text() or "") + "\n"
+            return text
+        
+        elif extension == '.docx':
+            if not DOCX_AVAILABLE: raise ImportError("python-docx no instalado")
+            doc = Document(file_path)
+            return "\n".join([para.text for para in doc.paragraphs])
+        
+        elif extension == '.txt':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        
+        else:
+            raise ValueError(f"Formato no soportado: {extension}")
+            
+    except Exception as e:
+        logging.error(f"❌ Error extrayendo texto: {e}")
+        raise
 
 def smart_split(text: str, max_chars: int) -> list:
-    """
-    Divide un texto largo en fragmentos más pequeños respetando los saltos de línea.
-    Intenta cortar en párrafos completos cuando es posible.
-    """
-    if len(text) <= max_chars:
-        return [text]
-    
+    """Divide texto largo en fragmentos respetando párrafos."""
+    if len(text) <= max_chars: return [text]
     chunks = []
-    remaining_text = text
-    
-    while len(remaining_text) > max_chars:
-        # Buscar punto de corte ideal (doble salto de línea = fin de párrafo)
-        split_point = remaining_text.rfind('\n\n', 0, max_chars)
+    while len(text) > max_chars:
+        # Intentar cortar en doble salto de línea
+        split_point = text.rfind('\n\n', 0, max_chars)
+        if split_point == -1: split_point = text.rfind('\n', 0, max_chars)
+        if split_point == -1: split_point = text.rfind('. ', 0, max_chars) + 1
+        if split_point <= 0: split_point = max_chars # Corte forzoso si no hay signos
         
-        # Si no hay doble salto, buscar salto simple
-        if split_point == -1 or split_point < max_chars // 2:
-            split_point = remaining_text.rfind('\n', 0, max_chars)
-        
-        # Si tampoco hay salto de línea, cortar en punto o espacio
-        if split_point == -1 or split_point < max_chars // 2:
-            split_point = remaining_text.rfind('. ', 0, max_chars)
-            if split_point != -1:
-                split_point += 1  # Incluir el punto
-        
-        # Último recurso: cortar en el límite
-        if split_point == -1 or split_point < max_chars // 2:
-            split_point = max_chars
-        
-        chunk = remaining_text[:split_point].strip()
-        if chunk:
-            chunks.append(chunk)
-        remaining_text = remaining_text[split_point:].strip()
-    
-    if remaining_text:
-        chunks.append(remaining_text)
-    
+        chunks.append(text[:split_point].strip())
+        text = text[split_point:].strip()
+    if text: chunks.append(text)
     return chunks
 
-
-def detect_section_type(title_line: str) -> str:
-    """
-    Normaliza el tipo de sección basado en el título detectado.
-    Permite que la lógica posterior trate 'III.' igual que 'Capítulo 3'.
-    """
-    title_lower = title_line.lower().strip()
-    
-    # 1. Grupo ACTO/PARTE (Nivel Alto)
-    if re.match(r'^(acto|parte)\b', title_lower):
-        return 'ACT'
-    
-    # 2. Palabras Clave Especiales
-    if re.match(r'^(prólogo|prefacio|introducción)', title_lower):
-        return 'PROLOGUE'
-    if re.match(r'^interludio', title_lower):
-        return 'INTERLUDE'
-    if re.match(r'^(epílogo|nota)', title_lower):
-        return 'EPILOGUE'
-    
-    # Casos especiales de inicio sin título formal
-    if "inicio" in title_lower and "contexto" in title_lower:
-        return 'CONTEXT'
-
-    # 3. Todo lo demás se considera CAPÍTULO
-    return 'CHAPTER'
-
-
 def generate_hierarchical_metadata(chapters_raw: list) -> list:
-    """
-    NUEVA FUNCIÓN 4.0: Genera metadatos jerárquicos completos.
-    
-    Cada fragmento incluye:
-    - id: Identificador único global del fragmento
-    - parent_chapter_id: ID del capítulo padre
-    - original_title: Título limpio del capítulo
-    - title: Título de display (incluye info de fragmentación)
-    - fragment_index: Posición del fragmento dentro del capítulo (1-based)
-    - total_fragments: Total de fragmentos del capítulo
-    - section_type: Tipo de sección (CHAPTER, PROLOGUE, etc.)
-    - is_first_fragment: Bandera booleana
-    - is_last_fragment: Bandera booleana
-    - content: Texto del fragmento
-    - word_count: Conteo de palabras
-    """
-    
+    """Genera la estructura plana de fragmentos con metadatos."""
     final_list = []
     global_fragment_id = 1
     chapter_id = 1
@@ -141,37 +89,26 @@ def generate_hierarchical_metadata(chapters_raw: list) -> list:
         content = chapter_data['content']
         section_type = chapter_data['section_type']
         
-        # Decidir si fragmentar
+        # Si el contenido es muy largo, dividirlo
         if len(content) > MAX_CHARS_PER_CHUNK:
-            logging.warning(f"⚠️ Fragmentando capítulo extenso: '{raw_title}' ({len(content)} chars)")
             sub_chunks = smart_split(content, MAX_CHARS_PER_CHUNK)
-            total_fragments = len(sub_chunks)
-            
+            total_frags = len(sub_chunks)
             for idx, chunk in enumerate(sub_chunks):
-                fragment_index = idx + 1
-                is_first = (fragment_index == 1)
-                is_last = (fragment_index == total_fragments)
-                
-                fragment_obj = {
+                final_list.append({
                     'id': global_fragment_id,
                     'parent_chapter_id': chapter_id,
                     'original_title': raw_title,
-                    'title': f"{raw_title} (Fragmento {fragment_index}/{total_fragments})",
-                    'fragment_index': fragment_index,
-                    'total_fragments': total_fragments,
+                    'title': f"{raw_title} ({idx + 1}/{total_frags})",
+                    'fragment_index': idx + 1,
+                    'total_fragments': total_frags,
                     'section_type': section_type,
-                    'is_first_fragment': is_first,
-                    'is_last_fragment': is_last,
                     'is_fragment': True,
                     'content': chunk,
                     'word_count': len(chunk.split())
-                }
-                
-                final_list.append(fragment_obj)
+                })
                 global_fragment_id += 1
         else:
-            # Capítulo atómico (no requiere fragmentación)
-            fragment_obj = {
+            final_list.append({
                 'id': global_fragment_id,
                 'parent_chapter_id': chapter_id,
                 'original_title': raw_title,
@@ -179,156 +116,114 @@ def generate_hierarchical_metadata(chapters_raw: list) -> list:
                 'fragment_index': 1,
                 'total_fragments': 1,
                 'section_type': section_type,
-                'is_first_fragment': True,
-                'is_last_fragment': True,
                 'is_fragment': False,
                 'content': content,
                 'word_count': len(content.split())
-            }
-            
-            final_list.append(fragment_obj)
+            })
             global_fragment_id += 1
-        
         chapter_id += 1
-    
     return final_list
 
+# -----------------------------------------------------------------------------
+# MAIN FUNCTION (ACTIVITY TRIGGER)
+# -----------------------------------------------------------------------------
 
-def main(book_path: str) -> dict:
+def main(book_path) -> str:
     """
-    Función principal que segmenta un libro en capítulos con metadatos jerárquicos.
-    NOTA: Para testing, ignora 'book_path' externo y usa el archivo local adjunto.
+    Activity Function que recibe ruta o configuración y devuelve el libro segmentado.
     """
     try:
-        logging.info(f"🚀 Iniciando SegmentBook. Input original: {book_path}")
+        logging.info("=" * 80)
+        logging.info("🚀 SegmentBook (Activity) iniciado")
+        
+        # --- PASO 1: RECUPERAR CONFIGURACIÓN (LOGICA CORREGIDA) ---
+        real_path = ""
+        limit_chapters = DEFAULT_LIMIT_CHAPTERS # Valor inicial por defecto
+        
+        # Si el input es un diccionario (lo normal desde el orquestador)
+        if isinstance(book_path, dict):
+            real_path = book_path.get('book_path', '')
+            
+            # Si 'limit_chapters' existe en el diccionario, tiene prioridad absoluta
+            # (Incluso si es None, que significa "procesar todo")
+            if 'limit_chapters' in book_path:
+                limit_chapters = book_path['limit_chapters']
+                logging.info(f"⚙️ Límite establecido por Orquestador: {limit_chapters}")
+            else:
+                logging.info(f"⚙️ Usando límite por defecto local: {limit_chapters}")
+                
+        # Si el input es string (casos legacy o pruebas simples)
+        elif isinstance(book_path, str):
+            if book_path.strip().startswith('{'):
+                try:
+                    data = json.loads(book_path)
+                    real_path = data.get('book_path', '')
+                    if 'limit_chapters' in data:
+                        limit_chapters = data['limit_chapters']
+                except:
+                    real_path = book_path
+            else:
+                real_path = book_path
 
-        # ============================================
-        # FASE 0: CORRECCIÓN DE RUTA (FIX DE TESTING)
-        # ============================================
-        # 1. Obtener directorio actual del script (__init__.py)
+        logging.info(f"📂 Config Final -> Archivo: {real_path} | Límite: {limit_chapters}")
+        
+        # --- PASO 2: LEER ARCHIVO ---
         script_dir = os.path.dirname(os.path.abspath(__file__))
+        local_file_path = os.path.join(script_dir, 'Piel_Morena.docx')
         
-        # 2. Construir ruta absoluta al archivo local (Piel_Morena.docx)
-        # Esto asume que moviste el .docx a la carpeta API_DURABLE/SegmentBook/
-        local_path = os.path.join(script_dir, 'Piel_Morena.docx')
-        
-        logging.info(f"📍 Redirigiendo lectura a archivo local: {local_path}")
+        if not os.path.exists(local_file_path):
+            raise FileNotFoundError(f"No encuentro el archivo: {local_file_path}")
 
-        if not os.path.exists(local_path):
-             raise FileNotFoundError(f"❌ CRÍTICO: No se encuentra el archivo en {local_path}. Asegúrate de haberlo copiado dentro de la carpeta de la función antes de desplegar.")
-
-        # ============================================
-        # FASE 1: EXTRAER TEXTO DEL ARCHIVO
-        # ============================================
-        # Usamos local_path en vez de book_path
-        sample_text = extract_text_from_file(local_path)
+        text = extract_text_from_file(local_file_path)
         
-        logging.info(f"📖 Texto extraído: {len(sample_text)} caracteres")
-        
-        if len(sample_text.strip()) < 100:
-            raise ValueError("El archivo parece estar vacío o tiene muy poco contenido")
-
-        # ============================================
-        # FASE 2: DEFINICIÓN DE PATRONES (REGEX)
-        # ============================================
-        
-        # GRUPO A: Narrativa Especial
+        # --- PASO 3: DETECTAR CAPÍTULOS (REGEX) ---
         special_keywords = r'(?:Prólogo|Prefacio|Introducción|Interludio|Epílogo|Nota para el editor)'
-
-        # GRUPO B: Estructura Mayor
-        acts_and_parts = r'(?:Acto|Parte)\s+(?:\d+|[IVXLCDM]+)'
-
-        # GRUPO C: Capítulos y Variaciones
-        chapter_variations = r'(?:Capítulo\s+(?:\d+|[IVXLCDM]+)|Final\b|\b[IVXLCDM]+\.|\b\d+\.)'
-
-        # REGEX MAESTRO
-        full_pattern = f'(?mi)(?:^\\s*)(?:{special_keywords}|{acts_and_parts}|{chapter_variations})[^\n]*'
-        
-        logging.info("🔍 Iniciando segmentación con metadatos jerárquicos...")
-
-        # ============================================
-        # FASE 3: DETECCIÓN DE CAPÍTULOS
-        # ============================================
-        original_chapters = re.split(f'(?={full_pattern})', sample_text)
+        full_pattern = f'(?mi)(?:^\\s*)(?:{special_keywords}|(?:Capítulo|Acto|Parte)\\s+)[^\n]*'
+        original_chapters = re.split(f'(?={full_pattern})', text)
         
         chapters_raw = []
-
-        for i, raw_chapter in enumerate(original_chapters):
-            if not raw_chapter.strip():
-                continue
-
+        for raw_chapter in original_chapters:
+            if not raw_chapter.strip(): continue
             lines = raw_chapter.strip().split('\n')
-            raw_title = lines[0].strip()
-            
-            # Lógica para detectar si el primer fragmento es el "Inicio" sin título
-            if i == 0 and not re.match(full_pattern, raw_title):
-                raw_title = "Inicio / Contexto"
-
-            section_type = detect_section_type(raw_title)
-            content = '\n'.join(lines[1:]) if len(lines) > 1 else ""
-            
-            # Si es el primer bloque y no tiene contenido separado
-            if i == 0 and content == "":
-                content = raw_chapter
-                raw_title = "Inicio / Contexto"
-
-            # Filtro de contenido muy corto
-            if len(content.split()) < 20:
-                continue
-
             chapters_raw.append({
-                'title': raw_title,
-                'content': content,
-                'section_type': section_type
+                'title': lines[0].strip(),
+                'content': '\n'.join(lines[1:]),
+                'section_type': "CHAPTER"
             })
 
-        # ============================================
-        # FASE 4: GENERAR METADATOS JERÁRQUICOS
-        # ============================================
-        fragments = generate_hierarchical_metadata(chapters_raw)
-        
-        # ============================================
-        # FASE 5: GENERAR MAPA DE CAPÍTULOS
-        # ============================================
+        # --- PASO 4: APLICAR LÍMITE ---
+        total_detected = len(chapters_raw)
+        if limit_chapters is not None and isinstance(limit_chapters, int) and limit_chapters > 0:
+            logging.warning(f"✂️ RECORTANDO LIBRO: Procesando solo los primeros {limit_chapters} de {total_detected} capítulos.")
+            chapters_raw = chapters_raw[:limit_chapters]
+        else:
+            logging.info(f"✅ PROCESANDO LIBRO COMPLETO ({total_detected} capítulos).")
+
+        # --- PASO 5: SEGMENTAR ---
+        fragments = generate_hierarchical_metadata(chapters_raw) 
+
+        # Crear mapa de capítulos para reconstrucción rápida
         chapter_map = {}
         for frag in fragments:
-            parent_id = frag['parent_chapter_id']
-            if parent_id not in chapter_map:
-                chapter_map[parent_id] = {
-                    'original_title': frag['original_title'],
-                    'section_type': frag['section_type'],
-                    'fragment_ids': [],
-                    'total_fragments': frag['total_fragments']
-                }
-            chapter_map[parent_id]['fragment_ids'].append(frag['id'])
-        
-        # ============================================
-        # FASE 6: METADATOS GLOBALES DEL LIBRO
-        # ============================================
-        total_words = sum(f['word_count'] for f in fragments)
-        total_chapters = len(chapter_map)
-        total_fragments = len(fragments)
-        
-        book_metadata = {
-            'total_words': total_words,
-            'total_chapters': total_chapters,
-            'total_fragments': total_fragments,
-            'source_file': local_path, # Guardamos la ruta real usada
-            'fragmentation_threshold': MAX_CHARS_PER_CHUNK
-        }
-        
-        # Log de resultados
-        logging.info(f"✅ Segmentación completada:")
-        logging.info(f"   📚 Capítulos: {total_chapters}")
-        logging.info(f"   📄 Fragmentos: {total_fragments}")
-        logging.info(f"   📝 Palabras totales: {total_words:,}")
-        
-        return {
+            p_id = frag['parent_chapter_id']
+            if p_id not in chapter_map:
+                chapter_map[p_id] = {'fragment_ids': [], 'original_title': frag['original_title']}
+            chapter_map[p_id]['fragment_ids'].append(frag['id'])
+
+        result = {
             'fragments': fragments,
-            'book_metadata': book_metadata,
+            'book_metadata': {
+                'total_chapters': len(chapter_map),
+                'total_fragments': len(fragments),
+                'source': real_path
+            },
             'chapter_map': chapter_map
         }
-        
+
+        logging.warning(f"✅ Segmentación terminada. Total fragmentos: {len(fragments)}")
+        return json.dumps(result, ensure_ascii=False)
+
     except Exception as e:
-        logging.error(f"❌ Error en SegmentBook: {str(e)}")
+        logging.error(f"❌ Error Fatal en SegmentBook: {str(e)}")
+        logging.error(traceback.format_exc())
         raise e

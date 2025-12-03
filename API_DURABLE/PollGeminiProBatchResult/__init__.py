@@ -1,171 +1,114 @@
 # =============================================================================
-# PollGeminiProBatchResult/__init__.py - POLL GENÉRICO GEMINI PRO BATCH
+# PollGeminiProBatchResult/__init__.py
 # =============================================================================
-
 import logging
 import json
 import os
-import re
+import requests
 from google import genai
 
 logging.basicConfig(level=logging.INFO)
 
-
-def clean_json_response(text: str) -> dict:
-    """Limpia y parsea respuesta JSON."""
-    if not text:
-        return {}
-    
-    clean = text.strip()
-    clean = re.sub(r'^[\s]*```(?:json)?[\s]*\n?', '', clean)
-    clean = re.sub(r'\n?[\s]*```[\s]*$', '', clean)
-    clean = clean.strip()
-    
-    try:
-        return json.loads(clean)
-    except:
-        pass
-    
-    start = clean.find('{')
-    end = clean.rfind('}')
-    if start != -1 and end > start:
-        try:
-            return json.loads(clean[start:end+1])
-        except:
-            pass
-    
-    return {}
-
-
 def main(batch_info: dict) -> dict:
     """
-    Consulta estado del batch y extrae resultados.
+    Activity Function que consulta el estado de un Batch Job en Google.
+    
+    Retorna:
+      - {'status': 'processing'}: Si sigue trabajando.
+      - {'status': 'success', 'results': [...]}: Si terminó bien.
+      - {'status': 'failed', 'error': ...}: Si falló.
     """
     try:
+        # Recuperar info del input
+        job_name = batch_info.get('batch_job_name')
+        id_map = batch_info.get('id_map', [])  # Mapa clave para saber qué ID es qué
+        
+        if not job_name:
+            return {'status': 'error', 'error': 'No batch_job_name provided'}
+
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
-            return {"status": "error", "error": "No API Key"}
-        
-        batch_job_name = batch_info.get('batch_job_name')
-        analysis_type = batch_info.get('analysis_type', 'unknown')
-        id_map_list = batch_info.get('id_map', [])
-        
-        if not batch_job_name:
-            return {"status": "error", "error": "No Job Name"}
-        
-        id_map_lookup = {item['key']: item for item in id_map_list}
-        
-        logging.info(f"🔍 Consultando batch {analysis_type}: {batch_job_name}")
-        
+            return {'status': 'error', 'error': 'GEMINI_API_KEY not found'}
+
         client = genai.Client(api_key=api_key)
-        job = client.batches.get(name=batch_job_name)
+
+        logging.info(f"🔍 Consultando estado de batch: {job_name}")
         
-        job_state = job.state.name if hasattr(job.state, 'name') else str(job.state)
-        
-        logging.info(f"📊 Estado: {job_state}")
-        
-        # EN PROGRESO
-        if 'RUNNING' in job_state or 'PENDING' in job_state or 'PROCESSING' in job_state:
+        # 1. Llamada a la API de Google para ver el estado
+        job = client.batches.get(name=job_name)
+        state = job.state.name 
+        logging.info(f"📊 Estado actual Google: {state}")
+
+        # --- LÓGICA DE ESTADOS ---
+
+        # CASO A: Aún trabajando
+        if state in ["JOB_STATE_NEW", "JOB_STATE_PENDING", "JOB_STATE_PROCESSING"]:
             return {
-                "status": "processing",
-                "batch_job_name": batch_job_name,
-                "analysis_type": analysis_type,
-                "id_map": id_map_list
+                'status': 'processing', 
+                'batch_job_name': job_name,
+                'id_map': id_map,
+                'google_state': state
             }
-        
-        # COMPLETADO
-        if 'SUCCEEDED' in job_state:
-            logging.info(f"✅ Batch completado, descargando...")
+
+        # CASO B: Fallo definitivo
+        if state in ["JOB_STATE_FAILED", "JOB_STATE_CANCELLED"]:
+            return {
+                'status': 'failed',
+                'error': f"Google Batch falló con estado: {state}"
+            }
+
+        # CASO C: Éxito -> Descargar resultados
+        if state == "JOB_STATE_SUCCEEDED":
+            logging.info("✅ Batch completado en Google. Iniciando descarga...")
             
-            result_file_name = None
-            if job.dest and hasattr(job.dest, 'file_name'):
-                result_file_name = job.dest.file_name
+            # La propiedad output_file tiene el nombre del recurso (ej. files/xxxx)
+            output_file_name = job.output_file
             
-            if not result_file_name:
-                return {"status": "error", "error": "No output file found"}
-            
-            file_content = client.files.download(file=result_file_name)
-            text_content = file_content.decode('utf-8')
+            # Descargar el contenido del archivo .jsonl
+            file_content_bytes = client.files.content(name=output_file_name)
+            content_str = file_content_bytes.decode('utf-8')
             
             results = []
-            errors = 0
             
-            for line in text_content.splitlines():
-                if not line.strip():
-                    continue
+            # Procesar línea por línea el JSONL
+            for line in content_str.strip().split('\n'):
+                if not line.strip(): continue
                 
                 try:
-                    result_item = json.loads(line)
-                    request_key = result_item.get('key', '')
+                    row = json.loads(line)
                     
-                    mapping = id_map_lookup.get(request_key, {})
-                    chapter_id = mapping.get('chapter_id', 0)
+                    # 'custom_id' es lo que usamos para enlazar la respuesta con la pregunta
+                    custom_id = row.get('custom_id')
                     
-                    response = result_item.get('response', {})
-                    candidates = response.get('candidates', [])
+                    # Extraer el cuerpo de la respuesta del modelo
+                    # La estructura de Google Batch suele ser: response -> body
+                    response_payload = row.get('response', {}).get('body', {})
                     
-                    if candidates:
-                        content = candidates[0].get('content', {})
-                        parts = content.get('parts', [])
-                        if parts:
-                            text = parts[0].get('text', '')
-                            parsed = clean_json_response(text)
-                            
-                            if parsed:
-                                parsed['chapter_id'] = chapter_id
-                                parsed['_metadata'] = {
-                                    'status': 'success',
-                                    'analysis_type': analysis_type,
-                                    'source': 'gemini_batch'
-                                }
-                                results.append(parsed)
-                            else:
-                                errors += 1
-                                results.append({
-                                    'chapter_id': chapter_id,
-                                    'error': 'JSON parse failed',
-                                    '_metadata': {'status': 'error'}
-                                })
-                    else:
-                        errors += 1
-                        results.append({
-                            'chapter_id': chapter_id,
-                            'error': 'No candidates',
-                            '_metadata': {'status': 'error'}
-                        })
-                
-                except Exception as e:
-                    errors += 1
-                    logging.warning(f"⚠️ Error procesando línea: {e}")
-            
-            logging.info(f"📊 Resultados: {len(results)} total, {errors} errores")
-            
+                    # A veces el modelo devuelve el JSON como string dentro del campo
+                    if isinstance(response_payload, str):
+                         response_payload = json.loads(response_payload)
+                    
+                    # Buscar los metadatos originales (titulo, ids, etc) usando el custom_id
+                    # Esto es crucial para saber a qué capítulo pertenece este análisis
+                    meta = next((x for x in id_map if x['key'] == custom_id), {})
+                    
+                    # Combinar todo en un solo objeto limpio
+                    final_item = {**meta, **response_payload}
+                    results.append(final_item)
+                    
+                except Exception as parse_e:
+                    logging.error(f"⚠️ Error parseando una línea del batch: {parse_e}")
+
+            logging.info(f"✅ Resultados procesados: {len(results)}")
             return {
-                "status": "success",
-                "analysis_type": analysis_type,
-                "results": results,
-                "total": len(results),
-                "errors": errors
+                'status': 'success',
+                'total': len(results),
+                'results': results
             }
-        
-        # FALLÓ
-        if 'FAILED' in job_state or 'CANCELLED' in job_state:
-            return {
-                "status": "failed",
-                "error": f"Batch job {job_state}",
-                "analysis_type": analysis_type
-            }
-        
-        # OTRO ESTADO
-        return {
-            "status": "processing",
-            "batch_job_name": batch_job_name,
-            "analysis_type": analysis_type,
-            "id_map": id_map_list
-        }
-        
+
+        # Estado desconocido
+        return {'status': 'unknown', 'state': state}
+
     except Exception as e:
-        logging.error(f"❌ Error en PollGeminiProBatchResult: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
-        return {"status": "error", "error": str(e)}
+        logging.error(f"❌ Error Crítico en Poll: {str(e)}")
+        return {'status': 'error', 'error': str(e)}

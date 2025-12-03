@@ -1,10 +1,5 @@
 # =============================================================================
-# Orchestrator/__init__.py - SYLPHRENA 4.0 (OPTIMIZED)
-# =============================================================================
-# CAMBIOS APLICADOS:
-#   - Modo Prueba (Limit to 5 chapters)
-#   - Fix de Ordenamiento (Sort by ID)
-#   - Paralelización de Fases 4, 5 y 10 (Task.all)
+# Orchestrator/__init__.py - SYLPHRENA 4.0 (FINAL CLEAN)
 # =============================================================================
 
 import azure.functions as func
@@ -14,718 +9,382 @@ import json
 from datetime import timedelta
 
 # =============================================================================
-# CONFIGURACIÓN SYLPHRENA 4.0
+# CONFIGURACIÓN
 # =============================================================================
 
-# Modos de procesamiento
-USE_BATCH_API = True                    # Usar Gemini Batch API (50% descuento)
-USE_CLAUDE_BATCH = True                 # Usar Claude Batch API (50% descuento)
-ENABLE_IMPACT_VALIDATION = True         # Validar impacto de ediciones
-ENABLE_CAUSALITY_ANALYSIS = True        # Análisis de causalidad narrativa
-ENABLE_CROSS_VALIDATION = True          # Validación cruzada de Biblia
+# Límite de capítulos (None = Todo el libro, Entero = Primeros N)
+LIMIT_TO_FIRST_N_CHAPTERS = 2   
 
-# --- MODO DE PRUEBA (BOTÓN DE PÁNICO) ---
-LIMIT_TO_FIRST_5_CHAPTERS = True        # <--- CAMBIAR A FALSE EN PRODUCCIÓN
-# ----------------------------------------
+# Tiempos de espera para Polling (Segundos)
+# Usamos Timers de Durable Functions, así que esto no gasta cómputo
+GEMINI_POLL_INTERVAL = 60   
+CLAUDE_POLL_INTERVAL = 120
+MAX_WAIT_MINUTES = 60
 
-# Límites de concurrencia (Ignorados por Batch API, usados para fallback)
-ANALYSIS_BATCH_SIZE = 5
-EDIT_BATCH_SIZE = 3
-
-# Tiempos de espera para Batch APIs
-BATCH_POLL_INTERVAL_SECONDS = 60
-BATCH_MAX_WAIT_MINUTES = 45
-CLAUDE_BATCH_MAX_WAIT_MINUTES = 120
-CLAUDE_BATCH_POLL_INTERVAL_SECONDS = 120
-
-GEMINI_PRO_BATCH_POLL_INTERVAL = 60  # segundos
-GEMINI_PRO_BATCH_MAX_WAIT = 30       # minutos
+# =============================================================================
+# HELPERS (Gestión de Batch y Fallbacks)
+# =============================================================================
 
 def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict = None):
     """
-    Ejecuta un batch de Gemini Pro y espera resultados.
-    
-    Args:
-        context: DurableOrchestrationContext
-        analysis_type: "layer2_structural" | "layer3_qualitative" | "arc_maps"
-        items: Lista de capítulos/análisis a procesar
-        bible: Biblia validada (solo para arc_maps)
-    
-    Returns:
-        Lista de resultados del análisis
+    Helper genérico para ejecutar batches de Gemini Pro (Capas 2, 3, Arcos).
+    Ciclo: Submit -> Timer -> Poll -> Success/Fail
     """
-    # Enviar batch
     batch_input = {
         'analysis_type': analysis_type,
         'items': items,
         'bible': bible or {}
     }
     
+    # 1. Submit
     batch_info = yield context.call_activity('SubmitGeminiProBatch', batch_input)
     
     if batch_info.get('status') == 'error':
-        raise Exception(f"Error creando batch {analysis_type}: {batch_info.get('error')}")
+        raise Exception(f"❌ Error submit batch {analysis_type}: {batch_info.get('error')}")
     
-    logging.info(f"📦 Batch {analysis_type} creado: {batch_info.get('batch_job_name')}")
+    job_name = batch_info.get('batch_job_name')
+    logging.info(f"📦 Batch {analysis_type} iniciado: {job_name}")
     
-    # Esperar resultados
-    for attempt in range(GEMINI_PRO_BATCH_MAX_WAIT):
-        context.set_custom_status(f"⏳ Esperando Batch {analysis_type}... ({attempt + 1}/{GEMINI_PRO_BATCH_MAX_WAIT} min)")
-        
-        next_check = context.current_utc_datetime + timedelta(seconds=GEMINI_PRO_BATCH_POLL_INTERVAL)
+    # 2. Wait Loop
+    for attempt in range(MAX_WAIT_MINUTES):
+        # Dormir (Timer)
+        next_check = context.current_utc_datetime + timedelta(seconds=GEMINI_POLL_INTERVAL)
         yield context.create_timer(next_check)
         
+        # Poll
         result = yield context.call_activity('PollGeminiProBatchResult', batch_info)
+        status = result.get('status')
         
-        if result.get('status') == 'success':
-            logging.info(f"✅ Batch {analysis_type} completado: {result.get('total')} resultados")
+        if status == 'success':
+            logging.info(f"✅ Batch {analysis_type} completado ({result.get('total')} items).")
             return result.get('results', [])
         
-        if result.get('status') == 'failed':
-            raise Exception(f"Batch {analysis_type} falló: {result.get('error')}")
-        
-        # Actualizar batch_info para siguiente poll
-        batch_info = result
-    
-    raise Exception(f"Batch {analysis_type} no completó en {GEMINI_PRO_BATCH_MAX_WAIT} minutos")
+        elif status == 'failed':
+            raise Exception(f"❌ Batch {analysis_type} falló: {result.get('error')}")
+            
+        # Si es 'processing', el bucle continúa y vuelve a dormir
+        context.set_custom_status(f"⏳ Batch {analysis_type}: Procesando... ({attempt+1}/{MAX_WAIT_MINUTES})")
 
-def orchestrator_function(context: df.DurableOrchestrationContext):
+    raise Exception(f"⏱️ Timeout en Batch {analysis_type}")
+
+
+def analyze_with_batch_api_v2(context, fragments):
     """
-    Orquestador principal de Sylphrena 4.0.
+    Maneja el Análisis de Capa 1 (Factual).
+    Estrategia: Batch Principal -> Retry Individual (Gemini) -> Fallback (Claude)
     """
-    try:
-        book_path = context.get_input()
-        start_time = context.current_utc_datetime
-        instance_id = context.instance_id
-        
-        # Extraer nombre del libro
-        book_name = book_path.split('/')[-1].split('.')[0] if book_path else "libro"
-        
-        tiempos = {}
-        
-        # =================================================================
-        # FASE 1: SEGMENTACIÓN CON METADATOS JERÁRQUICOS
-        # =================================================================
-        context.set_custom_status("📚 Fase 1/13: Segmentando libro con contexto jerárquico...")
-        logging.info("🎬 Iniciando Sylphrena v4.0")
-        
-        segmentation_result = yield context.call_activity('SegmentBook', book_path)
-        
-        # Extraer componentes del resultado
-        fragments = segmentation_result.get('fragments', [])
-        book_metadata = segmentation_result.get('book_metadata', {})
-        chapter_map = segmentation_result.get('chapter_map', {})
-
-        seg_time = context.current_utc_datetime
-        tiempos['segmentacion'] = f"{(seg_time - start_time).total_seconds():.1f}s"
-        
-        if not fragments:
-            raise ValueError("La segmentación no devolvió fragmentos.")
-            
-        # -----------------------------------------------------------------
-        # LIMITAR A 5 CAPÍTULOS SI EL MODO DE PRUEBA ESTÁ ACTIVO
-        # -----------------------------------------------------------------
-        if LIMIT_TO_FIRST_5_CHAPTERS:
-            logging.warning("⚠️ MODO PRUEBA ACTIVO: Limitando a los primeros 5 capítulos.")
-            
-            # Filtramos los fragmentos cuyo 'parent_chapter_id' sea <= 5
-            fragments = [f for f in fragments if int(f.get('parent_chapter_id', 999)) <= 5]
-            
-            # Ajustamos también el mapa de capítulos
-            chapter_map = {k: v for k, v in chapter_map.items() if int(k) <= 5}
-            
-            # Ajustamos metadatos
-            book_metadata['total_chapters'] = len(chapter_map)
-            book_metadata['total_fragments'] = len(fragments)
-            book_metadata['total_words'] = sum(f.get('word_count', 0) for f in fragments)
-            
-            logging.warning(f"⚠️ PROCESANDO SOLO: {len(fragments)} fragmentos de {len(chapter_map)} capítulos.")
-        # -----------------------------------------------------------------
-
-        total_fragments = len(fragments)
-        total_chapters = len(chapter_map)
-        total_words = book_metadata.get('total_words', 0)
-        
-        logging.info(f"✅ Segmentación: {total_chapters} capítulos, {total_fragments} fragmentos, {total_words:,} palabras")
-        
-        # =================================================================
-        # FASE 2: ANÁLISIS CAPA 1 (EXTRACCIÓN FACTUAL)
-        # =================================================================
-        context.set_custom_status(f"🔍 Fase 2/13: Análisis Capa 1 ({total_fragments} fragmentos)...")
-        
-        if USE_BATCH_API:
-            fragment_analyses = yield from analyze_with_batch_api(context, fragments)
-        else:
-            fragment_analyses = yield from analyze_with_simple_batches(context, fragments)
-            
-        # [FIX 1] ORDENAR RESULTADOS DEL BATCH
-        fragment_analyses.sort(key=lambda x: int(x.get('fragment_id', 0) or x.get('id', 0)))
-        logging.info("✅ Fragmentos ordenados numéricamente tras el análisis.")
-        
-        analysis_time = context.current_utc_datetime
-        tiempos['analisis_capa1'] = f"{(analysis_time - seg_time).total_seconds():.1f}s"
-        logging.info(f"✅ Análisis Capa 1 completado: {len(fragment_analyses)} fragmentos analizados")
-        
-        # =================================================================
-        # FASE 3: CONSOLIDACIÓN DE FRAGMENTOS POR CAPÍTULO
-        # =================================================================
-        context.set_custom_status("🔧 Fase 3/13: Consolidando fragmentos por capítulo...")
-        
-        consolidated_analyses = yield context.call_activity(
-            'ConsolidateFragmentAnalyses',
-            {
-                'fragment_analyses': fragment_analyses,
-                'chapter_map': chapter_map
-            }
-        )
-        
-        consolidation_time = context.current_utc_datetime
-        tiempos['consolidacion'] = f"{(consolidation_time - analysis_time).total_seconds():.1f}s"
-        logging.info(f"✅ Consolidación: {len(consolidated_analyses)} capítulos")
-        
-        # =================================================================
-        # FASE 4: ANÁLISIS CAPA 2 (GEMINI PRO BATCH)
-        # =================================================================
-        context.set_custom_status(f"📊 Fase 4/13: Análisis Capa 2 - Patrones estructurales (Batch)...")
-        
-        results_layer2 = yield from run_gemini_pro_batch(
-            context, 
-            'layer2_structural', 
-            consolidated_analyses
-        )
-        
-        # Mapear resultados por chapter_id
-        layer2_by_id = {r.get('chapter_id'): r for r in results_layer2}
-        
-        layer2_analyses = []
-        for chapter_data in consolidated_analyses:
-            cid = chapter_data.get('chapter_id', 0)
-            chapter_data['layer2_structural'] = layer2_by_id.get(cid, {})
-            layer2_analyses.append(chapter_data)
-        
-        layer2_time = context.current_utc_datetime
-        tiempos['analisis_capa2'] = f"{(layer2_time - consolidation_time).total_seconds():.1f}s"
-        logging.info(f"✅ Análisis Capa 2 completado (Paralelo)")
-        
-        # =================================================================
-        # FASE 5: ANÁLISIS CAPA 3 (GEMINI PRO BATCH)
-        # =================================================================
-        context.set_custom_status(f"🧠 Fase 5/13: Análisis Capa 3 - Evaluación cualitativa (Batch)...")
-        
-        # Agregar posición a cada capítulo para el prompt
-        for i, chapter in enumerate(layer2_analyses):
-            chapter['chapter_position'] = i + 1
-            chapter['total_chapters'] = len(layer2_analyses)
-        
-        results_layer3 = yield from run_gemini_pro_batch(
-            context,
-            'layer3_qualitative',
-            layer2_analyses
-        )
-        
-        # Mapear resultados por chapter_id
-        layer3_by_id = {r.get('chapter_id'): r for r in results_layer3}
-        
-        layer3_analyses = []
-        for chapter_data in layer2_analyses:
-            cid = chapter_data.get('chapter_id', 0)
-            chapter_data['layer3_qualitative'] = layer3_by_id.get(cid, {})
-            layer3_analyses.append(chapter_data)
-        
-        layer3_time = context.current_utc_datetime
-        tiempos['analisis_capa3'] = f"{(layer3_time - layer2_time).total_seconds():.1f}s"
-        logging.info(f"✅ Análisis Capa 3 completado (Paralelo)")
-        
-        # =================================================================
-        # FASE 6: LECTURA HOLÍSTICA
-        # =================================================================
-        context.set_custom_status("📖 Fase 6/13: Lectura holística del libro completo...")
-        
-        full_book_text = "\n\n---\n\n".join([
-            f"CAPÍTULO: {frag['title']}\n\n{frag['content']}" 
-            for frag in fragments
-        ])
-        
-        holistic_analysis = yield context.call_activity('HolisticReading', full_book_text)
-        
-        holistic_time = context.current_utc_datetime
-        tiempos['holistica'] = f"{(holistic_time - layer3_time).total_seconds():.1f}s"
-        logging.info(f"✅ Lectura holística completada")
-        
-        # =================================================================
-        # FASE 7: SÍNTESIS DE BIBLIA INICIAL
-        # =================================================================
-        context.set_custom_status("📜 Fase 7/13: Construyendo Biblia Narrativa...")
-        
-        bible_input = {
-            "chapter_analyses": layer3_analyses,
-            "holistic_analysis": holistic_analysis,
-            "book_metadata": book_metadata
-        }
-        
-        bible_initial = yield context.call_activity('CreateBible', json.dumps(bible_input))
-        
-        bible_time = context.current_utc_datetime
-        tiempos['biblia_inicial'] = f"{(bible_time - holistic_time).total_seconds():.1f}s"
-        logging.info(f"✅ Biblia inicial creada")
-        
-        # =================================================================
-        # FASE 8: ANÁLISIS DE CAUSALIDAD (OPCIONAL)
-        # =================================================================
-        if ENABLE_CAUSALITY_ANALYSIS:
-            context.set_custom_status("🔗 Fase 8/13: Análisis de causalidad narrativa...")
-            
-            all_events = []
-            for chapter in layer3_analyses:
-                eventos = chapter.get('eventos', [])
-                chapter_id = chapter.get('chapter_id', '?')
-                for evento in eventos:
-                    evento['source_chapter'] = chapter_id
-                    all_events.append(evento)
-            
-            causality_result = yield context.call_activity(
-                'CausalityGraphAnalysis',
-                {'events': all_events, 'chapters': layer3_analyses}
-            )
-            bible_initial['analisis_causalidad'] = causality_result
-            
-            causality_time = context.current_utc_datetime
-            tiempos['causalidad'] = f"{(causality_time - bible_time).total_seconds():.1f}s"
-            logging.info(f"✅ Análisis de causalidad completado")
-        else:
-            causality_time = bible_time
-            tiempos['causalidad'] = "omitido"
-        
-        # =================================================================
-        # FASE 9: VALIDACIÓN CRUZADA DE BIBLIA
-        # =================================================================
-        if ENABLE_CROSS_VALIDATION:
-            context.set_custom_status("✅ Fase 9/13: Validación cruzada de Biblia...")
-            
-            validation_result = yield context.call_activity(
-                'ValidateBibleCrossCheck',
-                {
-                    'bible': bible_initial,
-                    'chapter_analyses': layer3_analyses
-                }
-            )
-            
-            bible_validated = validation_result.get('bible_validated', bible_initial)
-            bible_validated['validacion_cruzada'] = validation_result.get('validation_report', {})
-            
-            validation_time = context.current_utc_datetime
-            tiempos['validacion_cruzada'] = f"{(validation_time - causality_time).total_seconds():.1f}s"
-            logging.info(f"✅ Validación cruzada completada")
-        else:
-            bible_validated = bible_initial
-            validation_time = causality_time
-            tiempos['validacion_cruzada'] = "omitido"
-        
-        # =================================================================
-        # FASE 9.5: VALIDACIÓN DE ARCOS Y ANÁLISIS ESPECIALIZADOS
-        # =================================================================
-        context.set_custom_status("🔬 Fase 9.5/13: Ejecutando análisis especializados y validación de arcos...")
-        
-        tasks_specialized = []
-        tasks_specialized.append(context.call_activity(
-            'CharacterArcValidation', 
-            json.dumps({'bible': bible_validated})
-        ))
-        tasks_specialized.append(context.call_activity(
-            'SpecializedAnalyses', 
-            json.dumps({'bible': bible_validated, 'book_metadata': book_metadata})
-        ))
-        
-        results_specialized = yield context.task_all(tasks_specialized)
-        
-        bible_validated['validacion_arcos'] = results_specialized[0]
-        bible_validated['analisis_profundos'] = results_specialized[1]
-        
-        logging.info("✅ Análisis especializados y validación de arcos completados")
-
-        # =================================================================
-        # FASE 10: GENERACIÓN DE MAPAS DE ARCO (GEMINI PRO BATCH)
-        # =================================================================
-        context.set_custom_status("🗺️ Fase 10/13: Generando mapas de arco (Batch)...")
-        
-        # Preparar items con posición
-        for i, chapter in enumerate(layer3_analyses):
-            chapter['chapter_position'] = i + 1
-            chapter['total_chapters'] = len(layer3_analyses)
-        
-        results_arc = yield from run_gemini_pro_batch(
-            context,
-            'arc_maps',
-            layer3_analyses,
-            bible=bible_validated
-        )
-        
-        # Construir diccionario de arc_maps
-        arc_maps = {}
-        for arc_map in results_arc:
-            cid = arc_map.get('chapter_id', 0)
-            arc_maps[cid] = arc_map
-        
-        arcmap_time = context.current_utc_datetime
-        tiempos['mapas_arco'] = f"{(arcmap_time - validation_time).total_seconds():.1f}s"
-        logging.info(f"✅ {len(arc_maps)} mapas de arco generados (Paralelo)")
-        
-        # =================================================================
-        # FASE 11: EDICIÓN CON CLAUDE (VALIDACIÓN DE IMPACTO)
-        # =================================================================
-        context.set_custom_status("✏️ Fase 11/13: Edición con Claude...")
-        pre_edit_time = context.current_utc_datetime
-        
-        edit_requests = []
-        for fragment in fragments:
-            parent_id = fragment.get('parent_chapter_id', fragment.get('id'))
-            analysis = next((a for a in layer3_analyses if str(a.get('chapter_id')) == str(parent_id)), {})
-            arc_map = arc_maps.get(str(parent_id), {})
-            is_critical = arc_map.get('es_critico_estructuralmente', False)
-            
-            edit_requests.append({
-                'chapter': fragment,
-                'bible': bible_validated,
-                'analysis': analysis,
-                'arc_map': arc_map,
-                'is_critical': is_critical and ENABLE_IMPACT_VALIDATION
-            })
-        
-        if USE_CLAUDE_BATCH:
-            edited_fragments = yield from edit_with_claude_batch(
-                context, edit_requests, bible_validated, layer3_analyses, arc_maps
-            )
-        else:
-            edited_fragments = yield from edit_sequentially(context, edit_requests)
-        
-        # [FIX 2] ORDENAR RESULTADOS DE EDICIÓN
-        # Ordenar primero por ID de capítulo padre, y luego por índice de fragmento
-        edited_fragments.sort(key=lambda x: (
-            int(x.get('parent_chapter_id', 0) or x.get('chapter_id', 0)), # Criterio 1: Capítulo
-            int(x.get('fragment_index', 0))                               # Criterio 2: Orden dentro del cap
-        ))
-        logging.info("✅ Capítulos editados ordenados jerárquicamente (Capítulo -> Índice).")
-
-        edit_time = context.current_utc_datetime
-        tiempos['edicion'] = f"{(edit_time - pre_edit_time).total_seconds():.1f}s"
-        logging.info(f"✅ Edición completada: {len(edited_fragments)} fragmentos")
-        
-        # =================================================================
-        # FASE 12: RECONSTRUCCIÓN DE MANUSCRITO
-        # =================================================================
-        context.set_custom_status("📄 Fase 12/13: Reconstruyendo manuscrito...")
-        
-        reconstruct_result = yield context.call_activity(
-            'ReconstructManuscript',
-            {
-                'edited_chapters': edited_fragments,
-                'book_name': book_name,
-                'bible': bible_validated
-            }
-        )
-        
-        manuscripts = reconstruct_result.get('manuscripts', {})
-        consolidated_chapters = reconstruct_result.get('consolidated_chapters', [])
-        reconstruction_stats = reconstruct_result.get('statistics', {})
-        
-        reconstruct_time = context.current_utc_datetime
-        tiempos['reconstruccion'] = f"{(reconstruct_time - edit_time).total_seconds():.1f}s"
-        logging.info(f"✅ Manuscrito reconstruido")
-        
-        # =================================================================
-        # FASE 13: GUARDADO DE OUTPUTS
-        # =================================================================
-        context.set_custom_status("💾 Fase 13/13: Guardando resultados...")
-        
-        save_input = {
-            'job_id': instance_id,
-            'book_name': book_name,
-            'bible': bible_validated,
-            'manuscripts': manuscripts,
-            'consolidated_chapters': consolidated_chapters,
-            # Pasamos los datos crudos pero con nombres claros
-            'original_fragments': fragments, 
-            # Pasamos los conteos explícitos calculados al inicio
-            'metadata_counts': {
-                'original_chapters': total_chapters,    # Este es el número real (5)
-                'original_fragments': total_fragments,  # Este es 13
-                'total_words': total_words
-            },
-            'statistics': reconstruction_stats,
-            'tiempos': tiempos
-        }
-        
-        save_result = yield context.call_activity('SaveOutputs', save_input)
-        
-        save_time = context.current_utc_datetime
-        tiempos['guardado'] = f"{(save_time - reconstruct_time).total_seconds():.1f}s"
-        tiempos['total'] = f"{(save_time - start_time).total_seconds() / 60:.1f} min"
-        
-        logging.info(f"💾 Outputs guardados: {save_result.get('status')}")
-        
-        # =================================================================
-        # RESULTADO FINAL
-        # =================================================================
-        context.set_custom_status("✅ Completado - Sylphrena 4.0")
-        
-        costos = calculate_costs_v4(
-            total_words, total_chapters, total_fragments,
-            len(layer3_analyses), len(edited_fragments)
-        )
-        
-        logging.info(f"💰 COSTO TOTAL ESTIMADO: ${costos['total']:.2f}")
-        
-        return {
-            'status': 'completed',
-            'version': 'v4.0',
-            'job_id': instance_id,
-            'book_name': book_name,
-            'palabras': total_words,
-            'total_chapters': total_chapters,
-            'total_fragments': total_fragments,
-            'chapters_analyzed': len(layer3_analyses),
-            'fragments_edited': len(edited_fragments),
-            'tiempos': tiempos,
-            'costos': costos,
-            'outputs': save_result.get('urls', {}),
-            'outputs_container': save_result.get('container', 'sylphrena-outputs'),
-            'outputs_path': save_result.get('base_path', instance_id),
-            'reconstruction_stats': reconstruction_stats
-        }
-        
-    except Exception as e:
-        logging.error(f"💥 Error fatal en Orchestrator 4.0: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
-        
-        return {
-            'status': 'error',
-            'version': 'v4.0',
-            'message': str(e)
-        }
-
-
-# =============================================================================
-# FUNCIONES AUXILIARES
-# =============================================================================
-
-def analyze_with_batch_api(context, fragments):
-    """Analiza fragmentos usando Gemini Batch API con retry + fallback a Claude."""
-    logging.info(f"📦 Modo BATCH API: {len(fragments)} fragmentos")
-    
-    context.set_custom_status("📤 Enviando a Gemini Batch API...")
-    
+    # 1. Submit Batch Inicial
+    context.set_custom_status("📤 Enviando Batch Capa 1...")
     batch_info = yield context.call_activity('SubmitBatchAnalysis', fragments)
     
     if batch_info.get('error'):
-        raise Exception(f"Error creando batch: {batch_info.get('error')}")
+        raise Exception(f"Error submit Batch C1: {batch_info.get('error')}")
     
-    logging.info(f"📦 Batch Job creado: {batch_info.get('batch_job_name', 'N/A')}")
-    
-    # Esperar resultado del batch
+    # 2. Wait Loop Batch
     batch_results = []
-    for attempt in range(BATCH_MAX_WAIT_MINUTES):
-        context.set_custom_status(f"⏳ Esperando Batch API... ({attempt + 1}/{BATCH_MAX_WAIT_MINUTES} min)")
-        
-        next_check = context.current_utc_datetime + timedelta(seconds=BATCH_POLL_INTERVAL_SECONDS)
+    batch_failed = False
+    
+    for attempt in range(MAX_WAIT_MINUTES):
+        next_check = context.current_utc_datetime + timedelta(seconds=GEMINI_POLL_INTERVAL)
         yield context.create_timer(next_check)
         
         result = yield context.call_activity('PollBatchResult', batch_info)
         
-        if isinstance(result, list):
+        if isinstance(result, list): # Éxito, devuelve lista
             batch_results = result
-            logging.info(f"✅ Batch completado: {len(batch_results)} análisis")
             break
         
         if result.get('status') == 'failed':
-            raise Exception(f"Batch falló: {result.get('error')}")
-        
-        batch_info = result
-        logging.info(f"⏳ Batch aún procesando... (intento {attempt + 1})")
-    else:
-        raise Exception(f"Batch no completó en {BATCH_MAX_WAIT_MINUTES} minutos")
+            logging.warning("⚠️ Batch C1 falló completamente. Pasando a Fallback.")
+            batch_failed = True
+            break
+            
+        context.set_custom_status(f"⏳ Batch C1: Procesando... ({attempt+1}/{MAX_WAIT_MINUTES})")
     
-    # =========================================================================
-    # RETRY + FALLBACK: Procesar fragmentos que fallaron
-    # =========================================================================
-    MAX_RETRY_FRAGMENTS = 10  # Límite para evitar timeout de Azure
-    
+    # 3. Identificar fallos (items que faltan en el resultado)
     successful_ids = set()
-    for analysis in batch_results:
-        fid = analysis.get('fragment_id') or analysis.get('chapter_id')
-        if fid:
-            successful_ids.add(str(fid))
-    
-    failed_fragments = []
-    for frag in fragments:
-        frag_id = str(frag.get('id', ''))
-        if frag_id not in successful_ids:
-            failed_fragments.append(frag)
+    for res in batch_results:
+        # Intentar varios campos de ID posibles
+        fid = res.get('fragment_id') or res.get('chapter_id') or res.get('id')
+        if fid: successful_ids.add(str(fid))
+        
+    failed_fragments = [f for f in fragments if str(f.get('id')) not in successful_ids]
     
     if not failed_fragments:
-        logging.info("✅ Todos los fragmentos procesados exitosamente")
         return batch_results
+
+    # 4. Lógica de Rescate (Retry + Fallback)
+    # Limitamos rescates para no eternizar
+    MAX_RETRIES = 10
+    if len(failed_fragments) > MAX_RETRIES:
+        logging.warning(f"⚠️ Muchos fallos ({len(failed_fragments)}). Rescatando solo primeros {MAX_RETRIES}.")
+        failed_fragments = failed_fragments[:MAX_RETRIES]
+
+    final_results = list(batch_results)
     
-    logging.warning(f"⚠️ {len(failed_fragments)} fragmentos fallaron en batch")
-    
-    if len(failed_fragments) > MAX_RETRY_FRAGMENTS:
-        logging.warning(f"⚠️ Demasiados fallos ({len(failed_fragments)}), limitando a {MAX_RETRY_FRAGMENTS}")
-        failed_fragments = failed_fragments[:MAX_RETRY_FRAGMENTS]
-    
-    # PASO 1: Reintentar con Gemini síncrono
-    context.set_custom_status(f"🔄 Reintentando {len(failed_fragments)} fragmentos con Gemini...")
-    
-    still_failed = []
     for i, frag in enumerate(failed_fragments):
-        frag_id = frag.get('id', '?')
-        context.set_custom_status(f"🔄 Retry Gemini {i+1}/{len(failed_fragments)}: frag {frag_id}")
+        frag_id = frag.get('id')
+        context.set_custom_status(f"🚑 Rescatando frag {frag_id} ({i+1}/{len(failed_fragments)})")
         
+        # A) Reintento con Gemini Standard (Activity)
         try:
-            retry_result = yield context.call_activity('AnalyzeChapter', frag)
-            
-            if retry_result.get('error') or retry_result.get('status') == 'error':
-                logging.warning(f"⚠️ Retry Gemini falló para frag {frag_id}")
-                still_failed.append(frag)
+            retry_res = yield context.call_activity('AnalyzeChapter', frag)
+            if retry_res and not retry_res.get('error'):
+                logging.info(f"✅ Retry Gemini OK: Frag {frag_id}")
+                final_results.append(retry_res)
+                continue # Éxito, siguiente
+        except:
+            pass # Falló Gemini, seguimos a Claude
+
+        # B) Fallback a Claude (Activity)
+        try:
+            logging.info(f"🔀 Fallback Claude: Frag {frag_id}")
+            claude_res = yield context.call_activity('AnalyzeChapterWithClaude', frag)
+            if claude_res and not claude_res.get('error'):
+                logging.info(f"✅ Fallback Claude OK: Frag {frag_id}")
+                final_results.append(claude_res)
             else:
-                logging.info(f"✅ Retry Gemini exitoso para frag {frag_id}")
-                batch_results.append(retry_result)
+                logging.error(f"❌ Fallback Claude falló: Frag {frag_id}")
         except Exception as e:
-            logging.warning(f"⚠️ Retry Gemini excepción para frag {frag_id}: {e}")
-            still_failed.append(frag)
-    
-    # PASO 2: Fallback a Claude para los que siguen fallando
-    if still_failed:
-        context.set_custom_status(f"🔀 Fallback Claude: {len(still_failed)} fragmentos...")
-        logging.info(f"🔀 Enviando {len(still_failed)} fragmentos a Claude como fallback")
-        
-        for i, frag in enumerate(still_failed):
-            frag_id = frag.get('id', '?')
-            context.set_custom_status(f"🔀 Claude fallback {i+1}/{len(still_failed)}: frag {frag_id}")
-            
-            try:
-                claude_result = yield context.call_activity('AnalyzeChapterWithClaude', frag)
-                
-                if claude_result and not claude_result.get('error'):
-                    logging.info(f"✅ Claude fallback exitoso para frag {frag_id}")
-                    batch_results.append(claude_result)
-                else:
-                    logging.error(f"❌ Claude fallback también falló para frag {frag_id}")
-            except Exception as e:
-                logging.error(f"❌ Claude fallback excepción para frag {frag_id}: {e}")
-    
-    logging.info(f"✅ Total análisis finales: {len(batch_results)}/{len(fragments)}")
-    return batch_results
+             logging.error(f"❌ Error fatal en fallback: {e}")
+
+    return final_results
 
 
-def analyze_with_simple_batches(context, fragments):
-    """Analiza fragmentos en lotes pequeños (sin Batch API)."""
-    total_fragments = len(fragments)
-    total_batches = (total_fragments + ANALYSIS_BATCH_SIZE - 1) // ANALYSIS_BATCH_SIZE
-    
-    logging.info(f"📊 Modo LOTES SIMPLES: {total_batches} lotes de {ANALYSIS_BATCH_SIZE}")
-    
-    all_analyses = []
-    
-    for batch_num, i in enumerate(range(0, total_fragments, ANALYSIS_BATCH_SIZE), 1):
-        batch = fragments[i:i + ANALYSIS_BATCH_SIZE]
-        
-        context.set_custom_status(f"🔍 Analizando lote {batch_num}/{total_batches}")
-        
-        tasks = [context.call_activity('AnalyzeChapter', frag) for frag in batch]
-        results = yield context.task_all(tasks)
-        
-        for result in results:
-            if not result.get('error'):
-                all_analyses.append(result)
-    
-    return all_analyses
-
-
-def edit_with_claude_batch(context, edit_requests, bible, analyses, arc_maps):
-    """Edita capítulos usando Claude Batch API."""
-    
-    # Extraer solo los datos necesarios para el batch
-    chapters = [req['chapter'] for req in edit_requests]
-    
-    logging.info(f"✏️ Enviando {len(chapters)} fragmentos a Claude Batch API")
-    
-    context.set_custom_status("📤 Enviando a Claude Batch API...")
+def edit_with_claude_batch_v2(context, edit_requests, bible, analyses, arc_maps):
+    """
+    Maneja la Edición usando Claude Batch.
+    Ciclo: Submit -> Timer -> Poll
+    """
+    # Preparar input simple
+    chapters_only = [req['chapter'] for req in edit_requests]
     
     batch_request = {
-        'chapters': chapters,
+        'chapters': chapters_only,
         'bible': bible,
         'analyses': analyses,
         'arc_maps': arc_maps
     }
     
+    # 1. Submit
     batch_info = yield context.call_activity('SubmitClaudeBatch', batch_request)
-    
     if batch_info.get('error'):
-        raise Exception(f"Error creando Claude batch: {batch_info.get('error')}")
+        raise Exception(f"Error submit Claude Batch: {batch_info.get('error')}")
     
-    batch_id = batch_info.get('batch_id')
-    logging.info(f"📦 Claude Batch creado: {batch_id}")
-    
-    for attempt in range(CLAUDE_BATCH_MAX_WAIT_MINUTES):
-        context.set_custom_status(f"⏳ Esperando Claude Batch... ({attempt + 1}/{CLAUDE_BATCH_MAX_WAIT_MINUTES} min)")
-        
-        next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_BATCH_POLL_INTERVAL_SECONDS)
+    logging.info(f"📦 Claude Batch iniciado: {batch_info.get('batch_id')}")
+
+    # 2. Wait Loop
+    for attempt in range(120): # Claude tarda más, damos 2 horas max
+        next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_POLL_INTERVAL)
         yield context.create_timer(next_check)
         
         result = yield context.call_activity('PollClaudeBatchResult', batch_info)
         
         if isinstance(result, list):
-            logging.info(f"✅ Claude Batch completado: {len(result)} fragmentos editados")
+            logging.info(f"✅ Claude Batch completado ({len(result)} editados).")
             return result
-        
+            
         if result.get('status') == 'error':
             raise Exception(f"Claude Batch falló: {result.get('error')}")
+            
+        context.set_custom_status(f"⏳ Claude Batch: Procesando... ({attempt+1}/120)")
+        # Actualizar info para siguiente poll (ej. contadores)
+        batch_info = result 
+
+    raise Exception("⏱️ Timeout en Claude Batch")
+
+
+# =============================================================================
+# ORQUESTADOR PRINCIPAL
+# =============================================================================
+
+def orchestrator_function(context: df.DurableOrchestrationContext):
+    try:
+        # --- SETUP ---
+        input_data = context.get_input()
+        book_path = input_data if isinstance(input_data, str) else input_data.get('book_path', '')
+        book_name = book_path.split('/')[-1].split('.')[0] if book_path else "libro"
+        start_time = context.current_utc_datetime
+        tiempos = {}
+
+        logging.info(f"🎬 ORQUESTADOR V4 INICIADO: {book_name}")
+
+        # ---------------------------------------------------------------------
+        # FASE 1: SEGMENTACIÓN
+        # ---------------------------------------------------------------------
+        context.set_custom_status("📚 Fase 1: Segmentando...")
         
-        batch_info = result
-        counts = result.get('request_counts', {})
-        logging.info(f"⏳ Claude procesando... ({counts.get('succeeded', 0)} OK)")
-    
-    raise Exception(f"Claude Batch no completó en {CLAUDE_BATCH_MAX_WAIT_MINUTES} minutos")
-
-
-def edit_sequentially(context, edit_requests):
-    """Edita capítulos secuencialmente (sin Batch API)."""
-    edited = []
-    total = len(edit_requests)
-    
-    for i, req in enumerate(edit_requests, 1):
-        context.set_custom_status(f"✏️ Editando {i}/{total}")
+        segment_payload = {
+            'book_path': book_path,
+            'limit_chapters': LIMIT_TO_FIRST_N_CHAPTERS  
+        }
         
-        result = yield context.call_activity('EditChapter', req)
-        edited.append(result)
-    
-    return edited
+        # Llamada y parseo
+        segment_json = yield context.call_activity('SegmentBook', segment_payload)
+        segment_res = json.loads(segment_json)
+        
+        fragments = segment_res.get('fragments', [])
+        book_metadata = segment_res.get('book_metadata', {})
+        chapter_map = segment_res.get('chapter_map', {})
+        
+        t1 = context.current_utc_datetime
+        tiempos['segmentacion'] = str(t1 - start_time)
+        
+        if not fragments:
+            return {"status": "completed", "message": "Libro vacío."}
 
+        # ---------------------------------------------------------------------
+        # FASE 2: ANÁLISIS CAPA 1 (FACTUAL + FALLBACKS)
+        # ---------------------------------------------------------------------
+        context.set_custom_status("🔍 Fase 2: Análisis Capa 1...")
+        
+        # Usamos la versión V2 con timers y fallback
+        fragment_analyses = yield from analyze_with_batch_api_v2(context, fragments)
+        
+        # Ordenar resultados
+        fragment_analyses.sort(key=lambda x: int(x.get('id', 0) or 0))
 
-def calculate_costs_v4(total_words, total_chapters, total_fragments, 
-                       chapters_analyzed, fragments_edited):
-    """Calcula costos estimados para Sylphrena 4.0."""
-    
-    tokens = int(total_words * 1.33)
-    
-    costs = {
-        'segmentacion': round(tokens * 0.10 / 1_000_000, 4),
-        'analisis_capa1': round(tokens * 0.05 / 1_000_000, 4),
-        'analisis_capa2': round(chapters_analyzed * 5000 * 1.25 / 1_000_000 + 
-                                chapters_analyzed * 500 * 5.00 / 1_000_000, 4),
-        'analisis_capa3': round(chapters_analyzed * 10000 * 1.25 / 1_000_000 + 
-                                chapters_analyzed * 1000 * 5.00 / 1_000_000, 4),
-        'holistica': round(tokens * 1.25 / 1_000_000 + 5000 * 5.00 / 1_000_000, 4),
-        'sintesis': round(30000 * 1.25 / 1_000_000 + 10000 * 5.00 / 1_000_000, 4),
-        'mapas_arco': round(chapters_analyzed * 3000 * 1.25 / 1_000_000 + 
-                           chapters_analyzed * 500 * 5.00 / 1_000_000, 4),
-        'edicion_input': round(tokens * 2 * 1.50 / 1_000_000, 4),
-        'edicion_output': round(tokens * 1.1 * 7.50 / 1_000_000, 4),
-        'infraestructura': 0.15
-    }
-    
-    costs['total'] = round(sum(costs.values()), 2)
-    return costs
+        t2 = context.current_utc_datetime
+        tiempos['capa1'] = str(t2 - t1)
 
+        # ---------------------------------------------------------------------
+        # FASE 3: CONSOLIDACIÓN
+        # ---------------------------------------------------------------------
+        context.set_custom_status("🔧 Fase 3: Consolidando...")
+        
+        consolidated = yield context.call_activity(
+            'ConsolidateFragmentAnalyses',
+            {'fragment_analyses': fragment_analyses, 'chapter_map': chapter_map}
+        )
+        
+        t3 = context.current_utc_datetime
+        tiempos['consolidacion'] = str(t3 - t2)
+
+        # ---------------------------------------------------------------------
+        # FASE 4: ANÁLISIS CAPA 2 (ESTRUCTURAL - BATCH)
+        # ---------------------------------------------------------------------
+        context.set_custom_status("📊 Fase 4: Estructura (Batch)...")
+
+        layer2_results = yield from run_gemini_pro_batch(
+            context, 'layer2_structural', consolidated
+        )
+        
+        # Merge
+        l2_map = {r['chapter_id']: r for r in layer2_results}
+        for c in consolidated:
+            c['layer2_structural'] = l2_map.get(c['chapter_id'], {})
+
+        t4 = context.current_utc_datetime
+        tiempos['capa2'] = str(t4 - t3)
+
+        # ---------------------------------------------------------------------
+        # FASE 5: ANÁLISIS CAPA 3 (CUALITATIVO - BATCH)
+        # ---------------------------------------------------------------------
+        context.set_custom_status("🧠 Fase 5: Cualitativo (Batch)...")
+        
+        # Añadir contexto de posición
+        total_chaps = len(consolidated)
+        for i, c in enumerate(consolidated):
+            c['chapter_position'] = i + 1
+            c['total_chapters'] = total_chaps
+
+        layer3_results = yield from run_gemini_pro_batch(
+            context, 'layer3_qualitative', consolidated
+        )
+        
+        # Merge
+        l3_map = {r['chapter_id']: r for r in layer3_results}
+        for c in consolidated:
+            c['layer3_qualitative'] = l3_map.get(c['chapter_id'], {})
+
+        t5 = context.current_utc_datetime
+        tiempos['capa3'] = str(t5 - t4)
+
+        # ---------------------------------------------------------------------
+        # FASE 6: BIBLIA & HOLÍSTICO
+        # ---------------------------------------------------------------------
+        context.set_custom_status("📜 Fase 6: Biblia...")
+        
+        full_text = "\n".join([f"CAP {f['title']}: {f['content'][:600]}..." for f in fragments])
+        holistic = yield context.call_activity('HolisticReading', full_text)
+        
+        bible_in = {
+            "chapter_analyses": consolidated,
+            "holistic_analysis": holistic,
+            "book_metadata": book_metadata
+        }
+        bible = yield context.call_activity('CreateBible', json.dumps(bible_in))
+        
+        t6 = context.current_utc_datetime
+        tiempos['biblia'] = str(t6 - t5)
+
+        # ---------------------------------------------------------------------
+        # FASE 10: ARCOS (BATCH) - (Saltamos 8 y 9 para simplificar hoy)
+        # ---------------------------------------------------------------------
+        context.set_custom_status("🗺️ Fase 10: Arcos...")
+        
+        arc_results = yield from run_gemini_pro_batch(
+            context, 'arc_maps', consolidated, bible=bible
+        )
+        arc_map_dict = {str(r['chapter_id']): r for r in arc_results}
+        
+        t10 = context.current_utc_datetime
+        tiempos['arcos'] = str(t10 - t6)
+
+        # ---------------------------------------------------------------------
+        # FASE 11: EDICIÓN (CLAUDE BATCH)
+        # ---------------------------------------------------------------------
+        context.set_custom_status("✏️ Fase 11: Edición...")
+        
+        # Preparar requests
+        edit_reqs = []
+        for frag in fragments:
+            pid = str(frag.get('parent_chapter_id'))
+            # Buscar análisis del capítulo padre
+            analysis = next((c for c in consolidated if str(c['chapter_id']) == pid), {})
+            
+            edit_reqs.append({
+                'chapter': frag,
+                # Los helpers ya no se pasan aquí, se pasan en bloque a la func batch
+            })
+            
+        # Ejecutar Edición Batch V2
+        edited_fragments = yield from edit_with_claude_batch_v2(
+            context, edit_reqs, bible, consolidated, arc_map_dict
+        )
+        
+        # Ordenar
+        edited_fragments.sort(key=lambda x: int(x.get('id', 0)))
+        
+        t11 = context.current_utc_datetime
+        tiempos['edicion'] = str(t11 - t10)
+
+        # ---------------------------------------------------------------------
+        # FASE 12/13: RECONSTRUCCIÓN Y FINAL
+        # ---------------------------------------------------------------------
+        context.set_custom_status("💾 Finalizando...")
+        
+        recon_input = {
+            'edited_chapters': edited_fragments,
+            'book_name': book_name,
+            'bible': bible
+        }
+        manuscript = yield context.call_activity('ReconstructManuscript', recon_input)
+        
+        final = {
+            'job_id': context.instance_id,
+            'book_name': book_name,
+            'manuscript': manuscript,
+            'tiempos': tiempos
+        }
+        
+        yield context.call_activity('SaveOutputs', final)
+        
+        logging.info("✅✅ FINALIZADO CON ÉXITO ✅✅")
+        return final
+
+    except Exception as e:
+        logging.error(f"💥 ERROR FATAL: {e}")
+        raise e
 
 main = df.Orchestrator.create(orchestrator_function)
