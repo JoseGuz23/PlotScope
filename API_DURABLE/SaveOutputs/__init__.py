@@ -10,9 +10,7 @@ import os
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from io import BytesIO
-
-# Importar generador DOCX
-from .docx_generator import generate_manuscript_docx
+from .structure_changes import structure_changes
 
 logging.basicConfig(level=logging.INFO)
 
@@ -219,63 +217,37 @@ def main(save_input) -> dict:
         # ─────────────────────────────────────────────────────────────────
         # C. GUARDAR MANUSCRITOS (MARKDOWN Y HTML)
         # ─────────────────────────────────────────────────────────────────
-        if manuscripts.get('clean_md'):
-            clean_path = f"{base_path}/manuscrito_editado.md"
-            blob_client = container_client.get_blob_client(clean_path)
-            blob_client.upload_blob(
-                manuscripts['clean_md'], 
-                overwrite=True,
-                content_settings=ContentSettings(content_type='text/markdown')
-            )
-            urls['manuscrito_limpio'] = blob_client.url
+        # Frontend renderizará desde JSON - solo guardamos datos estructurados
+        logging.info("📦 Guardando solo JSON estructurado (frontend renderiza)")
+        # Guardar capítulos consolidados completos
+        chapters_path = f"{base_path}/capitulos_consolidados.json"
+        blob_client = container_client.get_blob_client(chapters_path)
+        blob_client.upload_blob(
+            json.dumps(consolidated_chapters, indent=2, ensure_ascii=False),
+            overwrite=True,
+            content_settings=ContentSettings(content_type='application/json')
+        )
+        urls['capitulos'] = blob_client.url
 
-        if manuscripts.get('enriched_md'):
-            enriched_path = f"{base_path}/manuscrito_anotado.md"
-            blob_client = container_client.get_blob_client(enriched_path)
-            blob_client.upload_blob(
-                manuscripts['enriched_md'], 
-                overwrite=True,
-                content_settings=ContentSettings(content_type='text/markdown')
-            )
-            urls['manuscrito_anotado'] = blob_client.url
+        logging.info("🔄 Estructurando cambios para editor...")
+        structured_changes = structure_changes(consolidated_chapters)
 
-        if manuscripts.get('comparative_html'):
-            comparative_path = f"{base_path}/control_cambios.html"
-            blob_client = container_client.get_blob_client(comparative_path)
-            blob_client.upload_blob(
-                manuscripts['comparative_html'], 
-                overwrite=True,
-                content_settings=ContentSettings(content_type='text/html')
-            )
-            urls['control_cambios'] = blob_client.url
-            
-        logging.info("✅ Manuscritos MD/HTML guardados")
+        changes_path = f"{base_path}/cambios_estructurados.json"
+        blob_client = container_client.get_blob_client(changes_path)
+        blob_client.upload_blob(
+            json.dumps(structured_changes, indent=2, ensure_ascii=False),
+            overwrite=True,
+            content_settings=ContentSettings(content_type='application/json')
+        )
+        urls['cambios'] = blob_client.url
+
+        logging.info(f"✅ {structured_changes['total_changes']} cambios estructurados")
 
         # ─────────────────────────────────────────────────────────────────
         # C2. NUEVO - GUARDAR MANUSCRITO DOCX PROFESIONAL
         # ─────────────────────────────────────────────────────────────────
-        logging.info("📄 Generando manuscrito DOCX profesional...")
-        try:
-            docx_buffer = generate_manuscript_docx(
-                consolidated_chapters, 
-                book_name, 
-                style='simple'  # 'simple' = tabla de cambios, 'inline' = cambios en texto
-            )
-            
-            docx_path = f"{base_path}/manuscrito_editado.docx"
-            blob_client = container_client.get_blob_client(docx_path)
-            blob_client.upload_blob(
-                docx_buffer.read(),
-                overwrite=True,
-                content_settings=ContentSettings(
-                    content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                )
-            )
-            urls['manuscrito_docx'] = blob_client.url
-            logging.info("✅ Manuscrito DOCX guardado")
-        except Exception as e:
-            logging.error(f"⚠️ Error generando DOCX: {str(e)}")
-            # No fallar por esto - continuar con otros outputs
+        logging.info("ℹ️ DOCX generation moved to frontend")
+
 
         # ─────────────────────────────────────────────────────────────────
         # D. GUARDAR REPORTE DE CAMBIOS
