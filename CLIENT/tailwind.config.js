@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,18 +8,24 @@ module.exports = {
     extend: {
       colors: {
         theme: {
-          bg: '#F7F7F7',      // Papel/Crema
-          header: '#FFFFFF',  // Blanco Puro
-          primary: '#2F855A', // Verde Bosque
-          text: '#1A1A1A',    // Negro Profundo
-          subtle: '#374151',  // Gris Encabezados
-          border: '#D1D5DB'   // Gris Líneas
+          // Verde teal principal (exacto de la imagen)
+          primary: '#0F766E',
+          // Textos
+          text: '#1A1A1A',
+          subtle: '#374151',
+          // Fondos
+          bg: '#F7F7F7',
+          header: '#FFFFFF',
+          // Bordes
+          border: '#D1D5DB',
         }
       },
       fontFamily: {
-        'report-mono': ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-        'report-serif': ['ui-serif', 'Georgia', 'serif'],
-      }
+        // Fuente serif para títulos (estilo editorial/reporte)
+        'report-serif': ['Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+        // Fuente mono para datos (estilo máquina de escribir)
+        'report-mono': ['Consolas', 'Monaco', '"Courier New"', 'monospace'],
+      },
     },
   },
   plugins: [],

@@ -1,58 +1,24 @@
 // =============================================================================
-// api.js - SERVICIO DE CONEXIÓN CON AZURE BACKEND
+// api.js - CONEXIÓN REAL CON AZURE BLOB STORAGE
 // =============================================================================
-// Centraliza todas las llamadas al backend de Sylphrena
+// Conecta directamente con tu storage de Azure
 // =============================================================================
 
-// URL base del backend Azure - CAMBIAR EN PRODUCCIÓN
-const API_BASE = import.meta.env.VITE_API_URL || 'https://tu-function-app.azurewebsites.net/api';
-
-// Storage de Azure para los outputs
+// Storage de Azure - TU URL REAL
 const STORAGE_BASE = 'https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs';
 
-// =============================================================================
-// HELPER PARA FETCH
-// =============================================================================
-
-async function fetchAPI(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
-  
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      // TODO: Agregar JWT cuando implementemos auth real
-      // 'Authorization': `Bearer ${getToken()}`,
-      ...options.headers,
-    },
-    ...options,
-  };
-
-  try {
-    const response = await fetch(url, config);
-    
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `Error ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error);
-    throw error;
-  }
-}
+// URL del backend Azure Functions (para cuando lo necesites)
+const API_BASE = import.meta.env.VITE_API_URL || 'https://tu-function-app.azurewebsites.net/api';
 
 // =============================================================================
-// PROYECTOS / JOBS
+// PROYECTOS - Por ahora datos locales + conexión real para archivos
 // =============================================================================
 
 export const projectsAPI = {
-  // Obtener todos los proyectos del usuario
+  // Lista de proyectos (mock por ahora, después conectará con DB)
   async getAll() {
-    // TODO: Endpoint real cuando exista
-    // return fetchAPI('/projects');
-    
-    // MOCK DATA - Reemplazar con llamada real
+    // TODO: Cuando tengas base de datos, esto llamará al backend
+    // Por ahora retornamos datos conocidos + tu proyecto real
     return [
       {
         id: 'bb841d8a189243faa35647773561aa6f',
@@ -83,105 +49,108 @@ export const projectsAPI = {
     ];
   },
 
-  // Obtener un proyecto específico
   async getById(projectId) {
-    // TODO: return fetchAPI(`/projects/${projectId}`);
     const projects = await this.getAll();
     return projects.find(p => p.id === projectId);
   },
-
-  // Iniciar nuevo procesamiento
-  async startJob(manuscriptUrl, options = {}) {
-    return fetchAPI('/start-job', {
-      method: 'POST',
-      body: JSON.stringify({
-        manuscript_url: manuscriptUrl,
-        ...options,
-      }),
-    });
-  },
-
-  // Obtener estado del job
-  async getJobStatus(jobId) {
-    return fetchAPI(`/job-status/${jobId}`);
-  },
-
-  // Obtener outputs del job
-  async getOutputs(jobId) {
-    return fetchAPI(`/outputs/${jobId}`);
-  },
 };
 
 // =============================================================================
-// BIBLIA NARRATIVA
+// BIBLIA - CONEXIÓN REAL CON AZURE BLOB
 // =============================================================================
 
 export const bibleAPI = {
-  // Obtener biblia de un proyecto
+  // Cargar biblia REAL desde Azure Blob Storage
   async get(projectId) {
-    // Construir URL del blob storage
     const url = `${STORAGE_BASE}/${projectId}/biblia_validada.json`;
     
+    console.log('📚 Cargando biblia desde:', url);
+    
     try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Biblia no encontrada');
-      return await response.json();
+      const response = await fetch(url, {
+        method: 'GET',
+        // Sin headers especiales - el blob debe ser público o tener SAS
+      });
+      
+      if (!response.ok) {
+        console.error('❌ Error HTTP:', response.status, response.statusText);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Biblia cargada:', data);
+      return data;
+      
     } catch (error) {
-      console.error('Error cargando biblia:', error);
-      throw error;
+      console.error('❌ Error cargando biblia:', error);
+      
+      // Si falla, mostrar mensaje útil
+      throw new Error(
+        `No se pudo cargar la biblia. ` +
+        `Verifica que el archivo exista en: ${url} ` +
+        `y que CORS esté configurado en tu Storage Account.`
+      );
     }
   },
 
-  // Guardar biblia editada por el usuario
+  // Guardar biblia editada (TODO: implementar endpoint)
   async save(projectId, bibleData) {
-    // TODO: Endpoint para guardar biblia editada
-    return fetchAPI(`/projects/${projectId}/bible`, {
-      method: 'PUT',
-      body: JSON.stringify(bibleData),
-    });
+    console.log('💾 Guardando biblia para proyecto:', projectId);
+    // TODO: Implementar cuando tengas endpoint
+    // Por ahora simula éxito
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { success: true };
   },
 
-  // Aprobar biblia y continuar procesamiento
+  // Aprobar biblia (TODO: implementar endpoint)
   async approve(projectId) {
-    // TODO: Endpoint para aprobar y continuar
-    return fetchAPI(`/projects/${projectId}/bible/approve`, {
-      method: 'POST',
-    });
+    console.log('✅ Aprobando biblia para proyecto:', projectId);
+    // TODO: Implementar cuando tengas endpoint
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { success: true };
   },
 };
 
 // =============================================================================
-// MANUSCRITOS Y CAMBIOS
+// MANUSCRITOS - CONEXIÓN REAL CON AZURE BLOB
 // =============================================================================
 
 export const manuscriptAPI = {
-  // Obtener manuscrito editado
+  // Manuscrito editado (limpio)
   async getEdited(projectId) {
     const url = `${STORAGE_BASE}/${projectId}/manuscrito_editado.md`;
+    console.log('📄 Cargando manuscrito editado desde:', url);
+    
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Manuscrito no encontrado');
+    if (!response.ok) throw new Error('Manuscrito editado no encontrado');
     return await response.text();
   },
 
-  // Obtener manuscrito anotado (con cambios inline)
+  // Manuscrito anotado (con cambios inline)
   async getAnnotated(projectId) {
     const url = `${STORAGE_BASE}/${projectId}/manuscrito_anotado.md`;
+    console.log('📝 Cargando manuscrito anotado desde:', url);
+    
     const response = await fetch(url);
     if (!response.ok) throw new Error('Manuscrito anotado no encontrado');
     return await response.text();
   },
 
-  // Obtener control de cambios HTML
+  // Control de cambios HTML
   async getChangesHTML(projectId) {
     const url = `${STORAGE_BASE}/${projectId}/control_cambios.html`;
+    console.log('🔄 Cargando control de cambios desde:', url);
+    
     const response = await fetch(url);
     if (!response.ok) throw new Error('Control de cambios no encontrado');
     return await response.text();
   },
 
-  // Obtener resumen ejecutivo
+  // Resumen ejecutivo
   async getSummary(projectId) {
     const url = `${STORAGE_BASE}/${projectId}/resumen_ejecutivo.json`;
+    console.log('📊 Cargando resumen desde:', url);
+    
     const response = await fetch(url);
     if (!response.ok) throw new Error('Resumen no encontrado');
     return await response.json();
@@ -189,29 +158,19 @@ export const manuscriptAPI = {
 };
 
 // =============================================================================
-// UPLOAD DE ARCHIVOS
+// UPLOAD - Pendiente de implementar
 // =============================================================================
 
 export const uploadAPI = {
-  // Subir manuscrito a Azure Blob Storage
   async uploadManuscript(file, projectName) {
-    // TODO: Implementar cuando tengamos endpoint de upload
-    // Probablemente necesitaremos un SAS token del backend
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', projectName);
-    
-    return fetchAPI('/upload', {
-      method: 'POST',
-      headers: {}, // Sin Content-Type para FormData
-      body: formData,
-    });
+    console.log('📤 Upload pendiente de implementar');
+    // TODO: Implementar con SAS token del backend
+    throw new Error('Upload no implementado aún');
   },
 };
 
 // =============================================================================
-// EXPORT DEFAULT
+// EXPORT
 // =============================================================================
 
 export default {

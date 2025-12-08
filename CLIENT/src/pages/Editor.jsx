@@ -1,35 +1,20 @@
 // =============================================================================
-// Editor.jsx - EDITOR CON TRACK CHANGES (PLACEHOLDER)
-// =============================================================================
-// Por ahora muestra el manuscrito anotado. TipTap vendrá en la siguiente fase.
+// Editor.jsx - EDITOR DE MANUSCRITO (PROFESIONAL)
 // =============================================================================
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { manuscriptAPI } from '../services/api';
-import {
-  FileText,
-  Download,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  X,
-  Loader2,
-  Eye,
-  Code,
-  Filter,
-} from 'lucide-react';
 
 export default function Editor() {
   const { id: projectId } = useParams();
   
   const [content, setContent] = useState('');
   const [annotatedContent, setAnnotatedContent] = useState('');
-  const [changesHTML, setChangesHTML] = useState('');
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('annotated'); // 'clean' | 'annotated' | 'html'
+  const [viewMode, setViewMode] = useState('annotated');
 
   useEffect(() => {
     loadContent();
@@ -39,16 +24,14 @@ export default function Editor() {
     try {
       setIsLoading(true);
       
-      const [edited, annotated, html, summaryData] = await Promise.all([
+      const [edited, annotated, summaryData] = await Promise.all([
         manuscriptAPI.getEdited(projectId).catch(() => ''),
         manuscriptAPI.getAnnotated(projectId).catch(() => ''),
-        manuscriptAPI.getChangesHTML(projectId).catch(() => ''),
         manuscriptAPI.getSummary(projectId).catch(() => null),
       ]);
       
       setContent(edited);
       setAnnotatedContent(annotated);
-      setChangesHTML(html);
       setSummary(summaryData);
     } catch (err) {
       setError(err.message);
@@ -59,203 +42,189 @@ export default function Editor() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin text-theme-primary" size={40} />
-        <span className="ml-3 text-theme-subtle">Cargando editor...</span>
+      <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+        <div className="status-indicator" style={{ justifyContent: 'center' }}>
+          <div className="status-dot"></div>
+          <span className="status-text">Cargando editor...</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-sm">
-        <p className="font-bold">Error al cargar el manuscrito</p>
-        <p>{error}</p>
+      <div className="content-section" style={{ borderColor: '#FCA5A5', background: '#FEF2F2' }}>
+        <h2 className="title-section" style={{ color: '#B91C1C', borderColor: '#FCA5A5' }}>
+          Error al Cargar
+        </h2>
+        <p style={{ color: '#B91C1C' }}>{error}</p>
+        <Link to="/" className="btn btn-outline" style={{ marginTop: '1rem' }}>
+          ← Volver al Dashboard
+        </Link>
       </div>
     );
   }
 
   return (
     <>
-      {/* Header */}
-      <header className="report-divider py-4">
-        <div className="flex justify-between items-center">
+      {/* HEADER */}
+      <header className="page-header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <Link 
-              to="/" 
-              className="text-theme-subtle hover:text-theme-primary text-sm mb-2 inline-flex items-center gap-1"
-            >
-              <ChevronLeft size={16} /> Volver al Dashboard
+            <Link to="/" className="meta" style={{ display: 'block', marginBottom: '0.5rem' }}>
+              ← Volver al Dashboard
             </Link>
-            <h1 className="text-3xl font-report-serif font-extrabold text-theme-text">
-              EDITOR DE MANUSCRITO
-            </h1>
+            <h1 className="title-main">EDITOR DE MANUSCRITO</h1>
             {summary && (
-              <p className="text-sm font-report-mono text-theme-subtle mt-1">
+              <p className="page-header-meta">
                 {summary.book_name} | {summary.estadisticas?.total_words?.toLocaleString()} palabras | {summary.estadisticas?.total_changes} cambios
               </p>
             )}
           </div>
-          <div className="flex gap-3">
-            <a
-              href={summary?.urls?.manuscrito_limpio}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 border border-theme-border rounded-sm text-sm font-bold hover:bg-gray-50 transition"
-            >
-              <Download size={18} />
-              Descargar Limpio
-            </a>
-            <a
-              href={summary?.urls?.manuscrito_anotado}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-theme-primary text-white px-4 py-2 rounded-sm text-sm font-bold hover:bg-theme-primary/80 transition"
-            >
-              <Download size={18} />
-              Descargar Anotado
-            </a>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {summary?.urls?.manuscrito_limpio && (
+              <a 
+                href={summary.urls.manuscrito_limpio} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-outline"
+              >
+                Descargar Limpio
+              </a>
+            )}
+            {summary?.urls?.manuscrito_anotado && (
+              <a 
+                href={summary.urls.manuscrito_anotado} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+              >
+                Descargar Anotado
+              </a>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Stats rápidos */}
+      {/* STATS */}
       {summary && (
-        <div className="grid grid-cols-5 gap-4 mb-6">
-          <div className="border border-theme-border bg-white p-4 rounded-sm">
-            <p className="data-label">Capítulos</p>
-            <p className="text-2xl font-report-mono font-bold">{summary.capitulos_procesados}</p>
+        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+          <div className="stat-card">
+            <p className="label">Capítulos</p>
+            <p className="stat-value" style={{ fontSize: '1.5rem' }}>{summary.capitulos_procesados}</p>
           </div>
-          <div className="border border-theme-border bg-white p-4 rounded-sm">
-            <p className="data-label">Cambios</p>
-            <p className="text-2xl font-report-mono font-bold text-theme-primary">
+          <div className="stat-card">
+            <p className="label">Cambios</p>
+            <p className="stat-value text-primary" style={{ fontSize: '1.5rem' }}>
               {summary.estadisticas?.total_changes}
             </p>
           </div>
-          <div className="border border-theme-border bg-white p-4 rounded-sm">
-            <p className="data-label">Costo</p>
-            <p className="text-2xl font-report-mono font-bold text-green-600">
+          <div className="stat-card">
+            <p className="label">Costo</p>
+            <p className="stat-value" style={{ fontSize: '1.5rem', color: '#059669' }}>
               ${summary.estadisticas?.total_cost_usd?.toFixed(2)}
             </p>
           </div>
-          <div className="border border-theme-border bg-white p-4 rounded-sm">
-            <p className="data-label">Tiempo Total</p>
-            <p className="text-lg font-report-mono font-bold">
+          <div className="stat-card">
+            <p className="label">Tiempo</p>
+            <p className="mono" style={{ fontSize: '1rem', fontWeight: 700, marginTop: '0.5rem' }}>
               {summary.tiempos?.total?.split('.')[0] || '—'}
             </p>
           </div>
-          <div className="border border-theme-border bg-white p-4 rounded-sm">
-            <p className="data-label">Versión</p>
-            <p className="text-lg font-report-mono font-bold">{summary.version}</p>
+          <div className="stat-card">
+            <p className="label">Versión</p>
+            <p className="mono" style={{ fontSize: '1rem', fontWeight: 700, marginTop: '0.5rem' }}>
+              {summary.version}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Selector de vista */}
-      <div className="flex gap-2 mb-4">
+      {/* VIEW MODE SELECTOR */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         <button
           onClick={() => setViewMode('annotated')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-bold transition ${
-            viewMode === 'annotated' 
-              ? 'bg-theme-primary text-white' 
-              : 'bg-white border border-theme-border hover:bg-gray-50'
-          }`}
+          className={viewMode === 'annotated' ? 'btn btn-primary' : 'btn btn-outline'}
         >
-          <Eye size={18} />
           Vista Anotada
         </button>
         <button
           onClick={() => setViewMode('clean')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-bold transition ${
-            viewMode === 'clean' 
-              ? 'bg-theme-primary text-white' 
-              : 'bg-white border border-theme-border hover:bg-gray-50'
-          }`}
+          className={viewMode === 'clean' ? 'btn btn-primary' : 'btn btn-outline'}
         >
-          <FileText size={18} />
           Vista Limpia
-        </button>
-        <button
-          onClick={() => setViewMode('html')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-bold transition ${
-            viewMode === 'html' 
-              ? 'bg-theme-primary text-white' 
-              : 'bg-white border border-theme-border hover:bg-gray-50'
-          }`}
-        >
-          <Code size={18} />
-          Control de Cambios
         </button>
       </div>
 
-      {/* Área del editor */}
-      <div className="border border-theme-border bg-white rounded-sm min-h-[600px]">
-        {/* Toolbar placeholder */}
-        <div className="border-b border-theme-border p-3 bg-gray-50 flex justify-between items-center">
-          <div className="flex gap-2">
-            <button className="p-2 hover:bg-gray-200 rounded transition" title="Cambio anterior">
-              <ChevronLeft size={18} />
-            </button>
-            <button className="p-2 hover:bg-gray-200 rounded transition" title="Cambio siguiente">
-              <ChevronRight size={18} />
-            </button>
-            <span className="text-sm text-theme-subtle self-center px-2">
+      {/* EDITOR AREA */}
+      <section className="content-section">
+        {/* Toolbar */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '1rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-outline" title="Cambio anterior">← Anterior</button>
+            <button className="btn btn-outline" title="Cambio siguiente">Siguiente →</button>
+            <span className="meta" style={{ alignSelf: 'center', marginLeft: '0.5rem' }}>
               Navegación de cambios (próximamente)
             </span>
           </div>
-          <div className="flex gap-2">
-            <button className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded text-sm font-bold hover:bg-green-200 transition">
-              <Check size={16} /> Aceptar Todo
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn" style={{ background: '#D1FAE5', color: '#065F46' }}>
+              ✓ Aceptar Todo
             </button>
-            <button className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded text-sm font-bold hover:bg-red-200 transition">
-              <X size={16} /> Rechazar Todo
+            <button className="btn" style={{ background: '#FEE2E2', color: '#B91C1C' }}>
+              ✗ Rechazar Todo
             </button>
           </div>
         </div>
 
-        {/* Contenido */}
-        <div className="p-6 max-h-[700px] overflow-y-auto">
-          {viewMode === 'html' ? (
-            <div 
-              className="prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: changesHTML }}
-            />
-          ) : (
-            <pre className="whitespace-pre-wrap font-report-mono text-sm leading-relaxed">
-              {viewMode === 'annotated' ? annotatedContent : content}
-            </pre>
-          )}
+        {/* Content */}
+        <div className="content-body" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+          {viewMode === 'annotated' ? annotatedContent : content}
         </div>
-      </div>
+      </section>
 
-      {/* Nota sobre TipTap */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-sm">
-        <p className="font-bold text-sm">🚧 Editor Interactivo en Desarrollo</p>
-        <p className="text-sm mt-1">
+      {/* INFO BOX */}
+      <div style={{ 
+        background: '#EFF6FF', 
+        border: '1px solid #BFDBFE', 
+        padding: '1rem',
+        marginTop: '1.5rem'
+      }}>
+        <p className="label" style={{ color: '#1E40AF', marginBottom: '0.5rem' }}>
+          🚧 Editor Interactivo en Desarrollo
+        </p>
+        <p className="mono" style={{ fontSize: '0.875rem', color: '#1E40AF' }}>
           La siguiente versión incluirá el editor TipTap con track changes interactivo: 
           aceptar/rechazar cambios individuales, navegación entre cambios, y export final.
         </p>
       </div>
 
-      {/* Links a archivos */}
+      {/* FILE LINKS */}
       {summary?.urls && (
-        <div className="mt-6 border border-theme-border bg-white p-4 rounded-sm">
-          <h3 className="font-bold text-sm mb-3">📎 Archivos Generados</h3>
-          <div className="grid grid-cols-2 gap-3">
+        <section className="content-section" style={{ marginTop: '1.5rem' }}>
+          <h2 className="title-section">📎 ARCHIVOS GENERADOS</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
             {Object.entries(summary.urls).map(([key, url]) => (
               <a
                 key={key}
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-theme-primary hover:underline flex items-center gap-2"
+                className="project-link mono"
+                style={{ fontSize: '0.875rem' }}
               >
-                <FileText size={14} />
-                {key.replace(/_/g, ' ')}
+                {key.replace(/_/g, ' ')} →
               </a>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </>
   );

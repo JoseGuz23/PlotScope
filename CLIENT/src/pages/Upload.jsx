@@ -1,23 +1,9 @@
 // =============================================================================
-// Upload.jsx - SUBIR NUEVO MANUSCRITO
+// Upload.jsx - SUBIR NUEVO MANUSCRITO (PROFESIONAL)
 // =============================================================================
 
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { projectsAPI } from '../services/api';
-import {
-  Upload as UploadIcon,
-  FileText,
-  X,
-  ChevronLeft,
-  Loader2,
-  AlertCircle,
-  CheckCircle,
-  Info,
-} from 'lucide-react';
-
-const ACCEPTED_FORMATS = ['.md', '.txt', '.docx'];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -42,7 +28,6 @@ export default function Upload() {
   function handleDrop(e) {
     e.preventDefault();
     setIsDragging(false);
-    
     const droppedFile = e.dataTransfer.files[0];
     validateAndSetFile(droppedFile);
   }
@@ -54,35 +39,24 @@ export default function Upload() {
 
   function validateAndSetFile(f) {
     setError(null);
-    
     if (!f) return;
     
-    // Validar formato
     const ext = '.' + f.name.split('.').pop().toLowerCase();
-    if (!ACCEPTED_FORMATS.includes(ext)) {
-      setError(`Formato no soportado. Usa: ${ACCEPTED_FORMATS.join(', ')}`);
+    const allowed = ['.md', '.txt', '.docx'];
+    
+    if (!allowed.includes(ext)) {
+      setError(`Formato no soportado. Usa: ${allowed.join(', ')}`);
       return;
     }
     
-    // Validar tamaño
-    if (f.size > MAX_FILE_SIZE) {
+    if (f.size > 10 * 1024 * 1024) {
       setError('El archivo es muy grande. Máximo: 10MB');
       return;
     }
     
     setFile(f);
-    
-    // Auto-generar nombre del proyecto si está vacío
     if (!projectName) {
-      const name = f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
-      setProjectName(name);
-    }
-  }
-
-  function removeFile() {
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      setProjectName(f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '));
     }
   }
 
@@ -94,49 +68,33 @@ export default function Upload() {
       return;
     }
 
-    try {
-      setIsUploading(true);
-      setError(null);
-      
-      // TODO: Implementar upload real
-      // const result = await projectsAPI.startJob(file, projectName);
-      
-      // Por ahora simulamos
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      alert('¡Proyecto creado! (Demo - en producción iniciaría el procesamiento)');
-      navigate('/');
-      
-    } catch (err) {
-      setError(err.message || 'Error al subir el archivo');
-    } finally {
-      setIsUploading(false);
-    }
+    setIsUploading(true);
+    
+    // Simular upload
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    alert('¡Proyecto creado! (Demo - en producción iniciaría el procesamiento)');
+    navigate('/');
   }
 
   return (
     <>
-      {/* Header */}
-      <header className="report-divider py-4">
-        <Link 
-          to="/" 
-          className="text-theme-subtle hover:text-theme-primary text-sm mb-2 inline-flex items-center gap-1"
-        >
-          <ChevronLeft size={16} /> Volver al Dashboard
+      {/* HEADER */}
+      <header className="page-header">
+        <Link to="/" className="meta" style={{ display: 'block', marginBottom: '0.5rem' }}>
+          ← Volver al Dashboard
         </Link>
-        <h1 className="text-3xl font-report-serif font-extrabold text-theme-text">
-          NUEVO PROYECTO
-        </h1>
-        <p className="text-sm font-report-mono text-theme-subtle mt-1">
-          Sube tu manuscrito para comenzar el análisis y edición
+        <h1 className="title-main">NUEVO PROYECTO</h1>
+        <p className="page-header-meta">
+          Sube tu manuscrito para comenzar el análisis y edición con IA
         </p>
       </header>
 
-      <div className="max-w-2xl">
+      <div style={{ maxWidth: '600px' }}>
         <form onSubmit={handleSubmit}>
           {/* Nombre del proyecto */}
-          <div className="mb-6">
-            <label className="block font-bold text-sm mb-2">
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>
               Nombre del Proyecto
             </label>
             <input
@@ -144,14 +102,20 @@ export default function Upload() {
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="Ej: Mi Nueva Novela"
-              className="w-full px-4 py-3 border border-theme-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-theme-primary/30"
+              className="mono"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid var(--color-border)',
+                fontSize: '0.875rem'
+              }}
               required
             />
           </div>
 
-          {/* Zona de drop */}
-          <div className="mb-6">
-            <label className="block font-bold text-sm mb-2">
+          {/* Drop zone */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>
               Manuscrito
             </label>
             
@@ -161,127 +125,138 @@ export default function Upload() {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`
-                  border-2 border-dashed rounded-sm p-10 text-center cursor-pointer transition
-                  ${isDragging 
-                    ? 'border-theme-primary bg-theme-primary/5' 
-                    : 'border-theme-border hover:border-theme-primary/50 hover:bg-gray-50'
-                  }
-                `}
+                style={{
+                  border: `2px dashed ${isDragging ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                  background: isDragging ? 'rgba(15, 118, 110, 0.05)' : 'var(--color-surface)',
+                  padding: '3rem 2rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
               >
-                <UploadIcon 
-                  size={48} 
-                  className={`mx-auto mb-4 ${isDragging ? 'text-theme-primary' : 'text-gray-400'}`} 
-                />
-                <p className="text-lg font-bold text-theme-text mb-2">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📄</div>
+                <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>
                   Arrastra tu archivo aquí
                 </p>
-                <p className="text-sm text-theme-subtle mb-4">
+                <p className="meta" style={{ marginBottom: '1rem' }}>
                   o haz clic para seleccionar
                 </p>
-                <p className="text-xs text-gray-400">
-                  Formatos: {ACCEPTED_FORMATS.join(', ')} | Máx: 10MB
+                <p className="meta" style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+                  Formatos: .md, .txt, .docx | Máx: 10MB
                 </p>
               </div>
             ) : (
-              <div className="border border-theme-border rounded-sm p-4 bg-green-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 rounded">
-                      <FileText className="text-green-600" size={24} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm">{file.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {(file.size / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
+              <div style={{
+                border: '1px solid #BBF7D0',
+                background: '#F0FDF4',
+                padding: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>📄</span>
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem' }}>{file.name}</p>
+                    <p className="meta">{(file.size / 1024).toFixed(1)} KB</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={removeFile}
-                    className="p-2 hover:bg-green-100 rounded transition"
-                  >
-                    <X size={20} className="text-gray-500" />
-                  </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setFile(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '1.25rem',
+                    cursor: 'pointer',
+                    color: 'var(--color-subtle)'
+                  }}
+                >
+                  ✕
+                </button>
               </div>
             )}
             
             <input
               ref={fileInputRef}
               type="file"
-              accept={ACCEPTED_FORMATS.join(',')}
+              accept=".md,.txt,.docx"
               onChange={handleFileSelect}
-              className="hidden"
+              style={{ display: 'none' }}
             />
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-sm flex items-center gap-2">
-              <AlertCircle size={18} />
-              <span className="text-sm">{error}</span>
+            <div style={{
+              background: '#FEF2F2',
+              border: '1px solid #FCA5A5',
+              padding: '0.75rem 1rem',
+              marginBottom: '1.5rem',
+              color: '#B91C1C',
+              fontSize: '0.875rem'
+            }}>
+              ⚠️ {error}
             </div>
           )}
 
-          {/* Info sobre el proceso */}
-          <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-sm">
-            <div className="flex items-start gap-2">
-              <Info size={18} className="mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <p className="font-bold mb-1">¿Qué sucederá?</p>
-                <ol className="list-decimal list-inside space-y-1 text-blue-700">
-                  <li>Analizaremos tu manuscrito con IA (20-40 min)</li>
-                  <li>Generaremos una "Biblia Narrativa" para tu revisión</li>
-                  <li>Podrás ajustar el análisis antes de continuar</li>
-                  <li>El editor IA aplicará cambios editoriales</li>
-                  <li>Revisarás y aprobarás cada cambio</li>
-                </ol>
-              </div>
-            </div>
+          {/* Info */}
+          <div style={{
+            background: '#EFF6FF',
+            border: '1px solid #BFDBFE',
+            padding: '1rem',
+            marginBottom: '1.5rem'
+          }}>
+            <p className="label" style={{ color: '#1E40AF', marginBottom: '0.75rem' }}>
+              ℹ️ ¿Qué sucederá?
+            </p>
+            <ol className="mono" style={{ 
+              fontSize: '0.875rem', 
+              color: '#1E40AF',
+              paddingLeft: '1.25rem',
+              lineHeight: 1.8
+            }}>
+              <li>Analizaremos tu manuscrito con IA (20-40 min)</li>
+              <li>Generaremos una "Biblia Narrativa" para tu revisión</li>
+              <li>Podrás ajustar el análisis antes de continuar</li>
+              <li>El editor IA aplicará cambios editoriales</li>
+              <li>Revisarás y aprobarás cada cambio</li>
+            </ol>
           </div>
 
-          {/* Botones */}
-          <div className="flex gap-4">
-            <Link
-              to="/"
-              className="px-6 py-3 border border-theme-border rounded-sm font-bold text-sm hover:bg-gray-50 transition"
-            >
+          {/* Buttons */}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link to="/" className="btn btn-outline">
               Cancelar
             </Link>
             <button
               type="submit"
+              className="btn btn-primary"
               disabled={!file || !projectName.trim() || isUploading}
-              className={`
-                flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-sm font-bold text-sm transition
-                ${file && projectName.trim() && !isUploading
-                  ? 'bg-theme-primary text-white hover:bg-theme-primary/80'
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                }
-              `}
+              style={{ 
+                flex: 1,
+                opacity: (!file || !projectName.trim() || isUploading) ? 0.5 : 1,
+                cursor: (!file || !projectName.trim() || isUploading) ? 'not-allowed' : 'pointer'
+              }}
             >
-              {isUploading ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  Subiendo...
-                </>
-              ) : (
-                <>
-                  <CheckCircle size={18} />
-                  Crear Proyecto e Iniciar Análisis
-                </>
-              )}
+              {isUploading ? 'Subiendo...' : 'Crear Proyecto e Iniciar Análisis'}
             </button>
           </div>
         </form>
 
-        {/* Pricing reminder */}
-        <div className="mt-8 p-4 border border-theme-border rounded-sm bg-white">
-          <p className="text-sm text-center text-theme-subtle">
-            <span className="font-bold text-theme-text">$49 USD</span> por libro procesado
-            <br />
-            <span className="text-xs">Incluye análisis completo + edición + revisión ilimitada</span>
+        {/* Pricing */}
+        <div style={{
+          marginTop: '2rem',
+          padding: '1rem',
+          border: '1px solid var(--color-border)',
+          background: 'var(--color-surface)',
+          textAlign: 'center'
+        }}>
+          <p className="mono" style={{ fontSize: '0.875rem', color: 'var(--color-subtle)' }}>
+            <strong style={{ color: 'var(--color-text)' }}>$49 USD</strong> por libro procesado
+          </p>
+          <p className="meta" style={{ fontSize: '0.75rem' }}>
+            Incluye análisis completo + edición + revisión ilimitada
           </p>
         </div>
       </div>
