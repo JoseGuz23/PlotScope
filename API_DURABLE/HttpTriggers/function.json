@@ -7,7 +7,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get", "post", "put", "delete"],
-      "route": "api/{*route}"
+      "route": "{*route}"
     },
     {
       "type": "http",
