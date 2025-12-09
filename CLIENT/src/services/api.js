@@ -1,9 +1,12 @@
 // =============================================================================
-// api.js - CLIENTE API SYLPHRENA (MEJORADO)
+// api.js - CLIENTE API SYLPHRENA (COMPLETO)
 // =============================================================================
 
-// --- CONFIGURACIÓN DE CONEXIÓN ---
+// --- CONFIGURACIÓN ---
 const API_BASE = import.meta.env.VITE_API_URL || 'https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net/api';
+
+// Function key para HttpStart (si la necesitas)
+const FUNCTION_KEY = import.meta.env.VITE_FUNCTION_KEY || '';
 
 console.log('🔗 API CONECTADA A:', API_BASE);
 
@@ -98,6 +101,11 @@ export const projectsAPI = {
   async getById(projectId) {
     return await apiFetch(`project/${projectId}`);
   },
+  
+  // NUEVO: Obtener estado del orquestador
+  async getStatus(projectId) {
+    return await apiFetch(`project/${projectId}/status`);
+  },
 };
 
 // =============================================================================
@@ -124,7 +132,7 @@ export const bibleAPI = {
 };
 
 // =============================================================================
-// MANUSCRITOS - MEJORADO
+// MANUSCRITOS
 // =============================================================================
 
 export const manuscriptAPI = {
@@ -144,17 +152,14 @@ export const manuscriptAPI = {
     return await apiFetch(`project/${projectId}`);
   },
 
-  // Obtener cambios estructurados
   async getChanges(projectId) {
     return await apiFetch(`project/${projectId}/changes`);
   },
 
-  // NUEVO: Obtener capítulos consolidados con contenido completo
   async getChapters(projectId) {
     return await apiFetch(`project/${projectId}/chapters`);
   },
 
-  // Guardar decisión de un cambio
   async saveChangeDecision(projectId, changeId, action) {
     return await apiFetch(`project/${projectId}/changes/${changeId}/decision`, {
       method: 'POST',
@@ -162,7 +167,6 @@ export const manuscriptAPI = {
     });
   },
 
-  // Guardar todas las decisiones de cambios (batch)
   async saveAllDecisions(projectId, decisions) {
     return await apiFetch(`project/${projectId}/changes/decisions`, {
       method: 'POST',
@@ -170,7 +174,6 @@ export const manuscriptAPI = {
     });
   },
 
-  // Exportar manuscrito final
   async export(projectId, acceptedChanges) {
     return await apiFetch(`project/${projectId}/export`, {
       method: 'POST',
@@ -180,10 +183,13 @@ export const manuscriptAPI = {
 };
 
 // =============================================================================
-// UPLOAD
+// UPLOAD + ORQUESTADOR
 // =============================================================================
 
 export const uploadAPI = {
+  /**
+   * Sube un manuscrito al servidor
+   */
   async uploadManuscript(file, projectName) {
     const base64 = await fileToBase64(file);
     return await apiFetch('project/upload', {
@@ -196,6 +202,55 @@ export const uploadAPI = {
     });
   },
 
+  /**
+   * Inicia el orquestador para un proyecto
+   */
+  async startOrchestrator(jobId, blobPath) {
+    // Construir URL de HttpStart
+    const baseUrl = API_BASE.replace('/api', '');
+    let url = `${baseUrl}/api/HttpStart`;
+    
+    // Agregar function key si existe
+    if (FUNCTION_KEY) {
+      url += `?code=${FUNCTION_KEY}`;
+    }
+    
+    console.log('🚀 Iniciando orquestador:', url);
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          job_id: jobId,
+          blob_path: blobPath,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error starting orchestrator:', errorText);
+        throw new Error(`Error iniciando orquestador: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Orquestador iniciado:', data);
+      
+      return data;
+    } catch (error) {
+      console.error('❌ Error en startOrchestrator:', error);
+      // No fallar si el orquestador no se puede iniciar inmediatamente
+      // El proyecto ya está creado y se puede reintentar
+      return { status: 'pending', message: 'Orquestador en cola' };
+    }
+  },
+
+  /**
+   * Analiza un archivo para cotización (público)
+   */
   async analyzeForQuote(file) {
     const base64 = await fileToBase64(file);
     return await apiFetch('analyze-file', {
@@ -208,6 +263,10 @@ export const uploadAPI = {
   },
 };
 
+// =============================================================================
+// HELPER: File to Base64
+// =============================================================================
+
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -219,6 +278,10 @@ function fileToBase64(file) {
     reader.onerror = reject;
   });
 }
+
+// =============================================================================
+// EXPORT DEFAULT
+// =============================================================================
 
 export default {
   auth: authAPI,

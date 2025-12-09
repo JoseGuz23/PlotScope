@@ -1,10 +1,9 @@
 """
 HTTP API Endpoints para Sylphrena Web Platform
-VERSIÓN COMPLETA - Con Upload que inicia orquestador
+Con autenticación simple por contraseña (tokens auto-verificables)
 """
 
 import azure.functions as func
-import azure.durable_functions as df
 import logging
 import json
 import os
@@ -14,7 +13,7 @@ import base64
 import re
 import math
 from datetime import datetime, timedelta
-from azure.storage.blob import BlobServiceClient, ContentSettings
+from azure.storage.blob import BlobServiceClient
 
 # Importación opcional para docx
 try:
@@ -34,7 +33,7 @@ TOKEN_SECRET = os.environ.get('SYLPHRENA_TOKEN_SECRET', 'sylphrena-secret-key-20
 
 
 # =============================================================================
-# FUNCIONES DE TOKEN (auto-verificables)
+# FUNCIONES DE TOKEN (auto-verificables, no necesitan memoria)
 # =============================================================================
 
 def generate_token():
@@ -42,6 +41,7 @@ def generate_token():
     expiry = datetime.utcnow() + timedelta(hours=24)
     expiry_str = expiry.strftime('%Y%m%d%H%M%S')
     
+    # Crear firma
     message = f"sylphrena:{expiry_str}"
     signature = hmac.new(
         TOKEN_SECRET.encode(),
@@ -49,6 +49,7 @@ def generate_token():
         hashlib.sha256
     ).hexdigest()[:32]
     
+    # Token = expiry:signature (codificado en base64)
     token_data = f"{expiry_str}:{signature}"
     token = base64.urlsafe_b64encode(token_data.encode()).decode()
     
@@ -56,11 +57,13 @@ def generate_token():
 
 
 def verify_token(token):
-    """Verifica si un token es válido."""
+    """Verifica si un token es válido. Retorna True/False."""
     try:
+        # Decodificar
         token_data = base64.urlsafe_b64decode(token.encode()).decode()
         expiry_str, signature = token_data.split(':')
         
+        # Verificar firma
         message = f"sylphrena:{expiry_str}"
         expected_signature = hmac.new(
             TOKEN_SECRET.encode(),
@@ -69,10 +72,13 @@ def verify_token(token):
         ).hexdigest()[:32]
         
         if not hmac.compare_digest(signature, expected_signature):
+            logging.warning("❌ Token con firma inválida")
             return False
         
+        # Verificar expiración
         expiry = datetime.strptime(expiry_str, '%Y%m%d%H%M%S')
         if datetime.utcnow() > expiry:
+            logging.warning("❌ Token expirado")
             return False
         
         return True
@@ -89,6 +95,7 @@ def verify_token(token):
 def main(req: func.HttpRequest) -> func.HttpResponse:
     """Router principal para todos los endpoints."""
     
+    # Manejar preflight CORS
     if req.method == 'OPTIONS':
         return cors_response()
     
@@ -98,18 +105,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(f"📥 {method} /api/{route}")
     
     try:
-        # --- RUTAS PÚBLICAS ---
+        # --- RUTAS PÚBLICAS (Sin Auth) ---
+        
+        # Login
         if route == 'auth/login':
             return handle_login(req)
         
+        # Cotización (Calculadora de Precios)
         if route == 'analyze-file':
-            return handle_analyze_file(req)
+            return handle_analyze_file(req) 
 
-        # --- RUTAS PROTEGIDAS ---
+        # --- RUTAS PROTEGIDAS (Con Auth) ---
+        
         auth_error = verify_auth(req)
         if auth_error:
             return auth_error
 
+        # Router de proyectos
         if route == 'projects':
             return handle_projects_list(req, method)
         elif route.startswith('project/'):
@@ -119,8 +131,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             
     except Exception as e:
         logging.error(f"❌ Error: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
         return error_response(str(e), 500)
 
 
@@ -141,6 +151,7 @@ def handle_login(req: func.HttpRequest) -> func.HttpResponse:
             logging.warning("❌ Intento de login fallido")
             return error_response('Contraseña incorrecta', 401)
         
+        # Generar token auto-verificable
         token, expiry = generate_token()
         
         logging.info("✅ Login exitoso")
@@ -156,18 +167,18 @@ def handle_login(req: func.HttpRequest) -> func.HttpResponse:
 
 
 def verify_auth(req: func.HttpRequest) -> func.HttpResponse:
-    """Verifica el token."""
+    """Verifica el token. Retorna None si OK, o error response."""
     auth_header = req.headers.get('Authorization', '')
     
     if not auth_header.startswith('Bearer '):
         return error_response('Token no proporcionado', 401)
     
-    token = auth_header[7:]
+    token = auth_header[7:]  # Quitar "Bearer "
     
     if not verify_token(token):
         return error_response('Token inválido o expirado', 401)
     
-    return None
+    return None  # Auth OK
 
 
 # =============================================================================
@@ -181,19 +192,11 @@ def handle_project_routes(req: func.HttpRequest, route: str, method: str) -> fun
     if len(parts) < 2:
         return error_response('Invalid route', 400)
     
-    # POST /api/project/upload - ESPECIAL: Inicia orquestador
-    if method == 'POST' and len(parts) == 2 and parts[1] == 'upload':
-        return handle_upload(req)
-    
     job_id = parts[1]
     
     # GET /api/project/{job_id}
     if method == 'GET' and len(parts) == 2:
         return get_project_info(job_id)
-    
-    # GET /api/project/{job_id}/status - Estado del orquestador
-    if method == 'GET' and len(parts) == 3 and parts[2] == 'status':
-        return get_orchestrator_status(job_id)
     
     # GET /api/project/{job_id}/bible
     if method == 'GET' and len(parts) == 3 and parts[2] == 'bible':
@@ -215,274 +218,39 @@ def handle_project_routes(req: func.HttpRequest, route: str, method: str) -> fun
     if method == 'GET' and len(parts) == 4 and parts[2] == 'manuscript' and parts[3] == 'annotated':
         return get_manuscript_annotated(job_id)
     
+    # GET /api/project/{job_id}/manuscript/changes-html
+    if method == 'GET' and len(parts) == 4 and parts[2] == 'manuscript' and parts[3] == 'changes-html':
+        return get_changes_html(job_id)
+    
     # GET /api/project/{job_id}/changes
     if method == 'GET' and len(parts) == 3 and parts[2] == 'changes':
         return get_changes(job_id)
-    
-    # GET /api/project/{job_id}/chapters
-    if method == 'GET' and len(parts) == 3 and parts[2] == 'chapters':
-        return get_chapters(job_id)
     
     # POST /api/project/{job_id}/changes/{change_id}/decision
     if method == 'POST' and len(parts) == 5 and parts[2] == 'changes' and parts[4] == 'decision':
         change_id = parts[3]
         return save_change_decision(job_id, change_id, req)
     
-    # POST /api/project/{job_id}/changes/decisions (batch)
-    if method == 'POST' and len(parts) == 4 and parts[2] == 'changes' and parts[3] == 'decisions':
-        return save_all_decisions(job_id, req)
-    
     # POST /api/project/{job_id}/export
     if method == 'POST' and len(parts) == 3 and parts[2] == 'export':
         return export_manuscript(job_id)
     
+    # POST /api/project/upload
+    if method == 'POST' and len(parts) == 2 and parts[1] == 'upload':
+        return handle_upload(req)
+    
+    if method == 'GET' and len(parts) == 3 and parts[2] == 'chapters':
+        return get_chapters(job_id)
+    
+    # POST /api/project/{job_id}/changes/decisions (batch save)
+    if method == 'POST' and len(parts) == 4 and parts[2] == 'changes' and parts[3] == 'decisions':
+        return save_all_decisions(job_id, req)
+
     return error_response('Route not found', 404)
 
 
 # =============================================================================
-# UPLOAD + INICIAR ORQUESTADOR
-# =============================================================================
-
-def handle_upload(req: func.HttpRequest) -> func.HttpResponse:
-    """
-    Maneja upload de manuscrito:
-    1. Guarda archivo en blob storage
-    2. Inicia orquestador
-    3. Devuelve instance_id para tracking
-    """
-    try:
-        body = req.get_json()
-        filename = body.get('filename')
-        project_name = body.get('projectName')
-        content_base64 = body.get('content')
-        
-        if not all([filename, project_name, content_base64]):
-            return error_response('Missing required fields: filename, projectName, content', 400)
-        
-        # Decodificar archivo
-        file_bytes = base64.b64decode(content_base64)
-        
-        # Generar ID único para el proyecto
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', project_name)[:30]
-        job_id = f"{safe_name}_{timestamp}"
-        
-        logging.info(f"📤 Upload: {filename} -> {job_id}")
-        
-        # Guardar en Blob Storage
-        blob_service = get_blob_service()
-        
-        # Container para inputs (manuscritos originales)
-        input_container_name = "sylphrena-inputs"
-        try:
-            blob_service.create_container(input_container_name)
-        except:
-            pass
-        
-        input_container = blob_service.get_container_client(input_container_name)
-        
-        # Guardar el archivo
-        blob_path = f"{job_id}/{filename}"
-        blob_client = input_container.get_blob_client(blob_path)
-        blob_client.upload_blob(
-            file_bytes,
-            overwrite=True,
-            content_settings=ContentSettings(
-                content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            )
-        )
-        
-        logging.info(f"✅ Archivo guardado: {blob_path}")
-        
-        # Guardar metadata del proyecto
-        metadata = {
-            'job_id': job_id,
-            'project_name': project_name,
-            'original_filename': filename,
-            'blob_path': blob_path,
-            'status': 'starting',
-            'created_at': datetime.utcnow().isoformat() + 'Z'
-        }
-        
-        # Guardar metadata en container de outputs
-        output_container_name = "sylphrena-outputs"
-        try:
-            blob_service.create_container(output_container_name)
-        except:
-            pass
-        
-        output_container = blob_service.get_container_client(output_container_name)
-        metadata_blob = output_container.get_blob_client(f"{job_id}/metadata.json")
-        metadata_blob.upload_blob(
-            json.dumps(metadata, indent=2),
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        
-        # =====================================================================
-        # INICIAR ORQUESTADOR
-        # =====================================================================
-        # El orquestador se iniciará de forma asíncrona
-        # Necesitamos devolver la info para que el frontend haga polling
-        
-        # La URL del orquestador
-        function_app_url = os.environ.get('WEBSITE_HOSTNAME', 'localhost:7071')
-        protocol = 'https' if 'azurewebsites.net' in function_app_url else 'http'
-        
-        # Construir URL para iniciar el orquestador
-        # El frontend deberá llamar a HttpStart para iniciar
-        orchestrator_input = {
-            'job_id': job_id,
-            'blob_path': blob_path,
-            'project_name': project_name
-        }
-        
-        logging.info(f"🚀 Proyecto creado: {job_id}")
-        logging.info(f"   El frontend debe iniciar el orquestador con HttpStart")
-        
-        return success_response({
-            'job_id': job_id,
-            'project_name': project_name,
-            'blob_path': blob_path,
-            'status': 'uploaded',
-            'message': 'Archivo subido. Iniciando procesamiento...',
-            # Info para que frontend inicie el orquestador
-            'start_url': f"{protocol}://{function_app_url}/api/HttpStart",
-            'orchestrator_input': orchestrator_input
-        })
-        
-    except Exception as e:
-        logging.error(f"❌ Error en upload: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
-        return error_response(str(e), 500)
-
-
-# =============================================================================
-# ESTADO DEL ORQUESTADOR
-# =============================================================================
-
-def get_orchestrator_status(instance_id: str) -> func.HttpResponse:
-    """
-    Obtiene el estado actual del orquestador.
-    Hace proxy al endpoint de Durable Functions.
-    """
-    try:
-        function_app_url = os.environ.get('WEBSITE_HOSTNAME', 'localhost:7071')
-        protocol = 'https' if 'azurewebsites.net' in function_app_url else 'http'
-        
-        # URL del status de Durable Functions
-        status_url = f"{protocol}://{function_app_url}/runtime/webhooks/durabletask/instances/{instance_id}"
-        
-        # Obtener taskHubName de configuración
-        task_hub = os.environ.get('DURABLE_TASK_HUB_NAME', 'SylphrenaTaskHub')
-        
-        import requests
-        
-        # Llamar al endpoint de status
-        response = requests.get(
-            status_url,
-            params={'taskHub': task_hub, 'showHistory': 'false', 'showHistoryOutput': 'false'},
-            timeout=10
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            
-            # Traducir el estado a algo más amigable
-            runtime_status = data.get('runtimeStatus', 'Unknown')
-            custom_status = data.get('customStatus', '')
-            
-            # Mapeo de fases del orquestador a mensajes legibles
-            phase_messages = {
-                'Segmentando': '📖 Dividiendo el manuscrito en capítulos...',
-                'Fase 2': '🔍 Analizando estructura de capítulos...',
-                'Fase 3': '🧠 Análisis profundo de narrativa...',
-                'Fase 4': '📊 Evaluando estructura...',
-                'Fase 5': '🎭 Análisis cualitativo...',
-                'Fase 6': '📜 Generando Biblia narrativa...',
-                'Fase 10': '🗺️ Mapeando arcos de personajes...',
-                'Fase 11': '✏️ Editando con IA...',
-                'Finalizando': '💾 Guardando resultados...',
-            }
-            
-            # Buscar mensaje amigable
-            friendly_message = custom_status
-            for key, msg in phase_messages.items():
-                if key.lower() in custom_status.lower():
-                    friendly_message = msg
-                    break
-            
-            return success_response({
-                'instance_id': instance_id,
-                'runtime_status': runtime_status,
-                'custom_status': custom_status,
-                'friendly_message': friendly_message,
-                'is_completed': runtime_status == 'Completed',
-                'is_failed': runtime_status == 'Failed',
-                'is_running': runtime_status == 'Running',
-                'output': data.get('output') if runtime_status == 'Completed' else None
-            })
-        
-        elif response.status_code == 404:
-            # El orquestador no existe todavía o el ID es incorrecto
-            # Verificar si hay metadata del proyecto
-            blob_service = get_blob_service()
-            container = blob_service.get_container_client('sylphrena-outputs')
-            
-            metadata_blob = container.get_blob_client(f"{instance_id}/metadata.json")
-            
-            if metadata_blob.exists():
-                metadata = json.loads(metadata_blob.download_blob().readall())
-                return success_response({
-                    'instance_id': instance_id,
-                    'runtime_status': 'Pending',
-                    'custom_status': 'Esperando inicio...',
-                    'friendly_message': '⏳ Preparando procesamiento...',
-                    'is_completed': False,
-                    'is_failed': False,
-                    'is_running': False,
-                    'metadata': metadata
-                })
-            
-            return error_response('Orchestration not found', 404)
-        
-        else:
-            return error_response(f'Error getting status: {response.status_code}', 500)
-            
-    except requests.exceptions.RequestException as e:
-        logging.warning(f"⚠️ Error consultando status (puede ser normal si aún no inicia): {e}")
-        
-        # Intentar obtener metadata como fallback
-        try:
-            blob_service = get_blob_service()
-            container = blob_service.get_container_client('sylphrena-outputs')
-            metadata_blob = container.get_blob_client(f"{instance_id}/metadata.json")
-            
-            if metadata_blob.exists():
-                metadata = json.loads(metadata_blob.download_blob().readall())
-                return success_response({
-                    'instance_id': instance_id,
-                    'runtime_status': 'Starting',
-                    'custom_status': 'Iniciando...',
-                    'friendly_message': '🚀 Iniciando procesamiento...',
-                    'is_completed': False,
-                    'is_failed': False,
-                    'is_running': False,
-                    'metadata': metadata
-                })
-        except:
-            pass
-        
-        return error_response('Could not get orchestrator status', 500)
-        
-    except Exception as e:
-        logging.error(f"❌ Error en get_orchestrator_status: {str(e)}")
-        return error_response(str(e), 500)
-
-
-# =============================================================================
-# PROYECTOS
+# IMPLEMENTACIONES - PROYECTOS
 # =============================================================================
 
 def handle_projects_list(req: func.HttpRequest, method: str) -> func.HttpResponse:
@@ -497,6 +265,8 @@ def handle_projects_list(req: func.HttpRequest, method: str) -> func.HttpRespons
         projects = []
         found_job_ids = set()
         
+        logging.info("📂 Buscando proyectos...")
+        
         for blob in container.list_blobs():
             parts = blob.name.split('/')
             if len(parts) >= 2:
@@ -510,6 +280,8 @@ def handle_projects_list(req: func.HttpRequest, method: str) -> func.HttpRespons
         
         projects.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
         
+        logging.info(f"📊 Proyectos encontrados: {len(projects)}")
+        
         return success_response({'projects': projects})
         
     except Exception as e:
@@ -519,7 +291,6 @@ def handle_projects_list(req: func.HttpRequest, method: str) -> func.HttpRespons
 def get_project_summary(container, job_id: str) -> dict:
     """Obtiene resumen de un proyecto."""
     try:
-        # Primero intentar resumen ejecutivo (proyecto completado)
         resumen_blob = container.get_blob_client(f"{job_id}/resumen_ejecutivo.json")
         
         if resumen_blob.exists():
@@ -537,7 +308,6 @@ def get_project_summary(container, job_id: str) -> dict:
                 'version': resumen.get('version', 'unknown'),
             }
         
-        # Luego intentar biblia (en proceso de revisión)
         bible_blob = container.get_blob_client(f"{job_id}/biblia_validada.json")
         
         if bible_blob.exists():
@@ -554,22 +324,6 @@ def get_project_summary(container, job_id: str) -> dict:
                 'changesCount': 0,
             }
         
-        # Por último, intentar metadata (recién subido)
-        metadata_blob = container.get_blob_client(f"{job_id}/metadata.json")
-        
-        if metadata_blob.exists():
-            metadata = json.loads(metadata_blob.download_blob().readall())
-            
-            return {
-                'id': job_id,
-                'name': metadata.get('project_name', job_id),
-                'status': metadata.get('status', 'processing'),
-                'createdAt': metadata.get('created_at', ''),
-                'wordCount': 0,
-                'chaptersCount': 0,
-                'changesCount': 0,
-            }
-        
         return None
         
     except Exception as e:
@@ -583,28 +337,22 @@ def get_project_info(job_id: str) -> func.HttpResponse:
         blob_service = get_blob_service()
         container = blob_service.get_container_client('sylphrena-outputs')
         
-        # Intentar resumen ejecutivo
         resumen_path = f"{job_id}/resumen_ejecutivo.json"
         blob = container.get_blob_client(resumen_path)
         
-        if blob.exists():
-            resumen = json.loads(blob.download_blob().readall())
-            return success_response(resumen)
+        if not blob.exists():
+            return error_response('Project not found', 404)
         
-        # Fallback a metadata
-        metadata_blob = container.get_blob_client(f"{job_id}/metadata.json")
-        if metadata_blob.exists():
-            metadata = json.loads(metadata_blob.download_blob().readall())
-            return success_response(metadata)
+        resumen = json.loads(blob.download_blob().readall())
         
-        return error_response('Project not found', 404)
+        return success_response(resumen)
         
     except Exception as e:
         return error_response(str(e), 500)
 
 
 # =============================================================================
-# BIBLIA
+# IMPLEMENTACIONES - BIBLIA
 # =============================================================================
 
 def get_bible(job_id: str) -> func.HttpResponse:
@@ -635,25 +383,12 @@ def save_bible(job_id: str, req: func.HttpRequest) -> func.HttpResponse:
         blob_service = get_blob_service()
         container = blob_service.get_container_client('sylphrena-outputs')
         
-        # Guardar como biblia_editada (para mantener la original)
         bible_path = f"{job_id}/biblia_editada.json"
         blob = container.get_blob_client(bible_path)
         blob.upload_blob(
             json.dumps(edited_bible, indent=2, ensure_ascii=False),
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
+            overwrite=True
         )
-        
-        # También actualizar la biblia_validada (la que usa el orquestador)
-        validated_path = f"{job_id}/biblia_validada.json"
-        validated_blob = container.get_blob_client(validated_path)
-        validated_blob.upload_blob(
-            json.dumps(edited_bible, indent=2, ensure_ascii=False),
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        
-        logging.info(f"✅ Biblia guardada para {job_id}")
         
         return success_response({'message': 'Bible saved successfully'})
         
@@ -662,40 +397,22 @@ def save_bible(job_id: str, req: func.HttpRequest) -> func.HttpResponse:
 
 
 def approve_bible(job_id: str) -> func.HttpResponse:
-    """Aprueba la Biblia para continuar procesamiento."""
+    """Aprueba la Biblia."""
     try:
-        # Actualizar metadata
-        blob_service = get_blob_service()
-        container = blob_service.get_container_client('sylphrena-outputs')
-        
-        metadata_blob = container.get_blob_client(f"{job_id}/metadata.json")
-        
-        if metadata_blob.exists():
-            metadata = json.loads(metadata_blob.download_blob().readall())
-            metadata['bible_approved'] = True
-            metadata['bible_approved_at'] = datetime.utcnow().isoformat() + 'Z'
-            
-            metadata_blob.upload_blob(
-                json.dumps(metadata, indent=2),
-                overwrite=True
-            )
-        
-        logging.info(f"✅ Biblia aprobada para {job_id}")
-        
         return success_response({
             'message': 'Bible approved',
-            'job_id': job_id
+            'note': 'Processing will continue automatically'
         })
     except Exception as e:
         return error_response(str(e), 500)
 
 
 # =============================================================================
-# MANUSCRITOS Y CAMBIOS
+# IMPLEMENTACIONES - MANUSCRITOS
 # =============================================================================
 
 def get_manuscript_edited(job_id: str) -> func.HttpResponse:
-    """Obtiene manuscrito editado."""
+    """Obtiene manuscrito editado (limpio)."""
     try:
         blob_service = get_blob_service()
         container = blob_service.get_container_client('sylphrena-outputs')
@@ -719,7 +436,7 @@ def get_manuscript_edited(job_id: str) -> func.HttpResponse:
 
 
 def get_manuscript_annotated(job_id: str) -> func.HttpResponse:
-    """Obtiene manuscrito anotado."""
+    """Obtiene manuscrito anotado (con cambios)."""
     try:
         blob_service = get_blob_service()
         container = blob_service.get_container_client('sylphrena-outputs')
@@ -735,6 +452,30 @@ def get_manuscript_annotated(job_id: str) -> func.HttpResponse:
             content,
             status_code=200,
             mimetype='text/plain',
+            headers=get_cors_headers()
+        )
+        
+    except Exception as e:
+        return error_response(str(e), 500)
+
+
+def get_changes_html(job_id: str) -> func.HttpResponse:
+    """Obtiene control de cambios en HTML."""
+    try:
+        blob_service = get_blob_service()
+        container = blob_service.get_container_client('sylphrena-outputs')
+        
+        blob = container.get_blob_client(f"{job_id}/control_cambios.html")
+        
+        if not blob.exists():
+            return error_response('Changes HTML not found', 404)
+        
+        content = blob.download_blob().readall().decode('utf-8')
+        
+        return func.HttpResponse(
+            content,
+            status_code=200,
+            mimetype='text/html',
             headers=get_cors_headers()
         )
         
@@ -761,107 +502,21 @@ def get_changes(job_id: str) -> func.HttpResponse:
         return error_response(str(e), 500)
 
 
-def get_chapters(job_id: str) -> func.HttpResponse:
-    """Obtiene capítulos consolidados."""
-    try:
-        blob_service = get_blob_service()
-        container = blob_service.get_container_client('sylphrena-outputs')
-        
-        blob = container.get_blob_client(f"{job_id}/capitulos_consolidados.json")
-        
-        if not blob.exists():
-            return error_response('Chapters not found', 404)
-        
-        chapters_data = json.loads(blob.download_blob().readall())
-        
-        return success_response({'chapters': chapters_data})
-        
-    except Exception as e:
-        return error_response(str(e), 500)
-
-
 def save_change_decision(job_id: str, change_id: str, req: func.HttpRequest) -> func.HttpResponse:
-    """Guarda decisión sobre un cambio individual."""
+    """Guarda decisión sobre un cambio."""
     try:
         decision = req.get_json()
         action = decision.get('action')
         
-        if action not in ['accepted', 'rejected', 'pending']:
+        if action not in ['accept', 'reject']:
             return error_response('Invalid action', 400)
         
-        # Cargar cambios actuales
-        blob_service = get_blob_service()
-        container = blob_service.get_container_client('sylphrena-outputs')
-        
-        blob = container.get_blob_client(f"{job_id}/cambios_estructurados.json")
-        
-        if not blob.exists():
-            return error_response('Changes not found', 404)
-        
-        changes_data = json.loads(blob.download_blob().readall())
-        
-        # Actualizar el cambio específico
-        for change in changes_data.get('changes', []):
-            if change['change_id'] == change_id:
-                change['status'] = action
-                change['user_decision'] = {
-                    'action': action,
-                    'timestamp': datetime.utcnow().isoformat() + 'Z'
-                }
-                break
-        
-        # Guardar
-        blob.upload_blob(
-            json.dumps(changes_data, indent=2, ensure_ascii=False),
-            overwrite=True
-        )
+        logging.info(f"✅ Decision: {change_id} -> {action}")
         
         return success_response({
             'change_id': change_id,
             'action': action,
             'saved': True
-        })
-        
-    except Exception as e:
-        return error_response(str(e), 500)
-
-
-def save_all_decisions(job_id: str, req: func.HttpRequest) -> func.HttpResponse:
-    """Guarda todas las decisiones de cambios (batch)."""
-    try:
-        body = req.get_json()
-        decisions = body.get('decisions', [])
-        
-        blob_service = get_blob_service()
-        container = blob_service.get_container_client('sylphrena-outputs')
-        
-        blob = container.get_blob_client(f"{job_id}/cambios_estructurados.json")
-        
-        if not blob.exists():
-            return error_response('Changes not found', 404)
-        
-        changes_data = json.loads(blob.download_blob().readall())
-        
-        decisions_map = {d['change_id']: d['status'] for d in decisions}
-        
-        for change in changes_data.get('changes', []):
-            if change['change_id'] in decisions_map:
-                change['status'] = decisions_map[change['change_id']]
-                change['user_decision'] = {
-                    'action': decisions_map[change['change_id']],
-                    'timestamp': datetime.utcnow().isoformat() + 'Z'
-                }
-        
-        blob.upload_blob(
-            json.dumps(changes_data, indent=2, ensure_ascii=False),
-            overwrite=True
-        )
-        
-        logging.info(f"✅ {len(decisions)} decisiones guardadas para {job_id}")
-        
-        return success_response({
-            'message': f'{len(decisions)} decisions saved',
-            'job_id': job_id
         })
         
     except Exception as e:
@@ -890,12 +545,32 @@ def export_manuscript(job_id: str) -> func.HttpResponse:
         return error_response(str(e), 500)
 
 
+def handle_upload(req: func.HttpRequest) -> func.HttpResponse:
+    """Maneja upload de nuevo manuscrito."""
+    try:
+        body = req.get_json()
+        filename = body.get('filename')
+        project_name = body.get('projectName')
+        content_base64 = body.get('content')
+        
+        if not all([filename, project_name, content_base64]):
+            return error_response('Missing required fields', 400)
+        
+        return success_response({
+            'message': 'Upload received',
+            'note': 'Processing will start soon'
+        })
+        
+    except Exception as e:
+        return error_response(str(e), 500)
+
+
 # =============================================================================
 # COTIZACIÓN (Endpoint Público)
 # =============================================================================
 
 def handle_analyze_file(req: func.HttpRequest) -> func.HttpResponse:
-    """Analiza un archivo para cotización."""
+    """Analiza un archivo para cotización (Sin guardar, solo memoria)."""
     try:
         body = req.get_json()
         content_base64 = body.get('content')
@@ -904,24 +579,28 @@ def handle_analyze_file(req: func.HttpRequest) -> func.HttpResponse:
         if not content_base64:
             return error_response('No content provided', 400)
 
+        # Decodificar
         file_bytes = base64.b64decode(content_base64)
         
+        # Extraer texto
         text = ""
         if filename.endswith('.docx') and DOCX_AVAILABLE:
             import io
             doc = Document(io.BytesIO(file_bytes))
             text = "\n".join([para.text for para in doc.paragraphs])
         else:
-            return error_response('Formato no soportado (use .docx)', 400)
+            return error_response('Formato no soportado para cotización (use .docx)', 400)
             
+        # Calcular con lógica de producción
         word_count = len(text.split())
         
+        # Regex de capítulos (Mismo que SegmentBook)
         special_keywords = r'(?:Prólogo|Prefacio|Introducción|Interludio|Epílogo|Nota para el editor)'
         full_pattern = f'(?mi)(?:^\\s*)(?:{special_keywords}|(?:Capítulo|Acto|Parte)\\s+)[^\n]*'
         chapter_count = len(re.findall(full_pattern, text))
-        if chapter_count == 0: 
-            chapter_count = 1
+        if chapter_count == 0: chapter_count = 1 
         
+        # 1k palabras = 1 Token
         tokens_standard = math.ceil(word_count / 1000)
         
         return success_response({
@@ -934,6 +613,72 @@ def handle_analyze_file(req: func.HttpRequest) -> func.HttpResponse:
         logging.error(f"Error en cotización: {str(e)}")
         return error_response(str(e), 500)
 
+# =============================================================================
+# NUEVAS FUNCIONES - Agregar al final del archivo antes de los helpers
+# =============================================================================
+
+def get_chapters(job_id: str) -> func.HttpResponse:
+    """Obtiene capítulos consolidados con contenido completo."""
+    try:
+        blob_service = get_blob_service()
+        container = blob_service.get_container_client('sylphrena-outputs')
+        
+        blob = container.get_blob_client(f"{job_id}/capitulos_consolidados.json")
+        
+        if not blob.exists():
+            return error_response('Chapters not found', 404)
+        
+        chapters_data = json.loads(blob.download_blob().readall())
+        
+        return success_response({'chapters': chapters_data})
+        
+    except Exception as e:
+        return error_response(str(e), 500)
+
+
+def save_all_decisions(job_id: str, req: func.HttpRequest) -> func.HttpResponse:
+    """Guarda todas las decisiones de cambios (batch)."""
+    try:
+        body = req.get_json()
+        decisions = body.get('decisions', [])
+        
+        # Cargar cambios actuales
+        blob_service = get_blob_service()
+        container = blob_service.get_container_client('sylphrena-outputs')
+        
+        blob = container.get_blob_client(f"{job_id}/cambios_estructurados.json")
+        
+        if not blob.exists():
+            return error_response('Changes not found', 404)
+        
+        changes_data = json.loads(blob.download_blob().readall())
+        
+        # Aplicar decisiones
+        decisions_map = {d['change_id']: d['status'] for d in decisions}
+        
+        for change in changes_data.get('changes', []):
+            if change['change_id'] in decisions_map:
+                change['status'] = decisions_map[change['change_id']]
+                change['user_decision'] = {
+                    'action': decisions_map[change['change_id']],
+                    'timestamp': datetime.utcnow().isoformat() + 'Z'
+                }
+        
+        # Guardar cambios actualizados
+        blob.upload_blob(
+            json.dumps(changes_data, indent=2, ensure_ascii=False),
+            overwrite=True
+        )
+        
+        logging.info(f"✅ {len(decisions)} decisiones guardadas para {job_id}")
+        
+        return success_response({
+            'message': f'{len(decisions)} decisions saved',
+            'job_id': job_id
+        })
+        
+    except Exception as e:
+        return error_response(str(e), 500)
 
 # =============================================================================
 # HELPERS

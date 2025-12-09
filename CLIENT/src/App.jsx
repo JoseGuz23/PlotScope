@@ -1,5 +1,5 @@
 // =============================================================================
-// App.jsx - RUTAS DEFINITIVAS CON CARACTERÍSTICAS, PRECIOS Y CRÉDITOS
+// App.jsx - RUTAS COMPLETAS CON STATUS DE PROCESAMIENTO
 // =============================================================================
 
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
@@ -12,6 +12,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
+import ProjectStatus from './pages/ProjectStatus';  // NUEVO
 import BibleReview from './pages/BibleReview';
 import Editor from './pages/Editor';
 import Features from './pages/Features'; 
@@ -28,9 +29,10 @@ function ProtectedRoute({ children }) {
   return <Layout>{children}</Layout>;
 }
 
-// Router auxiliar para proyectos
+// Router auxiliar para proyectos - redirige según estado
 function ProjectRouter() {
   const { id } = useParams();
+  // Por defecto ir al editor, pero el backend puede indicar otro destino
   return <Navigate to={`/proyecto/${id}/editor`} replace />;
 }
 
@@ -71,24 +73,35 @@ function App() {
             </ProtectedRoute>
           } />
           
+          {/* NUEVO PROYECTO */}
           <Route path="/nuevo" element={
             <ProtectedRoute>
               <Upload />
             </ProtectedRoute>
           } />
           
+          {/* PROYECTO: Redirige según estado */}
           <Route path="/proyecto/:id" element={
             <ProtectedRoute>
               <ProjectRouter />
             </ProtectedRoute>
           } />
           
+          {/* NUEVO: Estado de procesamiento */}
+          <Route path="/proyecto/:id/status" element={
+            <ProtectedRoute>
+              <ProjectStatus />
+            </ProtectedRoute>
+          } />
+          
+          {/* Revisión de Biblia */}
           <Route path="/proyecto/:id/biblia" element={
             <ProtectedRoute>
               <BibleReview />
             </ProtectedRoute>
           } />
           
+          {/* Editor de cambios */}
           <Route path="/proyecto/:id/editor" element={
             <ProtectedRoute>
               <Editor />
