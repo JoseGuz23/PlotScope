@@ -239,6 +239,13 @@ def handle_project_routes(req: func.HttpRequest, route: str, method: str) -> fun
     if method == 'POST' and len(parts) == 2 and parts[1] == 'upload':
         return handle_upload(req)
     
+    if method == 'GET' and len(parts) == 3 and parts[2] == 'chapters':
+        return get_chapters(job_id)
+    
+    # POST /api/project/{job_id}/changes/decisions (batch save)
+    if method == 'POST' and len(parts) == 4 and parts[2] == 'changes' and parts[3] == 'decisions':
+        return save_all_decisions(job_id, req)
+
     return error_response('Route not found', 404)
 
 
@@ -606,6 +613,72 @@ def handle_analyze_file(req: func.HttpRequest) -> func.HttpResponse:
         logging.error(f"Error en cotización: {str(e)}")
         return error_response(str(e), 500)
 
+# =============================================================================
+# NUEVAS FUNCIONES - Agregar al final del archivo antes de los helpers
+# =============================================================================
+
+def get_chapters(job_id: str) -> func.HttpResponse:
+    """Obtiene capítulos consolidados con contenido completo."""
+    try:
+        blob_service = get_blob_service()
+        container = blob_service.get_container_client('sylphrena-outputs')
+        
+        blob = container.get_blob_client(f"{job_id}/capitulos_consolidados.json")
+        
+        if not blob.exists():
+            return error_response('Chapters not found', 404)
+        
+        chapters_data = json.loads(blob.download_blob().readall())
+        
+        return success_response({'chapters': chapters_data})
+        
+    except Exception as e:
+        return error_response(str(e), 500)
+
+
+def save_all_decisions(job_id: str, req: func.HttpRequest) -> func.HttpResponse:
+    """Guarda todas las decisiones de cambios (batch)."""
+    try:
+        body = req.get_json()
+        decisions = body.get('decisions', [])
+        
+        # Cargar cambios actuales
+        blob_service = get_blob_service()
+        container = blob_service.get_container_client('sylphrena-outputs')
+        
+        blob = container.get_blob_client(f"{job_id}/cambios_estructurados.json")
+        
+        if not blob.exists():
+            return error_response('Changes not found', 404)
+        
+        changes_data = json.loads(blob.download_blob().readall())
+        
+        # Aplicar decisiones
+        decisions_map = {d['change_id']: d['status'] for d in decisions}
+        
+        for change in changes_data.get('changes', []):
+            if change['change_id'] in decisions_map:
+                change['status'] = decisions_map[change['change_id']]
+                change['user_decision'] = {
+                    'action': decisions_map[change['change_id']],
+                    'timestamp': datetime.utcnow().isoformat() + 'Z'
+                }
+        
+        # Guardar cambios actualizados
+        blob.upload_blob(
+            json.dumps(changes_data, indent=2, ensure_ascii=False),
+            overwrite=True
+        )
+        
+        logging.info(f"✅ {len(decisions)} decisiones guardadas para {job_id}")
+        
+        return success_response({
+            'message': f'{len(decisions)} decisions saved',
+            'job_id': job_id
+        })
+        
+    except Exception as e:
+        return error_response(str(e), 500)
 
 # =============================================================================
 # HELPERS
