@@ -6,8 +6,19 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "post", "put", "delete"],
+      "methods": [
+        "get",
+        "post",
+        "put",
+        "delete",
+        "options"
+      ],
       "route": "{*route}"
+    },
+    {
+      "name": "starter",
+      "type": "durableClient",
+      "direction": "in"
     },
     {
       "type": "http",

@@ -1,28 +1,24 @@
 // =============================================================================
-// BibleReview.jsx - BIBLIA EDITABLE CON GUARDADO REAL
+// BibleReview.jsx - DASHBOARD DE APROBACIÓN EDITORIAL
 // =============================================================================
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { bibleAPI } from '../services/api';
+import { 
+  Book, Users, Anchor, Flag, Save, CheckCircle2, 
+  ChevronRight, AlertCircle, Loader2, Edit3, ArrowLeft 
+} from 'lucide-react';
 
 export default function BibleReview() {
   const { id: projectId } = useParams();
   const navigate = useNavigate();
   
   const [bible, setBible] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [saveMessage, setSaveMessage] = useState(null);
-  const [expandedSections, setExpandedSections] = useState({
-    identidad: true,
-    personajes: true,
-    voz: true,
-    noCorregir: true,
-    metricas: false,
-  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [activeSection, setActiveSection] = useState('resumen'); // 'resumen', 'personajes', 'temas'
 
   useEffect(() => {
     loadBible();
@@ -30,597 +26,241 @@ export default function BibleReview() {
 
   async function loadBible() {
     try {
-      setIsLoading(true);
       const data = await bibleAPI.get(projectId);
       setBible(data);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
+      alert('Error cargando la Biblia. Asegúrate de que la fase de análisis haya terminado.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
-  function toggleSection(section) {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  }
-
-  // Actualizar un campo simple
-  function updateField(path, value) {
-    setBible(prev => {
-      const newBible = JSON.parse(JSON.stringify(prev));
-      const keys = path.split('.');
-      let obj = newBible;
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!obj[keys[i]]) obj[keys[i]] = {};
-        obj = obj[keys[i]];
-      }
-      obj[keys[keys.length - 1]] = value;
-      return newBible;
-    });
-    setHasChanges(true);
-    setSaveMessage(null);
-  }
-
-  // Actualizar un item en un array
-  function updateArrayItem(path, index, value) {
-    setBible(prev => {
-      const newBible = JSON.parse(JSON.stringify(prev));
-      const keys = path.split('.');
-      let obj = newBible;
-      for (const key of keys) {
-        if (!obj[key]) obj[key] = [];
-        obj = obj[key];
-      }
-      if (Array.isArray(obj)) {
-        obj[index] = value;
-      }
-      return newBible;
-    });
-    setHasChanges(true);
-    setSaveMessage(null);
-  }
-
-  // Agregar item a un array
-  function addArrayItem(path, defaultValue = '') {
-    setBible(prev => {
-      const newBible = JSON.parse(JSON.stringify(prev));
-      const keys = path.split('.');
-      let obj = newBible;
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!obj[keys[i]]) obj[keys[i]] = {};
-        obj = obj[keys[i]];
-      }
-      const lastKey = keys[keys.length - 1];
-      if (!obj[lastKey]) obj[lastKey] = [];
-      obj[lastKey].push(defaultValue);
-      return newBible;
-    });
-    setHasChanges(true);
-  }
-
-  // Eliminar item de un array
-  function removeArrayItem(path, index) {
-    setBible(prev => {
-      const newBible = JSON.parse(JSON.stringify(prev));
-      const keys = path.split('.');
-      let obj = newBible;
-      for (let i = 0; i < keys.length - 1; i++) {
-        obj = obj[keys[i]];
-      }
-      const lastKey = keys[keys.length - 1];
-      if (Array.isArray(obj[lastKey])) {
-        obj[lastKey].splice(index, 1);
-      }
-      return newBible;
-    });
-    setHasChanges(true);
-  }
-
-  // GUARDAR CAMBIOS - Conectado a la API real
   async function handleSave() {
+    setSaving(true);
     try {
-      setIsSaving(true);
-      setSaveMessage(null);
       await bibleAPI.save(projectId, bible);
-      setHasChanges(false);
-      setSaveMessage({ type: 'success', text: '✓ Cambios guardados' });
-      setTimeout(() => setSaveMessage(null), 3000);
+      // Feedback visual sutil podría ir aquí
     } catch (err) {
-      setSaveMessage({ type: 'error', text: 'Error: ' + err.message });
+      alert('Error al guardar: ' + err.message);
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   }
 
-  // APROBAR Y CONTINUAR
   async function handleApprove() {
+    if (!confirm('¿Apruebas esta guía narrativa? El orquestador usará estos datos para editar tu libro.')) return;
+    
+    setApproving(true);
     try {
-      // Si hay cambios sin guardar, guardar primero
-      if (hasChanges) {
-        await bibleAPI.save(projectId, bible);
-      }
+      // 1. Guardar últimos cambios
+      await bibleAPI.save(projectId, bible);
+      // 2. Aprobar y despertar orquestador
       await bibleAPI.approve(projectId);
-      navigate(`/proyecto/${projectId}/editor`);
+      
+      // 3. Redirigir al status para ver cómo avanza la edición
+      navigate(`/proyecto/${projectId}/status`);
     } catch (err) {
-      alert('Error: ' + err.message);
+      alert('Error al aprobar: ' + err.message);
+      setApproving(false);
     }
   }
 
-  if (isLoading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-        <div className="status-indicator" style={{ justifyContent: 'center' }}>
-          <div className="status-dot"></div>
-          <span className="status-text">Cargando biblia narrativa...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="content-section" style={{ borderColor: '#FCA5A5', background: '#FEF2F2' }}>
-        <h2 className="title-section" style={{ color: '#B91C1C', borderColor: '#FCA5A5' }}>
-          Error al Cargar
-        </h2>
-        <p style={{ color: '#B91C1C' }}>{error}</p>
-        <Link to="/" className="btn btn-outline" style={{ marginTop: '1rem' }}>
-          ← Volver al Dashboard
-        </Link>
-      </div>
-    );
-  }
-
-  if (!bible) return null;
-
-  const inputStyle = {
-    width: '100%',
-    padding: '0.5rem',
-    border: '1px solid var(--color-border)',
-    marginTop: '0.25rem',
-    fontSize: '0.875rem',
-    fontFamily: 'monospace'
+  // Render helpers
+  const updateField = (section, key, value) => {
+    setBible(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [key]: value
+      }
+    }));
   };
 
-  const textareaStyle = {
-    ...inputStyle,
-    minHeight: '80px',
-    resize: 'vertical'
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-50 text-gray-500 gap-4">
+      <Loader2 className="w-10 h-10 animate-spin text-theme-primary" />
+      <p className="font-mono text-xs uppercase tracking-widest">Cargando Biblia Narrativa...</p>
+    </div>
+  );
+
+  if (!bible) return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
+      <AlertCircle className="w-12 h-12 text-red-400" />
+      <h2 className="text-xl font-bold text-gray-800">No se encontró la Biblia</h2>
+      <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline">Volver</button>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
+      
+      {/* SIDEBAR DE NAVEGACIÓN */}
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0">
+        <div className="p-6 border-b border-gray-100">
+          <h1 className="font-editorial text-2xl font-bold text-gray-900">Biblia Narrativa</h1>
+          <p className="text-xs text-gray-400 mt-1 font-mono">ID: {projectId.substring(0, 8)}</p>
+        </div>
+        
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <NavItem 
+            icon={Book} label="Resumen y Tono" 
+            active={activeSection === 'resumen'} 
+            onClick={() => setActiveSection('resumen')} 
+          />
+          <NavItem 
+            icon={Users} label="Personajes" 
+            active={activeSection === 'personajes'} 
+            onClick={() => setActiveSection('personajes')} 
+          />
+          <NavItem 
+            icon={Anchor} label="Estructura" 
+            active={activeSection === 'estructura'} 
+            onClick={() => setActiveSection('estructura')} 
+          />
+          <NavItem 
+            icon={Flag} label="Temas Clave" 
+            active={activeSection === 'temas'} 
+            onClick={() => setActiveSection('temas')} 
+          />
+        </nav>
+
+        <div className="p-4 border-t border-gray-100">
+          <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-medium transition-colors w-full px-2 py-2">
+            <ArrowLeft className="w-4 h-4" /> Volver al Dashboard
+          </button>
+        </div>
+      </aside>
+
+      {/* ÁREA PRINCIPAL */}
+      <main className="flex-1 flex flex-col min-w-0 bg-gray-50/50">
+        
+        {/* Toolbar Superior */}
+        <header className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
+          <div>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Editando Sección</h2>
+            <p className="text-xl font-bold text-gray-900 capitalize">{activeSection}</p>
+          </div>
+          
+          <div className="flex gap-3">
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'Guardando...' : 'Guardar Borrador'}
+            </button>
+            
+            <button 
+              onClick={handleApprove}
+              disabled={approving}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-theme-primary text-white font-bold text-sm hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all transform hover:-translate-y-0.5"
+            >
+              {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              {approving ? 'Iniciando Edición...' : 'Aprobar y Editar'}
+            </button>
+          </div>
+        </header>
+
+        {/* Contenido Scrollable */}
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <div className="max-w-4xl mx-auto space-y-8 pb-20">
+            
+            {/* RENDERIZADO DINÁMICO SEGÚN SECCIÓN */}
+            {activeSection === 'resumen' && (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
+                <SectionHeader title="Resumen Ejecutivo" icon={Book} />
+                <JsonEditor data={bible.holistic_analysis || {}} onChange={(v) => updateField('holistic_analysis', null, v)} />
+              </div>
+            )}
+
+            {activeSection === 'personajes' && (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
+                <SectionHeader title="Fichas de Personajes" icon={Users} />
+                <JsonEditor data={bible.character_profiles || []} onChange={(v) => updateField('character_profiles', null, v)} />
+              </div>
+            )}
+
+             {/* Puedes agregar más secciones específicas aquí */}
+             
+             {/* Fallback genérico para ver todo el JSON si hace falta */}
+             <div className="mt-8 bg-gray-100 p-4 rounded-lg border border-gray-200">
+               <h4 className="text-xs font-bold uppercase text-gray-500 mb-2">Vista Raw (Debug)</h4>
+               <textarea 
+                  className="w-full h-64 p-4 text-xs font-mono bg-white border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={JSON.stringify(bible, null, 2)}
+                  onChange={(e) => {
+                    try {
+                      setBible(JSON.parse(e.target.value));
+                    } catch(err) { /* ignore invalid json while typing */ }
+                  }}
+               />
+             </div>
+
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// --- Componentes UI ---
+
+function NavItem({ icon: Icon, label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all group
+        ${active 
+          ? 'bg-blue-50 text-theme-primary ring-1 ring-blue-100' 
+          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
+      `}
+    >
+      <div className="flex items-center gap-3">
+        <Icon className={`w-4 h-4 ${active ? 'text-theme-primary' : 'text-gray-400 group-hover:text-gray-600'}`} />
+        <span>{label}</span>
+      </div>
+      {active && <ChevronRight className="w-3 h-3 text-theme-primary" />}
+    </button>
+  );
+}
+
+function SectionHeader({ title, icon: Icon }) {
+  return (
+    <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+      <div className="p-2 bg-blue-50 rounded-lg text-theme-primary">
+        <Icon className="w-5 h-5" />
+      </div>
+      <h3 className="font-editorial text-xl font-bold text-gray-900">{title}</h3>
+    </div>
+  );
+}
+
+// Editor simple para objetos JSON (se puede mejorar con un editor real si hay tiempo)
+function JsonEditor({ data, onChange }) {
+  const [text, setText] = useState(JSON.stringify(data, null, 2));
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setText(val);
+    try {
+      onChange(JSON.parse(val));
+    } catch (err) {
+      // Allow typing invalid JSON
+    }
   };
 
   return (
-    <>
-      {/* HEADER */}
-      <header className="page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <Link to="/" className="meta" style={{ display: 'block', marginBottom: '0.5rem' }}>
-              ← Volver al Dashboard
-            </Link>
-            <h1 className="title-main">BIBLIA NARRATIVA</h1>
-            <p className="page-header-meta">
-              Revisa y ajusta el análisis de tu obra antes de continuar con la edición
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            {saveMessage && (
-              <span style={{ 
-                fontSize: '0.875rem',
-                color: saveMessage.type === 'success' ? '#059669' : '#B91C1C'
-              }}>
-                {saveMessage.text}
-              </span>
-            )}
-            <button 
-              className="btn btn-outline"
-              onClick={handleSave}
-              disabled={!hasChanges || isSaving}
-              style={{ opacity: hasChanges ? 1 : 0.5 }}
-            >
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </button>
-            <button className="btn btn-primary" onClick={handleApprove}>
-              Aprobar y Continuar →
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Warning si hay cambios */}
-      {hasChanges && (
-        <div style={{ 
-          background: '#FEF3C7', 
-          border: '1px solid #F59E0B', 
-          padding: '0.75rem 1rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          <span style={{ fontSize: '1rem' }}>⚠️</span>
-          <span className="mono" style={{ fontSize: '0.875rem', color: '#92400E', fontWeight: 600 }}>
-            Tienes cambios sin guardar
-          </span>
-        </div>
-      )}
-
-      {/* IDENTIDAD DE LA OBRA */}
-      <section className="content-section">
-        <button 
-          className="title-section" 
-          onClick={() => toggleSection('identidad')}
-          style={{ 
-            width: '100%', 
-            textAlign: 'left', 
-            background: 'none', 
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <span>📚 IDENTIDAD DE LA OBRA</span>
-          <span style={{ fontSize: '0.875rem' }}>{expandedSections.identidad ? '−' : '+'}</span>
-        </button>
-        
-        {expandedSections.identidad && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div>
-              <label className="label">Género</label>
-              <input
-                type="text"
-                value={bible.identidad_obra?.genero || ''}
-                onChange={(e) => updateField('identidad_obra.genero', e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label className="label">Subgénero</label>
-              <input
-                type="text"
-                value={bible.identidad_obra?.subgenero || ''}
-                onChange={(e) => updateField('identidad_obra.subgenero', e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label className="label">Tono Predominante</label>
-              <input
-                type="text"
-                value={bible.identidad_obra?.tono_predominante || ''}
-                onChange={(e) => updateField('identidad_obra.tono_predominante', e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label className="label">Estilo Narrativo</label>
-              <input
-                type="text"
-                value={bible.identidad_obra?.estilo_narrativo || ''}
-                onChange={(e) => updateField('identidad_obra.estilo_narrativo', e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label className="label">Tema Central</label>
-              <textarea
-                value={bible.identidad_obra?.tema_central || ''}
-                onChange={(e) => updateField('identidad_obra.tema_central', e.target.value)}
-                style={textareaStyle}
-              />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* VOZ DEL AUTOR */}
-      <section className="content-section">
-        <button 
-          className="title-section" 
-          onClick={() => toggleSection('voz')}
-          style={{ 
-            width: '100%', 
-            textAlign: 'left', 
-            background: 'none', 
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <span>✍️ VOZ DEL AUTOR</span>
-          <span style={{ fontSize: '0.875rem' }}>{expandedSections.voz ? '−' : '+'}</span>
-        </button>
-        
-        {expandedSections.voz && (
-          <>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label className="label">Estilo Detectado</label>
-              <textarea
-                value={bible.voz_del_autor?.estilo_detectado || ''}
-                onChange={(e) => updateField('voz_del_autor.estilo_detectado', e.target.value)}
-                style={textareaStyle}
-              />
-            </div>
-            
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label className="label">Recursos Distintivos</label>
-              {bible.voz_del_autor?.recursos_distintivos?.map((recurso, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <input
-                    type="text"
-                    value={recurso}
-                    onChange={(e) => updateArrayItem('voz_del_autor.recursos_distintivos', idx, e.target.value)}
-                    style={{ ...inputStyle, marginTop: 0 }}
-                  />
-                  <button 
-                    onClick={() => removeArrayItem('voz_del_autor.recursos_distintivos', idx)}
-                    className="btn"
-                    style={{ background: '#FEE2E2', color: '#B91C1C', padding: '0.25rem 0.5rem' }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button 
-                onClick={() => addArrayItem('voz_del_autor.recursos_distintivos', '')}
-                className="btn btn-outline"
-                style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}
-              >
-                + Agregar recurso
-              </button>
-            </div>
-          </>
-        )}
-      </section>
-
-      {/* NO CORREGIR - CRÍTICO */}
-      <section className="content-section" style={{ borderColor: '#F59E0B', background: '#FFFBEB' }}>
-        <button 
-          className="title-section" 
-          onClick={() => toggleSection('noCorregir')}
-          style={{ 
-            width: '100%', 
-            textAlign: 'left', 
-            background: 'none', 
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            color: '#92400E',
-            borderColor: '#F59E0B'
-          }}
-        >
-          <span>⚠️ ELEMENTOS A PRESERVAR (NO CORREGIR)</span>
-          <span style={{ fontSize: '0.875rem' }}>{expandedSections.noCorregir ? '−' : '+'}</span>
-        </button>
-        
-        {expandedSections.noCorregir && (
-          <div style={{ marginTop: '1rem' }}>
-            <p className="meta" style={{ marginBottom: '1rem', color: '#92400E' }}>
-              Estos elementos serán respetados durante la edición. Agrega cualquier uso intencional 
-              de lenguaje, regionalismos, o decisiones estilísticas que no deben modificarse.
-            </p>
-            
-            {bible.voz_del_autor?.NO_CORREGIR?.map((item, idx) => (
-              <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <input
-                  type="text"
-                  value={item}
-                  onChange={(e) => updateArrayItem('voz_del_autor.NO_CORREGIR', idx, e.target.value)}
-                  style={{ ...inputStyle, marginTop: 0, background: 'white' }}
-                  placeholder="Ej: Uso de 'piel morena' (intencional)"
-                />
-                <button 
-                  onClick={() => removeArrayItem('voz_del_autor.NO_CORREGIR', idx)}
-                  className="btn"
-                  style={{ background: '#FEE2E2', color: '#B91C1C', padding: '0.25rem 0.5rem' }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-            
-            <button 
-              onClick={() => addArrayItem('voz_del_autor.NO_CORREGIR', '')}
-              className="btn"
-              style={{ 
-                marginTop: '0.5rem', 
-                fontSize: '0.875rem',
-                background: '#FEF3C7',
-                color: '#92400E',
-                border: '1px solid #F59E0B'
-              }}
-            >
-              + Agregar elemento a preservar
-            </button>
-          </div>
-        )}
-      </section>
-
-      {/* PERSONAJES */}
-      <section className="content-section">
-        <button 
-          className="title-section" 
-          onClick={() => toggleSection('personajes')}
-          style={{ 
-            width: '100%', 
-            textAlign: 'left', 
-            background: 'none', 
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <span>👥 REPARTO DE PERSONAJES</span>
-          <span style={{ fontSize: '0.875rem' }}>{expandedSections.personajes ? '−' : '+'}</span>
-        </button>
-        
-        {expandedSections.personajes && (
-          <>
-            {/* Protagonistas */}
-            <h4 className="label" style={{ color: 'var(--color-primary)', marginBottom: '1rem' }}>
-              PROTAGONISTAS
-            </h4>
-            {bible.reparto_completo?.protagonistas?.map((char, idx) => (
-              <div key={idx} style={{ 
-                background: '#F0FDF4', 
-                border: '1px solid #BBF7D0', 
-                padding: '1rem',
-                marginBottom: '1rem'
-              }}>
-                <input
-                  type="text"
-                  value={char.nombre || ''}
-                  onChange={(e) => {
-                    const newChar = { ...char, nombre: e.target.value };
-                    setBible(prev => {
-                      const newBible = JSON.parse(JSON.stringify(prev));
-                      newBible.reparto_completo.protagonistas[idx] = newChar;
-                      return newBible;
-                    });
-                    setHasChanges(true);
-                  }}
-                  style={{ ...inputStyle, fontWeight: 700, marginBottom: '0.5rem' }}
-                />
-                <div className="meta">
-                  <strong>Arquetipo:</strong> {char.rol_arquetipo}<br/>
-                  <strong>Motivación:</strong> {char.motivacion_principal}<br/>
-                  <strong>Arco:</strong> {char.arco_personaje}
-                </div>
-              </div>
-            ))}
-
-            {/* Antagonistas */}
-            <h4 className="label" style={{ color: '#B91C1C', marginBottom: '1rem', marginTop: '1.5rem' }}>
-              ANTAGONISTAS
-            </h4>
-            {bible.reparto_completo?.antagonistas?.map((char, idx) => (
-              <div key={idx} style={{ 
-                background: '#FEF2F2', 
-                border: '1px solid #FECACA', 
-                padding: '1rem',
-                marginBottom: '1rem'
-              }}>
-                <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>
-                  {char.nombre}
-                </div>
-                <div className="meta">
-                  <strong>Arquetipo:</strong> {char.rol_arquetipo}<br/>
-                  <strong>Motivación:</strong> {char.motivacion_principal}
-                </div>
-              </div>
-            ))}
-
-            {/* Secundarios */}
-            {bible.reparto_completo?.secundarios?.length > 0 && (
-              <>
-                <h4 className="label" style={{ marginBottom: '1rem', marginTop: '1.5rem' }}>
-                  SECUNDARIOS
-                </h4>
-                {bible.reparto_completo.secundarios.map((char, idx) => (
-                  <div key={idx} style={{ 
-                    background: '#F9FAFB', 
-                    border: '1px solid var(--color-border)', 
-                    padding: '1rem',
-                    marginBottom: '1rem'
-                  }}>
-                    <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>
-                      {char.nombre}
-                    </div>
-                    <div className="meta">
-                      <strong>Rol:</strong> {char.rol_arquetipo}
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </>
-        )}
-      </section>
-
-      {/* MÉTRICAS */}
-      <section className="content-section">
-        <button 
-          className="title-section" 
-          onClick={() => toggleSection('metricas')}
-          style={{ 
-            width: '100%', 
-            textAlign: 'left', 
-            background: 'none', 
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <span>📊 MÉTRICAS GLOBALES</span>
-          <span style={{ fontSize: '0.875rem' }}>{expandedSections.metricas ? '−' : '+'}</span>
-        </button>
-        
-        {expandedSections.metricas && (
-          <div className="stats-grid" style={{ marginTop: '1rem' }}>
-            <div className="stat-card">
-              <p className="label">Palabras</p>
-              <p className="stat-value" style={{ fontSize: '1.5rem' }}>
-                {bible.metricas_globales?.total_palabras?.toLocaleString()}
-              </p>
-            </div>
-            <div className="stat-card">
-              <p className="label">Capítulos</p>
-              <p className="stat-value" style={{ fontSize: '1.5rem' }}>
-                {bible.metricas_globales?.total_capitulos}
-              </p>
-            </div>
-            <div className="stat-card">
-              <p className="label">Score Global</p>
-              <p className="stat-value text-primary" style={{ fontSize: '1.5rem' }}>
-                {bible.metricas_globales?.score_global}
-              </p>
-            </div>
-            <div className="stat-card">
-              <p className="label">Coherencia</p>
-              <p className="stat-value" style={{ fontSize: '1.5rem', color: '#059669' }}>
-                {bible.metricas_globales?.score_coherencia_personajes}
-              </p>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Bottom action bar */}
-      <div style={{ 
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: 'var(--color-surface)',
-        borderTop: '1px solid var(--color-border)',
-        padding: '1rem 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <span className="mono" style={{ fontSize: '0.875rem', color: 'var(--color-subtle)' }}>
-          {hasChanges ? '⚠️ Cambios sin guardar' : '✓ Todo guardado'}
-        </span>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button 
-            className="btn btn-outline" 
-            onClick={handleSave}
-            disabled={!hasChanges || isSaving}
-          >
-            {isSaving ? 'Guardando...' : 'Guardar'}
-          </button>
-          <button className="btn btn-primary" onClick={handleApprove}>
-            Aprobar y Continuar al Editor →
-          </button>
-        </div>
-      </div>
-
-      {/* Spacer for fixed bottom bar */}
-      <div style={{ height: '80px' }}></div>
-    </>
+    <div>
+      <p className="text-sm text-gray-500 mb-2">Edita los valores directamente. Mantén el formato JSON.</p>
+      <textarea
+        className="w-full h-96 p-4 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-y"
+        value={text}
+        onChange={handleChange}
+        spellCheck={false}
+      />
+    </div>
   );
 }

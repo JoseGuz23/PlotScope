@@ -44,6 +44,11 @@ async function apiFetch(endpoint, options = {}) {
       throw new Error(errorData.error || `Error del servidor: ${response.status}`);
     }
     
+    // Manejar respuestas sin contenido (como DELETE 204)
+    if (response.status === 204) {
+      return null;
+    }
+    
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('text/plain')) {
       return await response.text();
@@ -102,9 +107,23 @@ export const projectsAPI = {
     return await apiFetch(`project/${projectId}`);
   },
   
-  // NUEVO: Obtener estado del orquestador
   async getStatus(projectId) {
     return await apiFetch(`project/${projectId}/status`);
+  },
+
+  // Detener un proceso en ejecución
+  async terminate(projectId, reason = 'User cancelled') {
+    return await apiFetch(`project/${projectId}/terminate`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  // Eliminar un proyecto
+  async delete(projectId) {
+    return await apiFetch(`project/${projectId}`, {
+      method: 'DELETE',
+    });
   },
 };
 
@@ -187,9 +206,6 @@ export const manuscriptAPI = {
 // =============================================================================
 
 export const uploadAPI = {
-  /**
-   * Sube un manuscrito al servidor
-   */
   async uploadManuscript(file, projectName) {
     const base64 = await fileToBase64(file);
     return await apiFetch('project/upload', {
@@ -202,15 +218,9 @@ export const uploadAPI = {
     });
   },
 
-  /**
-   * Inicia el orquestador para un proyecto
-   */
   async startOrchestrator(jobId, blobPath) {
-    // Construir URL de HttpStart
     const baseUrl = API_BASE.replace('/api', '');
     let url = `${baseUrl}/api/HttpStart`;
-    
-    // Agregar function key si existe
     if (FUNCTION_KEY) {
       url += `?code=${FUNCTION_KEY}`;
     }
@@ -231,26 +241,16 @@ export const uploadAPI = {
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error starting orchestrator:', errorText);
         throw new Error(`Error iniciando orquestador: ${response.status}`);
       }
       
-      const data = await response.json();
-      console.log('✅ Orquestador iniciado:', data);
-      
-      return data;
+      return await response.json();
     } catch (error) {
       console.error('❌ Error en startOrchestrator:', error);
-      // No fallar si el orquestador no se puede iniciar inmediatamente
-      // El proyecto ya está creado y se puede reintentar
       return { status: 'pending', message: 'Orquestador en cola' };
     }
   },
 
-  /**
-   * Analiza un archivo para cotización (público)
-   */
   async analyzeForQuote(file) {
     const base64 = await fileToBase64(file);
     return await apiFetch('analyze-file', {
@@ -263,25 +263,14 @@ export const uploadAPI = {
   },
 };
 
-// =============================================================================
-// HELPER: File to Base64
-// =============================================================================
-
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64 = reader.result.split(',')[1];
-      resolve(base64);
-    };
+    reader.onload = () => resolve(reader.result.split(',')[1]);
     reader.onerror = reject;
   });
 }
-
-// =============================================================================
-// EXPORT DEFAULT
-// =============================================================================
 
 export default {
   auth: authAPI,

@@ -12,12 +12,9 @@
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[4.*, 5.0.0)"
   },
-  "functionTimeout": "00:09:59",
   "extensions": {
-    "durableTask": {
-      "hubName": "SylphrenaMVPv5",
-      "maxConcurrentActivityFunctions": 10,
-      "maxConcurrentOrchestratorFunctions": 1
+    "http": {
+      "routePrefix": "api"
     }
   }
 }
