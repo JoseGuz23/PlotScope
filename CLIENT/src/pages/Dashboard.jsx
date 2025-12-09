@@ -1,15 +1,11 @@
-// =============================================================================
-// Dashboard.jsx - DASHBOARD PROFESIONAL LYA
-// =============================================================================
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { projectsAPI } from '../services/api';
 
 export default function Dashboard() {
   const [projects, setProjects] = useState([]);
-  const [activeProject, setActiveProject] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadProjects();
@@ -17,164 +13,99 @@ export default function Dashboard() {
 
   async function loadProjects() {
     try {
-      setIsLoading(true);
       const data = await projectsAPI.getAll();
       setProjects(data);
-      if (data.length > 0) {
-        setActiveProject(data[0]);
-      }
     } catch (err) {
-      console.error('Error:', err);
+      console.error(err);
+      setError('No se pudo conectar con el servidor.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
-  const formatDate = () => {
-    return new Date().toLocaleString('es-MX', {
-      day: '2-digit',
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-        <div className="status-indicator" style={{ justifyContent: 'center' }}>
-          <div className="status-dot"></div>
-          <span className="status-text">Cargando...</span>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex justify-center pt-20">
+      <div className="animate-spin h-8 w-8 border-4 border-theme-primary border-t-transparent rounded-full"></div>
+    </div>
+  );
 
   return (
-    <>
-      {/* PAGE HEADER */}
-      <header className="page-header">
-        <h1 className="title-main">ANÁLISIS DE MANUSCRITO ACTIVO</h1>
-        <p className="page-header-meta">
-          DOCUMENTO CLASIFICADO: {activeProject?.name || 'Ninguno'} | ID: {activeProject?.id?.slice(0, 7).toUpperCase() || 'N/A'} | Sincronización: {formatDate()} MST
-        </p>
-      </header>
-
-      {/* STATS GRID */}
-      <div className="stats-grid">
-        {/* Palabras */}
-        <div className="stat-card">
-          <p className="label">Palabras (Total)</p>
-          <p className="stat-value">{activeProject?.wordCount?.toLocaleString() || '0'}</p>
-          <p className="stat-meta positive">[+] 2.5% vs último reporte</p>
+    <div>
+      {/* Header de Sección */}
+      <div className="flex justify-between items-end mb-12 border-b border-gray-200 pb-6">
+        <div>
+          <h1 className="font-editorial text-4xl font-bold text-gray-900 mb-2">
+            Biblioteca de Manuscritos
+          </h1>
+          <p className="font-sans text-gray-500 text-sm font-medium">
+            Gestión y estado de tus análisis activos.
+          </p>
         </div>
-
-        {/* Capítulos */}
-        <div className="stat-card">
-          <p className="label">Capítulos Analizados</p>
-          <p className="stat-value">{activeProject?.chaptersCount || 0}/{(activeProject?.chaptersCount || 0) + 1}</p>
-          <p className="stat-meta">Próximo: Capítulo {(activeProject?.chaptersCount || 0) + 1}</p>
-        </div>
-
-        {/* Nivel */}
-        <div className="stat-card">
-          <p className="label">Nivel de Lectura</p>
-          <p className="stat-value">A+</p>
-          <p className="stat-meta">Público objetivo: Adulto Joven</p>
-        </div>
-
-        {/* Estado */}
-        <div className="stat-card">
-          <p className="label">Estado del Análisis IA</p>
-          <div className="status-indicator">
-            <div className="status-dot"></div>
-            <span className="status-text">Análisis en curso...</span>
-          </div>
-          <p className="stat-meta"><span className="text-primary">45%</span> de Tono Procesado</p>
-        </div>
-      </div>
-
-      {/* CONTENT SECTION - Track Changes Preview */}
-      <section className="content-section">
-        <h2 className="title-section">CONTENIDO ANALIZADO (ÚLTIMA EDICIÓN)</h2>
-        
-        <h3 className="chapter-title">CAPÍTULO 2</h3>
-        <p className="chapter-meta">5 revisiones detectadas por el Orquestador.</p>
-        
-        <div className="content-body">
-{`Ángel se acercó despacio.
-
--No para encerrarlo... pero sí para retenerlo un tiempo. Tal vez el suficiente para que cante.
-Henry negó con la cabeza. Sin dejar de mirar el horizonte.
--No es suficiente, muchacho. Toda esta situación me huele a mierda.
-Guardó silencio unos segundos.`}
-<span className="text-deleted">¿Tú crees que Emma alucinó lo del espía?</span>
-<span className="text-added">Sabemos que el espía existe. Solo falta encontrarlo.</span>
-{`
-Ángel se apoyó en la parte trasera de la valla, con un salto ágil, se sentó en el borde.`}
-        </div>
-      </section>
-
-      {/* ACTION CARDS */}
-      <div className="actions-grid">
-        <Link to={`/proyecto/${activeProject?.id || 'demo'}/biblia`} className="action-card">
-          <p className="label">Revisar Biblia</p>
-          <p className="action-card-link">Ver análisis narrativo completo →</p>
-        </Link>
-
-        <Link to={`/proyecto/${activeProject?.id || 'demo'}/editor`} className="action-card">
-          <p className="label">Abrir Editor</p>
-          <p className="action-card-link">Revisar cambios editoriales →</p>
-        </Link>
-
-        <Link to="/nuevo" className="action-card dashed">
-          <p className="label">Nuevo Proyecto</p>
-          <p className="action-card-link">Subir manuscrito →</p>
+        <Link 
+          to="/nuevo" 
+          className="bg-theme-primary text-white px-6 py-3 text-xs font-extrabold uppercase tracking-widest hover:bg-theme-primary-hover transition-colors shadow-md rounded-sm transform hover:-translate-y-0.5"
+        >
+          + Iniciar Análisis
         </Link>
       </div>
 
-      {/* PROJECTS LIST */}
-      <section className="content-section">
-        <h2 className="title-section">PROYECTOS RECIENTES</h2>
-        
-        <div className="project-list">
-          {projects.map(project => (
-            <div key={project.id} className="project-item">
-              <div>
-                <h3 className="project-title">{project.name.replace(/_/g, ' ')}</h3>
-                <p className="project-meta">
-                  ID: {project.id.slice(0, 8)}... | {project.wordCount?.toLocaleString()} palabras | {project.chaptersCount} capítulos
-                </p>
-              </div>
-              <div className="project-actions">
-                {project.status === 'completed' && (
-                  <>
-                    <span className="badge badge-success">COMPLETADO</span>
-                    <Link to={`/proyecto/${project.id}/editor`} className="project-link">
-                      Abrir →
-                    </Link>
-                  </>
-                )}
-                {project.status === 'processing' && (
-                  <>
-                    <span className="badge badge-processing">PROCESANDO {project.progress}%</span>
-                    <span className="text-subtle mono" style={{ fontSize: '0.875rem' }}>En cola...</span>
-                  </>
-                )}
-                {project.status === 'pending_bible' && (
-                  <>
-                    <span className="badge badge-warning">ESPERANDO BIBLIA</span>
-                    <Link to={`/proyecto/${project.id}/biblia`} className="project-link">
-                      Revisar →
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8">
+          <p className="text-red-700 text-sm font-bold">{error}</p>
+        </div>
+      )}
+
+      {/* Grid de Proyectos */}
+      {projects.length === 0 && !error ? (
+        <div className="text-center py-24 bg-white border-2 border-dashed border-gray-200 rounded-sm">
+          <h3 className="font-serif text-2xl text-gray-400 mb-2">Tu escritorio está vacío</h3>
+          <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
+            Comienza subiendo tu primer manuscrito para activar el orquestador.
+          </p>
+          <Link to="/nuevo" className="text-theme-primary font-bold hover:underline text-sm uppercase tracking-wide">
+            Subir Manuscrito Ahora
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((proj) => (
+            <ProjectCard key={proj.id} project={proj} />
           ))}
         </div>
-      </section>
-    </>
+      )}
+    </div>
+  );
+}
+
+function ProjectCard({ project }) {
+  const isComplete = project.status === 'completed';
+  
+  return (
+    <Link 
+      to={`/proyecto/${project.id}/editor`}
+      className="group block bg-white border border-gray-200 p-8 hover:border-theme-primary hover:shadow-xl transition-all duration-300 relative rounded-sm"
+    >
+      {/* Barra de estado superior */}
+      <div className={`absolute top-0 left-0 w-full h-1.5 ${isComplete ? 'bg-theme-primary' : 'bg-yellow-400'}`}></div>
+
+      <div className="mb-6">
+        <h3 className="font-editorial text-2xl font-bold text-gray-900 group-hover:text-theme-primary transition-colors line-clamp-2 leading-tight">
+          {project.name || 'Sin Título'}
+        </h3>
+        <p className="font-mono text-[10px] text-gray-400 mt-2 uppercase tracking-wider">
+          ID: {project.id.substring(0, 8)}
+        </p>
+      </div>
+
+      <div className="flex justify-between items-center border-t border-gray-100 pt-4 mt-4">
+        <span className={`text-[10px] font-extrabold uppercase tracking-widest ${isComplete ? 'text-theme-primary' : 'text-yellow-600'}`}>
+          {isComplete ? '● Completado' : '● Procesando'}
+        </span>
+        <span className="text-xs font-bold text-gray-300 group-hover:text-theme-text transition-colors">
+          Abrir →
+        </span>
+      </div>
+    </Link>
   );
 }

@@ -1,265 +1,124 @@
-// =============================================================================
-// Upload.jsx - SUBIR NUEVO MANUSCRITO (PROFESIONAL)
-// =============================================================================
-
-import { useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { uploadAPI } from '../services/api';
 
 export default function Upload() {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-  
   const [file, setFile] = useState(null);
   const [projectName, setProjectName] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
-  function handleDragOver(e) {
-    e.preventDefault();
-    setIsDragging(true);
-  }
-
-  function handleDragLeave(e) {
-    e.preventDefault();
-    setIsDragging(false);
-  }
-
-  function handleDrop(e) {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFile = e.dataTransfer.files[0];
-    validateAndSetFile(droppedFile);
-  }
-
-  function handleFileSelect(e) {
-    const selectedFile = e.target.files[0];
-    validateAndSetFile(selectedFile);
-  }
-
-  function validateAndSetFile(f) {
-    setError(null);
-    if (!f) return;
-    
-    const ext = '.' + f.name.split('.').pop().toLowerCase();
-    const allowed = ['.md', '.txt', '.docx'];
-    
-    if (!allowed.includes(ext)) {
-      setError(`Formato no soportado. Usa: ${allowed.join(', ')}`);
-      return;
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      if (!projectName) {
+        const name = e.target.files[0].name.replace(/\.[^/.]+$/, "");
+        setProjectName(name);
+      }
     }
-    
-    if (f.size > 10 * 1024 * 1024) {
-      setError('El archivo es muy grande. Máximo: 10MB');
-      return;
-    }
-    
-    setFile(f);
-    if (!projectName) {
-      setProjectName(f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '));
-    }
-  }
+  };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!file || !projectName.trim()) {
-      setError('Selecciona un archivo y dale nombre al proyecto');
-      return;
-    }
+    if (!file || !projectName) return;
 
     setIsUploading(true);
-    
-    // Simular upload
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    alert('¡Proyecto creado! (Demo - en producción iniciaría el procesamiento)');
-    navigate('/');
-  }
+    setError('');
+
+    try {
+      await uploadAPI.uploadManuscript(file, projectName);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
+      setError('Error al subir el archivo. Intenta de nuevo.');
+      setIsUploading(false);
+    }
+  };
 
   return (
-    <>
-      {/* HEADER */}
-      <header className="page-header">
-        <Link to="/" className="meta" style={{ display: 'block', marginBottom: '0.5rem' }}>
-          ← Volver al Dashboard
-        </Link>
-        <h1 className="title-main">NUEVO PROYECTO</h1>
-        <p className="page-header-meta">
-          Sube tu manuscrito para comenzar el análisis y edición con IA
+    <div className="max-w-2xl mx-auto pt-10">
+      <div className="text-center mb-12">
+        <span className="font-mono text-xs font-bold text-theme-primary uppercase tracking-widest mb-2 block">
+          Paso 1 de 3
+        </span>
+        <h1 className="font-editorial text-4xl font-bold text-gray-900 mb-4">
+          Cargar Manuscrito
+        </h1>
+        <p className="font-sans text-gray-500">
+          Sube tu archivo .docx para comenzar la segmentación y análisis.
         </p>
-      </header>
+      </div>
 
-      <div style={{ maxWidth: '600px' }}>
-        <form onSubmit={handleSubmit}>
-          {/* Nombre del proyecto */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>
-              Nombre del Proyecto
+      <div className="bg-white border-t-4 border-gray-900 shadow-xl p-10 rounded-sm">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          
+          <div>
+            <label className="block text-xs font-extrabold uppercase text-gray-500 mb-2 tracking-wide">
+              Título de la Obra
             </label>
             <input
               type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Ej: Mi Nueva Novela"
-              className="mono"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--color-border)',
-                fontSize: '0.875rem'
-              }}
-              required
+              placeholder="Ej. La Sombra del Viento"
+              className="w-full p-4 border-2 border-gray-200 rounded-sm font-editorial text-xl text-gray-900 focus:border-theme-primary focus:outline-none transition-colors placeholder-gray-300"
+              disabled={isUploading}
             />
           </div>
 
-          {/* Drop zone */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>
-              Manuscrito
+          <div>
+            <label className="block text-xs font-extrabold uppercase text-gray-500 mb-2 tracking-wide">
+              Archivo Fuente (.docx)
             </label>
-            
-            {!file ? (
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: `2px dashed ${isDragging ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                  background: isDragging ? 'rgba(15, 118, 110, 0.05)' : 'var(--color-surface)',
-                  padding: '3rem 2rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📄</div>
-                <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>
-                  Arrastra tu archivo aquí
-                </p>
-                <p className="meta" style={{ marginBottom: '1rem' }}>
-                  o haz clic para seleccionar
-                </p>
-                <p className="meta" style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
-                  Formatos: .md, .txt, .docx | Máx: 10MB
-                </p>
-              </div>
-            ) : (
-              <div style={{
-                border: '1px solid #BBF7D0',
-                background: '#F0FDF4',
-                padding: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '1.5rem' }}>📄</span>
+            <div className={`
+              border-2 border-dashed rounded-sm p-12 text-center transition-all cursor-pointer group
+              ${file ? 'border-theme-primary bg-green-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'}
+            `}>
+              <input
+                type="file"
+                accept=".docx"
+                onChange={handleFileChange}
+                className="hidden"
+                id="file-upload"
+                disabled={isUploading}
+              />
+              <label htmlFor="file-upload" className="cursor-pointer block w-full h-full">
+                {file ? (
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem' }}>{file.name}</p>
-                    <p className="meta">{(file.size / 1024).toFixed(1)} KB</p>
+                    <div className="text-4xl mb-3"></div>
+                    <p className="font-bold text-theme-primary text-lg">{file.name}</p>
+                    <p className="font-mono text-xs text-gray-500 mt-2">{(file.size / 1024 / 1024).toFixed(2)} MB • Listo para subir</p>
                   </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setFile(null)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '1.25rem',
-                    cursor: 'pointer',
-                    color: 'var(--color-subtle)'
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".md,.txt,.docx"
-              onChange={handleFileSelect}
-              style={{ display: 'none' }}
-            />
+                ) : (
+                  <div>
+                    <div className="text-4xl mb-3 text-gray-300 group-hover:text-gray-400 transition-colors">⬇</div>
+                    <p className="font-bold text-gray-900">Haz clic para seleccionar</p>
+                    <p className="font-sans text-sm text-gray-500 mt-1">Soporta documentos Word estándar</p>
+                  </div>
+                )}
+              </label>
+            </div>
           </div>
 
-          {/* Error */}
           {error && (
-            <div style={{
-              background: '#FEF2F2',
-              border: '1px solid #FCA5A5',
-              padding: '0.75rem 1rem',
-              marginBottom: '1.5rem',
-              color: '#B91C1C',
-              fontSize: '0.875rem'
-            }}>
+            <div className="text-red-700 text-sm font-bold text-center bg-red-50 p-4 border border-red-100 rounded-sm">
               ⚠️ {error}
             </div>
           )}
 
-          {/* Info */}
-          <div style={{
-            background: '#EFF6FF',
-            border: '1px solid #BFDBFE',
-            padding: '1rem',
-            marginBottom: '1.5rem'
-          }}>
-            <p className="label" style={{ color: '#1E40AF', marginBottom: '0.75rem' }}>
-              ℹ️ ¿Qué sucederá?
-            </p>
-            <ol className="mono" style={{ 
-              fontSize: '0.875rem', 
-              color: '#1E40AF',
-              paddingLeft: '1.25rem',
-              lineHeight: 1.8
-            }}>
-              <li>Analizaremos tu manuscrito con IA (20-40 min)</li>
-              <li>Generaremos una "Biblia Narrativa" para tu revisión</li>
-              <li>Podrás ajustar el análisis antes de continuar</li>
-              <li>El editor IA aplicará cambios editoriales</li>
-              <li>Revisarás y aprobarás cada cambio</li>
-            </ol>
-          </div>
-
-          {/* Buttons */}
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <Link to="/" className="btn btn-outline">
-              Cancelar
-            </Link>
+          <div className="pt-6">
             <button
               type="submit"
-              className="btn btn-primary"
-              disabled={!file || !projectName.trim() || isUploading}
-              style={{ 
-                flex: 1,
-                opacity: (!file || !projectName.trim() || isUploading) ? 0.5 : 1,
-                cursor: (!file || !projectName.trim() || isUploading) ? 'not-allowed' : 'pointer'
-              }}
+              disabled={!file || !projectName || isUploading}
+              className="w-full bg-theme-primary hover:bg-theme-primary-hover text-white font-extrabold py-4 px-6 rounded-sm shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-sm"
             >
-              {isUploading ? 'Subiendo...' : 'Crear Proyecto e Iniciar Análisis'}
+              {isUploading ? 'Procesando Manuscrito...' : 'INICIAR ORQUESTACIÓN'}
             </button>
           </div>
-        </form>
 
-        {/* Pricing */}
-        <div style={{
-          marginTop: '2rem',
-          padding: '1rem',
-          border: '1px solid var(--color-border)',
-          background: 'var(--color-surface)',
-          textAlign: 'center'
-        }}>
-          <p className="mono" style={{ fontSize: '0.875rem', color: 'var(--color-subtle)' }}>
-            <strong style={{ color: 'var(--color-text)' }}>$49 USD</strong> por libro procesado
-          </p>
-          <p className="meta" style={{ fontSize: '0.75rem' }}>
-            Incluye análisis completo + edición + revisión ilimitada
-          </p>
-        </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 }

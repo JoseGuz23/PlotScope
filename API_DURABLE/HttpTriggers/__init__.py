@@ -10,8 +10,17 @@ import os
 import hashlib
 import hmac
 import base64
+import re
+import math
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient
+
+# Importación opcional para docx
+try:
+    from docx import Document
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
 
 logging.basicConfig(level=logging.INFO)
 
@@ -96,16 +105,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(f"📥 {method} /api/{route}")
     
     try:
-        # Rutas públicas (no requieren auth)
+        # --- RUTAS PÚBLICAS (Sin Auth) ---
+        
+        # Login
         if route == 'auth/login':
             return handle_login(req)
         
-        # Todas las demás rutas requieren autenticación
+        # Cotización (Calculadora de Precios)
+        if route == 'analyze-file':
+            return handle_analyze_file(req) 
+
+        # --- RUTAS PROTEGIDAS (Con Auth) ---
+        
         auth_error = verify_auth(req)
         if auth_error:
             return auth_error
-        
-        # Router de rutas protegidas
+
+        # Router de proyectos
         if route == 'projects':
             return handle_projects_list(req, method)
         elif route.startswith('project/'):
@@ -539,6 +555,55 @@ def handle_upload(req: func.HttpRequest) -> func.HttpResponse:
         })
         
     except Exception as e:
+        return error_response(str(e), 500)
+
+
+# =============================================================================
+# COTIZACIÓN (Endpoint Público)
+# =============================================================================
+
+def handle_analyze_file(req: func.HttpRequest) -> func.HttpResponse:
+    """Analiza un archivo para cotización (Sin guardar, solo memoria)."""
+    try:
+        body = req.get_json()
+        content_base64 = body.get('content')
+        filename = body.get('filename', 'file.docx')
+        
+        if not content_base64:
+            return error_response('No content provided', 400)
+
+        # Decodificar
+        file_bytes = base64.b64decode(content_base64)
+        
+        # Extraer texto
+        text = ""
+        if filename.endswith('.docx') and DOCX_AVAILABLE:
+            import io
+            doc = Document(io.BytesIO(file_bytes))
+            text = "\n".join([para.text for para in doc.paragraphs])
+        else:
+            return error_response('Formato no soportado para cotización (use .docx)', 400)
+            
+        # Calcular con lógica de producción
+        word_count = len(text.split())
+        
+        # Regex de capítulos (Mismo que SegmentBook)
+        special_keywords = r'(?:Prólogo|Prefacio|Introducción|Interludio|Epílogo|Nota para el editor)'
+        full_pattern = f'(?mi)(?:^\\s*)(?:{special_keywords}|(?:Capítulo|Acto|Parte)\\s+)[^\n]*'
+        chapter_count = len(re.findall(full_pattern, text))
+        if chapter_count == 0: chapter_count = 1 
+        
+        # 1k palabras = 1 Token
+        tokens_standard = math.ceil(word_count / 1000)
+        
+        return success_response({
+            'word_count': word_count,
+            'chapter_count': chapter_count,
+            'recommended_tokens': tokens_standard
+        })
+
+    except Exception as e:
+        logging.error(f"Error en cotización: {str(e)}")
         return error_response(str(e), 500)
 
 
