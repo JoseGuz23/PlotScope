@@ -1,14 +1,8 @@
 // =============================================================================
-// api.js - CLIENTE API LYA
+// api.js - CLIENTE API SYLPHRENA (MEJORADO)
 // =============================================================================
 
 // --- CONFIGURACIÓN DE CONEXIÓN ---
-// Descomenta la opción que necesites:
-
-// OPCIÓN 1: LOCAL (Para desarrollo en tu PC)
-// const API_BASE = 'http://localhost:7071/api';
-
-// OPCIÓN 2: NUBE (Para producción en Azure)
 const API_BASE = import.meta.env.VITE_API_URL || 'https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net/api';
 
 console.log('🔗 API CONECTADA A:', API_BASE);
@@ -35,8 +29,6 @@ async function apiFetch(endpoint, options = {}) {
       },
     });
     
-    // --- MANEJO DE SESIÓN ---
-    // Si es 401 (No autorizado) y NO es un intento de login, expulsar al usuario.
     if (response.status === 401 && !endpoint.includes('auth/login')) {
       console.warn('⚠️ Sesión expirada. Redirigiendo a login...');
       localStorage.removeItem('sylphrena_token');
@@ -49,7 +41,6 @@ async function apiFetch(endpoint, options = {}) {
       throw new Error(errorData.error || `Error del servidor: ${response.status}`);
     }
     
-    // Manejo de contenido texto vs JSON
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('text/plain')) {
       return await response.text();
@@ -63,7 +54,7 @@ async function apiFetch(endpoint, options = {}) {
 }
 
 // =============================================================================
-// AUTH - Login simple
+// AUTH
 // =============================================================================
 
 export const authAPI = {
@@ -133,7 +124,7 @@ export const bibleAPI = {
 };
 
 // =============================================================================
-// MANUSCRITOS
+// MANUSCRITOS - MEJORADO
 // =============================================================================
 
 export const manuscriptAPI = {
@@ -153,10 +144,17 @@ export const manuscriptAPI = {
     return await apiFetch(`project/${projectId}`);
   },
 
+  // Obtener cambios estructurados
   async getChanges(projectId) {
     return await apiFetch(`project/${projectId}/changes`);
   },
 
+  // NUEVO: Obtener capítulos consolidados con contenido completo
+  async getChapters(projectId) {
+    return await apiFetch(`project/${projectId}/chapters`);
+  },
+
+  // Guardar decisión de un cambio
   async saveChangeDecision(projectId, changeId, action) {
     return await apiFetch(`project/${projectId}/changes/${changeId}/decision`, {
       method: 'POST',
@@ -164,15 +162,25 @@ export const manuscriptAPI = {
     });
   },
 
-  async export(projectId) {
+  // Guardar todas las decisiones de cambios (batch)
+  async saveAllDecisions(projectId, decisions) {
+    return await apiFetch(`project/${projectId}/changes/decisions`, {
+      method: 'POST',
+      body: JSON.stringify({ decisions }),
+    });
+  },
+
+  // Exportar manuscrito final
+  async export(projectId, acceptedChanges) {
     return await apiFetch(`project/${projectId}/export`, {
       method: 'POST',
+      body: JSON.stringify({ accepted_changes: acceptedChanges }),
     });
   },
 };
 
 // =============================================================================
-// UPLOAD & TOOLS
+// UPLOAD
 // =============================================================================
 
 export const uploadAPI = {
@@ -188,7 +196,6 @@ export const uploadAPI = {
     });
   },
 
-  // Nueva función para cotizar (Pública)
   async analyzeForQuote(file) {
     const base64 = await fileToBase64(file);
     return await apiFetch('analyze-file', {
@@ -206,7 +213,6 @@ function fileToBase64(file) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      // Remover encabezado data:application/vnd...;base64,
       const base64 = reader.result.split(',')[1];
       resolve(base64);
     };
