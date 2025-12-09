@@ -1,17 +1,19 @@
 // =============================================================================
-// api.js - CONEXIÓN CON AZURE (API DURABLE + BLOB STORAGE)
+// api.js - TODO PASA POR LA API (no acceso directo a blob)
 // =============================================================================
 
-// URLs de Azure
 const API_BASE = import.meta.env.VITE_API_URL || 'https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net/api';
-const STORAGE_BASE = import.meta.env.VITE_STORAGE_URL || 'https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs';
 
 console.log('🔗 API URL:', API_BASE);
-console.log('🔗 Storage URL:', STORAGE_BASE);
 
 // =============================================================================
-// HELPER - Fetch con manejo de errores
+// HELPER - Fetch con autenticación
 // =============================================================================
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('sylphrena_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
 async function apiFetch(endpoint, options = {}) {
   const url = `${API_BASE}/${endpoint}`;
@@ -22,13 +24,27 @@ async function apiFetch(endpoint, options = {}) {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
         ...options.headers,
       },
     });
     
+    // Si es 401, redirigir a login
+    if (response.status === 401) {
+      localStorage.removeItem('sylphrena_token');
+      window.location.href = '/login';
+      throw new Error('No autorizado');
+    }
+    
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || `Error ${response.status}`);
+    }
+    
+    // Algunos endpoints devuelven texto plano (markdown)
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('text/plain')) {
+      return await response.text();
     }
     
     return await response.json();
@@ -39,41 +55,49 @@ async function apiFetch(endpoint, options = {}) {
 }
 
 // =============================================================================
+// AUTH - Login simple
+// =============================================================================
+
+export const authAPI = {
+  async login(password) {
+    const response = await apiFetch('auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+    
+    if (response.token) {
+      localStorage.setItem('sylphrena_token', response.token);
+    }
+    
+    return response;
+  },
+  
+  logout() {
+    localStorage.removeItem('sylphrena_token');
+    window.location.href = '/login';
+  },
+  
+  isAuthenticated() {
+    return !!localStorage.getItem('sylphrena_token');
+  },
+  
+  getToken() {
+    return localStorage.getItem('sylphrena_token');
+  }
+};
+
+// =============================================================================
 // PROYECTOS
 // =============================================================================
 
 export const projectsAPI = {
-  // Lista todos los proyectos desde la API
   async getAll() {
-    try {
-      const data = await apiFetch('projects');
-      return data.projects || [];
-    } catch (error) {
-      console.warn('⚠️ API no disponible, usando datos locales');
-      // Fallback a datos locales si la API falla
-      return [
-        {
-          id: 'bb841d8a189243faa35647773561aa6f',
-          name: 'Piel_Morena',
-          status: 'completed',
-          createdAt: '2025-12-03T17:39:01',
-          wordCount: 4931,
-          chaptersCount: 2,
-          changesCount: 23,
-        },
-      ];
-    }
+    const data = await apiFetch('projects');
+    return data.projects || [];
   },
 
-  // Obtiene info de un proyecto específico
   async getById(projectId) {
-    try {
-      return await apiFetch(`project/${projectId}`);
-    } catch (error) {
-      // Fallback: buscar en lista local
-      const projects = await this.getAll();
-      return projects.find(p => p.id === projectId);
-    }
+    return await apiFetch(`project/${projectId}`);
   },
 };
 
@@ -82,36 +106,11 @@ export const projectsAPI = {
 // =============================================================================
 
 export const bibleAPI = {
-  // Obtener biblia - primero intenta API, luego Blob directo
   async get(projectId) {
-    // Opción 1: Desde la API
-    try {
-      console.log('📚 Intentando cargar biblia desde API...');
-      const data = await apiFetch(`project/${projectId}/bible`);
-      console.log('✅ Biblia cargada desde API');
-      return data;
-    } catch (apiError) {
-      console.warn('⚠️ API no disponible, intentando Blob Storage directo...');
-    }
-    
-    // Opción 2: Directo del Blob Storage
-    const url = `${STORAGE_BASE}/${projectId}/biblia_validada.json`;
-    console.log('📚 Cargando biblia desde Blob:', url);
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(
-        `No se pudo cargar la biblia. ` +
-        `Verifica CORS en Storage Account y que el archivo exista.`
-      );
-    }
-    
-    const data = await response.json();
-    console.log('✅ Biblia cargada desde Blob Storage');
-    return data;
+    console.log('📚 Cargando biblia desde API...');
+    return await apiFetch(`project/${projectId}/bible`);
   },
 
-  // Guardar biblia editada
   async save(projectId, bibleData) {
     console.log('💾 Guardando biblia editada...');
     return await apiFetch(`project/${projectId}/bible`, {
@@ -120,7 +119,6 @@ export const bibleAPI = {
     });
   },
 
-  // Aprobar biblia y continuar procesamiento
   async approve(projectId) {
     console.log('✅ Aprobando biblia...');
     return await apiFetch(`project/${projectId}/bible/approve`, {
@@ -130,65 +128,42 @@ export const bibleAPI = {
 };
 
 // =============================================================================
-// MANUSCRITOS Y CAMBIOS
+// MANUSCRITOS - Todo pasa por la API
 // =============================================================================
 
 export const manuscriptAPI = {
-  // Manuscrito editado (limpio) - desde Blob
   async getEdited(projectId) {
-    const url = `${STORAGE_BASE}/${projectId}/manuscrito_editado.md`;
     console.log('📄 Cargando manuscrito editado...');
-    
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Manuscrito editado no encontrado');
-    return await response.text();
+    return await apiFetch(`project/${projectId}/manuscript/edited`);
   },
 
-  // Manuscrito anotado (con cambios inline) - desde Blob
   async getAnnotated(projectId) {
-    const url = `${STORAGE_BASE}/${projectId}/manuscrito_anotado.md`;
     console.log('📝 Cargando manuscrito anotado...');
-    
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Manuscrito anotado no encontrado');
-    return await response.text();
+    return await apiFetch(`project/${projectId}/manuscript/annotated`);
   },
 
-  // Control de cambios HTML - desde Blob
   async getChangesHTML(projectId) {
-    const url = `${STORAGE_BASE}/${projectId}/control_cambios.html`;
     console.log('🔄 Cargando control de cambios HTML...');
-    
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Control de cambios no encontrado');
-    return await response.text();
+    return await apiFetch(`project/${projectId}/manuscript/changes-html`);
   },
 
-  // Resumen ejecutivo - desde Blob
   async getSummary(projectId) {
-    const url = `${STORAGE_BASE}/${projectId}/resumen_ejecutivo.json`;
     console.log('📊 Cargando resumen ejecutivo...');
-    
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Resumen no encontrado');
-    return await response.json();
+    return await apiFetch(`project/${projectId}`);
   },
 
-  // Lista estructurada de cambios - desde API
   async getChanges(projectId) {
     return await apiFetch(`project/${projectId}/changes`);
   },
 
-  // Guardar decisión sobre un cambio
   async saveChangeDecision(projectId, changeId, action) {
     console.log(`📝 Guardando decisión: ${changeId} -> ${action}`);
     return await apiFetch(`project/${projectId}/changes/${changeId}/decision`, {
       method: 'POST',
-      body: JSON.stringify({ action }), // 'accept' o 'reject'
+      body: JSON.stringify({ action }),
     });
   },
 
-  // Exportar manuscrito final
   async export(projectId) {
     console.log('📤 Exportando manuscrito final...');
     return await apiFetch(`project/${projectId}/export`, {
@@ -198,49 +173,45 @@ export const manuscriptAPI = {
 };
 
 // =============================================================================
-// UPLOAD - Subir nuevo manuscrito
+// UPLOAD
 // =============================================================================
 
 export const uploadAPI = {
-  // Subir manuscrito e iniciar procesamiento
   async uploadManuscript(file, projectName) {
     console.log('📤 Subiendo manuscrito:', projectName);
     
-    // TODO: Necesitas implementar endpoint en tu API que:
-    // 1. Genere SAS token para upload
-    // 2. Reciba el archivo
-    // 3. Inicie el Orchestrator
+    // Convertir archivo a base64
+    const base64 = await fileToBase64(file);
     
-    throw new Error(
-      'Upload no implementado. Necesitas crear endpoint en tu API ' +
-      'que genere SAS token y llame a HttpStart para iniciar el procesamiento.'
-    );
-  },
-
-  // Iniciar procesamiento de un libro (llama a HttpStart)
-  async startProcessing(bookPath) {
-    console.log('🚀 Iniciando procesamiento:', bookPath);
-    
-    // Esto llamaría a tu HttpStart
-    const response = await fetch(`${API_BASE.replace('/api', '')}/api/HttpStart`, {
+    return await apiFetch('project/upload', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ book_path: bookPath }),
+      body: JSON.stringify({
+        filename: file.name,
+        projectName: projectName,
+        content: base64,
+      }),
     });
-    
-    if (!response.ok) {
-      throw new Error('Error iniciando procesamiento');
-    }
-    
-    return await response.json();
   },
 };
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+  });
+}
 
 // =============================================================================
 // EXPORT DEFAULT
 // =============================================================================
 
 export default {
+  auth: authAPI,
   projects: projectsAPI,
   bible: bibleAPI,
   manuscript: manuscriptAPI,
