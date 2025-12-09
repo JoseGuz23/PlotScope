@@ -1,5 +1,5 @@
 // =============================================================================
-// api.js - TODO PASA POR LA API (no acceso directo a blob)
+// api.js - CLIENTE API (CORREGIDO PARA LOGIN)
 // =============================================================================
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://sylphrena-orchestrator-ece2a4epbdbrfbgk.westus3-01.azurewebsites.net/api';
@@ -17,7 +17,6 @@ function getAuthHeaders() {
 
 async function apiFetch(endpoint, options = {}) {
   const url = `${API_BASE}/${endpoint}`;
-  console.log(`📡 ${options.method || 'GET'} ${url}`);
   
   try {
     const response = await fetch(url, {
@@ -29,16 +28,22 @@ async function apiFetch(endpoint, options = {}) {
       },
     });
     
-    // Si es 401, redirigir a login
-    if (response.status === 401) {
+    // --- CORRECCIÓN CRÍTICA AQUÍ ---
+    // Si es 401, PERO NO ES EL LOGIN, entonces sí sácame.
+    // Si ES el login, déjame manejar el error (contraseña mal) sin recargar.
+    if (response.status === 401 && !endpoint.includes('auth/login')) {
+      console.warn('⚠️ Sesión expirada. Redirigiendo a login...');
       localStorage.removeItem('sylphrena_token');
       window.location.href = '/login';
-      throw new Error('No autorizado');
+      throw new Error('Sesión expirada');
     }
+    // --------------------------------
     
     if (!response.ok) {
+      // Intentamos leer el mensaje de error del servidor
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Error ${response.status}`);
+      // Lanzamos el error para que Login.jsx lo atrape y lo muestre en rojo
+      throw new Error(errorData.error || `Error del servidor: ${response.status}`);
     }
     
     // Algunos endpoints devuelven texto plano (markdown)
@@ -60,6 +65,9 @@ async function apiFetch(endpoint, options = {}) {
 
 export const authAPI = {
   async login(password) {
+    // Aquí es donde ocurría el error:
+    // Al fallar, apiFetch lanzaba 401 y recargaba la página.
+    // Con la corrección, ahora lanzará el error y podrás verlo.
     const response = await apiFetch('auth/login', {
       method: 'POST',
       body: JSON.stringify({ password }),
@@ -107,12 +115,10 @@ export const projectsAPI = {
 
 export const bibleAPI = {
   async get(projectId) {
-    console.log('📚 Cargando biblia desde API...');
     return await apiFetch(`project/${projectId}/bible`);
   },
 
   async save(projectId, bibleData) {
-    console.log('💾 Guardando biblia editada...');
     return await apiFetch(`project/${projectId}/bible`, {
       method: 'POST',
       body: JSON.stringify(bibleData),
@@ -120,7 +126,6 @@ export const bibleAPI = {
   },
 
   async approve(projectId) {
-    console.log('✅ Aprobando biblia...');
     return await apiFetch(`project/${projectId}/bible/approve`, {
       method: 'POST',
     });
@@ -128,27 +133,23 @@ export const bibleAPI = {
 };
 
 // =============================================================================
-// MANUSCRITOS - Todo pasa por la API
+// MANUSCRITOS
 // =============================================================================
 
 export const manuscriptAPI = {
   async getEdited(projectId) {
-    console.log('📄 Cargando manuscrito editado...');
     return await apiFetch(`project/${projectId}/manuscript/edited`);
   },
 
   async getAnnotated(projectId) {
-    console.log('📝 Cargando manuscrito anotado...');
     return await apiFetch(`project/${projectId}/manuscript/annotated`);
   },
 
   async getChangesHTML(projectId) {
-    console.log('🔄 Cargando control de cambios HTML...');
     return await apiFetch(`project/${projectId}/manuscript/changes-html`);
   },
 
   async getSummary(projectId) {
-    console.log('📊 Cargando resumen ejecutivo...');
     return await apiFetch(`project/${projectId}`);
   },
 
@@ -157,7 +158,6 @@ export const manuscriptAPI = {
   },
 
   async saveChangeDecision(projectId, changeId, action) {
-    console.log(`📝 Guardando decisión: ${changeId} -> ${action}`);
     return await apiFetch(`project/${projectId}/changes/${changeId}/decision`, {
       method: 'POST',
       body: JSON.stringify({ action }),
@@ -165,7 +165,6 @@ export const manuscriptAPI = {
   },
 
   async export(projectId) {
-    console.log('📤 Exportando manuscrito final...');
     return await apiFetch(`project/${projectId}/export`, {
       method: 'POST',
     });
@@ -178,11 +177,7 @@ export const manuscriptAPI = {
 
 export const uploadAPI = {
   async uploadManuscript(file, projectName) {
-    console.log('📤 Subiendo manuscrito:', projectName);
-    
-    // Convertir archivo a base64
     const base64 = await fileToBase64(file);
-    
     return await apiFetch('project/upload', {
       method: 'POST',
       body: JSON.stringify({
@@ -205,10 +200,6 @@ function fileToBase64(file) {
     reader.onerror = reject;
   });
 }
-
-// =============================================================================
-// EXPORT DEFAULT
-// =============================================================================
 
 export default {
   auth: authAPI,

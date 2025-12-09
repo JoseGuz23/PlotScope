@@ -1,5 +1,5 @@
 // =============================================================================
-// App.jsx - RUTAS PRINCIPALES DE SYLPHRENA (CON AUTH)
+// App.jsx - RUTAS PRINCIPALES DE SYLPHRENA
 // =============================================================================
 
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
@@ -8,39 +8,46 @@ import { authAPI } from './services/api';
 import Layout from './components/Layout';
 
 // Páginas
+import Landing from './pages/Landing'; // Asegúrate de haber creado este archivo
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import BibleReview from './pages/BibleReview';
 import Editor from './pages/Editor';
-import Login from './pages/Login';
 
-// Componente para rutas protegidas
+// --- CONTROL DE RUTAS ---
+
+// 1. Si no hay usuario, mostrar Landing
+function HomeWrapper() {
+  if (authAPI.isAuthenticated()) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <Landing />;
+}
+
+// 2. Si hay usuario, permitir acceso (Layout interno)
 function ProtectedRoute({ children }) {
   if (!authAPI.isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
-  return children;
+  return <Layout>{children}</Layout>;
 }
 
-// Página 404
-function NotFound() {
-  return (
-    <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-      <h1 style={{ fontSize: '4rem', color: '#D1D5DB', marginBottom: '1rem' }}>404</h1>
-      <p style={{ fontSize: '1.25rem', color: 'var(--color-subtle)', marginBottom: '1.5rem' }}>
-        Página no encontrada
-      </p>
-      <a href="/" className="project-link">
-        Volver al inicio →
-      </a>
-    </div>
-  );
-}
-
-// Router inteligente para proyectos
+// 3. Router para proyectos
 function ProjectRouter() {
   const { id } = useParams();
   return <Navigate to={`/proyecto/${id}/editor`} replace />;
+}
+
+// 4. Página 404
+function NotFound() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 font-editorial">
+      <h1 className="text-6xl text-gray-300 mb-4">404</h1>
+      <p className="text-xl text-gray-600 mb-8">Página no encontrada</p>
+      <a href="/" className="text-theme-primary font-bold hover:underline">Volver al inicio</a>
+    </div>
+  );
 }
 
 function App() {
@@ -48,44 +55,47 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Login - público */}
+          {/* Ruta Raíz: Landing o Dashboard según estado */}
+          <Route path="/" element={<HomeWrapper />} />
+
+          {/* Login Público */}
           <Route path="/login" element={<Login />} />
           
-          {/* Rutas protegidas - requieren auth */}
-          <Route path="/" element={
+          {/* Rutas Protegidas (Dashboard ahora es explícito) */}
+          <Route path="/dashboard" element={
             <ProtectedRoute>
-              <Layout><Dashboard /></Layout>
+              <Dashboard />
             </ProtectedRoute>
           } />
           
           <Route path="/nuevo" element={
             <ProtectedRoute>
-              <Layout><Upload /></Layout>
+              <Upload />
             </ProtectedRoute>
           } />
           
           <Route path="/proyecto/:id" element={
             <ProtectedRoute>
-              <Layout><ProjectRouter /></Layout>
+              <ProjectRouter />
             </ProtectedRoute>
           } />
           
           <Route path="/proyecto/:id/biblia" element={
             <ProtectedRoute>
-              <Layout><BibleReview /></Layout>
+              <BibleReview />
             </ProtectedRoute>
           } />
           
           <Route path="/proyecto/:id/editor" element={
             <ProtectedRoute>
-              <Layout><Editor /></Layout>
+              <Editor />
             </ProtectedRoute>
           } />
           
-          {/* Rutas legacy */}
-          <Route path="/biblioteca" element={<Navigate to="/" replace />} />
-          <Route path="/config" element={<Navigate to="/" replace />} />
-          <Route path="/api" element={<Navigate to="/" replace />} />
+          {/* Redirecciones Legacy */}
+          <Route path="/biblioteca" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/config" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/api" element={<Navigate to="/dashboard" replace />} />
           
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

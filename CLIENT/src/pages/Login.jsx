@@ -1,9 +1,5 @@
-// =============================================================================
-// Login.jsx - PÁGINA DE LOGIN
-// =============================================================================
-
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
 export default function Login() {
@@ -18,117 +14,74 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // Intenta login contra el backend real
       await authAPI.login(password);
-      navigate('/');
+      navigate('/dashboard'); 
     } catch (err) {
-      setError(err.message || 'Contraseña incorrecta');
+      // Si falla (ej. contraseña mal), muestra el error SIN recargar
+      console.error("Login fallido:", err);
+      setError('La contraseña no es válida. Verifica tu variable de entorno SYLPHRENA_PASSWORD.');
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--color-bg)',
-      padding: '2rem',
-    }}>
-      <div style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        padding: '3rem',
-        width: '100%',
-        maxWidth: '400px',
-      }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{
-            fontFamily: 'var(--font-serif)',
-            fontSize: '2.5rem',
-            fontWeight: 800,
-            margin: 0,
-          }}>
-            LYA
-          </h1>
-          <p className="mono" style={{ color: 'var(--color-muted)', fontSize: '0.75rem' }}>
-            v4.1.0 (Developmental Editor)
+    <div className="min-h-screen flex flex-col items-center justify-center bg-theme-bg px-4">
+      
+      <Link to="/" className="absolute top-8 left-8 text-sm font-extrabold text-gray-400 hover:text-theme-primary transition-colors tracking-wide">
+        ← VOLVER A INICIO
+      </Link>
+
+      <div className="w-full max-w-md bg-white border-t-8 border-theme-primary shadow-2xl p-10 rounded-sm">
+        
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="font-serif text-5xl font-bold text-theme-text mb-2">LYA</h1>
+          <div className="h-1 w-16 bg-theme-primary mx-auto mb-4"></div>
+          <p className="font-sans text-xs font-extrabold text-theme-subtle uppercase tracking-widest">
+            Acceso Administrativo
           </p>
         </div>
 
-        {/* Título */}
-        <h2 className="title-section" style={{ textAlign: 'center' }}>
-          ACCESO RESTRINGIDO
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>
-              Contraseña
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-xs font-extrabold uppercase text-theme-subtle mb-2 tracking-wide">
+              Llave de Acceso
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ingresa la contraseña"
-              className="mono"
+              className="w-full p-4 border-2 border-gray-200 rounded-sm font-mono text-lg text-theme-text focus:border-theme-primary focus:outline-none transition-colors bg-gray-50 focus:bg-white placeholder-gray-300"
+              placeholder="••••••••••••"
               autoFocus
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--color-border)',
-                fontSize: '1rem',
-                boxSizing: 'border-box',
-              }}
             />
           </div>
 
-          {/* Error */}
+          {/* Mensaje de Error Visible */}
           {error && (
-            <div style={{
-              background: '#FEF2F2',
-              border: '1px solid #FCA5A5',
-              padding: '0.75rem',
-              marginBottom: '1.5rem',
-              color: '#B91C1C',
-              fontSize: '0.875rem',
-              textAlign: 'center',
-            }}>
-              ⚠️ {error}
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 animate-pulse">
+              <p className="text-sm text-red-800 font-bold">Acceso Denegado</p>
+              <p className="text-xs text-red-600 mt-1 font-medium">{error}</p>
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
-            className="btn btn-primary"
             disabled={isLoading || !password}
-            style={{
-              width: '100%',
-              padding: '0.875rem',
-              fontSize: '0.875rem',
-              opacity: (isLoading || !password) ? 0.6 : 1,
-              cursor: (isLoading || !password) ? 'not-allowed' : 'pointer',
-            }}
+            className="w-full bg-theme-primary hover:bg-theme-primary-hover text-white font-extrabold py-4 px-4 rounded-sm shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-sm"
           >
-            {isLoading ? 'Verificando...' : 'Entrar'}
+            {isLoading ? 'Verificando...' : 'Ingresar al Sistema'}
           </button>
         </form>
 
-        {/* Info */}
-        <p className="mono" style={{
-          marginTop: '2rem',
-          fontSize: '0.75rem',
-          color: 'var(--color-muted)',
-          textAlign: 'center',
-        }}>
-          Sistema de edición literaria con IA.
-          <br />
-          Acceso solo para usuarios autorizados.
-        </p>
+        <div className="mt-8 text-center">
+          <p className="font-mono text-[10px] text-gray-400">
+            SECURE SYSTEM v4.3
+          </p>
+        </div>
       </div>
     </div>
   );
