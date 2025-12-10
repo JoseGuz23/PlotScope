@@ -1,3 +1,7 @@
+// =============================================================================
+// Dashboard.jsx - ESCRITORIO PRINCIPAL (Flujo actualizado 5.0)
+// =============================================================================
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { projectsAPI } from '../services/api';
@@ -44,7 +48,7 @@ export default function Dashboard() {
   };
 
   if (loading) return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-screen bg-[#f8f9fa]">
       <Loader2 className="h-8 w-8 text-theme-primary animate-spin" />
     </div>
   );
@@ -111,10 +115,11 @@ function ProjectCard({ project, onDelete, isDeleting }) {
   const isTerminated = project.status === 'terminated';
   const isFailed = project.status === 'failed';
   
-  // Determinar ruta de destino según estado
-const destination = isComplete 
-  ? `/proyecto/${project.id}/carta`  // <-- CAMBIO PRINCIPAL: Ir a la Carta primero
-  : `/proyecto/${project.id}/status`;
+  // --- LÓGICA DE DESTINO ACTUALIZADA PARA SYLPHRENA 5.0 ---
+  // Si está completado, vamos primero a la Carta Editorial, no a la Biblia.
+  const destination = isComplete 
+    ? `/proyecto/${project.id}/carta` 
+    : `/proyecto/${project.id}/status`;
 
   return (
     <Link 
@@ -167,7 +172,7 @@ const destination = isComplete
            isFailed ? '● Error' : '● Procesando'}
         </span>
         <span className="text-xs font-bold text-gray-300 group-hover:text-theme-text transition-colors flex items-center gap-1">
-          Abrir <span>→</span>
+          {isComplete ? 'Ver Carta Editorial' : 'Ver Estado'} <span>→</span>
         </span>
       </div>
     </Link>
