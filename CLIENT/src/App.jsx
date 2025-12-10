@@ -1,5 +1,5 @@
 // =============================================================================
-// App.jsx - RUTAS COMPLETAS SYLPHRENA 5.0
+// App.jsx - RUTAS COMPLETAS SYLPHRENA 5.0 (Navegación Unificada)
 // =============================================================================
 
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
@@ -14,11 +14,14 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import ProjectStatus from './pages/ProjectStatus';
 import BibleReview from './pages/BibleReview';
-import EditorialLetter from './pages/EditorialLetter'; // NUEVA PÁGINA
-import Editor from './pages/Editor';
+import EditorialLetter from './pages/EditorialLetter'; // Se mantiene importado para el ResultsHub
+import Editor from './pages/Editor'; // Se mantiene importado para el ResultsHub
 import Features from './pages/Features'; 
 import Pricing from './pages/Pricing';   
-import Credits from './pages/Credits';   
+import Credits from './pages/Credits';
+// NUEVOS COMPONENTES DE ESTRUCTURA
+import ProjectLayout from './components/ProjectLayout'; 
+import ResultsHub from './pages/ResultsHub'; 
 
 // --- CONTROL DE ACCESO ---
 
@@ -28,13 +31,6 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
   return <Layout>{children}</Layout>;
-}
-
-// Router auxiliar para proyectos - redirige según flujo 5.0
-function ProjectRouter() {
-  const { id } = useParams();
-  // En Sylphrena 5.0, el flujo natural post-proceso es ver la Carta Editorial
-  return <Navigate to={`/proyecto/${id}/carta`} replace />;
 }
 
 // 404
@@ -81,40 +77,31 @@ function App() {
             </ProtectedRoute>
           } />
           
-          {/* PROYECTO: Redirige inteligentemente */}
+          {/* ======================================================= */}
+          {/* ESTRUCTURA UNIFICADA DE PROYECTO (Centro de Mando)      */}
+          {/* ======================================================= */}
           <Route path="/proyecto/:id" element={
             <ProtectedRoute>
-              <ProjectRouter />
+              <ProjectLayout />
             </ProtectedRoute>
-          } />
-          
-          {/* FASE: Estado de procesamiento */}
-          <Route path="/proyecto/:id/status" element={
-            <ProtectedRoute>
-              <ProjectStatus />
-            </ProtectedRoute>
-          } />
-          
-          {/* FASE: Revisión de Biblia */}
-          <Route path="/proyecto/:id/biblia" element={
-            <ProtectedRoute>
-              <BibleReview />
-            </ProtectedRoute>
-          } />
+          }>
+            {/* Redirección por defecto al Estado (Pestaña 1) */}
+            <Route index element={<Navigate to="status" replace />} />
 
-          {/* FASE: Carta Editorial (NUEVO 5.0) */}
-          <Route path="/proyecto/:id/carta" element={
-            <ProtectedRoute>
-              <EditorialLetter />
-            </ProtectedRoute>
-          } />
-          
-          {/* FASE: Editor de cambios */}
-          <Route path="/proyecto/:id/editor" element={
-            <ProtectedRoute>
-              <Editor />
-            </ProtectedRoute>
-          } />
+            {/* PESTAÑA 1: Estado del Proceso */}
+            <Route path="status" element={<ProjectStatus />} />
+
+            {/* PESTAÑA 2: Biblia Narrativa */}
+            <Route path="biblia" element={<BibleReview />} />
+            
+            {/* PESTAÑA 3: Entregables Finales (Hub) */}
+            <Route path="resultados" element={<ResultsHub />} />
+            
+            {/* Redirecciones Internas para Legacy/Botones */}
+            <Route path="carta" element={<Navigate to="../resultados" replace />} />
+            <Route path="editor" element={<Navigate to="../resultados" replace />} />
+
+          </Route>
           
           {/* Redirecciones Legacy */}
           <Route path="/biblioteca" element={<Navigate to="/dashboard" replace />} />
