@@ -1,9 +1,8 @@
 # =============================================================================
-# SubmitClaudeBatch/__init__.py - SYLPHRENA 4.0 (FIXED)
+# SubmitClaudeBatch/__init__.py - SYLPHRENA 5.0 (PROMPT EXPANDIDO)
 # =============================================================================
-# FIX APLICADO:
-#   - Ahora devuelve 'fragment_metadata_map' con metadatos jerárquicos completos
-#   - Esto permite que PollClaudeBatchResult reconstruya parent_chapter_id, etc.
+# ACTUALIZACIÓN: Prompt de edición profesional con criterios expandidos
+# Ahora incluye las notas de margen y criterios de developmental editor
 # =============================================================================
 
 import logging
@@ -13,59 +12,136 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 # =============================================================================
-# PROMPT OPTIMIZADO PARA EDICIÓN
+# PROMPT PROFESIONAL DE EDICIÓN - SYLPHRENA 5.0
 # =============================================================================
 
-EDIT_PROMPT_OPTIMAL = """Eres un EDITOR PROFESIONAL especializado en {genero}.
+EDIT_PROMPT_PROFESSIONAL = """Eres un DEVELOPMENTAL EDITOR profesional editando "{titulo}" ({genero}).
 
-IDENTIDAD DE LA OBRA:
+═══════════════════════════════════════════════════════════════════════════════
+IDENTIDAD DE LA OBRA
+═══════════════════════════════════════════════════════════════════════════════
 - Género: {genero}
 - Tono: {tono}
-- Tema: {tema}
-- Estilo: {estilo}
+- Tema central: {tema}
+- Estilo del autor: {estilo}
 
-RESTRICCIONES (NO MODIFICAR):
+═══════════════════════════════════════════════════════════════════════════════
+RESTRICCIONES ABSOLUTAS (NO MODIFICAR)
+═══════════════════════════════════════════════════════════════════════════════
 {no_corregir}
 
 ═══════════════════════════════════════════════════════════════════════════════
-CAPÍTULO A EDITAR: {titulo}
+CAPÍTULO A EDITAR: {titulo_capitulo}
+═══════════════════════════════════════════════════════════════════════════════
 Posición en estructura: {posicion}
 Ritmo detectado: {ritmo}{advertencia_ritmo}
-═══════════════════════════════════════════════════════════════════════════════
 
 PERSONAJES EN ESTE CAPÍTULO:
 {personajes}
 
-PROBLEMAS ESPECÍFICOS A CORREGIR:
+═══════════════════════════════════════════════════════════════════════════════
+NOTAS DE MARGEN DEL EDITOR (priorizar estas correcciones)
+═══════════════════════════════════════════════════════════════════════════════
+{notas_margen}
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEMAS ESPECÍFICOS DETECTADOS EN ANÁLISIS
+═══════════════════════════════════════════════════════════════════════════════
 {problemas}
 
 ═══════════════════════════════════════════════════════════════════════════════
-CONTENIDO:
+TEXTO A EDITAR
 ═══════════════════════════════════════════════════════════════════════════════
 {contenido}
 
 ═══════════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES DE EDICIÓN:
+CRITERIOS DE EDICIÓN PROFESIONAL
 ═══════════════════════════════════════════════════════════════════════════════
 
-1. CORRIGE problemas de show vs tell, redundancias y formato de diálogo
-2. PRESERVA la voz del autor, ritmo intencional y elementos de setup
-3. MANTÉN consistencia con personajes y tono establecido
-4. NO añadas contenido nuevo, solo mejora lo existente
+Aplica TODOS estos criterios donde corresponda:
 
-RESPONDE ÚNICAMENTE con un JSON válido (sin texto adicional):
+### PROSA
+✓ **Redundancias**: Elimina repeticiones de ideas, palabras, o información
+✓ **Verbos débiles**: Cambia "estaba", "había", "era" por verbos activos
+✓ **Adverbios innecesarios**: Elimina "-mente" cuando el verbo ya es fuerte
+✓ **Modificadores excesivos**: "muy", "realmente", "bastante" debilitan
+✓ **Muletillas**: Identifica y reduce patrones repetitivos del autor
+✓ **Clichés**: Reemplaza frases hechas por expresiones originales
+✓ **Ritmo**: Varía longitud de oraciones (cortas para tensión, largas para reflexión)
+
+### NARRATIVA
+✓ **Show vs Tell**: Convierte declaraciones en acciones/sensaciones observables
+✓ **Profundidad emocional**: Ancla emociones en sensaciones físicas
+✓ **Claridad de imágenes**: Asegura que el lector pueda "ver" la escena
+✓ **Transiciones**: Suaviza saltos entre escenas/tiempos/lugares
+✓ **Anclaje sensorial**: Añade detalles de los 5 sentidos donde falta
+✓ **Inmersión**: Elimina lo que saca al lector de la historia
+
+### DIÁLOGO
+✓ **Naturalidad**: El diálogo debe sonar como habla real
+✓ **Voces distintivas**: Cada personaje debe sonar diferente
+✓ **Exposición forzada**: Elimina información que los personajes ya sabrían
+✓ **Tags de diálogo**: Prefiere "dijo" sobre alternativas elaboradas
+✓ **Subtexto**: Los personajes no siempre dicen lo que piensan
+
+### CONSISTENCIA
+✓ **Voz narrativa**: Mantén el mismo registro/tono
+✓ **Tiempo verbal**: No mezcles pasado y presente sin razón
+✓ **POV**: No violes el punto de vista establecido
+✓ **Detalles internos**: No contradigas hechos establecidos
+
+═══════════════════════════════════════════════════════════════════════════════
+INSTRUCCIONES DE EDICIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+1. LEE todo el capítulo primero
+2. IDENTIFICA problemas según los criterios anteriores
+3. PRIORIZA las notas de margen del editor
+4. EDITA preservando la voz del autor
+5. DOCUMENTA cada cambio con justificación clara
+6. NO añadas contenido nuevo, solo mejora lo existente
+7. Si algo está bien, NO lo cambies solo por cambiar
+
+CATEGORÍAS DE CAMBIOS:
+- prosa: verbos, adverbios, redundancias, ritmo
+- narrativa: show/tell, emociones, claridad, transiciones
+- dialogo: naturalidad, voces, exposición, tags
+- consistencia: voz, tiempo, POV, hechos
+
+═══════════════════════════════════════════════════════════════════════════════
+FORMATO DE RESPUESTA (JSON VÁLIDO)
+═══════════════════════════════════════════════════════════════════════════════
+
 {{
-    "capitulo_editado": "...[texto completo editado]...",
+    "capitulo_editado": "...[texto completo editado, SIN CORTAR]...",
     "cambios_realizados": [
-        {{"tipo": "redundancia|show_tell|dialogo|otro", "original": "...", "editado": "...", "justificacion": "..."}}
+        {{
+            "tipo": "redundancia|verbo_debil|adverbio|show_tell|dialogo|ritmo|transicion|claridad|otro",
+            "categoria": "prosa|narrativa|dialogo|consistencia",
+            "original": "Texto exacto original...",
+            "editado": "Texto editado...",
+            "justificacion": "Por qué este cambio mejora el texto...",
+            "impacto_narrativo": "bajo|medio|alto",
+            "nota_margen_relacionada": "ID de nota si aplica, o null"
+        }}
     ],
-    "problemas_corregidos": ["ID1", "ID2"],
-    "notas_editor": "..."
+    "notas_atendidas": ["nota-001", "nota-003"],
+    "notas_no_atendidas": [
+        {{"nota_id": "nota-002", "razon": "Por qué no se pudo atender"}}
+    ],
+    "estadisticas": {{
+        "total_cambios": N,
+        "por_categoria": {{"prosa": N, "narrativa": N, "dialogo": N, "consistencia": N}},
+        "impacto_alto": N,
+        "impacto_medio": N,
+        "impacto_bajo": N
+    }},
+    "notas_editor": "Observaciones generales sobre el capítulo..."
 }}
 """
 
 
-def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict:
+def extract_relevant_context(chapter: dict, bible: dict, analysis: dict, margin_notes: list = None) -> dict:
     """Extrae contexto relevante para la edición."""
     
     chapter_id = chapter.get('id', 0)
@@ -87,7 +163,8 @@ def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict
         'es_intencional': False,
         'justificacion_ritmo': '',
         'personajes': [],
-        'problemas': []
+        'problemas': [],
+        'notas_margen': []
     }
     
     # 1. IDENTIDAD desde la Biblia
@@ -131,6 +208,7 @@ def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict
                     'nombre': personaje.get('nombre', ''),
                     'rol': personaje.get('rol_arquetipo', tipo),
                     'arco': personaje.get('arco_personaje', ''),
+                    'voz': personaje.get('patron_dialogo', ''),
                     'alerta': personaje.get('notas_inconsistencia', [''])[0] if personaje.get('notas_inconsistencia') else ''
                 })
     
@@ -153,15 +231,19 @@ def extract_relevant_context(chapter: dict, bible: dict, analysis: dict) -> dict
     
     context['problemas'] = problemas_relevantes[:5]
     
+    # 7. NOTAS DE MARGEN (NUEVO en 5.0)
+    if margin_notes:
+        context['notas_margen'] = margin_notes
+    
     return context
 
 
-def build_edit_prompt(chapter: dict, context: dict) -> str:
-    """Construye prompt optimizado."""
+def build_edit_prompt(chapter: dict, context: dict, libro_titulo: str = "") -> str:
+    """Construye prompt profesional de edición."""
     
     # NO_CORREGIR
     if context['no_corregir']:
-        no_corregir_str = "\n".join([f"- {item}" for item in context['no_corregir']])
+        no_corregir_str = "\n".join([f"⚠️ {item}" for item in context['no_corregir']])
     else:
         no_corregir_str = "- (Sin restricciones específicas)"
     
@@ -169,15 +251,33 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
     if context['personajes']:
         lines = []
         for p in context['personajes']:
-            line = f"- {p['nombre']}: {p['rol']}"
+            line = f"• {p['nombre']}: {p['rol']}"
             if p.get('arco'):
-                line += f" | {p['arco']}"
+                line += f"\n  Arco: {p['arco']}"
+            if p.get('voz'):
+                line += f"\n  Voz: {p['voz']}"
             if p.get('alerta'):
-                line += f" | ⚠️ {p['alerta']}"
+                line += f"\n  ⚠️ ALERTA: {p['alerta']}"
             lines.append(line)
         personajes_str = "\n".join(lines)
     else:
         personajes_str = "- (Ninguno identificado)"
+    
+    # NOTAS DE MARGEN (NUEVO)
+    notas_str = ""
+    if context.get('notas_margen'):
+        lines = []
+        for nota in context['notas_margen']:
+            severidad_emoji = "🔴" if nota.get('severidad') == 'alta' else "🟡" if nota.get('severidad') == 'media' else "🟢"
+            lines.append(f"{severidad_emoji} [{nota.get('nota_id', '?')}] {nota.get('tipo', '').upper()}")
+            lines.append(f"   Ubicación: Párrafo ~{nota.get('parrafo_aprox', '?')}")
+            lines.append(f"   Referencia: \"{nota.get('texto_referencia', '')[:50]}...\"")
+            lines.append(f"   Problema: {nota.get('nota', '')}")
+            lines.append(f"   Sugerencia: {nota.get('sugerencia', '')}")
+            lines.append("")
+        notas_str = "\n".join(lines)
+    else:
+        notas_str = "(Sin notas de margen para este capítulo)"
     
     # PROBLEMAS
     if context['problemas']:
@@ -189,24 +289,26 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
             lines.append(line)
         problemas_str = "\n".join(lines)
     else:
-        problemas_str = "- (Sin problemas específicos para este capítulo)"
+        problemas_str = "- (Sin problemas estructurales detectados)"
     
     # ADVERTENCIA DE RITMO
     advertencia_ritmo = ""
     if context['es_intencional']:
-        advertencia_ritmo = f"\n⚠️ RITMO INTENCIONAL: {context['justificacion_ritmo'][:80]}"
+        advertencia_ritmo = f"\n⚠️ RITMO INTENCIONAL - NO MODIFICAR: {context['justificacion_ritmo'][:80]}"
     
-    prompt = EDIT_PROMPT_OPTIMAL.format(
+    prompt = EDIT_PROMPT_PROFESSIONAL.format(
+        titulo=libro_titulo or "Sin título",
         genero=context['genero'],
         tono=context['tono'],
         tema=context['tema'],
         estilo=context['estilo'],
         no_corregir=no_corregir_str,
-        titulo=chapter.get('title', chapter.get('original_title', 'Sin título')),
+        titulo_capitulo=chapter.get('title', chapter.get('original_title', 'Sin título')),
         posicion=context['posicion'],
         ritmo=context['ritmo'],
         advertencia_ritmo=advertencia_ritmo,
         personajes=personajes_str,
+        notas_margen=notas_str,
         problemas=problemas_str,
         contenido=chapter.get('content', '')
     )
@@ -215,7 +317,7 @@ def build_edit_prompt(chapter: dict, context: dict) -> str:
 
 
 def main(edit_requests: dict) -> dict:
-    """Envía capítulos a Claude Batch API con contexto optimizado."""
+    """Envía capítulos a Claude Batch API con contexto profesional."""
     
     try:
         from anthropic import Anthropic
@@ -227,28 +329,27 @@ def main(edit_requests: dict) -> dict:
         chapters = edit_requests.get('chapters', [])
         bible = edit_requests.get('bible', {})
         analyses = edit_requests.get('analyses', [])
+        margin_notes_by_chapter = edit_requests.get('margin_notes', {})  # NUEVO: notas de margen
+        book_metadata = edit_requests.get('book_metadata', {})
         
-        logging.info(f"📦 Preparando Claude Batch OPTIMIZADO: {len(chapters)} capítulos")
+        libro_titulo = book_metadata.get('title', bible.get('identidad_obra', {}).get('titulo', 'Sin título'))
+        
+        logging.info(f"📦 Preparando Claude Batch PROFESIONAL: {len(chapters)} capítulos")
         
         client = Anthropic(api_key=api_key)
         
         batch_requests = []
         ordered_ids = []
-        
-        # =====================================================================
-        # FIX: Crear mapa de metadatos jerárquicos para cada fragmento
-        # =====================================================================
         fragment_metadata_map = {}
         
         total_prompt_tokens = 0
         
         for chapter in chapters:
             ch_id = str(chapter.get('id', '?'))
+            parent_id = str(chapter.get('parent_chapter_id', ch_id))
             ordered_ids.append(ch_id)
             
-            # =====================================================================
-            # FIX: Guardar metadatos jerárquicos completos
-            # =====================================================================
+            # Guardar metadatos jerárquicos
             fragment_metadata_map[ch_id] = {
                 'fragment_id': chapter.get('id', 0),
                 'parent_chapter_id': chapter.get('parent_chapter_id', chapter.get('id', 0)),
@@ -258,7 +359,7 @@ def main(edit_requests: dict) -> dict:
                 'section_type': chapter.get('section_type', 'CHAPTER'),
                 'is_first_fragment': chapter.get('is_first_fragment', True),
                 'is_last_fragment': chapter.get('is_last_fragment', True),
-                'content': chapter.get('content', '')  # Contenido original
+                'content': chapter.get('content', '')
             }
             
             # Buscar análisis
@@ -267,11 +368,16 @@ def main(edit_requests: dict) -> dict:
                 {}
             )
             
-            # Contexto SELECTIVO
-            context = extract_relevant_context(chapter, bible, analysis)
+            # NUEVO: Obtener notas de margen para este capítulo
+            chapter_margin_notes = margin_notes_by_chapter.get(parent_id, [])
+            if not chapter_margin_notes:
+                chapter_margin_notes = margin_notes_by_chapter.get(ch_id, [])
             
-            # Prompt OPTIMIZADO
-            prompt = build_edit_prompt(chapter, context)
+            # Contexto con notas de margen
+            context = extract_relevant_context(chapter, bible, analysis, chapter_margin_notes)
+            
+            # Prompt profesional
+            prompt = build_edit_prompt(chapter, context, libro_titulo)
             
             # Estimar tokens
             prompt_tokens = len(prompt.split()) * 1.3
@@ -281,16 +387,16 @@ def main(edit_requests: dict) -> dict:
                 "custom_id": f"chapter-{ch_id}",
                 "params": {
                     "model": "claude-sonnet-4-5-20250929",
-                    "max_tokens": 8000,
+                    "max_tokens": 12000,  # Aumentado para cambios detallados
                     "temperature": 0.3,
                     "messages": [{"role": "user", "content": prompt}]
                 }
             }
             batch_requests.append(request)
         
-        logging.info(f"📝 {len(batch_requests)} requests")
+        logging.info(f"📝 {len(batch_requests)} requests preparados")
         logging.info(f"📊 Tokens INPUT estimados: {total_prompt_tokens:,.0f}")
-        logging.info(f"💰 Costo INPUT estimado: ${total_prompt_tokens * 1.50 / 1_000_000:.3f}")
+        logging.info(f"💰 Costo INPUT estimado: ${total_prompt_tokens * 3.00 / 1_000_000:.3f}")
         
         message_batch = client.messages.batches.create(requests=batch_requests)
         
@@ -302,13 +408,10 @@ def main(edit_requests: dict) -> dict:
             "status": "submitted",
             "processing_status": message_batch.processing_status,
             "id_map": ordered_ids,
-            # =====================================================================
-            # FIX: Incluir mapa de metadatos para PollClaudeBatchResult
-            # =====================================================================
             "fragment_metadata_map": fragment_metadata_map,
             "metrics": {
                 "estimated_input_tokens": int(total_prompt_tokens),
-                "estimated_input_cost_usd": round(total_prompt_tokens * 1.50 / 1_000_000, 4)
+                "estimated_input_cost_usd": round(total_prompt_tokens * 3.00 / 1_000_000, 4)
             }
         }
         

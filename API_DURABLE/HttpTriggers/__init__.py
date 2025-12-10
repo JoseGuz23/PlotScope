@@ -1,6 +1,6 @@
 """
 HTTP API Endpoints para Sylphrena Web Platform
-VERSIÓN MAESTRA - Conexión de Biblia y Status Nativo
+VERSIÓN 5.0 - FIX: save_all_decisions + nuevos endpoints
 """
 
 import azure.functions as func
@@ -69,15 +69,20 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
             # INFO
             if method == 'GET' and len(parts) == 2: return get_project_info(job_id)
             
-            # --- BIBLIA (AQUÍ ESTÁ LA MAGIA) ---
+            # --- BIBLIA ---
             if len(parts) >= 3 and parts[2] == 'bible':
-                # Aprobar y reanudar orquestador
                 if len(parts) == 4 and parts[3] == 'approve' and method == 'POST':
                     return await approve_bible_and_resume(client, job_id)
-                
-                # Leer/Guardar manual
                 if method == 'GET': return get_bible(job_id)
                 if method == 'POST': return save_bible(job_id, req)
+
+            # --- CARTA EDITORIAL (NUEVO 5.0) ---
+            if len(parts) >= 3 and parts[2] == 'editorial-letter':
+                if method == 'GET': return get_editorial_letter(job_id)
+            
+            # --- NOTAS DE MARGEN (NUEVO 5.0) ---
+            if len(parts) >= 3 and parts[2] == 'margin-notes':
+                if method == 'GET': return get_margin_notes(job_id)
 
             # MANUSCRITOS
             if len(parts) >= 3 and parts[2] == 'manuscript':
@@ -86,9 +91,13 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
             
             # CAMBIOS
             if len(parts) >= 3 and parts[2] == 'changes':
-                if len(parts) == 3: return get_changes(job_id)
-                if len(parts) == 4: return save_all_decisions(job_id, req)
-                if len(parts) == 5: return save_change_decision(job_id, parts[3], req)
+                if len(parts) == 3: 
+                    return get_changes(job_id)
+                if len(parts) == 4 and method == 'POST': 
+                    # FIX: Ahora actualiza en lugar de sobrescribir
+                    return save_all_decisions_fixed(job_id, req)
+                if len(parts) == 5: 
+                    return save_change_decision(job_id, parts[3], req)
 
             if len(parts) >= 3 and parts[2] == 'export': return export_manuscript(job_id)
             if len(parts) >= 3 and parts[2] == 'chapters': return get_chapters(job_id)
@@ -99,7 +108,7 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
         return error_response(str(e), 500)
 
 # =============================================================================
-# LOGIC: APPROVE BIBLE (EL ESLABÓN PERDIDO)
+# LOGIC: APPROVE BIBLE
 # =============================================================================
 
 async def approve_bible_and_resume(client, instance_id):
@@ -128,7 +137,6 @@ async def approve_bible_and_resume(client, instance_id):
         
     except Exception as e:
         logging.error(f"Error reanudando orquestador: {e}")
-        # Si falla el raise_event (ej: el proceso ya murió), avisamos
         return error_response(f"No se pudo reanudar el proceso: {str(e)}", 500)
 
 # =============================================================================
@@ -143,9 +151,9 @@ async def get_orchestrator_status(client, instance_id):
             rt = str(status.runtime_status.value) if hasattr(status.runtime_status, 'value') else str(status.runtime_status)
             cust = status.custom_status
             
-            # --- TRADUCTOR DE ESTADOS (SOLO TEXTO) ---
+            # --- TRADUCTOR DE ESTADOS ---
             cust_str = str(cust).lower() if cust else ""
-            friendly = "Iniciando motores..." # Default
+            friendly = "Iniciando motores..."
 
             if 'segment' in cust_str: 
                 friendly = 'Segmentando manuscrito...'
@@ -153,29 +161,28 @@ async def get_orchestrator_status(client, instance_id):
                 friendly = 'Analizando hechos y datos (Capa 1)...'
             elif 'consolid' in cust_str: 
                 friendly = 'Unificando hallazgos...'
-            # Capa 2
             elif 'layer2' in cust_str or 'estructur' in cust_str or 'structur' in cust_str: 
                 friendly = 'Analizando estructura narrativa (Capa 2)...'
-            # Capa 3
             elif 'layer3' in cust_str or 'cualitativ' in cust_str or 'qualitative' in cust_str: 
                 friendly = 'Evaluando estilo y profundidad (Capa 3)...'
-            # Biblia / Holístico
             elif 'biblia' in cust_str or 'holistic' in cust_str: 
                 friendly = 'Escribiendo la Biblia Narrativa...'
-            # Espera
-            elif 'esperando' in cust_str or 'wait' in cust_str: 
+            elif 'esperando' in cust_str or 'wait' in cust_str or 'aprobacion' in cust_str: 
                 friendly = 'Esperando revisión de Biblia...'
-            # Arcos
+            # NUEVO 5.0: Estados adicionales
+            elif 'carta' in cust_str or 'editorial' in cust_str:
+                friendly = 'Escribiendo Carta Editorial...'
+            elif 'notas' in cust_str or 'margin' in cust_str:
+                friendly = 'Generando notas de margen...'
             elif 'arco' in cust_str or 'arc' in cust_str: 
-                friendly = 'Mapeando arcos de personajes...'
-            # Edición
-            elif 'edici' in cust_str or 'claude' in cust_str: 
-                friendly = 'El Editor IA está puliendo el texto...'
-            # Finalización
-            elif 'finaliz' in cust_str or 'save' in cust_str: 
+                friendly = 'Mapeando arcos narrativos...'
+            elif 'edici' in cust_str or 'edit' in cust_str: 
+                friendly = 'Claude está editando tu manuscrito...'
+            elif 'reconstru' in cust_str: 
+                friendly = 'Reconstruyendo manuscrito...'
+            elif 'guard' in cust_str or 'save' in cust_str or 'final' in cust_str: 
                 friendly = 'Guardando y empaquetando proyecto...'
             elif cust:
-                # Fallback para estados desconocidos pero con texto
                 friendly = 'Procesando análisis avanzado...'
             
             return success_response({
@@ -189,7 +196,7 @@ async def get_orchestrator_status(client, instance_id):
                 'output': status.output if rt == 'Completed' else None
             })
             
-        # Fallback Metadata (cuando el proceso ya murió o se limpió del historial)
+        # Fallback Metadata
         try:
             c = get_blob_service().get_blob_client("sylphrena-outputs", f"{instance_id}/metadata.json")
             if c.exists():
@@ -281,7 +288,10 @@ def handle_projects_list(req, method):
         return success_response({'projects': projects})
     except: return success_response({'projects': []})
 
-# --- HELPERS ---
+# =============================================================================
+# AUTH HELPERS
+# =============================================================================
+
 def verify_auth(req):
     auth = req.headers.get('Authorization', '')
     if not auth.startswith('Bearer ') or not verify_token(auth[7:]): return error_response('Unauthorized', 401)
@@ -308,24 +318,34 @@ def handle_login(req):
     except: return error_response('Login error', 500)
 
 def handle_analyze_file(req): return success_response({'word_count': 0})
+
+# =============================================================================
+# BLOB HELPERS
+# =============================================================================
+
 def get_blob_service(): return BlobServiceClient.from_connection_string(os.environ['AzureWebJobsStorage'])
 def cors_response(): return func.HttpResponse(status_code=200, headers=get_cors_headers())
 def success_response(d): return func.HttpResponse(json.dumps(d), status_code=200, mimetype='application/json', headers=get_cors_headers())
 def error_response(m, c): return func.HttpResponse(json.dumps({'error': m}), status_code=c, mimetype='application/json', headers=get_cors_headers())
 def get_cors_headers(): return {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': '*', 'Access-Control-Allow-Headers': '*'}
 
-# Stubs
 def get_blob_json(jid, f):
     try: return success_response(json.loads(get_blob_service().get_blob_client("sylphrena-outputs", f"{jid}/{f}").download_blob().readall()))
     except: return error_response("Not found", 404)
+
 def save_blob_json(jid, f, d):
     try: 
         get_blob_service().get_blob_client("sylphrena-outputs", f"{jid}/{f}").upload_blob(json.dumps(d), overwrite=True)
         return success_response({'success': True})
     except: return error_response("Error saving", 500)
+
 def get_blob_text(jid, f):
     try: return func.HttpResponse(get_blob_service().get_blob_client("sylphrena-outputs", f"{jid}/{f}").download_blob().readall().decode(), headers=get_cors_headers())
     except: return error_response("Not found", 404)
+
+# =============================================================================
+# DATA ENDPOINTS
+# =============================================================================
 
 def get_project_info(jid): return get_blob_json(jid, 'metadata.json')
 def get_bible(jid): return get_blob_json(jid, 'biblia_validada.json')
@@ -334,8 +354,81 @@ def get_chapters(jid): return get_blob_json(jid, 'capitulos_consolidados.json')
 def get_manuscript_edited(jid): return get_blob_text(jid, 'manuscrito_editado.md')
 def get_manuscript_annotated(jid): return get_blob_text(jid, 'manuscrito_anotado.md')
 def save_bible(jid, req): return save_blob_json(jid, 'biblia_validada.json', req.get_json())
-# approve_bible ahora es manejado por approve_bible_and_resume en main
-def approve_bible(jid): return success_response({'approved': True}) 
-def save_all_decisions(jid, req): return save_blob_json(jid, 'cambios_estructurados.json', req.get_json())
-def save_change_decision(jid, cid, req): return success_response({'saved': True})
+
+# NUEVO 5.0: Carta editorial
+def get_editorial_letter(jid): return get_blob_json(jid, 'carta_editorial.json')
+
+# NUEVO 5.0: Notas de margen
+def get_margin_notes(jid): return get_blob_json(jid, 'notas_margen.json')
+
+# =============================================================================
+# FIX: save_all_decisions - ACTUALIZA en lugar de SOBRESCRIBIR
+# =============================================================================
+
+def save_all_decisions_fixed(jid, req):
+    """
+    FIX CRÍTICO: En lugar de sobrescribir todo el archivo cambios_estructurados.json
+    con solo las decisiones, ahora:
+    1. Lee el archivo existente
+    2. Actualiza solo los campos 'status' de cada cambio
+    3. Guarda el archivo completo preservando los datos originales
+    """
+    try:
+        service = get_blob_service()
+        blob_path = f"{jid}/cambios_estructurados.json"
+        blob_client = service.get_blob_client("sylphrena-outputs", blob_path)
+        
+        # 1. Leer archivo existente
+        try:
+            existing_data = json.loads(blob_client.download_blob().readall())
+        except:
+            # Si no existe, crear estructura vacía
+            existing_data = {"changes": [], "total_changes": 0}
+        
+        # 2. Obtener decisiones del request
+        decisions_data = req.get_json()
+        decisions = decisions_data.get('decisions', [])
+        
+        # Crear mapa de decisiones por change_id
+        decision_map = {d.get('change_id'): d.get('status', 'pending') for d in decisions}
+        
+        # 3. Actualizar status de cada cambio existente
+        changes = existing_data.get('changes', [])
+        for change in changes:
+            change_id = change.get('change_id')
+            if change_id in decision_map:
+                change['status'] = decision_map[change_id]
+        
+        # 4. Guardar contadores actualizados
+        accepted = sum(1 for c in changes if c.get('status') == 'accepted')
+        rejected = sum(1 for c in changes if c.get('status') == 'rejected')
+        pending = sum(1 for c in changes if c.get('status') == 'pending')
+        
+        existing_data['decision_stats'] = {
+            'accepted': accepted,
+            'rejected': rejected,
+            'pending': pending,
+            'total': len(changes),
+            'updated_at': datetime.utcnow().isoformat() + 'Z'
+        }
+        
+        # 5. Guardar archivo completo
+        blob_client.upload_blob(json.dumps(existing_data, ensure_ascii=False), overwrite=True)
+        
+        logging.info(f"✅ Decisiones guardadas para {jid}: {accepted} aceptadas, {rejected} rechazadas, {pending} pendientes")
+        
+        return success_response({
+            'success': True,
+            'stats': existing_data['decision_stats']
+        })
+        
+    except Exception as e:
+        logging.error(f"Error guardando decisiones: {e}")
+        return error_response(f"Error saving decisions: {str(e)}", 500)
+
+
+def save_change_decision(jid, cid, req): 
+    """Guardar decisión individual (legacy, mantener por compatibilidad)"""
+    return success_response({'saved': True})
+
 def export_manuscript(jid): return get_blob_text(jid, 'manuscrito_editado.md')

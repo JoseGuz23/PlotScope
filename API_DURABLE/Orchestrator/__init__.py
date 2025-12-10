@@ -1,9 +1,10 @@
 # =============================================================================
-# Orchestrator/__init__.py - SYLPHRENA 4.1.1 (FIX: SAVE BEFORE PAUSE)
+# Orchestrator/__init__.py - SYLPHRENA 5.0
 # =============================================================================
-# CAMBIOS v4.1.1:
-#   - CORRECCIÓN CRÍTICA: Se llama a 'SaveOutputs' antes de la pausa de aprobación.
-#   - Esto genera los archivos JSON necesarios para que el Frontend no de error 404.
+# NUEVA VERSIÓN: Flujo completo de developmental editing
+#   - Fase 7: Carta Editorial
+#   - Fase 8: Notas de Margen
+#   - Fase 9: Edición con criterios expandidos
 # =============================================================================
 
 import azure.functions as func
@@ -16,7 +17,7 @@ from datetime import timedelta
 # CONFIGURACIÓN
 # =============================================================================
 
-LIMIT_TO_FIRST_N_CHAPTERS = 2   
+LIMIT_TO_FIRST_N_CHAPTERS = None  # None = procesar todos
 GEMINI_POLL_INTERVAL = 60   
 CLAUDE_POLL_INTERVAL = 120
 MAX_WAIT_MINUTES = 60
@@ -26,9 +27,7 @@ MAX_WAIT_MINUTES = 60
 # =============================================================================
 
 def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict = None):
-    """
-    Helper para batches de Gemini Pro (Capas 2, 3, Arcos).
-    """
+    """Helper para batches de Gemini Pro."""
     logging.info(f"")
     logging.info(f"{'='*60}")
     logging.info(f">>> INICIANDO BATCH GEMINI PRO: {analysis_type.upper()}")
@@ -41,7 +40,6 @@ def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict =
         'bible': bible or {}
     }
     
-    # 1. Submit
     try:
         batch_info = yield context.call_activity('SubmitGeminiProBatch', batch_input)
     except Exception as e:
@@ -54,9 +52,7 @@ def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict =
     
     job_name = batch_info.get('batch_job_name', 'unknown')
     logging.info(f"[BATCH] Batch {analysis_type} creado: {job_name}")
-    logging.info(f"    Requests enviados: {batch_info.get('total_requests', '?')}")
     
-    # 2. Wait Loop
     for attempt in range(MAX_WAIT_MINUTES):
         next_check = context.current_utc_datetime + timedelta(seconds=GEMINI_POLL_INTERVAL)
         yield context.create_timer(next_check)
@@ -70,16 +66,10 @@ def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict =
         status = result.get('status', 'unknown')
         
         if status == 'success':
-            total = result.get('total', 0)
-            errors = result.get('errors', 0)
-            logging.info(f"")
             logging.info(f"[OK] BATCH {analysis_type.upper()} COMPLETADO")
-            logging.info(f"    Resultados: {total} exitosos, {errors} errores")
-            logging.info(f"    Intentos de polling: {attempt + 1}")
             return result.get('results', [])
         
         elif status == 'failed':
-            logging.error(f"[ERROR] BATCH {analysis_type} FALLÓ: {result.get('error')}")
             raise Exception(f"Batch {analysis_type} falló: {result.get('error')}")
         
         elif status == 'processing':
@@ -89,24 +79,14 @@ def run_gemini_pro_batch(context, analysis_type: str, items: list, bible: dict =
             context.set_custom_status(f"Batch {analysis_type}: {state} ({attempt+1}/{MAX_WAIT_MINUTES})")
         
         else:
-            logging.warning(f"[WARNING] [{analysis_type}] Estado inesperado: {status}")
             batch_info = result
 
-    logging.error(f"[TIMEOUT] en Batch {analysis_type} después de {MAX_WAIT_MINUTES} intentos")
     raise Exception(f"Timeout en Batch {analysis_type}")
 
 
 def analyze_with_batch_api_v2(context, fragments):
-    """
-    Análisis Capa 1 (Factual) con Gemini Flash Batch.
-    """
-    logging.info(f"")
-    logging.info(f"{'='*60}")
+    """Análisis Capa 1 (Factual) con Gemini Flash Batch."""
     logging.info(f">>> INICIANDO ANÁLISIS CAPA 1 (FACTUAL)")
-    logging.info(f"    Fragmentos a analizar: {len(fragments)}")
-    logging.info(f"{'='*60}")
-    
-    # 1. Submit
     context.set_custom_status("Enviando Batch Capa 1...")
     
     try:
@@ -116,14 +96,8 @@ def analyze_with_batch_api_v2(context, fragments):
         raise
     
     if batch_info.get('error'):
-        logging.error(f"[ERROR] Submit Capa 1 falló: {batch_info.get('error')}")
         raise Exception(f"Error submit Batch C1: {batch_info.get('error')}")
     
-    job_name = batch_info.get('batch_job_name', 'unknown')
-    logging.info(f"[BATCH] Batch Capa 1 creado: {job_name}")
-    logging.info(f"    Fragmentos: {batch_info.get('chapters_count', '?')}")
-    
-    # 2. Wait Loop
     batch_results = []
     
     for attempt in range(MAX_WAIT_MINUTES):
@@ -136,146 +110,133 @@ def analyze_with_batch_api_v2(context, fragments):
             logging.error(f"[ERROR] en PollBatchResult intento {attempt+1}: {str(e)}")
             continue
         
-        # PollBatchResult devuelve lista directamente cuando tiene éxito
         if isinstance(result, list):
             batch_results = result
-            logging.info(f"")
-            logging.info(f"[OK] BATCH CAPA 1 COMPLETADO")
-            logging.info(f"    Análisis obtenidos: {len(batch_results)}")
-            logging.info(f"    Intentos de polling: {attempt + 1}")
+            logging.info(f"[OK] BATCH CAPA 1 COMPLETADO - {len(batch_results)} análisis")
             break
         
         status = result.get('status', 'unknown')
-        
-        if status == 'failed':
-            logging.error(f"[ERROR] Batch Capa 1 FALLÓ: {result.get('error')}")
+        if status in ['failed', 'error']:
             break
         
-        if status == 'error':
-            logging.error(f"[ERROR] Error en Batch Capa 1: {result.get('error')}")
-            break
-        
-        # Actualizar batch_info y continuar
         batch_info = result
-        state = result.get('state', 'processing')
-        logging.info(f"[WAIT] [Capa1] Poll {attempt+1}/{MAX_WAIT_MINUTES} - Estado: {state}")
-        context.set_custom_status(f"Batch C1: {state} ({attempt+1}/{MAX_WAIT_MINUTES})")
+        context.set_custom_status(f"Batch C1: {result.get('state', 'processing')} ({attempt+1}/{MAX_WAIT_MINUTES})")
     
-    # 3. Identificar fragmentos faltantes
-    successful_ids = set()
-    for res in batch_results:
-        fid = res.get('fragment_id') or res.get('chapter_id') or res.get('id')
-        if fid: 
-            successful_ids.add(str(fid))
-    
+    # Identificar fragmentos faltantes
+    successful_ids = {str(r.get('fragment_id') or r.get('chapter_id') or r.get('id')) for r in batch_results if r}
     failed_fragments = [f for f in fragments if str(f.get('id')) not in successful_ids]
-    
-    logging.info(f"")
-    logging.info(f"[STATS] RESUMEN CAPA 1:")
-    logging.info(f"    Exitosos: {len(batch_results)}/{len(fragments)}")
-    logging.info(f"    Fallidos: {len(failed_fragments)}")
     
     if not failed_fragments:
         return batch_results
 
-    # 4. Rescate de fragmentos fallidos
-    logging.info(f"")
-    logging.info(f"[RECOVERY] INICIANDO RESCATE DE {len(failed_fragments)} FRAGMENTOS")
-    
-    MAX_RETRIES = 10
-    if len(failed_fragments) > MAX_RETRIES:
-        logging.warning(f"[WARNING] Limitando rescate a {MAX_RETRIES} de {len(failed_fragments)} fragmentos")
-        failed_fragments = failed_fragments[:MAX_RETRIES]
-
+    # Rescate de fragmentos fallidos
+    logging.info(f"[RECOVERY] RESCATANDO {len(failed_fragments)} FRAGMENTOS")
     final_results = list(batch_results)
-    rescued = 0
-    failed_rescue = 0
     
-    for i, frag in enumerate(failed_fragments):
-        frag_id = frag.get('id', '?')
-        logging.info(f"[RECOVERY] Rescatando fragmento {frag_id} ({i+1}/{len(failed_fragments)})")
-        context.set_custom_status(f"Rescatando {frag_id} ({i+1}/{len(failed_fragments)})")
-        
-        # A) Reintento Gemini
+    for frag in failed_fragments[:10]:
         try:
-            retry_res = yield context.call_activity('AnalyzeChapter', frag)
-            if retry_res and not retry_res.get('error'):
-                logging.info(f"    [OK] Gemini retry exitoso para {frag_id}")
-                final_results.append(retry_res)
-                rescued += 1
-                continue
-            else:
-                logging.warning(f"    [WARNING] Gemini retry falló para {frag_id}: {retry_res.get('error', 'unknown')}")
-        except Exception as e:
-            logging.warning(f"    [WARNING] Gemini retry excepción para {frag_id}: {str(e)}")
-
-        # B) Fallback Claude
-        try:
-            logging.info(f"    [FALLBACK] Intentando fallback Claude para {frag_id}")
-            claude_res = yield context.call_activity('AnalyzeChapterWithClaude', frag)
-            if claude_res and not claude_res.get('error'):
-                logging.info(f"    [OK] Claude fallback exitoso para {frag_id}")
-                final_results.append(claude_res)
-                rescued += 1
-            else:
-                logging.error(f"    [ERROR] Claude fallback falló para {frag_id}")
-                failed_rescue += 1
-        except Exception as e:
-            logging.error(f"    [ERROR] Claude fallback excepción para {frag_id}: {str(e)}")
-            failed_rescue += 1
-
-    logging.info(f"")
-    logging.info(f"[STATS] RESUMEN RESCATE:")
-    logging.info(f"    Rescatados: {rescued}")
-    logging.info(f"    No rescatados: {failed_rescue}")
-    logging.info(f"    Total final: {len(final_results)}/{len(fragments)}")
+            res = yield context.call_activity('AnalyzeChapter', frag)
+            if res:
+                final_results.append(res)
+        except:
+            pass
     
     return final_results
 
 
-def edit_with_claude_batch_v2(context, edit_requests, bible, analyses, arc_maps):
+def run_margin_notes_batch(context, chapters: list, carta_editorial: dict, bible: dict, book_metadata: dict):
     """
-    Edición con Claude Batch API.
+    NUEVO 5.0: Genera notas de margen con Claude Batch.
     """
     logging.info(f"")
     logging.info(f"{'='*60}")
-    logging.info(f">>> INICIANDO EDICIÓN CON CLAUDE BATCH")
-    logging.info(f"    Capítulos a editar: {len(edit_requests)}")
+    logging.info(f">>> FASE 8: NOTAS DE MARGEN")
+    logging.info(f"    Capítulos: {len(chapters)}")
     logging.info(f"{'='*60}")
     
-    chapters_only = [req['chapter'] for req in edit_requests]
-    
-    batch_request = {
-        'chapters': chapters_only,
+    batch_input = {
+        'chapters': chapters,
+        'carta_editorial': carta_editorial,
         'bible': bible,
-        'analyses': analyses,
-        'arc_maps': arc_maps
+        'book_metadata': book_metadata
     }
     
-    # 1. Submit
-    context.set_custom_status("Enviando Batch Claude...")
+    try:
+        batch_info = yield context.call_activity('SubmitMarginNotes', batch_input)
+    except Exception as e:
+        logging.error(f"[ERROR] en SubmitMarginNotes: {str(e)}")
+        raise
+    
+    if batch_info.get('status') == 'error':
+        raise Exception(f"Error submit notas: {batch_info.get('error')}")
+    
+    batch_id = batch_info.get('batch_id')
+    logging.info(f"[BATCH] Batch notas creado: {batch_id}")
+    
+    for attempt in range(MAX_WAIT_MINUTES):
+        next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_POLL_INTERVAL)
+        yield context.create_timer(next_check)
+        
+        try:
+            result = yield context.call_activity('PollMarginNotesBatch', batch_info)
+        except Exception as e:
+            logging.error(f"[ERROR] en PollMarginNotesBatch intento {attempt+1}: {str(e)}")
+            continue
+        
+        status = result.get('status', 'unknown')
+        
+        if status == 'success':
+            logging.info(f"[OK] NOTAS DE MARGEN COMPLETADAS")
+            logging.info(f"    Total notas: {len(result.get('all_notes', []))}")
+            return result
+        
+        elif status == 'failed':
+            raise Exception(f"Batch notas falló: {result.get('error')}")
+        
+        elif status == 'processing':
+            batch_info = result
+            logging.info(f"[WAIT] [Notas] Poll {attempt+1}/{MAX_WAIT_MINUTES}")
+            context.set_custom_status(f"Generando notas de margen ({attempt+1}/{MAX_WAIT_MINUTES})")
+        
+        else:
+            batch_info = result
+
+    raise Exception("Timeout en Batch de notas de margen")
+
+
+def edit_with_claude_batch_v2(context, edit_requests: list, bible: dict, analyses: list, arc_maps: dict, margin_notes: dict = None, book_metadata: dict = None):
+    """
+    ACTUALIZADO 5.0: Edición con notas de margen y criterios expandidos.
+    """
+    logging.info(f"")
+    logging.info(f"{'='*60}")
+    logging.info(f">>> FASE 9: EDICIÓN PROFESIONAL")
+    logging.info(f"    Capítulos: {len(edit_requests)}")
+    logging.info(f"{'='*60}")
+    
+    chapters = [req.get('chapter', req) for req in edit_requests]
+    
+    batch_input = {
+        'chapters': chapters,
+        'bible': bible,
+        'analyses': analyses,
+        'margin_notes': margin_notes or {},  # NUEVO: notas de margen
+        'book_metadata': book_metadata or {}
+    }
     
     try:
-        batch_info = yield context.call_activity('SubmitClaudeBatch', batch_request)
+        batch_info = yield context.call_activity('SubmitClaudeBatch', batch_input)
     except Exception as e:
         logging.error(f"[ERROR] en SubmitClaudeBatch: {str(e)}")
         raise
     
-    if batch_info.get('error'):
-        logging.error(f"[ERROR] Submit Claude falló: {batch_info.get('error')}")
-        raise Exception(f"Error submit Claude Batch: {batch_info.get('error')}")
+    if batch_info.get('status') == 'error':
+        raise Exception(f"Error submit edición: {batch_info.get('error')}")
     
-    batch_id = batch_info.get('batch_id', 'unknown')
-    logging.info(f"[BATCH] Claude Batch creado: {batch_id}")
-    logging.info(f"    Capítulos: {batch_info.get('chapters_count', '?')}")
+    batch_id = batch_info.get('batch_id')
+    logging.info(f"[BATCH] Batch edición creado: {batch_id}")
     
-    metrics = batch_info.get('metrics', {})
-    if metrics:
-        logging.info(f"    Tokens estimados: {metrics.get('estimated_input_tokens', '?'):,}")
-        logging.info(f"    Costo estimado: ${metrics.get('estimated_input_cost_usd', 0):.4f}")
-
-    # 2. Wait Loop
-    for attempt in range(120):  # 2 horas max
+    for attempt in range(MAX_WAIT_MINUTES):
         next_check = context.current_utc_datetime + timedelta(seconds=CLAUDE_POLL_INTERVAL)
         yield context.create_timer(next_check)
         
@@ -288,41 +249,24 @@ def edit_with_claude_batch_v2(context, edit_requests, bible, analyses, arc_maps)
         status = result.get('status', 'unknown')
         
         if status == 'success':
-            results_list = result.get('results', [])
-            total = result.get('total_processed', len(results_list))
-            parse_failures = result.get('parse_failures', 0)
-            
-            logging.info(f"")
-            logging.info(f"[OK] CLAUDE BATCH COMPLETADO")
-            logging.info(f"    Editados: {total}")
-            logging.info(f"    Fallos de parsing: {parse_failures}")
-            logging.info(f"    Intentos de polling: {attempt + 1}")
-            
-            if parse_failures > 0:
-                logging.warning(f"[WARNING] {parse_failures} capítulos usaron contenido original como fallback")
-            
-            return results_list
+            total = result.get('total', 0)
+            errors = result.get('errors', 0)
+            logging.info(f"[OK] EDICIÓN COMPLETADA")
+            logging.info(f"    Capítulos: {total}, Errores: {errors}")
+            return result.get('results', [])
         
-        elif status == 'error' or status == 'failed':
-            logging.error(f"[ERROR] CLAUDE BATCH FALLÓ: {result.get('error')}")
-            raise Exception(f"Claude Batch falló: {result.get('error')}")
+        elif status == 'failed':
+            raise Exception(f"Batch edición falló: {result.get('error')}")
         
         elif status == 'processing':
             batch_info = result
-            
-            counts = result.get('request_counts', {})
-            succeeded = counts.get('succeeded', 0)
-            processing = counts.get('processing', 0)
-            
-            logging.info(f"[WAIT] [Claude] Poll {attempt+1}/120 - Completados: {succeeded}, Procesando: {processing}")
-            context.set_custom_status(f"Claude: {succeeded} listos, {processing} procesando ({attempt+1}/120)")
+            logging.info(f"[WAIT] [Edición] Poll {attempt+1}/{MAX_WAIT_MINUTES}")
+            context.set_custom_status(f"Claude editando ({attempt+1}/{MAX_WAIT_MINUTES})")
         
         else:
-            logging.warning(f"[WARNING] [Claude] Estado inesperado: {status}")
             batch_info = result
 
-    logging.error(f"[TIMEOUT] en Claude Batch después de 120 intentos (2 horas)")
-    raise Exception("Timeout en Claude Batch (2 horas)")
+    raise Exception("Timeout en Batch de edición")
 
 
 # =============================================================================
@@ -330,151 +274,111 @@ def edit_with_claude_batch_v2(context, edit_requests, bible, analyses, arc_maps)
 # =============================================================================
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
+    """
+    SYLPHRENA 5.0 - Flujo completo de Developmental Editing.
+    """
+    
     try:
-        # --- SETUP ---
-        input_data = context.get_input()
-        book_path = input_data if isinstance(input_data, str) else input_data.get('book_path', '')
-        book_name = book_path.split('/')[-1].split('.')[0] if book_path else "libro"
         start_time = context.current_utc_datetime
         tiempos = {}
         
         logging.info(f"")
         logging.info(f"{'#'*70}")
-        logging.info(f"#  SYLPHRENA 4.1.1 - ORQUESTADOR INICIADO")
-        logging.info(f"#  Libro: {book_name}")
-        logging.info(f"#  Inicio: {start_time.isoformat()}")
-        logging.info(f"#  Límite capítulos: {LIMIT_TO_FIRST_N_CHAPTERS or 'Sin límite'}")
+        logging.info(f"#  SYLPHRENA 5.0 - DEVELOPMENTAL EDITOR AI")
+        logging.info(f"#  Job ID: {context.instance_id}")
         logging.info(f"{'#'*70}")
+        
+        input_data = context.get_input()
+        job_id = input_data.get('job_id', context.instance_id)
+        blob_path = input_data.get('blob_path', '')
+        book_name = input_data.get('book_name', 'Sin título')
+        book_metadata = {'title': book_name, 'job_id': job_id, 'blob_path': blob_path}
 
         # ---------------------------------------------------------------------
         # FASE 1: SEGMENTACIÓN
         # ---------------------------------------------------------------------
-        logging.info(f"")
-        logging.info(f"{'='*60}")
         logging.info(f">>> FASE 1: SEGMENTACIÓN")
-        logging.info(f"{'='*60}")
         context.set_custom_status("Fase 1: Segmentando...")
         
-        segment_payload = {
-            'book_path': book_path,
-            'limit_chapters': LIMIT_TO_FIRST_N_CHAPTERS  
-        }
+        seg_result = yield context.call_activity('SegmentBook', {'job_id': job_id, 'blob_path': blob_path})
         
-        try:
-            segment_json = yield context.call_activity('SegmentBook', segment_payload)
-            segment_res = json.loads(segment_json)
-        except Exception as e:
-            logging.error(f"[ERROR] en SegmentBook: {str(e)}")
-            raise
+        if seg_result.get('error'):
+            raise Exception(f"Segmentación: {seg_result.get('error')}")
         
-        fragments = segment_res.get('fragments', [])
-        book_metadata = segment_res.get('book_metadata', {})
-        chapter_map = segment_res.get('chapter_map', {})
+        fragments = seg_result.get('fragments', [])
         
+        if LIMIT_TO_FIRST_N_CHAPTERS:
+            fragments = fragments[:LIMIT_TO_FIRST_N_CHAPTERS]
+        
+        logging.info(f"[OK] {len(fragments)} fragmentos generados")
         t1 = context.current_utc_datetime
         tiempos['segmentacion'] = str(t1 - start_time)
-        
-        logging.info(f"[OK] Segmentación completada en {tiempos['segmentacion']}")
-        logging.info(f"    Fragmentos: {len(fragments)}")
-        logging.info(f"    Capítulos únicos: {len(chapter_map)}")
-        logging.info(f"    Metadata: {book_metadata.get('title', 'N/A')}")
-        
-        if not fragments:
-            logging.warning(f"[WARNING] No se encontraron fragmentos. Terminando.")
-            return {"status": "completed", "message": "Libro vacío."}
 
         # ---------------------------------------------------------------------
-        # FASE 2: ANÁLISIS CAPA 1
+        # FASE 2: ANÁLISIS CAPA 1 (FACTUAL)
         # ---------------------------------------------------------------------
-        context.set_custom_status("Fase 2: Análisis Capa 1...")
+        logging.info(f">>> FASE 2: ANÁLISIS CAPA 1")
+        context.set_custom_status("Fase 2: Capa 1...")
         
-        fragment_analyses = yield from analyze_with_batch_api_v2(context, fragments)
-        fragment_analyses.sort(key=lambda x: int(x.get('id', 0) or 0))
-
+        layer1_results = yield from analyze_with_batch_api_v2(context, fragments)
+        
         t2 = context.current_utc_datetime
         tiempos['capa1'] = str(t2 - t1)
-        logging.info(f"[TIME] Tiempo Capa 1: {tiempos['capa1']}")
 
         # ---------------------------------------------------------------------
         # FASE 3: CONSOLIDACIÓN
         # ---------------------------------------------------------------------
-        logging.info(f"")
-        logging.info(f"{'='*60}")
         logging.info(f">>> FASE 3: CONSOLIDACIÓN")
-        logging.info(f"{'='*60}")
         context.set_custom_status("Fase 3: Consolidando...")
         
-        try:
-            consolidated = yield context.call_activity(
-                'ConsolidateFragmentAnalyses',
-                {'fragment_analyses': fragment_analyses, 'chapter_map': chapter_map}
-            )
-        except Exception as e:
-            logging.error(f"[ERROR] en ConsolidateFragmentAnalyses: {str(e)}")
-            raise
+        consol_input = {'fragments': fragments, 'analyses': layer1_results}
+        consolidated = yield context.call_activity('ConsolidateFragmentAnalyses', json.dumps(consol_input))
         
         t3 = context.current_utc_datetime
         tiempos['consolidacion'] = str(t3 - t2)
-        
-        logging.info(f"[OK] Consolidación completada en {tiempos['consolidacion']}")
-        logging.info(f"    Capítulos consolidados: {len(consolidated)}")
 
         # ---------------------------------------------------------------------
-        # FASE 4: CAPA 2 (ESTRUCTURAL)
+        # FASE 4: ANÁLISIS CAPA 2 (ESTRUCTURAL)
         # ---------------------------------------------------------------------
-        context.set_custom_status("Fase 4: Estructura...")
-
-        layer2_results = yield from run_gemini_pro_batch(
-            context, 'layer2_structural', consolidated
-        )
+        logging.info(f">>> FASE 4: ANÁLISIS CAPA 2")
+        context.set_custom_status("Fase 4: Capa 2...")
         
-        l2_map = {r['chapter_id']: r for r in layer2_results}
-        for c in consolidated:
-            c['layer2_structural'] = l2_map.get(c['chapter_id'], {})
-
+        layer2_results = yield from run_gemini_pro_batch(context, 'structural', consolidated)
+        
+        # Fusionar
+        for i, ch in enumerate(consolidated):
+            ch_id = str(ch.get('chapter_id', i))
+            l2 = next((r for r in layer2_results if str(r.get('chapter_id')) == ch_id), {})
+            ch['layer2'] = l2
+        
         t4 = context.current_utc_datetime
         tiempos['capa2'] = str(t4 - t3)
-        logging.info(f"[TIME] Tiempo Capa 2: {tiempos['capa2']}")
 
         # ---------------------------------------------------------------------
-        # FASE 5: CAPA 3 (CUALITATIVO)
+        # FASE 5: ANÁLISIS CAPA 3 (CUALITATIVO)
         # ---------------------------------------------------------------------
-        context.set_custom_status("Fase 5: Cualitativo...")
+        logging.info(f">>> FASE 5: ANÁLISIS CAPA 3")
+        context.set_custom_status("Fase 5: Capa 3...")
         
-        total_chaps = len(consolidated)
-        for i, c in enumerate(consolidated):
-            c['chapter_position'] = i + 1
-            c['total_chapters'] = total_chaps
-
-        layer3_results = yield from run_gemini_pro_batch(
-            context, 'layer3_qualitative', consolidated
-        )
+        layer3_results = yield from run_gemini_pro_batch(context, 'qualitative', consolidated)
         
-        l3_map = {r['chapter_id']: r for r in layer3_results}
-        for c in consolidated:
-            c['layer3_qualitative'] = l3_map.get(c['chapter_id'], {})
-
+        for i, ch in enumerate(consolidated):
+            ch_id = str(ch.get('chapter_id', i))
+            l3 = next((r for r in layer3_results if str(r.get('chapter_id')) == ch_id), {})
+            ch['layer3'] = l3
+        
         t5 = context.current_utc_datetime
         tiempos['capa3'] = str(t5 - t4)
-        logging.info(f"[TIME] Tiempo Capa 3: {tiempos['capa3']}")
 
         # ---------------------------------------------------------------------
-        # FASE 6: BIBLIA & HOLÍSTICO
+        # FASE 6: BIBLIA NARRATIVA
         # ---------------------------------------------------------------------
-        logging.info(f"")
-        logging.info(f"{'='*60}")
         logging.info(f">>> FASE 6: BIBLIA NARRATIVA")
-        logging.info(f"{'='*60}")
         context.set_custom_status("Fase 6: Biblia...")
         
         full_text = "\n".join([f"CAP {f['title']}: {f['content'][:600]}..." for f in fragments])
         
-        try:
-            holistic = yield context.call_activity('HolisticReading', full_text)
-            logging.info(f"[OK] Lectura holística completada")
-        except Exception as e:
-            logging.error(f"[ERROR] en HolisticReading: {str(e)}")
-            raise
+        holistic = yield context.call_activity('HolisticReading', full_text)
         
         bible_in = {
             "chapter_analyses": consolidated,
@@ -482,91 +386,124 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             "book_metadata": book_metadata
         }
         
-        try:
-            bible = yield context.call_activity('CreateBible', json.dumps(bible_in))
-            logging.info(f"[OK] Biblia narrativa creada")
-        except Exception as e:
-            logging.error(f"[ERROR] en CreateBible: {str(e)}")
-            raise
+        bible = yield context.call_activity('CreateBible', json.dumps(bible_in))
         
         t6 = context.current_utc_datetime
         tiempos['biblia'] = str(t6 - t5)
-        logging.info(f"[TIME] Tiempo Biblia: {tiempos['biblia']}")
         
-        # =====================================================================
-        # >>> CORRECCIÓN: GUARDAR BIBLIA ANTES DE LA PAUSA <<<
-        # =====================================================================
-        # Esto asegura que el archivo exista cuando el usuario va a revisarlo
-        logging.info(f"[SAVE] Guardando biblia preliminar para el Frontend...")
+        # GUARDAR BIBLIA ANTES DE PAUSA
+        logging.info(f"[SAVE] Guardando biblia preliminar...")
         
         pre_save_payload = {
             'job_id': context.instance_id,
             'book_name': book_name,
             'bible': bible,
-            'consolidated_chapters': consolidated, # Necesario para generar cambios_estructurados.json
+            'consolidated_chapters': consolidated,
             'statistics': {}, 
             'tiempos': tiempos
         }
         
         try:
             yield context.call_activity('SaveOutputs', pre_save_payload)
-            logging.info("[SAVE] Guardado intermedio exitoso.")
         except Exception as e:
-            logging.error(f"[ERROR] Falló el guardado intermedio: {str(e)}")
-            # No lanzamos excepción aquí para permitir que la pausa ocurra y el usuario pueda reintentar
+            logging.error(f"[ERROR] Guardado intermedio: {str(e)}")
         
         # =====================================================================
-        # >>> PAUSA PARA APROBACIÓN HUMANA <<<
+        # PAUSA PARA APROBACIÓN DE BIBLIA
         # =====================================================================
         logging.info(f"[WAIT] Esperando aprobación humana de la Biblia...")
         context.set_custom_status("Esperando aprobacion de Biblia...")
         
-        # Pausar ejecución hasta recibir evento 'BibleApproved'
         yield context.wait_for_external_event("BibleApproved")
         
-        logging.info(f"[RESUME] Biblia aprobada por usuario. Continuando...")
+        logging.info(f"[RESUME] Biblia aprobada. Continuando...")
+
+        # =====================================================================
+        # FASE 7: CARTA EDITORIAL (NUEVO 5.0)
+        # =====================================================================
+        logging.info(f"")
+        logging.info(f"{'='*60}")
+        logging.info(f">>> FASE 7: CARTA EDITORIAL")
+        logging.info(f"{'='*60}")
+        context.set_custom_status("Fase 7: Carta Editorial...")
+        
+        carta_input = {
+            'bible': bible,
+            'consolidated_chapters': consolidated,
+            'fragments': fragments,
+            'book_metadata': book_metadata
+        }
+        
+        carta_result = yield context.call_activity('GenerateEditorialLetter', carta_input)
+        carta_editorial = carta_result.get('carta_editorial', {})
+        carta_markdown = carta_result.get('carta_markdown', '')
+        
+        logging.info(f"[OK] Carta Editorial generada")
+        
+        t7 = context.current_utc_datetime
+        tiempos['carta_editorial'] = str(t7 - t6)
+
+        # =====================================================================
+        # FASE 8: NOTAS DE MARGEN (NUEVO 5.0)
+        # =====================================================================
+        logging.info(f">>> FASE 8: NOTAS DE MARGEN")
+        context.set_custom_status("Fase 8: Notas de margen...")
+        
+        margin_result = yield from run_margin_notes_batch(
+            context, fragments, carta_editorial, bible, book_metadata
+        )
+        
+        # Organizar notas por capítulo para la fase de edición
+        margin_notes_by_chapter = {}
+        for ch_result in margin_result.get('results', []):
+            ch_id = str(ch_result.get('chapter_id', ch_result.get('fragment_id', '?')))
+            margin_notes_by_chapter[ch_id] = ch_result.get('notas_margen', [])
+        
+        logging.info(f"[OK] {len(margin_result.get('all_notes', []))} notas generadas")
+        
+        t8 = context.current_utc_datetime
+        tiempos['notas_margen'] = str(t8 - t7)
 
         # ---------------------------------------------------------------------
-        # FASE 10: ARCOS
+        # FASE 9: ARCOS POR CAPÍTULO
         # ---------------------------------------------------------------------
-        context.set_custom_status("Fase 10: Arcos...")
+        logging.info(f">>> FASE 9: ARCOS POR CAPÍTULO")
+        context.set_custom_status("Fase 9: Arcos...")
         
-        arc_results = yield from run_gemini_pro_batch(
-            context, 'arc_maps', consolidated, bible=bible
-        )
+        arc_results = yield from run_gemini_pro_batch(context, 'arc_maps', consolidated, bible=bible)
         arc_map_dict = {str(r['chapter_id']): r for r in arc_results}
         
-        t10 = context.current_utc_datetime
-        tiempos['arcos'] = str(t10 - t6)
-        logging.info(f"[TIME] Tiempo Arcos: {tiempos['arcos']}")
+        t9 = context.current_utc_datetime
+        tiempos['arcos'] = str(t9 - t8)
 
-        # ---------------------------------------------------------------------
-        # FASE 11: EDICIÓN
-        # ---------------------------------------------------------------------
-        context.set_custom_status("Fase 11: Edición...")
+        # =====================================================================
+        # FASE 10: EDICIÓN PROFESIONAL (ACTUALIZADO 5.0)
+        # =====================================================================
+        logging.info(f">>> FASE 10: EDICIÓN PROFESIONAL")
+        context.set_custom_status("Fase 10: Edición...")
         
-        edit_reqs = []
-        for frag in fragments:
-            edit_reqs.append({'chapter': frag})
-            
+        edit_reqs = [{'chapter': frag} for frag in fragments]
+        
         edited_fragments = yield from edit_with_claude_batch_v2(
-            context, edit_reqs, bible, consolidated, arc_map_dict
+            context, 
+            edit_reqs, 
+            bible, 
+            consolidated, 
+            arc_map_dict,
+            margin_notes=margin_notes_by_chapter,  # NUEVO: pasar notas
+            book_metadata=book_metadata
         )
         
         edited_fragments.sort(key=lambda x: int(x.get('chapter_id', 0) or x.get('fragment_id', 0) or 0))
         
-        t11 = context.current_utc_datetime
-        tiempos['edicion'] = str(t11 - t10)
-        logging.info(f"[TIME] Tiempo Edición: {tiempos['edicion']}")
+        t10 = context.current_utc_datetime
+        tiempos['edicion'] = str(t10 - t9)
 
         # ---------------------------------------------------------------------
-        # FASE 12/13: RECONSTRUCCIÓN
+        # FASE 11: RECONSTRUCCIÓN
         # ---------------------------------------------------------------------
-        logging.info(f"")
-        logging.info(f"{'='*60}")
-        logging.info(f">>> FASE 12: RECONSTRUCCIÓN DE MANUSCRITO")
-        logging.info(f"{'='*60}")
-        context.set_custom_status("Finalizando...")
+        logging.info(f">>> FASE 11: RECONSTRUCCIÓN")
+        context.set_custom_status("Fase 11: Reconstruyendo...")
         
         recon_input = {
             'edited_chapters': edited_fragments,
@@ -574,20 +511,20 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             'bible': bible
         }
         
-        try:
-            manuscript = yield context.call_activity('ReconstructManuscript', recon_input)
-            logging.info(f"[OK] Manuscrito reconstruido")
-        except Exception as e:
-            logging.error(f"[ERROR] en ReconstructManuscript: {str(e)}")
-            raise
+        manuscript = yield context.call_activity('ReconstructManuscript', recon_input)
+        
+        t11 = context.current_utc_datetime
+        tiempos['reconstruccion'] = str(t11 - t10)
+
+        # ---------------------------------------------------------------------
+        # FASE 12: GUARDAR Y FINALIZAR
+        # ---------------------------------------------------------------------
+        logging.info(f">>> FASE 12: GUARDADO FINAL")
+        context.set_custom_status("Finalizando...")
         
         t_final = context.current_utc_datetime
-        tiempos['reconstruccion'] = str(t_final - t11)
         tiempos['total'] = str(t_final - start_time)
         
-        # ---------------------------------------------------------------------
-        # GUARDAR Y FINALIZAR
-        # ---------------------------------------------------------------------
         final = {
             'status': 'success',
             'job_id': context.instance_id,
@@ -596,11 +533,15 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             'consolidated_chapters': manuscript.get('consolidated_chapters', []),
             'statistics': manuscript.get('statistics', {}),
             'bible': bible,
+            'carta_editorial': carta_editorial,
+            'carta_markdown': carta_markdown,
+            'margin_notes': margin_result,
             'tiempos': tiempos,
             'stats': {
                 'fragmentos_entrada': len(fragments),
                 'capitulos_consolidados': len(consolidated),
-                'capitulos_editados': len(edited_fragments)
+                'capitulos_editados': len(edited_fragments),
+                'notas_margen': len(margin_result.get('all_notes', []))
             }
         }
         
@@ -608,22 +549,20 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             yield context.call_activity('SaveOutputs', final)
         except Exception as e:
             logging.error(f"[ERROR] en SaveOutputs: {str(e)}")
-            # No re-raise, el resultado ya está listo
         
         # RESUMEN FINAL
         logging.info(f"")
         logging.info(f"{'#'*70}")
-        logging.info(f"#  [SUCCESS] SYLPHRENA 4.1.1 - COMPLETADO EXITOSAMENTE")
+        logging.info(f"#  [SUCCESS] SYLPHRENA 5.0 - COMPLETADO")
         logging.info(f"{'#'*70}")
         logging.info(f"#  Libro: {book_name}")
-        logging.info(f"#  Fragmentos procesados: {len(fragments)}")
+        logging.info(f"#  Fragmentos: {len(fragments)}")
         logging.info(f"#  Capítulos editados: {len(edited_fragments)}")
+        logging.info(f"#  Notas de margen: {len(margin_result.get('all_notes', []))}")
         logging.info(f"#")
         logging.info(f"#  TIEMPOS:")
         for fase, tiempo in tiempos.items():
             logging.info(f"#     {fase}: {tiempo}")
-        logging.info(f"#")
-        logging.info(f"#  Job ID: {context.instance_id}")
         logging.info(f"{'#'*70}")
         
         return final
@@ -634,7 +573,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.error(f"!  [CRITICAL] ERROR FATAL EN ORQUESTADOR")
         logging.error(f"{'!'*70}")
         logging.error(f"!  Error: {str(e)}")
-        logging.error(f"!  Tipo: {type(e).__name__}")
         
         import traceback
         tb = traceback.format_exc()
