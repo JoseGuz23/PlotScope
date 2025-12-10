@@ -1,5 +1,5 @@
 # =============================================================================
-# SaveOutputs/__init__.py - SYLPHRENA 5.0
+# SaveOutputs/__init__.py - SYLPHRENA 5.0 (FIXED)
 # =============================================================================
 # NUEVO: Guarda carta editorial, notas de margen, y todos los outputs
 # =============================================================================
@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from io import BytesIO
-from .structure_changes import structure_changes
+from .structure_changes import structure_changes # Asumimos que esta función existe
 
 logging.basicConfig(level=logging.INFO)
 
@@ -166,12 +166,32 @@ def generate_changes_report_v5(chapters: list) -> str:
     return "\n".join(lines)
 
 
-def main(payload: dict) -> dict:
+# Función principal de la Activity (FIX aplicado aquí)
+def main(input_data: any) -> dict:
     """
     Guarda todos los outputs del proceso Sylphrena 5.0.
     """
     
+    logging.info(f"SaveOutputs Activity ejecutada. Tipo de input: {type(input_data)}")
+    
+    # ---------------------------------------------------------------------
+    # FIX CRÍTICO: Manejar input que puede ser string o dict
+    # ---------------------------------------------------------------------
+    payload = input_data
+    if isinstance(input_data, str):
+        try:
+            payload = json.loads(input_data)
+        except json.JSONDecodeError as e:
+            logging.error(f"[CRITICAL ERROR] No se pudo deserializar el input JSON: {e}")
+            raise Exception(f"Input JSON inválido para SaveOutputs: {e}")
+
+    if not isinstance(payload, dict):
+        logging.error(f"[CRITICAL ERROR] El input final no es un diccionario. Tipo: {type(payload)}")
+        raise Exception("El formato de datos de entrada a SaveOutputs es incorrecto.")
+    # ---------------------------------------------------------------------
+
     try:
+        # Extraer datos (ahora es seguro)
         job_id = payload.get('job_id', 'unknown')
         book_name = payload.get('book_name', 'Sin título')
         bible = payload.get('bible', {})
@@ -181,7 +201,6 @@ def main(payload: dict) -> dict:
         tiempos = payload.get('tiempos', {})
         original_fragments = payload.get('original_fragments', [])
         
-        # NUEVO 5.0
         carta_editorial = payload.get('carta_editorial', {})
         carta_markdown = payload.get('carta_markdown', '')
         margin_notes = payload.get('margin_notes', {})
@@ -189,8 +208,8 @@ def main(payload: dict) -> dict:
         logging.info(f"")
         logging.info(f"{'='*60}")
         logging.info(f">>> SAVE OUTPUTS - SYLPHRENA 5.0")
-        logging.info(f"    Job ID: {job_id}")
-        logging.info(f"    Libro: {book_name}")
+        logging.info(f"    Job ID: {job_id}")
+        logging.info(f"    Libro: {book_name}")
         logging.info(f"{'='*60}")
 
         # Conexión a Blob Storage
@@ -209,6 +228,19 @@ def main(payload: dict) -> dict:
         container_client = blob_service.get_container_client(container_name)
         base_path = job_id
         urls = {}
+        
+        # Helper para subir blobs
+        def upload_blob(path, content, content_type):
+            """Sube contenido y retorna la URL (simulación de URL pública)."""
+            blob_client = container_client.get_blob_client(path)
+            blob_client.upload_blob(
+                content if isinstance(content, (str, bytes)) else json.dumps(content, indent=2, ensure_ascii=False), 
+                overwrite=True,
+                content_settings=ContentSettings(content_type=content_type)
+            )
+            # Retorna una URL que el Frontend puede usar para saber que el archivo existe
+            return f"https://{blob_service.account_name}.blob.core.windows.net/{container_name}/{path}"
+
 
         # ─────────────────────────────────────────────────────────────────
         # A. METADATA
@@ -223,213 +255,118 @@ def main(payload: dict) -> dict:
             'book_name': book_name,
             'version': 'Sylphrena 5.0',
             'created_at': datetime.now().isoformat(),
-            'status': 'processing' if not carta_editorial else 'completed',
+            'status': payload.get('status', 'processing'),
             'counts': metadata_counts
         }
         
-        metadata_path = f"{base_path}/metadata.json"
-        blob_client = container_client.get_blob_client(metadata_path)
-        blob_client.upload_blob(
-            json.dumps(metadata, indent=2, ensure_ascii=False), 
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        urls['metadata'] = blob_client.url
+        urls['metadata'] = upload_blob(f"{base_path}/metadata.json", metadata, 'application/json')
         logging.info("✅ Metadata guardada")
 
         # ─────────────────────────────────────────────────────────────────
-        # B. BIBLIA
+        # B. BIBLIA (Ahora guardará correctamente porque el input ya es dict)
         # ─────────────────────────────────────────────────────────────────
-        # JSON
-        bible_json_path = f"{base_path}/biblia_validada.json"
-        blob_client = container_client.get_blob_client(bible_json_path)
-        blob_client.upload_blob(
-            json.dumps(bible, indent=2, ensure_ascii=False), 
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        urls['biblia_json'] = blob_client.url
-
-        # Markdown
-        biblia_md = generate_bible_markdown(bible)
-        biblia_md_path = f"{base_path}/biblia_narrativa.md"
-        blob_client = container_client.get_blob_client(biblia_md_path)
-        blob_client.upload_blob(
-            biblia_md, 
-            overwrite=True,
-            content_settings=ContentSettings(content_type='text/markdown')
-        )
-        urls['biblia_narrativa'] = blob_client.url
-        logging.info("✅ Biblia guardada")
+        if bible:
+            urls['biblia_json'] = upload_blob(f"{base_path}/biblia_validada.json", bible, 'application/json')
+            
+            biblia_md = generate_bible_markdown(bible)
+            urls['biblia_narrativa'] = upload_blob(f"{base_path}/biblia_narrativa.md", biblia_md, 'text/markdown')
+            logging.info("✅ Biblia guardada")
 
         # ─────────────────────────────────────────────────────────────────
         # C. CARTA EDITORIAL (NUEVO 5.0)
         # ─────────────────────────────────────────────────────────────────
         if carta_editorial:
-            # JSON
-            carta_json_path = f"{base_path}/carta_editorial.json"
-            blob_client = container_client.get_blob_client(carta_json_path)
-            blob_client.upload_blob(
-                json.dumps(carta_editorial, indent=2, ensure_ascii=False),
-                overwrite=True,
-                content_settings=ContentSettings(content_type='application/json')
-            )
-            urls['carta_editorial_json'] = blob_client.url
-            
-            # Markdown
+            urls['carta_editorial_json'] = upload_blob(f"{base_path}/carta_editorial.json", carta_editorial, 'application/json')
             if carta_markdown:
-                carta_md_path = f"{base_path}/carta_editorial.md"
-                blob_client = container_client.get_blob_client(carta_md_path)
-                blob_client.upload_blob(
-                    carta_markdown,
-                    overwrite=True,
-                    content_settings=ContentSettings(content_type='text/markdown')
-                )
-                urls['carta_editorial_md'] = blob_client.url
-            
+                urls['carta_editorial_md'] = upload_blob(f"{base_path}/carta_editorial.md", carta_markdown, 'text/markdown')
             logging.info("✅ Carta Editorial guardada")
 
         # ─────────────────────────────────────────────────────────────────
         # D. NOTAS DE MARGEN (NUEVO 5.0)
         # ─────────────────────────────────────────────────────────────────
         if margin_notes:
-            notas_path = f"{base_path}/notas_margen.json"
-            blob_client = container_client.get_blob_client(notas_path)
-            blob_client.upload_blob(
-                json.dumps(margin_notes, indent=2, ensure_ascii=False),
-                overwrite=True,
-                content_settings=ContentSettings(content_type='application/json')
-            )
-            urls['notas_margen'] = blob_client.url
-            logging.info(f"✅ {len(margin_notes.get('all_notes', []))} notas de margen guardadas")
+            urls['notas_margen'] = upload_blob(f"{base_path}/notas_margen.json", margin_notes, 'application/json')
+            logging.info(f"✅ {len(margin_notes.get('all_notes', [])) if margin_notes else 0} notas de margen guardadas")
 
         # ─────────────────────────────────────────────────────────────────
         # E. CAPÍTULOS CONSOLIDADOS Y CAMBIOS
         # ─────────────────────────────────────────────────────────────────
-        # Capítulos
-        chapters_path = f"{base_path}/capitulos_consolidados.json"
-        blob_client = container_client.get_blob_client(chapters_path)
-        blob_client.upload_blob(
-            json.dumps(consolidated_chapters, indent=2, ensure_ascii=False),
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        urls['capitulos'] = blob_client.url
+        if consolidated_chapters:
+            urls['capitulos'] = upload_blob(f"{base_path}/capitulos_consolidados.json", consolidated_chapters, 'application/json')
 
-        # Cambios estructurados
-        logging.info("🔄 Estructurando cambios para editor...")
-        structured_changes = structure_changes(consolidated_chapters)
+            logging.info("🔄 Estructurando cambios para editor...")
+            structured_changes = structure_changes(consolidated_chapters)
 
-        changes_path = f"{base_path}/cambios_estructurados.json"
-        blob_client = container_client.get_blob_client(changes_path)
-        blob_client.upload_blob(
-            json.dumps(structured_changes, indent=2, ensure_ascii=False),
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        urls['cambios'] = blob_client.url
-        logging.info(f"✅ {structured_changes['total_changes']} cambios estructurados")
-
-        # ─────────────────────────────────────────────────────────────────
-        # F. REPORTE DE CAMBIOS
-        # ─────────────────────────────────────────────────────────────────
-        cambios_md = generate_changes_report_v5(consolidated_chapters)
-        cambios_path = f"{base_path}/reporte_cambios.md"
-        blob_client = container_client.get_blob_client(cambios_path)
-        blob_client.upload_blob(
-            cambios_md, 
-            overwrite=True,
-            content_settings=ContentSettings(content_type='text/markdown')
-        )
-        urls['reporte_cambios'] = blob_client.url
-
-        # ─────────────────────────────────────────────────────────────────
-        # G. RESUMEN EJECUTIVO
-        # ─────────────────────────────────────────────────────────────────
-        total_caps_orig = metadata_counts.get('original_chapters', 0)
-        if total_caps_orig == 0 and original_fragments:
-             total_caps_orig = len(original_fragments)
-
-        resumen = {
-            'job_id': job_id,
-            'book_name': book_name,
-            'version': 'Sylphrena 5.0',
-            'fecha_procesamiento': datetime.now().isoformat(),
-            'capitulos_originales': total_caps_orig, 
-            'capitulos_procesados': len(consolidated_chapters),
-            'fragmentos_totales': metadata_counts.get('original_fragments', len(original_fragments) if original_fragments else 0),
-            'total_cambios': structured_changes['total_changes'],
-            'total_notas_margen': len(margin_notes.get('all_notes', [])) if margin_notes else 0,
-            'estadisticas': statistics,
-            'tiempos': tiempos,
-            'archivos_generados': {
-                'biblia_json': 'biblia_validada.json',
-                'biblia_md': 'biblia_narrativa.md',
-                'carta_editorial_json': 'carta_editorial.json',
-                'carta_editorial_md': 'carta_editorial.md',
-                'notas_margen': 'notas_margen.json',
-                'capitulos': 'capitulos_consolidados.json',
-                'cambios': 'cambios_estructurados.json',
-                'reporte_cambios': 'reporte_cambios.md'
-            },
-            'urls': urls
-        }
+            urls['cambios'] = upload_blob(f"{base_path}/cambios_estructurados.json", structured_changes, 'application/json')
+            logging.info(f"✅ {structured_changes.get('total_changes', 0)} cambios estructurados")
         
-        resumen_path = f"{base_path}/resumen_ejecutivo.json"
-        blob_client = container_client.get_blob_client(resumen_path)
-        blob_client.upload_blob(
-            json.dumps(resumen, indent=2, ensure_ascii=False), 
-            overwrite=True,
-            content_settings=ContentSettings(content_type='application/json')
-        )
-        urls['resumen'] = blob_client.url
-        logging.info("✅ Resumen ejecutivo guardado")
-
         # ─────────────────────────────────────────────────────────────────
-        # H. CAPÍTULOS INDIVIDUALES
+        # F. REPORTE DE CAMBIOS Y RESUMEN FINAL
         # ─────────────────────────────────────────────────────────────────
-        chapters_folder = f"{base_path}/capitulos_individuales"
-        for ch in consolidated_chapters:
-            ch_id = ch.get('chapter_id', '?')
-            title = ch.get('display_title', f'Capitulo_{ch_id}')
-            safe_title = title.replace('/', '_').replace('\\', '_')[:50]
-            
-            ch_path = f"{chapters_folder}/{safe_title}.json"
-            blob_client = container_client.get_blob_client(ch_path)
-            blob_client.upload_blob(
-                json.dumps(ch, indent=2, ensure_ascii=False),
-                overwrite=True,
-                content_settings=ContentSettings(content_type='application/json')
-            )
+        # (El resto de tu lógica de reporte y resumen final)
         
-        logging.info(f"✅ {len(consolidated_chapters)} capítulos individuales guardados")
+        # Si la fase 6 se completó (Biblia), pero no hay más datos,
+        # significa que estamos en el guardado intermedio (Fase 6).
+        is_final_save = bool(carta_editorial)
+        if is_final_save:
+            # Reporte de cambios (solo se genera si hay consolidated_chapters)
+            if consolidated_chapters:
+                cambios_md = generate_changes_report_v5(consolidated_chapters)
+                urls['reporte_cambios'] = upload_blob(f"{base_path}/reporte_cambios.md", cambios_md, 'text/markdown')
+
+            # Resumen final
+            total_caps_orig = metadata_counts.get('original_chapters', 0)
+            resumen = {
+                 # ... (Resumen de tu código original)
+                 'job_id': job_id,
+                 'book_name': book_name,
+                 'version': 'Sylphrena 5.0',
+                 'fecha_procesamiento': datetime.now().isoformat(),
+                 'capitulos_originales': total_caps_orig, 
+                 'capitulos_procesados': len(consolidated_chapters),
+                 'fragmentos_totales': metadata_counts.get('original_fragments', len(original_fragments) if original_fragments else 0),
+                 'total_cambios': structured_changes.get('total_changes', 0),
+                 'total_notas_margen': len(margin_notes.get('all_notes', [])) if margin_notes else 0,
+                 'estadisticas': statistics,
+                 'tiempos': tiempos,
+                 'archivos_generados': {
+                    'biblia_json': 'biblia_validada.json', 'biblia_md': 'biblia_narrativa.md',
+                    'carta_editorial_json': 'carta_editorial.json', 'carta_editorial_md': 'carta_editorial.md',
+                    'notas_margen': 'notas_margen.json', 'capitulos': 'capitulos_consolidados.json',
+                    'cambios': 'cambios_estructurados.json', 'reporte_cambios': 'reporte_cambios.md'
+                 },
+                 'urls': urls
+             }
+            urls['resumen'] = upload_blob(f"{base_path}/resumen_ejecutivo.json", resumen, 'application/json')
+            logging.info("✅ Resumen ejecutivo guardado")
+
+            # Capítulos individuales (solo en la fase final)
+            chapters_folder = f"{base_path}/capitulos_individuales"
+            for ch in consolidated_chapters:
+                 ch_id = ch.get('chapter_id', '?')
+                 title = ch.get('display_title', f'Capitulo_{ch_id}')
+                 safe_title = title.replace('/', '_').replace('\\', '_')[:50]
+                 upload_blob(f"{chapters_folder}/{safe_title}.json", ch, 'application/json')
+            logging.info(f"✅ {len(consolidated_chapters)} capítulos individuales guardados")
 
         # ─────────────────────────────────────────────────────────────────
-        # RESUMEN FINAL
+        # RESUMEN FINAL DE RETORNO
         # ─────────────────────────────────────────────────────────────────
-        logging.info("")
         logging.info("="*60)
-        logging.info("✅ SYLPHRENA 5.0 - TODOS LOS OUTPUTS GUARDADOS")
-        logging.info(f"   Job ID: {job_id}")
-        logging.info(f"   Archivos principales: {len(urls)}")
-        logging.info(f"   Capítulos individuales: {len(consolidated_chapters)}")
-        if carta_editorial:
-            logging.info(f"   Carta Editorial: ✅")
-        if margin_notes:
-            logging.info(f"   Notas de margen: {len(margin_notes.get('all_notes', []))}")
-        logging.info("="*60)
-        
+        logging.info("✅ SAVE OUTPUTS completado.")
+
         return {
             'status': 'success',
             'job_id': job_id,
             'urls': urls,
-            'files_saved': len(urls) + len(consolidated_chapters)
+            'files_saved': len(urls)
         }
 
     except Exception as e:
         logging.error(f"❌ Error en SaveOutputs: {str(e)}")
         import traceback
         logging.error(traceback.format_exc())
+        # Devolvemos el error al Orchestrator para que pueda registrar la falla
         return {
             'status': 'error',
             'error': str(e)

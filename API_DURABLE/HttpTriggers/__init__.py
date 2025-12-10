@@ -157,10 +157,12 @@ async def get_orchestrator_status(client, instance_id):
 
             if 'segment' in cust_str: 
                 friendly = 'Segmentando manuscrito...'
-            elif 'capa 1' in cust_str or 'batch c1' in cust_str: 
+            elif 'capa 1' in cust_str or 'batch c1' in cust_str or 'poll' in cust_str: 
                 friendly = 'Analizando hechos y datos (Capa 1)...'
             elif 'consolid' in cust_str: 
                 friendly = 'Unificando hallazgos...'
+            elif 'paralelo' in cust_str or 'parallel' in cust_str:
+                friendly = 'Procesando análisis avanzado...'
             elif 'layer2' in cust_str or 'estructur' in cust_str or 'structur' in cust_str: 
                 friendly = 'Analizando estructura narrativa (Capa 2)...'
             elif 'layer3' in cust_str or 'cualitativ' in cust_str or 'qualitative' in cust_str: 

@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-// Importamos los componentes que ahora están en gris en App.jsx
+// Asegúrate de que estas importaciones son CORRECTAS
 import EditorialLetter from './EditorialLetter';
 import Editor from './Editor';
 import { FileText, PenTool, Layout as LayoutIcon, Loader2 } from 'lucide-react';
 
 export default function ResultsHub() {
+  // El contexto (project) se obtiene del componente padre ProjectLayout.
   const { project } = useOutletContext();
-  const [activeSubTab, setActiveSubTab] = useState('carta'); // 'carta' | 'editor'
+  const [activeSubTab, setActiveSubTab] = useState('carta'); 
 
-  // Si el proyecto no está marcado como 'completed', mostramos mensaje de espera.
+  // Si el proyecto no está disponible o no ha pasado las fases iniciales
   if (project?.status !== 'completed' && project?.status !== 'failed' && project?.status !== 'terminated') {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-gray-50/50 text-center p-8">
@@ -28,7 +29,7 @@ export default function ResultsHub() {
     );
   }
   
-  // Si está completado, mostramos el Hub
+  // Si está completado, mostramos el Hub de sub-pestañas
   return (
     <div className="flex flex-col h-full">
       {/* SUB-NAVEGACIÓN TIPO "TOGGLE" */}
@@ -57,10 +58,10 @@ export default function ResultsHub() {
 
       {/* CONTENIDO */}
       <div className="flex-1 overflow-hidden relative">
-        {/* Usamos las propiedades para que sepa que está anidado */}
+        {/* Aquí es donde se resuelven las importaciones de los componentes que estaban en gris */}
         {activeSubTab === 'carta' 
-          ? <EditorialLetter projectId={project?.id} isEmbedded={true} /> 
-          : <Editor projectId={project?.id} isEmbedded={true} />}
+          ? <EditorialLetter /> 
+          : <Editor />}
       </div>
     </div>
   );

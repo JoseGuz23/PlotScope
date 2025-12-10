@@ -15,10 +15,12 @@ const PHASES = [
   { key: 'upload', icon: Upload, label: 'Recepción', description: 'Archivo recibido' },
   { key: 'segment', icon: BookOpen, label: 'Segmentación', description: 'División estructural' },
   { key: 'analyze1', icon: Search, label: 'Análisis Factual', description: 'Extracción de datos' },
-  { key: 'analyze2', icon: FileText, label: 'Análisis Estructural', description: 'Evaluación de ritmo' },
-  { key: 'analyze3', icon: Brain, label: 'Análisis Cualitativo', description: 'Profundidad narrativa' },
+  { key: 'consolidate', icon: FileText, label: 'Consolidación', description: 'Unificando hallazgos' },
+  { key: 'analyze2-3', icon: Brain, label: 'Análisis Profundo', description: 'Estructura y calidad' },
   { key: 'bible', icon: Scroll, label: 'Biblia Narrativa', description: 'Generación de guía' },
-  { key: 'arcs', icon: Map, label: 'Mapeo de Arcos', description: 'Trayectoria de personajes' },
+  { key: 'carta', icon: FileText, label: 'Carta Editorial', description: 'Recomendaciones' },
+  { key: 'notas', icon: Edit, label: 'Notas de Margen', description: 'Anotaciones contextuales' },
+  { key: 'arcs', icon: Map, label: 'Mapeo de Arcos', description: 'Trayectorias narrativas' },
   { key: 'edit', icon: Edit, label: 'Edición IA', description: 'Corrección estilística' },
   { key: 'save', icon: Save, label: 'Finalización', description: 'Compilando entregables' },
 ];
@@ -32,26 +34,36 @@ function getPhaseIndex(customStatus) {
   // 1. Segmentación
   if (s.includes('segment')) return 1;
   
-  // 2. Análisis Factual (AQUÍ ESTABA EL BUG: Agregado 'batch c1')
-  if (s.includes('capa 1') || s.includes('factual') || s.includes('batch c1') || s.includes('batch analysis')) return 2;
+  // 2. Análisis Factual (incluye polling adaptativo)
+  if (s.includes('capa 1') || s.includes('factual') || s.includes('batch c1') || 
+      s.includes('batch analysis') || (s.includes('poll') && s.includes('c1'))) return 2;
   
-  // 3. Análisis Estructural (Consolidación o Capa 2)
-  if (s.includes('consolid') || s.includes('layer2') || s.includes('estructur')) return 3;
+  // 3. Consolidación
+  if (s.includes('consolid') || s.includes('unificando')) return 3;
   
-  // 4. Análisis Cualitativo (Capa 3)
-  if (s.includes('layer3') || s.includes('cualitativ')) return 4;
+  // 4. Análisis Profundo (paralelo: layer2 + layer3)
+  if (s.includes('paralelo') || s.includes('parallel') || 
+      s.includes('layer2') || s.includes('estructur') || 
+      s.includes('layer3') || s.includes('cualitativ')) return 4;
   
-  // 5. Biblia (Generación o Espera)
-  if (s.includes('biblia') || s.includes('holistic') || s.includes('esperando') || s.includes('aprobacion')) return 5;
+  // 5. Biblia
+  if (s.includes('biblia') || s.includes('holistic') || 
+      s.includes('esperando') || s.includes('aprobacion')) return 5;
   
-  // 6. Arcos (Agregado 'arc_')
-  if (s.includes('arc_') || s.includes('arco') || s.includes('map')) return 6;
+  // 6. Carta Editorial
+  if (s.includes('carta') || s.includes('editorial')) return 6;
   
-  // 7. Edición
-  if (s.includes('edici') || s.includes('edit') || s.includes('claude')) return 7;
+  // 7. Notas de Margen
+  if (s.includes('notas') || s.includes('margin')) return 7;
   
-  // 8. Finalización
-  if (s.includes('final') || s.includes('guard') || s.includes('reconst')) return 8;
+  // 8. Arcos
+  if (s.includes('arc') || s.includes('arco') || s.includes('map')) return 8;
+  
+  // 9. Edición
+  if (s.includes('edici') || s.includes('edit') || s.includes('claude')) return 9;
+  
+  // 10. Finalización
+  if (s.includes('final') || s.includes('guard') || s.includes('reconst') || s.includes('save')) return 10;
   
   return 0;
 }

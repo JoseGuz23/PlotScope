@@ -22,8 +22,10 @@ export default function ProjectLayout() {
       setProject(data);
     } catch (err) {
       console.error(err);
-      // Redirigir si el proyecto no existe
-      Navigate('/dashboard');
+      // Si hay un error de carga, redirigimos al dashboard para evitar el loop
+      // Usamos el hook Navigate para la redirección más limpia.
+      // Ya que no podemos usar hooks fuera de la función, la redirección se manejará en el Router si es nulo.
+      setProject(null); 
     } finally {
       setLoading(false);
     }
@@ -34,8 +36,11 @@ export default function ProjectLayout() {
       <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
     </div>
   );
-
-  // Redirigir la ruta raíz del proyecto a 'status' si el usuario ingresa a /proyecto/:id
+  
+  // Si no se pudo cargar el proyecto y ya no estamos cargando, redirigimos al dashboard.
+  if (!project) return <Navigate to="/dashboard" replace />;
+  
+  // Enrutamos el índice (el path base /proyecto/:id) a la primera pestaña
   if (location.pathname === `/proyecto/${projectId}`) {
     return <Navigate to={`/proyecto/${projectId}/status`} replace />;
   }
@@ -84,6 +89,7 @@ export default function ProjectLayout() {
 
       {/* --- CONTENIDO DE LA PESTAÑA SELECCIONADA --- */}
       <div className="flex-1 overflow-hidden relative">
+        {/* Pasamos el objeto del proyecto a los hijos mediante el context */}
         <Outlet context={{ project }} />
       </div>
 
@@ -113,6 +119,7 @@ function StatusBadge({ status }) {
     completed: 'bg-green-100 text-green-700',
     processing: 'bg-yellow-100 text-yellow-700',
     failed: 'bg-red-100 text-red-700',
+    terminated: 'bg-gray-200 text-gray-600',
     pending: 'bg-gray-100 text-gray-600'
   };
   return (

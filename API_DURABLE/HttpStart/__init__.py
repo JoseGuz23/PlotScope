@@ -1,6 +1,7 @@
 """
 HttpStart/__init__.py - LYA
 CORREGIDO: Usa el job_id como instance_id para que el status funcione.
+CORREGIDO V2: Siempre envía dict completo al orquestrador (no solo blob_path).
 """
 
 import logging
@@ -18,17 +19,19 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
         if isinstance(body, dict):
             job_id = body.get('job_id')
             blob_path = body.get('blob_path')
+            book_name = body.get('book_name', 'Sin título')
             
             # CRÍTICO: Si tenemos job_id, lo usamos como instance_id
-            # Si no, Azure generará uno aleatorio y perderemos el rastro
             instance_id_to_use = job_id 
             
-            if blob_path:
-                orchestrator_input = blob_path
-                logging.info(f"🚀 Iniciando orquestador para: {blob_path} (ID: {instance_id_to_use})")
-            else:
-                orchestrator_input = body
-                logging.info(f"🚀 Iniciando orquestador con input dict (ID: {instance_id_to_use})")
+            # SIEMPRE enviar dict completo (no solo blob_path string)
+            orchestrator_input = {
+                'job_id': job_id,
+                'blob_path': blob_path,
+                'book_name': book_name
+            }
+            
+            logging.info(f"🚀 Iniciando orquestador para: {blob_path} (ID: {instance_id_to_use})")
         else:
             # Legacy
             orchestrator_input = body
@@ -36,7 +39,7 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
             logging.info(f"🚀 Iniciando orquestador legacy: {body}")
             
     except ValueError:
-        orchestrator_input = "test_book.txt"
+        orchestrator_input = {"job_id": "test", "blob_path": "test_book.txt", "book_name": "Test"}
         instance_id_to_use = None
         logging.info("🚀 Iniciando test default")
     

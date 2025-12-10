@@ -117,9 +117,9 @@ function ProjectCard({ project, onDelete, isDeleting }) {
   
   // --- LÓGICA DE DESTINO ACTUALIZADA PARA SYLPHRENA 5.0 ---
   // Si está completado, vamos primero a la Carta Editorial, no a la Biblia.
-  const destination = isComplete 
-    ? `/proyecto/${project.id}/carta` 
-    : `/proyecto/${project.id}/status`;
+const destination = isComplete 
+  ? `/proyecto/${project.id}/resultados` // <--- AHORA VA A RESULTADOS (CARTA/EDITOR)
+  : `/proyecto/${project.id}/status`;
 
   return (
     <Link 

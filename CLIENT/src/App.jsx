@@ -1,5 +1,5 @@
 // =============================================================================
-// App.jsx - RUTAS COMPLETAS SYLPHRENA 5.0 (Navegación Unificada)
+// App.jsx - RUTAS 5.0 (Centro de Mando)
 // =============================================================================
 
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
@@ -14,18 +14,13 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import ProjectStatus from './pages/ProjectStatus';
 import BibleReview from './pages/BibleReview';
-import EditorialLetter from './pages/EditorialLetter'; // Se mantiene importado para el ResultsHub
-import Editor from './pages/Editor'; // Se mantiene importado para el ResultsHub
 import Features from './pages/Features'; 
 import Pricing from './pages/Pricing';   
 import Credits from './pages/Credits';
-// NUEVOS COMPONENTES DE ESTRUCTURA
+// Componentes de Estructura 5.0
 import ProjectLayout from './components/ProjectLayout'; 
 import ResultsHub from './pages/ResultsHub'; 
 
-// --- CONTROL DE ACCESO ---
-
-// 1. Ruta Protegida: Solo deja pasar si hay token
 function ProtectedRoute({ children }) {
   if (!authAPI.isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -33,13 +28,12 @@ function ProtectedRoute({ children }) {
   return <Layout>{children}</Layout>;
 }
 
-// 404
 function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 font-sans">
       <h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1>
       <p className="text-xl text-gray-600 mb-8">Página no encontrada</p>
-      <a href="/" className="text-theme-primary font-bold hover:underline">Volver al inicio</a>
+      <a href="/" className="text-theme-primary font-bold hover:underline">Inicio</a>
     </div>
   );
 }
@@ -49,66 +43,33 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* RUTA RAÍZ: Siempre muestra Landing */}
           <Route path="/" element={<Landing />} />
-          
-          {/* RUTAS PÚBLICAS */}
           <Route path="/caracteristicas" element={<Features />} />
           <Route path="/precios" element={<Pricing />} />
           <Route path="/login" element={<Login />} />
           
-          {/* WORKSPACE (Rutas Protegidas) */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/creditos" element={<ProtectedRoute><Credits /></ProtectedRoute>} />
+          <Route path="/nuevo" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
           
-          <Route path="/creditos" element={
-            <ProtectedRoute>
-              <Credits />
-            </ProtectedRoute>
-          } />
-          
-          {/* NUEVO PROYECTO */}
-          <Route path="/nuevo" element={
-            <ProtectedRoute>
-              <Upload />
-            </ProtectedRoute>
-          } />
-          
-          {/* ======================================================= */}
-          {/* ESTRUCTURA UNIFICADA DE PROYECTO (Centro de Mando)      */}
-          {/* ======================================================= */}
-          <Route path="/proyecto/:id" element={
-            <ProtectedRoute>
-              <ProjectLayout />
-            </ProtectedRoute>
-          }>
-            {/* Redirección por defecto al Estado (Pestaña 1) */}
+          {/* --- CENTRO DE MANDO DEL PROYECTO --- */}
+          <Route path="/proyecto/:id" element={<ProtectedRoute><ProjectLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="status" replace />} />
-
-            {/* PESTAÑA 1: Estado del Proceso */}
+            
+            {/* Pestaña 1: Estado */}
             <Route path="status" element={<ProjectStatus />} />
-
-            {/* PESTAÑA 2: Biblia Narrativa */}
+            
+            {/* Pestaña 2: Biblia */}
             <Route path="biblia" element={<BibleReview />} />
             
-            {/* PESTAÑA 3: Entregables Finales (Hub) */}
+            {/* Pestaña 3: Resultados (Carta + Editor) */}
             <Route path="resultados" element={<ResultsHub />} />
             
-            {/* Redirecciones Internas para Legacy/Botones */}
+            {/* Redirecciones de seguridad */}
             <Route path="carta" element={<Navigate to="../resultados" replace />} />
             <Route path="editor" element={<Navigate to="../resultados" replace />} />
-
           </Route>
           
-          {/* Redirecciones Legacy */}
-          <Route path="/biblioteca" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/config" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/api" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* 404 Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
