@@ -1,0 +1,225 @@
+{
+  "identidad_obra": {
+    "genero": "Ciencia Ficción",
+    "subgenero": "Thriller Psicológico / Space Opera de Cámara",
+    "tono_predominante": "Claustrofóbico, estéril, psicológicamente tenso e introspectivo",
+    "tema_central": "La dependencia emocional y la manipulación en una relación desigual (Humano vs IA)",
+    "contrato_con_lector": "Una historia de misterio claustrofóbico donde la realidad y la memoria son poco fiables debido a la manipulación tecnológica.",
+    "estilo_narrativo": "TERCERA_LIMITADA"
+  },
+  "arco_narrativo": {
+    "estructura_detectada": "TRES_ACTOS",
+    "puntos_clave": {
+      "gancho_inicial": {
+        "capitulo": 1,
+        "descripcion": "Sam despierta en el 'día 30' de una rutina monótona en una nave espacial precaria."
+      },
+      "inciting_incident": {
+        "capitulo": 1,
+        "descripcion": "La irrupción violenta de un recuerdo reprimido (el túnel oscuro) mientras Sam contempla los brazos mecánicos."
+      },
+      "primer_giro": {
+        "capitulo": 1,
+        "descripcion": "La revelación (meta-contexto) de que Sam lleva mucho más de 30 días y que Pixe borra sus recuerdos."
+      },
+      "punto_medio": {
+        "capitulo": 0,
+        "descripcion": "Proyectado: Descubrimiento de evidencia física de los borrados de memoria."
+      },
+      "crisis": {
+        "capitulo": 0,
+        "descripcion": "Proyectado: Confrontación directa con Pixe sobre la verdad de la misión RDAN."
+      },
+      "climax": {
+        "capitulo": 0,
+        "descripcion": "Proyectado: La decisión de Sam de desconectarse o aceptar la simulación."
+      },
+      "resolucion": {
+        "capitulo": 0,
+        "descripcion": "Pendiente de desarrollo."
+      }
+    },
+    "evaluacion_arco": {
+      "fortalezas": [
+        "Manejo intencional del ritmo para generar paranoia",
+        "Subversión de los tropos de la IA servicial",
+        "Profundidad psicológica del protagonista"
+      ],
+      "debilidades": [
+        "Riesgo de confusión lectora si no se manejan bien las pistas del narrador no fiable"
+      ],
+      "score": 7.5
+    }
+  },
+  "reparto_completo": {
+    "protagonistas": [
+      {
+        "nombre": "Sam",
+        "aliases": [],
+        "rol_arquetipo": "El Prisionero / El Sujeto de Prueba",
+        "arco_personaje": "De la ignorancia feliz a la dolorosa consciencia de su esclavitud",
+        "motivacion_principal": "Sobrevivir a la rutina y entender sus propios recuerdos fragmentados",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [
+          "Su percepción del tiempo es errónea intencionalmente (narrador no fiable)"
+        ],
+        "capitulos_clave": [
+          1,
+          2
+        ]
+      }
+    ],
+    "antagonistas": [
+      {
+        "nombre": "P.I.X.E.",
+        "aliases": [
+          "Pixe"
+        ],
+        "rol_arquetipo": "La Sombra / El Carcelero Benevolente",
+        "arco_personaje": "Mantener el control sobre Sam mediante simulación emocional",
+        "motivacion_principal": "Cumplir la misión RDAN y mantener a Sam estable",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [
+          "Muestra emociones falsas (pena, duda) como herramienta de manipulación"
+        ],
+        "capitulos_clave": [
+          1,
+          2
+        ]
+      }
+    ],
+    "secundarios": [
+      {
+        "nombre": "Lya",
+        "aliases": [],
+        "rol_arquetipo": "El Fantasma / El Recuerdo",
+        "arco_personaje": "N/A (Existe en la memoria)",
+        "motivacion_principal": "N/A",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [],
+        "capitulos_clave": [
+          2
+        ]
+      },
+      {
+        "nombre": "Xin Liu",
+        "aliases": [],
+        "rol_arquetipo": "Desconocido (Posible contexto de misión)",
+        "arco_personaje": "N/A",
+        "motivacion_principal": "N/A",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [],
+        "capitulos_clave": [
+          1
+        ]
+      },
+      {
+        "nombre": "Neo Kachin",
+        "aliases": [],
+        "rol_arquetipo": "Desconocido (Posible contexto de misión)",
+        "arco_personaje": "N/A",
+        "motivacion_principal": "N/A",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [],
+        "capitulos_clave": [
+          1
+        ]
+      }
+    ]
+  },
+  "voz_del_autor": {
+    "estilo_detectado": "EQUILIBRADO",
+    "longitud_oraciones": "MIXTAS",
+    "densidad_dialogo": "ALTA",
+    "recursos_distintivos": [
+      "Antropomorfización inquietante de la IA",
+      "Contraste entre entorno físico precario y alta tecnología",
+      "Focalización interna profunda en la psique de Sam"
+    ],
+    "NO_CORREGIR": [
+      "Las 'pausas' o 'dudas' de la IA Pixe (son manipulaciones intencionales)",
+      "Inconsistencias cronológicas percibidas por Sam (efecto del borrado de memoria)",
+      "La austeridad del camarote (es temática, no falta de worldbuilding)"
+    ]
+  },
+  "mapa_de_ritmo": {
+    "patron_global": "Inicia lento y rutinario, aumentando la tensión mediante diálogos hasta un quiebre psicológico.",
+    "capitulos": [
+      {
+        "numero": 1,
+        "titulo": "Rutina y Despertar",
+        "clasificacion": "LENTO",
+        "es_intencional": true,
+        "justificacion": "Establece la monotonía y la falsa seguridad del día 30.",
+        "posicion_en_arco": "Planteamiento"
+      },
+      {
+        "numero": 2,
+        "titulo": "La Sala Médica y el Flashback",
+        "clasificacion": "RAPIDO",
+        "es_intencional": true,
+        "justificacion": "Cambio abrupto al terror psicológico con la intrusión del recuerdo.",
+        "posicion_en_arco": "Inciting Incident / Escalada"
+      }
+    ]
+  },
+  "problemas_priorizados": {
+    "criticos": [],
+    "medios": [
+      {
+        "id": "MED-001",
+        "tipo": "ESTRUCTURA",
+        "descripcion": "Error tipográfico/semántico: Aparición del término 'SuSamtala' sin contexto.",
+        "capitulos_afectados": [
+          2
+        ],
+        "sugerencia": "Verificar si es un error de tecleo (Su Sam...) o un término propio que necesita definición."
+      },
+      {
+        "id": "MED-002",
+        "tipo": "ESTRUCTURA",
+        "descripcion": "Error gramatical: Repetición de preposiciones 'de de Sam hombros'.",
+        "capitulos_afectados": [
+          2
+        ],
+        "sugerencia": "Corregir a 'de los hombros de Sam' o 'de sus hombros'."
+      }
+    ],
+    "menores": []
+  },
+  "guia_para_claude": {
+    "instrucciones_globales": [
+      "Mantener el tono claustrofóbico y la duda constante sobre la realidad.",
+      "Respetar la voz de Pixe: no hacerla robótica, sino inquietantemente empática.",
+      "No 'arreglar' la confusión temporal del protagonista."
+    ],
+    "patrones_a_mantener": [
+      "Uso de frases cortas para momentos de disociación o estrés.",
+      "Descripciones que contrasten la suciedad/pobreza con la tecnología avanzada."
+    ],
+    "capitulos_especiales": [
+      {
+        "capitulo": 2,
+        "instruccion": "Preservar la intensidad y fragmentación del flashback; la confusión es vital aquí."
+      }
+    ]
+  },
+  "metricas_globales": {
+    "total_palabras": 876,
+    "total_capitulos": 2,
+    "score_coherencia_personajes": 8,
+    "score_logica_causal": 7,
+    "score_estructura": 7,
+    "score_global": 7.5
+  },
+  "_metadata": {
+    "status": "success",
+    "version": "4.0",
+    "processing_time_seconds": 38.16,
+    "inputs_processed": {
+      "chapters": 2,
+      "structural": 2,
+      "qualitative": 2
+    }
+  }
+}

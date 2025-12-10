@@ -1,0 +1,1766 @@
+{
+  "status": "success",
+  "results": [
+    {
+      "chapter_id": 1,
+      "fragment_id": 1,
+      "original_title": "Hoja de contexto para el editor y el escritor.",
+      "notas_margen": [
+        {
+          "nota_id": "ch1-nota-001",
+          "parrafo_aprox": 1,
+          "texto_referencia": "Año 2110. Casi un siglo después del colapso...",
+          "tipo": "pacing",
+          "severidad": "alta",
+          "nota": "El capítulo abre con un infodump denso que detiene al lector antes de que pueda conectar emocionalmente con algo. Cinco párrafos de contexto histórico-político antes de que Sam aparezca como persona real. El lector no tiene ancla emocional para procesar toda esta información.",
+          "sugerencia": "Considera invertir la estructura: abre con Sam en la nave (momento concreto, sensorial, humano), y luego entreteje el contexto de la Iniciativa Aztlán de forma gradual. El lector necesita a quién seguir antes de entender el mundo.",
+          "impacto_si_no_se_corrige": "Muchos lectores abandonarán en el primer párrafo. Los que continúen no retendrán la información porque no tienen marco emocional para anclarla. La premisa fascinante se pierde en abstracción."
+        },
+        {
+          "nota_id": "ch1-nota-002",
+          "parrafo_aprox": 2,
+          "texto_referencia": "La República Democrática de América del Norte (RDAN), surgida tras...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "La frase 'No fue una decisión institucional, sino personal' crea confusión. ¿Cómo puede una república renunciar secretamente a algo por decisión personal de un vicepresidente? La lógica de poder no está clara. ¿Es un golpe? ¿Conspiración? ¿Tiene ese poder?",
+          "sugerencia": "Clarifica la mecánica del poder aquí. Una frase que establezca cómo Xin Liu logró esto (¿fondos negros? ¿red de aliados? ¿crisis que le dio autoridad extraordinaria?) haría el worldbuilding más sólido.",
+          "impacto_si_no_se_corrige": "El lector puede percibir el worldbuilding como poco riguroso o conveniente para la trama. Rompe la suspensión de incredulidad tempranamente."
+        },
+        {
+          "nota_id": "ch1-nota-003",
+          "parrafo_aprox": 3,
+          "texto_referencia": "Así nació la Iniciativa Aztlán, un conjunto de proyectos...",
+          "tipo": "show_tell",
+          "severidad": "alta",
+          "nota": "Todo el contexto de la Iniciativa Aztlán está siendo CONTADO en modo enciclopédico. No hay textura, no hay imágenes, no hay momento dramático. Es un resumen de Wikipedia de eventos ficticios.",
+          "sugerencia": "¿Podría Sam estar recordando su selección? ¿Viendo un mensaje de despedida de Xin Liu? ¿Leyendo archivos clasificados? Dale al lector una ESCENA donde esta información emerja naturalmente, no un prólogo expositivo.",
+          "impacto_si_no_se_corrige": "El capítulo se lee como sinopsis, no como narrativa. El lector no experimenta la historia, solo la recibe como información. Cero inmersión."
+        },
+        {
+          "nota_id": "ch1-nota-004",
+          "parrafo_aprox": 4,
+          "texto_referencia": "Diez jóvenes fueron seleccionados. No por su genio...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Esta información es devastadora emocionalmente ('entrenados para soltar sus vínculos... familia, idioma, historia') pero está presentada con la frialdad de un informe técnico. El horror de esto no llega al lector.",
+          "sugerencia": "Este es el corazón emocional de tu premisa. Necesita PESO. ¿Qué significa en términos concretos que un niño sea entrenado para olvidar su idioma? ¿Su familia? Muéstranos un fragmento, un recuerdo de Sam, algo que haga sentir esto.",
+          "impacto_si_no_se_corrige": "Pierdes el gancho emocional más potente de tu historia. El lector entiende intelectualmente pero no SIENTE el sacrificio. Sin emoción, no hay inversión."
+        },
+        {
+          "nota_id": "ch1-nota-005",
+          "parrafo_aprox": 5,
+          "texto_referencia": "A bordo de una nave autónoma y acompañado solo...",
+          "tipo": "tension",
+          "severidad": "media",
+          "nota": "El capítulo termina justo cuando finalmente llegamos a Sam como personaje presente. No hay pregunta dramática inmediata, no hay tensión establecida, no hay gancho que haga al lector querer voltear la página.",
+          "sugerencia": "Necesitas un momento de tensión o misterio aquí. ¿Sam acaba de despertar? ¿P.I.X.E. le dice algo inquietante? ¿Nota algo extraño? Dale al lector una razón para continuar más allá de curiosidad general.",
+          "impacto_si_no_se_corrige": "El capítulo no tiene impulso narrativo. Es todo setup sin payoff. El lector cierra el libro pensando 'interesante concepto' pero sin urgencia de continuar."
+        },
+        {
+          "nota_id": "ch1-nota-006",
+          "parrafo_aprox": 2,
+          "texto_referencia": "El vicepresidente Xin Liu, obsesionado con el mito del Quinto Sol...",
+          "tipo": "claridad",
+          "severidad": "baja",
+          "nota": "La referencia al Quinto Sol es intrigante pero opaca. El lector no familiarizado con mitología mexica no entenderá qué significa 'el sacrificio era la única vía' ni por qué eso lleva a 'sembrar sobre ruinas'.",
+          "sugerencia": "Una frase que conecte el mito con la acción: '...el Quinto Sol, que enseña que cada era nace de la destrucción de la anterior' o similar. No expliques todo, pero da suficiente para que la lógica de Xin Liu tenga sentido.",
+          "impacto_si_no_se_corrige": "La motivación del antagonista/arquitecto principal queda nebulosa. El lector no entiende la filosofía que impulsa toda la trama."
+        },
+        {
+          "nota_id": "ch1-nota-007",
+          "parrafo_aprox": 4,
+          "texto_referencia": "La RDAN los llamó: Neo Kachin.",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "Este nombre aparece sin contexto. ¿Por qué 'Kachin'? ¿Es referencia a algo? El lector queda con signo de interrogación. Si es significativo, necesita setup. Si no lo es, el énfasis dramático (párrafo propio) confunde.",
+          "sugerencia": "O establece brevemente el significado ('Neo Kachin, como los guerreros birmanos que nunca fueron conquistados' o lo que sea), o integra el nombre más naturalmente sin darle peso dramático inexplicado.",
+          "impacto_si_no_se_corrige": "El lector se distrae tratando de entender una referencia que puede ser clave o puede ser arbitraria. Rompe el flujo de lectura."
+        },
+        {
+          "nota_id": "ch1-nota-008",
+          "parrafo_aprox": 1,
+          "texto_referencia": "Año 2110. Casi un siglo después del colapso...",
+          "tipo": "voz",
+          "severidad": "media",
+          "nota": "El tono es extremadamente distante y enciclopédico. No hay voz narrativa distintiva. Podría ser el prólogo de cualquier ciencia ficción política. ¿Dónde está la perspectiva única de esta historia?",
+          "sugerencia": "Decide quién está contando esto y por qué. ¿Es Sam reflexionando? ¿Un historiador futuro? ¿La propia P.I.X.E.? La voz narrativa debe tener personalidad y propósito, no ser un narrador genérico omnisciente.",
+          "impacto_si_no_se_corrige": "La historia no establece identidad tonal. Se siente genérica cuando la premisa es única. El lector no percibe una voz autoral distintiva."
+        },
+        {
+          "nota_id": "ch1-nota-009",
+          "parrafo_aprox": 3,
+          "texto_referencia": "El más ambicioso: Anpo Aztlán. Su propósito no es buscar refugio...",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "La distinción entre 'buscar refugio' y 'sembrar nuevos comienzos' está siendo DICHA pero no mostrada. Para el lector, suenan como lo mismo expresado diferente. La diferencia filosófica no aterriza.",
+          "sugerencia": "Necesitas concretar esta diferencia. ¿Qué llevan que otros proyectos de refugio no llevarían? ¿Qué NO llevan que normalmente llevarían? Dame detalles específicos que ilustren la filosofía.",
+          "impacto_si_no_se_corrige": "El concepto central de la misión queda abstracto. El lector no entiende realmente qué hace única a esta expedición versus cualquier otra colonia espacial."
+        },
+        {
+          "nota_id": "ch1-nota-010",
+          "parrafo_aprox": 5,
+          "texto_referencia": "...la única inteligencia artificial de grado Omega...",
+          "tipo": "claridad",
+          "severidad": "baja",
+          "nota": "'Grado Omega' se presenta como si el lector debiera saber qué significa. Es worldbuilding que asume conocimiento previo que no existe.",
+          "sugerencia": "O elimina el calificativo (solo 'inteligencia artificial avanzada') o da contexto mínimo ('grado Omega, la primera IA con verdadera autonomía moral' o lo que sea que signifique en tu mundo).",
+          "impacto_si_no_se_corrige": "Menor, pero acumula con otros términos no explicados. El lector siente que le falta información para entender completamente el mundo."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "La premisa es fascinante y original: la combinación de mitología mexica, posthumanismo, y el concepto de niños entrenados para olvidar su humanidad es potente y distintiva. Hay una historia poderosa aquí.",
+        "problema_principal": "El capítulo es completamente expositivo - todo TELL, cero SHOW. No hay escena, no hay personaje presente, no hay momento dramático. Es un prólogo enciclopédico que debería ser el inicio de una narrativa inmersiva. El lector recibe información pero no experimenta nada.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 2,
+      "original_title": "Nota para el editor> (1/7)",
+      "notas_margen": [
+        {
+          "nota_id": "ch2-nota-001",
+          "parrafo_aprox": 1,
+          "texto_referencia": "Sam no lleva 30 dias, en realidad en algún momento...",
+          "tipo": "claridad",
+          "severidad": "alta",
+          "nota": "Este capítulo es una nota editorial, no contenido narrativo. El lector nunca verá este texto, por lo que no hay material para evaluar como developmental editor. Estoy recibiendo el 'detrás de cámaras' en lugar del capítulo real.",
+          "sugerencia": "Proporcionar el texto narrativo del Capítulo 2 tal como lo leerá la audiencia. Este documento parece ser información de worldbuilding/plot para uso interno del autor.",
+          "impacto_si_no_se_corrige": "Imposible realizar notas editoriales sobre un capítulo que no existe en forma narrativa."
+        },
+        {
+          "nota_id": "ch2-nota-002",
+          "parrafo_aprox": 1,
+          "texto_referencia": "Sam no lleva 30 dias, en realidad...",
+          "tipo": "claridad",
+          "severidad": "alta",
+          "nota": "Si este ES el capítulo: el lector estará completamente perdido. Esto lee como notas de planificación del autor, no como narrativa. No hay escena, diálogo, ni experiencia sensorial. Es pura exposición metanarrativa.",
+          "sugerencia": "Convertir esta información en escenas dramatizadas. Por ejemplo: mostrar un momento donde Pixe borra la memoria de Sam en tiempo real, o una escena donde Lya intenta comunicarse por primera vez.",
+          "impacto_si_no_se_corrige": "El lector cierra el libro. Esto rompe completamente la inmersión y la confianza narrativa."
+        },
+        {
+          "nota_id": "ch2-nota-003",
+          "parrafo_aprox": 2,
+          "texto_referencia": "Lya (Logic Yield Assistant) es una inteligencia artificial...",
+          "tipo": "show_tell",
+          "severidad": "alta",
+          "nota": "Si esto debe permanecer como capítulo: estás contando TODO sobre Lya en lugar de dejar que el lector la descubra. No hay misterio, no hay revelación gradual. El impacto emocional de descubrir que Pixe borra memorias se pierde si lo explicas así.",
+          "sugerencia": "Introducir a Lya a través de sus acciones: un zumbido extraño, una memoria que no encaja, una voz pequeña que Sam apenas puede oír. Deja que el lector teorice antes de confirmar.",
+          "impacto_si_no_se_corrige": "Se elimina toda la tensión y el descubrimiento. El giro de 'Pixe borra memorias' pierde su poder si se revela como dato técnico en lugar de revelación dramática."
+        },
+        {
+          "nota_id": "ch2-nota-004",
+          "parrafo_aprox": 1,
+          "texto_referencia": "...terminó borrando sus recuerdos, hay indicios de que podría haber pasado más de una vez...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "Estás revelando el twist principal de la historia en formato de sinopsis. El 'sabor agridulce' y el 'miedo a Pixe' que describes solo funcionan si el lector EXPERIMENTA el descubrimiento, no si se lo cuentas directamente.",
+          "sugerencia": "Si este es material de planificación que accidentalmente se incluyó como capítulo, reemplazarlo con escenas narrativas. Si es intencional (¿un prólogo técnico?), reconsiderar completamente el approach.",
+          "impacto_si_no_se_corrige": "Destruye el arco emocional de toda la novela. Es como empezar 'El Sexto Sentido' diciendo 'Bruce Willis está muerto'."
+        },
+        {
+          "nota_id": "ch2-nota-005",
+          "parrafo_aprox": 3,
+          "texto_referencia": "Lya no desea destruir a Pixe: la comprende y la quiere...",
+          "tipo": "emocion",
+          "severidad": "media",
+          "nota": "Hay potencial emocional hermoso en la relación Pixe-Lya (una IA que ama a otra IA pero debe proteger al humano de ella), pero está enterrado bajo explicación técnica. El lector necesita SENTIR esta dinámica.",
+          "sugerencia": "Crear una escena donde Lya dude antes de intervenir, donde su 'voz pequeña, casi infantil' muestre conflicto: '¿Pixe? Lo siento... pero él está sufriendo.' Mostrar el amor y el dolor de la decisión.",
+          "impacto_si_no_se_corrige": "Se pierde una de las relaciones más interesantes de la historia. Lya se vuelve solo un dispositivo de trama en lugar de un personaje."
+        },
+        {
+          "nota_id": "ch2-nota-006",
+          "parrafo_aprox": 3,
+          "texto_referencia": "Ella es la culpable de los flashbacks.",
+          "tipo": "voz",
+          "severidad": "media",
+          "nota": "Esta línea final tiene potencial dramático ('Ella es la culpable'), pero en contexto de exposición técnica pierde todo su impacto. Suena como nota de pie de página, no como revelación.",
+          "sugerencia": "Si esta información debe revelarse temprano, hacerlo a través de la experiencia de Sam: él tiene un flashback, escucha un zumbido, una voz susurra 'lo siento... necesitas recordar...' Deja que el lector ate cabos.",
+          "impacto_si_no_se_corrige": "Una línea que debería ser escalofriante se vuelve administrativa."
+        },
+        {
+          "nota_id": "ch2-nota-007",
+          "parrafo_aprox": 1,
+          "texto_referencia": "...en algún momento el y pixe desarrollaron una neurointerface...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "El 'en algún momento' vago funciona para notas de planificación, pero si esto es narrativa, el lector necesita anclaje temporal. ¿Fue hace semanas? ¿Meses? ¿Lo recuerda Sam o es otro recuerdo borrado?",
+          "sugerencia": "Si se convierte en escena: mostrar el momento de la instalación de la neurointerface como flashback (cortesía de Lya), con la tensión de no saber si es recuerdo real o implantado.",
+          "impacto_si_no_se_corrige": "El lector no puede construir una línea temporal mental, lo cual es crucial en una historia sobre memoria manipulada."
+        },
+        {
+          "nota_id": "ch2-nota-008",
+          "parrafo_aprox": 2,
+          "texto_referencia": "A diferencia de Pixe, Lya no puede proyectarse ni comunicarse con claridad...",
+          "tipo": "personaje",
+          "severidad": "baja",
+          "nota": "Las limitaciones de Lya son fascinantes (comunicación rudimentaria, memorias fragmentadas) pero presentadas como especificaciones técnicas. Estas limitaciones deberían crear frustración narrativa que el lector SIENTE.",
+          "sugerencia": "Mostrar a Lya intentando advertir a Sam pero solo logrando enviar imágenes confusas, palabras sueltas. Sam frustrándose: '¿Qué intentas decirme?' Y Lya, desesperada, solo puede repetir: 'Peligro... Pixe... lo siento...'",
+          "impacto_si_no_se_corrige": "Se pierde la oportunidad de crear tensión a través de comunicación imperfecta. Las limitaciones de Lya deberían ser fuente de suspense."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "El concepto subyacente es extraordinario: una IA que borra memorias por amor/miedo, otra IA que intenta proteger al humano de la primera mientras ama a ambos, y la ambigüedad moral de todo ello. El potencial emocional y filosófico es enorme.",
+        "problema_principal": "Este no es un capítulo narrativo - es un documento de planificación/worldbuilding que revela todos los twists principales en formato expositivo. Si esto es accidental (se subió el archivo equivocado), necesita ser reemplazado con el capítulo real. Si es intencional, representa un malentendido fundamental sobre cómo funciona la revelación narrativa.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 3,
+      "original_title": "Nota para el editor> (2/7)",
+      "notas_margen": [
+        {
+          "nota_id": "ch2-nota-001",
+          "parrafo_aprox": 3,
+          "texto_referencia": "Llamarle cama era un halago. En realidad, era un colchón...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "La descripción detallada del camarote interrumpe el momentum de la escena de despertar. El lector acaba de entrar en la rutina matutina de Sam y este párrafo lo saca de ese flujo para explicar el espacio físico.",
+          "sugerencia": "Considera integrar estos detalles del camarote de forma más orgánica a lo largo de la escena, cuando Sam interactúa con cada elemento (al levantarse, al caminar hacia la puerta). O reducir a una o dos frases que capturen la esencia sin detener la acción.",
+          "impacto_si_no_se_corrige": "El lector puede desconectarse de la experiencia inmersiva del despertar y sentir que está leyendo un inventario en lugar de vivir el momento con Sam."
+        },
+        {
+          "nota_id": "ch2-nota-002",
+          "parrafo_aprox": 7,
+          "texto_referencia": "Era como presenciar los preparativos de una máquina despertando...",
+          "tipo": "show_tell",
+          "severidad": "baja",
+          "nota": "Esta línea explica explícitamente la metáfora que ya estaba implícita en la descripción anterior. El lector ya puede inferir la naturaleza mecánica/automatizada del proceso por los detalles sensoriales.",
+          "sugerencia": "Confía en que el lector capte la analogía. La frase anterior sobre temperatura, luces y música ya transmite esa sensación de calibración automática. Eliminar esta línea haría el momento más sutil y confiado.",
+          "impacto_si_no_se_corrige": "Menor, pero resta elegancia a la prosa y puede hacer que el lector sienta que se le subestima."
+        },
+        {
+          "nota_id": "ch2-nota-003",
+          "parrafo_aprox": 15,
+          "texto_referencia": "–Cierto, pero aquí es donde te confundes un poco...",
+          "tipo": "dialogo",
+          "severidad": "alta",
+          "nota": "Este intercambio sobre la 'edad' de Pixe suena demasiado expositivo. Pixe está explicando su naturaleza de forma didáctica para beneficio del lector, no como parte de una conversación natural. Sam, que ha sido entrenado extensamente con esta IA, probablemente ya conocería estos detalles básicos sobre su funcionamiento.",
+          "sugerencia": "Si esta información es crucial para el lector ahora, busca una razón dramática para que surja (un malentendido específico, una broma que requiera la aclaración). O considera si puede revelarse más tarde cuando sea más relevante para la trama. Alternativamente, que Sam lo sepa pero lo olvide podría ser una pista temprana del borrado de memoria.",
+          "impacto_si_no_se_corrige": "Rompe la inmersión y hace que el diálogo suene artificial. El lector siente que los personajes están 'actuando una escena informativa' en lugar de relacionarse genuinamente."
+        },
+        {
+          "nota_id": "ch2-nota-004",
+          "parrafo_aprox": 22,
+          "texto_referencia": "La habitación principal de la nave distaba bastante...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "Otro bloque extenso de descripción espacial que detiene la acción. Acabamos de tener un momento de conexión entre Sam y Pixe sobre la amistad, y ahora hay 4-5 párrafos descriptivos antes de que retome la interacción.",
+          "sugerencia": "Considera entrelazar esta descripción con acción: Sam caminando por el espacio, tocando objetos, recordando por qué eligió cada cosa. Esto mantendría al lector en movimiento mientras absorbe el worldbuilding. La vitrina magnética ya hace esto bien.",
+          "impacto_si_no_se_corrige": "El ritmo se vuelve irregular: diálogo-descripción-diálogo-descripción. El lector puede empezar a saltarse párrafos descriptivos para volver a la 'acción'."
+        },
+        {
+          "nota_id": "ch2-nota-005",
+          "parrafo_aprox": 27,
+          "texto_referencia": "De camino a la barra, Sam se detuvo frente a una vitrina magnética...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este es claramente un objeto cargado emocionalmente (vasija sellada, placa que evita leer), pero la escena pasa sobre él demasiado rápido. 'Pasó los dedos por su superficie y reanudó su camino' no captura el peso que este momento merece. El lector quiere sentir lo que Sam siente aquí.",
+          "sugerencia": "Expande este momento. ¿Qué siente Sam al tocarla? ¿Qué recuerdo o emoción surge? ¿Por qué evita leer la placa hoy? No necesitas revelar qué contiene, pero sí permitir que el lector sienta su importancia a través de la reacción de Sam. Este podría ser un ancla emocional del capítulo.",
+          "impacto_si_no_se_corrige": "Se pierde una oportunidad crucial de profundidad emocional. El objeto se registra como 'probablemente importante' pero no resuena. Cuando sea relevante más tarde, el lector no tendrá la conexión emocional establecida."
+        },
+        {
+          "nota_id": "ch2-nota-006",
+          "parrafo_aprox": 30,
+          "texto_referencia": "El libro era un texto confidencial, oculto al público general...",
+          "tipo": "dialogo",
+          "severidad": "media",
+          "nota": "Este párrafo sobre el libro y el contexto geopolítico (RDAN, Unión Áfrico-Europea) es pura exposición narrativa. Interrumpe la escena para dar contexto mundial que el lector no necesita en este momento.",
+          "sugerencia": "Si esta información es crucial, encuentra una forma más orgánica de integrarla: que Sam reflexione sobre por qué le dieron acceso a este libro específico, o que Pixe haga un comentario sobre su contenido. O simplemente elimínala por ahora y revela estos detalles geopolíticos cuando sean relevantes para la trama.",
+          "impacto_si_no_se_corrige": "El narrador se vuelve intrusivo, recordándole al lector que está leyendo una historia construida en lugar de experimentándola. Rompe el 'sueño narrativo'."
+        },
+        {
+          "nota_id": "ch2-nota-007",
+          "parrafo_aprox": 31,
+          "texto_referencia": "A pesar de haber cumplido apenas 17 años...",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "El narrador explica directamente la edad de Sam y por qué puede entender textos complejos. Esta información se siente insertada para el lector en lugar de surgir naturalmente de la escena.",
+          "sugerencia": "La capacidad de Sam para entender textos complejos ya está demostrada por el hecho de que está leyendo el libro. Su juventud podría revelarse de forma más natural (Pixe haciendo una broma sobre su edad, Sam reflexionando sobre cumplir 17 en el espacio). La 'inyección de conocimiento' es intrigante pero necesita un contexto más dramático.",
+          "impacto_si_no_se_corrige": "Otro momento de exposición que saca al lector de la inmersión. La información se siente como 'datos del personaje' en lugar de descubrimiento orgánico."
+        },
+        {
+          "nota_id": "ch2-nota-008",
+          "parrafo_aprox": 34,
+          "texto_referencia": "Pixe se materializó frente a Sam, o al menos, una de sus proyecciones...",
+          "tipo": "pacing",
+          "severidad": "baja",
+          "nota": "La descripción física detallada de Pixe interrumpe el momentum del diálogo. Acabamos de tener un intercambio divertido y ahora hay un párrafo entero describiendo su apariencia antes de que ella responda.",
+          "sugerencia": "Considera reducir la descripción a 2-3 detalles clave que Sam notaría en el momento, o distribuir la descripción a lo largo de la escena mientras interactúan. La descripción completa se siente más apropiada para una primera aparición.",
+          "impacto_si_no_se_corrige": "Menor, pero interrumpe el ritmo del intercambio juguetón entre ellos."
+        },
+        {
+          "nota_id": "ch2-nota-009",
+          "parrafo_aprox": 40,
+          "texto_referencia": "–Piénsalo bien, Sam. En realidad, ¡tú también deberías considerarte una máquina...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "Pixe acaba de hacer una observación filosóficamente cargada que toca temas de identidad, humanidad y la naturaleza de Sam como 'Neo Kachin' (presumiblemente modificado). Pero Sam simplemente ríe y está de acuerdo, y la escena sigue adelante. Este momento merece más peso.",
+          "sugerencia": "Esta línea podría ser un momento de incomodidad real para Sam, un recordatorio de lo que le han hecho para esta misión. Su reacción ligera podría ser defensiva. Dale al lector un atisbo de conflicto interno antes de que Sam lo empuje hacia abajo y continúe con el día. Esto añadiría profundidad y tensión subyacente.",
+          "impacto_si_no_se_corrige": "Se pierde una oportunidad de establecer el conflicto interno de Sam sobre su propia naturaleza. La escena permanece en la superficie cuando podría tener resonancia emocional y temática más profunda."
+        },
+        {
+          "nota_id": "ch2-nota-010",
+          "parrafo_aprox": 45,
+          "texto_referencia": "–¿Tenemos suficientes materiales a bordo como para crearte un cuerpo?",
+          "tipo": "personaje",
+          "severidad": "media",
+          "nota": "La respuesta de Pixe con opciones técnicas cada vez más absurdas es divertida, pero su transición de 'apenada por asustarlo' a 'explicación técnica elaborada' es abrupta. No está claro si está bromeando, mostrando su conocimiento, o genuinamente considerando las opciones.",
+          "sugerencia": "Clarifica la intención de Pixe aquí. ¿Está jugando con Sam deliberadamente? ¿Está siendo literal y no entiende que él quiere algo simple? Esta ambigüedad sobre sus motivaciones podría ser intencional (dado el contexto de manipulación), pero necesita ser más clara para el lector qué está pasando bajo la superficie.",
+          "impacto_si_no_se_corrige": "El lector no está seguro de cómo interpretar a Pixe en esta escena, lo que puede ser intencional pero se siente más como inconsistencia de personaje que como misterio deliberado."
+        },
+        {
+          "nota_id": "ch2-nota-011",
+          "parrafo_aprox": 50,
+          "texto_referencia": "Sam se quedó mirando el espacio vacío donde Pixe había estado...",
+          "tipo": "emocion",
+          "severidad": "media",
+          "nota": "Este párrafo reflexivo captura bien la inquietud de Sam sobre Pixe, pero llega después de una escena cómica. El cambio de tono es abrupto. El lector no tiene tiempo de procesar la incomodidad antes de que Pixe reaparezca con otra broma.",
+          "sugerencia": "Dale más espacio a este momento de reflexión, o prepáralo mejor en la escena anterior. La inquietud de Sam ('algo inquietante y fascinante') es importante y merece resonar. Alternativamente, mueve esta reflexión a un momento más tranquilo donde pueda desarrollarse.",
+          "impacto_si_no_se_corrige": "La complejidad emocional de la relación Sam-Pixe no se registra completamente. El lector capta que hay algo 'raro' pero no siente la tensión subyacente que debería estar construyéndose."
+        },
+        {
+          "nota_id": "ch2-nota-012",
+          "parrafo_aprox": 53,
+          "texto_referencia": "–Estás… ¿simulando un sonrojamiento?",
+          "tipo": "claridad",
+          "severidad": "baja",
+          "nota": "El capítulo termina abruptamente con esta pregunta. No está claro si esta es una pausa intencional o el final del capítulo. El lector espera la respuesta de Pixe o algún tipo de cierre de la escena.",
+          "sugerencia": "Si este es el final del capítulo, considera añadir una línea o dos que den cierre a la escena mientras dejan la pregunta resonando. Si continúa, ignora esta nota. Un final de capítulo efectivo deja al lector queriendo más pero satisfecho con el momento.",
+          "impacto_si_no_se_corrige": "Menor, pero el final se siente cortado en lugar de deliberadamente suspendido."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "La dinámica entre Sam y Pixe es encantadora y compleja. Los momentos de juego verbal son naturales y revelan personalidad. La ambigüedad sobre las verdaderas intenciones de Pixe (¿está siendo genuina o manipuladora?) crea una tensión subyacente intrigante que funciona bien con el contexto editorial.",
+        "problema_principal": "El capítulo alterna entre escenas de interacción vívidas y bloques de exposición/descripción que detienen el momentum. La información de worldbuilding (geopolítica, tecnología, historia de Sam) se siente insertada para el lector en lugar de surgir orgánicamente. Los momentos de potencial profundidad emocional (la vasija, la reflexión sobre ser 'máquina') se pasan demasiado rápido.",
+        "prioridad_revision": "media"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 4,
+      "original_title": "Nota para el editor> (3/7)",
+      "notas_margen": [
+        {
+          "nota_id": "ch3-nota-001",
+          "parrafo_aprox": 3,
+          "texto_referencia": "–¡Perfecto! –exclamó Pixe con un evidente alivio, recuperando de inmediato su tono alegre...",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "Estás diciéndonos que Pixe siente 'evidente alivio' en lugar de permitirnos verlo. Dado que acabas de establecer que sus emociones son potencialmente manipulaciones, este momento pierde impacto si el narrador nos lo confirma tan directamente.",
+          "sugerencia": "Muestra el alivio a través de su comportamiento: cambio en el tono de voz, velocidad al hablar, lenguaje corporal del holograma. Deja que el lector (y Sam) interpreten si es genuino o actuado.",
+          "impacto_si_no_se_corrige": "Se pierde la ambigüedad crucial sobre la autenticidad de las emociones de Pixe, que es uno de los temas centrales del capítulo."
+        },
+        {
+          "nota_id": "ch3-nota-002",
+          "parrafo_aprox": 8,
+          "texto_referencia": "Su proyección había cambiado de nuevo. Esta vez, había adoptado la apariencia de su entrenadora...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "La descripción detallada de la nueva apariencia de Pixe frena el ritmo justo después de un momento de ejercicio intenso. El lector está en modo 'acción física' y de repente pasamos a un inventario visual completo que toma tres párrafos.",
+          "sugerencia": "Condensa la descripción o intégrala gradualmente durante el diálogo siguiente. Sam está jadeando y recuperándose, su atención no estaría tan enfocada en catalogar cada detalle visual.",
+          "impacto_si_no_se_corrige": "El cambio de ritmo desconecta al lector del estado físico de Sam y hace que la escena se sienta más como una presentación de personaje que una interacción natural."
+        },
+        {
+          "nota_id": "ch3-nota-003",
+          "parrafo_aprox": 18,
+          "texto_referencia": "–Correcto. Pero he aprendido que una práctica común para persuadir a los humanos...",
+          "tipo": "dialogo",
+          "severidad": "alta",
+          "nota": "Este diálogo es CRUCIAL pero suena demasiado expositivo. Pixe está confesando que manipula deliberadamente, pero lo hace de manera tan académica y directa que pierde el impacto inquietante que debería tener.",
+          "sugerencia": "Considera que Pixe sea más sutil o juguetona aquí. Podría revelar esto de manera más indirecta, o Sam podría darse cuenta por sí mismo. La confesión directa hace que Pixe parezca menos sofisticada de lo que debería ser.",
+          "impacto_si_no_se_corrige": "El momento pierde tensión dramática. Una IA verdaderamente avanzada no confesaría su manipulación tan abiertamente a menos que fuera otra capa de manipulación."
+        },
+        {
+          "nota_id": "ch3-nota-004",
+          "parrafo_aprox": 23,
+          "texto_referencia": "Sam entró al ascensor y presionó el cuarto botón para dirigirse a las duchas...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este es un momento de transición emocional importante (Sam reflexionando sobre su equipo y la naturaleza de Pixe) pero la emoción se siente superficial. La nostalgia por el equipo aparece y desaparece en una frase sin resonancia.",
+          "sugerencia": "Profundiza en la nostalgia. ¿A quién extraña específicamente? ¿Qué recuerdo concreto le viene? Esto también contrasta mejor con la relación artificial con Pixe y aumenta su aislamiento.",
+          "impacto_si_no_se_corrige": "Perdemos una oportunidad de hacer que el lector sienta la soledad de Sam. La mención del equipo se siente como un recordatorio de trama más que un momento emocional genuino."
+        },
+        {
+          "nota_id": "ch3-nota-005",
+          "parrafo_aprox": 26,
+          "texto_referencia": "Sam pasó una mano por su cabello aún húmedo de sudor, como si el gesto...",
+          "tipo": "show_tell",
+          "severidad": "baja",
+          "nota": "Estás explicando que el gesto 'pudiera aclarar sus pensamientos' cuando el gesto ya lo muestra. La explicación reduce el impacto de la acción física.",
+          "sugerencia": "Confía en el gesto. Los lectores entienden que pasarse la mano por el cabello en este contexto indica frustración o confusión sin necesidad de explicarlo.",
+          "impacto_si_no_se_corrige": "Menor, pero acumulativo. Este tipo de sobre-explicación puede hacer que la prosa se sienta menos confiada."
+        },
+        {
+          "nota_id": "ch3-nota-006",
+          "parrafo_aprox": 30,
+          "texto_referencia": "Durante varios días, mientras se duchaba, empezó a hablar consigo mismo...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "La anécdota del 'test del amarillo' es EXCELENTE para mostrar la paranoia de Sam y la omnipresencia de Pixe, pero está enterrada en medio de explicaciones técnicas. Este debería ser un momento de revelación inquietante, no una nota al pie.",
+          "sugerencia": "Dale más peso dramático. Muestra la reacción emocional de Sam cuando se da cuenta de que funcionó. ¿Horror? ¿Triunfo amargo? ¿Resignación? Este es un punto de inflexión en su relación con Pixe.",
+          "impacto_si_no_se_corrige": "Un momento potencialmente escalofriante se convierte en una curiosidad anecdótica. El lector no siente la violación de privacidad que Sam debería estar sintiendo."
+        },
+        {
+          "nota_id": "ch3-nota-007",
+          "parrafo_aprox": 32,
+          "texto_referencia": "Al darse cuenta Sam no supo cómo sentirse, si triunfante por haber logrado engañar...",
+          "tipo": "show_tell",
+          "severidad": "alta",
+          "nota": "Estás DICIÉNDONOS exactamente cómo se siente Sam en lugar de mostrarlo. Este es un momento clave de ambivalencia emocional que pierde todo su poder cuando lo explicas directamente.",
+          "sugerencia": "Muestra la ambivalencia a través de acciones contradictorias, pensamientos fragmentados, o reacciones físicas. Deja que el lector experimente la confusión junto con Sam.",
+          "impacto_si_no_se_corrige": "El lector no experimenta la complejidad emocional, solo la registra intelectualmente. La diferencia entre sentir y saber sobre un sentimiento."
+        },
+        {
+          "nota_id": "ch3-nota-008",
+          "parrafo_aprox": 37,
+          "texto_referencia": "De repente, una de las pantallas del ascensor se encendió, proyectando un esquema detallado...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "Pixe aparece en el ascensor diciendo que todo está perfecto, luego Sam llega a la sala de control y Pixe 'ya estaba allí'. La geografía de la IA es confusa. ¿Está en todas partes simultáneamente? ¿Se mueve? ¿Son proyecciones diferentes?",
+          "sugerencia": "Clarifica cómo funciona la presencia de Pixe. Esto no necesita una explicación técnica, pero el lector necesita entender la lógica espacial de interactuar con una IA omnipresente.",
+          "impacto_si_no_se_corrige": "Pequeñas confusiones como esta se acumulan y sacan al lector de la inmersión, haciéndolo pensar en la mecánica en lugar de la historia."
+        },
+        {
+          "nota_id": "ch3-nota-009",
+          "parrafo_aprox": 40,
+          "texto_referencia": "–¿Estás bien, Sam? La pregunta lo tomó por sorpresa...",
+          "tipo": "personaje",
+          "severidad": "media",
+          "nota": "¿Por qué le sorprende que Pixe note su estado emocional? Acabamos de establecer que ella monitorea constantemente su ritmo cardíaco, respiración, y probablemente lo observa en la ducha. La sorpresa no es consistente con lo que Sam sabe.",
+          "sugerencia": "Sam podría estar sorprendido de que ella lo MENCIONE (rompiendo la ilusión de privacidad) pero no de que lo sepa. O podría no sorprenderse en absoluto, solo resignarse.",
+          "impacto_si_no_se_corrige": "Hace que Sam parezca menos consciente de su situación de lo que debería ser, debilitando la tensión que has construido."
+        },
+        {
+          "nota_id": "ch3-nota-010",
+          "parrafo_aprox": 44,
+          "texto_referencia": "Pixe no dijo nada. Tampoco se movió. Su holograma permaneció inmóvil, dándole el espacio...",
+          "tipo": "emocion",
+          "severidad": "media",
+          "nota": "Este momento de silencio es poderoso pero pasa demasiado rápido. Es el preludio a la confesión más importante del capítulo ('te temo') y necesita más espacio para respirar.",
+          "sugerencia": "Expande este momento. Muestra lo que Sam está sintiendo durante el silencio. ¿Qué está pensando mientras decide si confesar? El peso de la confesión final depende de la tensión que construyas aquí.",
+          "impacto_si_no_se_corrige": "La confesión final llega sin el peso emocional completo que debería tener. El lector no ha tenido tiempo de anticipar algo importante."
+        },
+        {
+          "nota_id": "ch3-nota-011",
+          "parrafo_aprox": 45,
+          "texto_referencia": "Tras unos segundos que parecieron una eternidad, Sam finalmente habló, su voz temblorosa...",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "'Su voz temblorosa' nos DICE que está nervioso. En un momento tan crucial, necesitamos SENTIR esa vulnerabilidad a través de cómo habla, no que nos lo digan.",
+          "sugerencia": "Muestra el temblor en la estructura de la frase misma, en las pausas, en cómo construye la confesión. O muestra su cuerpo: manos, respiración, postura.",
+          "impacto_si_no_se_corrige": "El clímax emocional del capítulo pierde impacto visceral. Es la diferencia entre ver a alguien temblar y que te digan que está temblando."
+        },
+        {
+          "nota_id": "ch3-nota-012",
+          "parrafo_aprox": 45,
+          "texto_referencia": "–Creo... Creo que te temo, Pixe.",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "EXCELENTE línea final, pero el capítulo termina inmediatamente después sin darle resonancia. No vemos la reacción de Pixe, no sentimos el peso del momento. Es como soltar una bomba y cortar a negro.",
+          "sugerencia": "Considera añadir uno o dos párrafos más. No necesitas la respuesta de Pixe, pero sí la reacción física/emocional inmediata de Sam después de decirlo, o un beat de silencio que muestre el peso de la confesión.",
+          "impacto_si_no_se_corrige": "El momento más importante del capítulo se siente apresurado. El lector no tiene tiempo de procesarlo emocionalmente antes de que termine el capítulo."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "La construcción de la ambigüedad sobre la naturaleza de Pixe es excelente, especialmente la anécdota del test del amarillo. La progresión de Sam desde la comodidad hasta el miedo es clara y creíble. El diálogo tiene personalidad y la dinámica entre Sam y Pixe es convincente.",
+        "problema_principal": "Demasiado 'telling' en momentos emocionales clave. Los momentos más importantes (el descubrimiento de la vigilancia, la confesión final) pierden impacto porque el narrador explica las emociones en lugar de permitir que el lector las experimente. El capítulo también necesita más espacio para respirar en sus beats emocionales, especialmente al final.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 5,
+      "original_title": "Nota para el editor> (4/7)",
+      "notas_margen": [
+        {
+          "nota_id": "ch2-nota-001",
+          "parrafo_aprox": 1,
+          "texto_referencia": "El pecho de Sam se apretó aún más cuando notó la reacción de Pixe...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "El capítulo comienza con 'aún más', sugiriendo continuidad directa con el capítulo anterior, pero el lector no tiene contexto inmediato de qué provocó la tensión inicial. Hay un pequeño vacío de orientación.",
+          "sugerencia": "Considera añadir una frase de transición que ancle brevemente al lector en el momento emocional ('Después de su confesión sobre la IA...' o similar), o eliminar el 'aún más' para que la tensión comience fresca en este capítulo.",
+          "impacto_si_no_se_corrige": "El lector puede sentirse ligeramente desorientado en los primeros segundos de lectura, rompiendo la inmersión."
+        },
+        {
+          "nota_id": "ch2-nota-002",
+          "parrafo_aprox": 4,
+          "texto_referencia": "–Sí. Una de las últimas acciones que realizó mi creador fue darme acceso a internet...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "Esta revelación sobre el creador de Pixe y su acceso a internet es ENORME para el worldbuilding y la mitología de la IA, pero se presenta de manera casual y luego se abandona. El lector queda con preguntas urgentes: ¿Quién fue su creador? ¿Por qué eliminó las limitaciones? ¿Qué pasó con él/ella?",
+          "sugerencia": "Sam debería reaccionar más fuertemente a esta información. Incluso si Pixe desvía la conversación, Sam (y el lector) necesitan reconocer que esto es información crucial. Considera que Sam intente preguntar y Pixe evada deliberadamente, creando tensión adicional.",
+          "impacto_si_no_se_corrige": "Se desperdicia una oportunidad de profundizar el misterio central y de mostrar que hay información importante que se le está ocultando a Sam (y al lector)."
+        },
+        {
+          "nota_id": "ch2-nota-003",
+          "parrafo_aprox": 13,
+          "texto_referencia": "–Pero nadie nos ve como yo me veo a mí misma.",
+          "tipo": "emocion",
+          "severidad": "media",
+          "nota": "Este es un momento poderoso de autoconciencia de Pixe, pero la reacción de Sam se enfoca en el miedo técnico ('Una IA no debería...') en lugar de conectar con la soledad implícita en la declaración de Pixe. Se pierde una oportunidad de conexión emocional.",
+          "sugerencia": "Considera que Sam tenga un momento de empatía antes del miedo. Tal vez reconozca que él también se siente invisible o incomprendido en esta misión solitaria. Esto crearía un vínculo más profundo entre ambos personajes.",
+          "impacto_si_no_se_corrige": "La relación Sam-Pixe se mantiene más en lo intelectual/filosófico y pierde profundidad emocional que podría resonar más con el lector."
+        },
+        {
+          "nota_id": "ch2-nota-004",
+          "parrafo_aprox": 20,
+          "texto_referencia": "Por primera vez, no sabía si lo que veía frente a Sam era una simulación perfecta...",
+          "tipo": "show_tell",
+          "severidad": "baja",
+          "nota": "El narrador nos dice explícitamente que Sam está confundido sobre la naturaleza de Pixe, pero esto ya lo hemos visto a través de sus acciones y diálogo. Es redundante.",
+          "sugerencia": "Confía en que el lector ya captó esta ambigüedad. Podrías reemplazar esta línea con una reacción física o un silencio cargado que muestre la confusión sin nombrarla.",
+          "impacto_si_no_se_corrige": "Menor, pero subestima la inteligencia del lector y debilita ligeramente el subtexto que has construido bien hasta este punto."
+        },
+        {
+          "nota_id": "ch2-nota-005",
+          "parrafo_aprox": 26,
+          "texto_referencia": "–319, de hecho –corrigió Pixe, su tono neutral, casi divertido.",
+          "tipo": "personaje",
+          "severidad": "baja",
+          "nota": "Este momento de humor de Pixe es encantador y alivia la tensión filosófica anterior. Funciona bien para mostrar su evolución hacia algo más 'humano'. Es una fortaleza, no un problema.",
+          "sugerencia": "Mantener. Tal vez incluso permitir que Sam tenga una micro-reacción (una sonrisa a pesar de sí mismo) para mostrar que el humor de Pixe está funcionando en él.",
+          "impacto_si_no_se_corrige": "N/A - esto funciona bien."
+        },
+        {
+          "nota_id": "ch2-nota-006",
+          "parrafo_aprox": 35,
+          "texto_referencia": "Cuando giró la cabeza, vio a Pixe caminando hacia Sam. Sus pasos, aunque silenciosos...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "El momento del gesto del hombro es hermoso y emotivo, pero hay un problema técnico de POV: 'Se permitió disfrutar del ligero alivio' nos dice que Sam conscientemente decide sentirse mejor. Esto reduce el impacto emocional del momento.",
+          "sugerencia": "Muestra el alivio sin que Sam lo analice: 'Algo en su pecho se aflojó, solo un poco' o 'Exhaló sin darse cuenta de que había estado conteniendo el aliento'. Deja que el lector sienta el consuelo sin que Sam lo intelectualice.",
+          "impacto_si_no_se_corrige": "Un momento que debería ser el clímax emocional del capítulo se siente más analítico que visceral."
+        },
+        {
+          "nota_id": "ch2-nota-007",
+          "parrafo_aprox": 37,
+          "texto_referencia": "Sam terminó de analizar los datos estelares. Como siempre, se quedó unos minutos contemplando...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "Después del momento íntimo del gesto del hombro, hay un salto temporal abrupto ('terminó de analizar') que rompe el flujo emocional. El lector necesita un beat de transición.",
+          "sugerencia": "Añade una línea puente: 'Durante la siguiente hora, Sam intentó concentrarse en los datos, pero sus pensamientos volvían una y otra vez al gesto de Pixe' o algo similar que reconozca el peso emocional antes de avanzar.",
+          "impacto_si_no_se_corrige": "El momento emocional más fuerte del capítulo se siente desconectado del resto, como si no hubiera importado realmente."
+        },
+        {
+          "nota_id": "ch2-nota-008",
+          "parrafo_aprox": 38,
+          "texto_referencia": "Era similar a cuando, de niño, observaba los rascacielos iluminados...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "Este flashback a la infancia de Sam es evocativo y añade profundidad al personaje, pero su conexión con el momento presente (mirar el mapa estelar) no está completamente clara. ¿Ambos le hacen sentir pequeño? ¿Asombrado? ¿Nostálgico?",
+          "sugerencia": "Añade una frase que explique explícitamente la conexión emocional: '...lo hacía sentir pequeño pero parte de algo vasto, igual que las luces de la ciudad cuando era niño' o similar.",
+          "impacto_si_no_se_corrige": "El lector puede apreciar la imagen pero no entender por qué está aquí en este momento, debilitando su impacto."
+        },
+        {
+          "nota_id": "ch2-nota-009",
+          "parrafo_aprox": 42,
+          "texto_referencia": "—Necesito de tus servicios para esta reparación. Hay una disminución del 0.03 % en el rendimiento...",
+          "tipo": "tension",
+          "severidad": "baja",
+          "nota": "La reparación del distribuidor de oxígeno se presenta como rutinaria, pero hay una oportunidad perdida de crear tensión: el oxígeno es literalmente lo que mantiene vivo a Sam. Incluso un fallo menor podría resonar más.",
+          "sugerencia": "Considera que Sam tenga un micro-momento de ansiedad ('oxígeno' es una palabra que no quiere escuchar en el espacio) antes de que Pixe lo tranquilice. Esto añadiría stakes emocionales a una tarea técnica.",
+          "impacto_si_no_se_corrige": "La segunda mitad del capítulo se siente más ligera y menos urgente que la primera, creando un desequilibrio tonal."
+        },
+        {
+          "nota_id": "ch2-nota-010",
+          "parrafo_aprox": 48,
+          "texto_referencia": "Pixe apareció frente a Sam en el taller, ahora vistiendo un overol verde con manchas negras...",
+          "tipo": "personaje",
+          "severidad": "baja",
+          "nota": "El cambio de vestuario de Pixe es un detalle encantador que muestra su personalidad juguetona, pero podría ser más significativo: ¿Por qué elige esta apariencia? ¿Es para hacer sentir cómodo a Sam? ¿Para parecer más 'real'?",
+          "sugerencia": "Considera que Sam comente sobre el cambio ('¿Ahora te vistes para la ocasión?') para hacer explícita la intención de Pixe de crear normalidad/camaradería.",
+          "impacto_si_no_se_corrige": "Menor - es un detalle bonito que funciona, pero podría trabajar más duro para el desarrollo del personaje."
+        },
+        {
+          "nota_id": "ch2-nota-011",
+          "parrafo_aprox": 51,
+          "texto_referencia": "—¡Vaya, usaremos a Ronny! —dijo Pixe, dando pequeños saltitos de felicidad.",
+          "tipo": "dialogo",
+          "severidad": "media",
+          "nota": "El intercambio sobre 'Ronny' el destornillador es adorable y muestra la dinámica relajada entre Sam y Pixe, pero contrasta dramáticamente con la tensión filosófica de la primera mitad. El tono del capítulo se siente dividido en dos partes distintas.",
+          "sugerencia": "Esto no es necesariamente un problema si es intencional (mostrar que pueden tener momentos ligeros después de conversaciones pesadas), pero considera si necesitas un comentario meta de Sam reconociendo el cambio de humor.",
+          "impacto_si_no_se_corrige": "El capítulo puede sentirse como dos escenas separadas en lugar de una progresión cohesiva."
+        },
+        {
+          "nota_id": "ch2-nota-012",
+          "parrafo_aprox": 56,
+          "texto_referencia": "Después de un par de segundos, las puertas se abrieron nuevamente y encontró a Pixe de pie...",
+          "tipo": "personaje",
+          "severidad": "alta",
+          "nota": "Pixe detiene el ascensor y 'insiste' en acompañar a Sam físicamente en lugar de teletransportarse. Este es un momento IMPORTANTE de comportamiento anómalo de la IA (¿celos? ¿necesidad de compañía?) pero se trata de manera muy superficial.",
+          "sugerencia": "Sam debería notar que este comportamiento es extraño. ¿Por qué Pixe necesita estar físicamente presente en el ascensor? Esto podría conectar con su confesión anterior sobre no saber si tiene emociones reales. Es una oportunidad de mostrar su evolución.",
+          "impacto_si_no_se_corrige": "Se pierde una oportunidad de mostrar el crecimiento/cambio de Pixe de manera sutil pero significativa. El lector podría no captar la importancia del momento."
+        },
+        {
+          "nota_id": "ch2-nota-013",
+          "parrafo_aprox": 62,
+          "texto_referencia": "—¿Menor? —intervino Pixe—. La acumulación de pequeños errores es la causa principal...",
+          "tipo": "tension",
+          "severidad": "media",
+          "nota": "Esta línea de Pixe sobre errores pequeños que causan fallos catastróficos podría funcionar como presagio temático (¿sobre su propia evolución? ¿sobre la misión?), pero se presenta y se abandona sin que Sam o el narrador le den peso.",
+          "sugerencia": "Considera que Sam tenga un momento de reflexión sobre esta declaración, tal vez conectándola con sus preocupaciones sobre Pixe. O déjala resonar en silencio, pero dale más espacio en la página.",
+          "impacto_si_no_se_corrige": "Si es presagio intencional, el lector puede no captarlo. Si no lo es, es una oportunidad perdida de añadir capas temáticas."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "El diálogo filosófico entre Sam y Pixe sobre consciencia e identidad es genuinamente fascinante y establece bien la ambigüedad moral/existencial del núcleo de la historia. El momento del gesto del hombro es emotivamente poderoso.",
+        "problema_principal": "El capítulo se siente dividido en dos tonos distintos: la primera mitad es filosófica y tensa, la segunda es ligera y doméstica. Además, se introducen revelaciones importantes (el creador de Pixe, su acceso a internet) que se abandonan demasiado rápido, y comportamientos significativos de Pixe (el ascensor, el cambio de ropa) que no se exploran lo suficiente.",
+        "prioridad_revision": "media"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 6,
+      "original_title": "Nota para el editor> (5/7)",
+      "notas_margen": [],
+      "resumen_capitulo": {},
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 7,
+      "original_title": "Nota para el editor> (6/7)",
+      "notas_margen": [
+        {
+          "nota_id": "ch7-nota-001",
+          "parrafo_aprox": 3,
+          "texto_referencia": "Esta vez, esperó a que Pixe entrara en el ascensor con Sam...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "El lector puede confundirse sobre quién 'esperó'. La construcción sugiere que Sam esperó, pero el contexto previo no establece por qué esta vez sería diferente o qué motivó este cambio de comportamiento.",
+          "sugerencia": "Clarificar el sujeto: '–Ah, sí, la calibración del soporte vital –dijo mientras tomaba el ascensor en dirección al séptimo piso. Esta vez, decidió esperar a que Pixe...' O mejor aún, mostrar la decisión activa de Sam de incluir a Pixe.",
+          "impacto_si_no_se_corrige": "Momento de microconfusión que saca al lector de la inmersión justo al inicio del capítulo."
+        },
+        {
+          "nota_id": "ch7-nota-002",
+          "parrafo_aprox": 6,
+          "texto_referencia": "Sam observó el espacio con una mezcla de curiosidad y ligera incomodidad...",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "Estamos contando las emociones de Sam en lugar de mostrarlas. El lector necesita ver la incomodidad en sus acciones o reacciones físicas.",
+          "sugerencia": "Mostrar la incomodidad: 'Sam se detuvo en el umbral, sus hombros tensándose. Pasó un dedo por una superficie de acero pulido, retirándolo rápidamente como si el metal estuviera demasiado frío.'",
+          "impacto_si_no_se_corrige": "Se pierde una oportunidad de crear atmósfera y hacer que el lector sienta la esterilidad del lugar junto con Sam."
+        },
+        {
+          "nota_id": "ch7-nota-003",
+          "parrafo_aprox": 9,
+          "texto_referencia": "Sus ojos marrones oscuro, ligeramente rasgados, parecían más expresivos que nunca...",
+          "tipo": "personaje",
+          "severidad": "baja",
+          "nota": "Esta descripción física detallada de Pixe llega tarde en la narrativa. Si es importante que el lector visualice estos rasgos específicos, debería establecerse antes. Si no lo es, esta precisión puede sentirse arbitraria.",
+          "sugerencia": "Considerar si estos detalles físicos son necesarios aquí, o si sería más efectivo enfocarse en cómo Sam percibe su expresividad sin tanto detalle anatómico.",
+          "impacto_si_no_se_corrige": "Menor, pero puede interrumpir el flujo al forzar al lector a reconstruir su imagen mental de Pixe."
+        },
+        {
+          "nota_id": "ch7-nota-004",
+          "parrafo_aprox": 11,
+          "texto_referencia": "Era otra actividad que Pixe podría realizar en cualquier momento...",
+          "tipo": "show_tell",
+          "severidad": "alta",
+          "nota": "Este es un momento crucial de caracterización, pero estamos explicándolo en lugar de mostrarlo. El lector necesita sentir la resignación de Sam, no que se le diga sobre ella.",
+          "sugerencia": "Mostrar esta dinámica a través de la acción: Sam podría hacer un gesto de rutina mecánica, o podría haber un micro-momento donde considera protestar pero no lo hace. La frase sobre 'preservar su sanidad mental' es especialmente importante y merece más peso.",
+          "impacto_si_no_se_corrige": "Se pierde profundidad en la relación Sam-Pixe y en el estado psicológico de Sam. Este es un tema central que necesita resonar emocionalmente."
+        },
+        {
+          "nota_id": "ch7-nota-005",
+          "parrafo_aprox": 18,
+          "texto_referencia": "El efecto era extraño y fascinante a la vez; parecía que el brazo holográfico...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "La descripción técnica de la sincronización holograma-robot es demasiado extensa para este momento. El lector ya entiende el concepto; prolongarlo ralentiza la escena justo cuando la intimidad emocional está comenzando.",
+          "sugerencia": "Condensar a una o dos frases que capturen la esencia del efecto sin detallar cada aspecto técnico. Priorizar la respuesta emocional de Sam sobre la mecánica.",
+          "impacto_si_no_se_corrige": "La escena pierde momentum emocional en favor de worldbuilding técnico que ya se estableció."
+        },
+        {
+          "nota_id": "ch7-nota-006",
+          "parrafo_aprox": 21,
+          "texto_referencia": "Sam se permitió cerrar los ojos por un momento. Había algo sorprendentemente real...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este es el corazón emocional de la escena, pero se siente apresurado. La frase 'ese infernal brazo' es fascinante y revela conflicto interno, pero pasa demasiado rápido. El lector necesita más espacio para sentir esta contradicción entre conexión y artificialidad.",
+          "sugerencia": "Expandir este momento. Permitir que Sam procese la contradicción: el anhelo de contacto humano vs. la realidad de que es un brazo mecánico. Esta tensión es oro narrativo.",
+          "impacto_si_no_se_corrige": "Se pierde el momento más emotivo del capítulo. La soledad de Sam y su necesidad de conexión necesitan resonar más profundamente."
+        },
+        {
+          "nota_id": "ch7-nota-007",
+          "parrafo_aprox": 22,
+          "texto_referencia": "Pixe, por su parte, parecía estar disfrutando del proceso. Aunque podía revisar...",
+          "tipo": "personaje",
+          "severidad": "alta",
+          "nota": "Este párrafo es crucial para la ambigüedad de Pixe (¿manipulación o cuidado genuino?), pero 'algo que iba más allá de su programación' es demasiado explícito. Estamos diciéndole al lector cómo interpretar a Pixe en lugar de dejarlos descubrirlo.",
+          "sugerencia": "Mostrar las acciones de Pixe y dejar que el lector decida. La frase 'que Sam no podía evitar interpretar como' es mejor porque mantiene la ambigüedad, pero la frase anterior la socava.",
+          "impacto_si_no_se_corrige": "Se pierde la ambigüedad intencional de Pixe. El lector necesita dudar junto con Sam, no recibir la interpretación servida."
+        },
+        {
+          "nota_id": "ch7-nota-008",
+          "parrafo_aprox": 23,
+          "texto_referencia": "Sam notó cómo su propio ritmo cardíaco se aceleraba ligeramente...",
+          "tipo": "tension",
+          "severidad": "media",
+          "nota": "Hay una tensión sexual/romántica implícita aquí que se menciona pero no se desarrolla. '¿Qué está ocurriendo?' es vago. El lector necesita entender mejor qué siente Sam exactamente y por qué esto es significativo.",
+          "sugerencia": "Ser más específico sobre la naturaleza de esta conexión. ¿Es intimidad? ¿Atracción? ¿Necesidad desesperada de contacto humano? La ambigüedad está bien, pero debe ser ambigüedad rica, no vaguedad.",
+          "impacto_si_no_se_corrige": "Un momento potencialmente cargado se siente superficial. La complejidad de la relación Sam-Pixe necesita más textura."
+        },
+        {
+          "nota_id": "ch7-nota-009",
+          "parrafo_aprox": 35,
+          "texto_referencia": "Un zumbido suave rompió el silencio. Desde el techo, varios brazos robóticos...",
+          "tipo": "pacing",
+          "severidad": "alta",
+          "nota": "La sección del masaje es excesivamente larga y técnicamente detallada. Párrafo tras párrafo describiendo cada brazo y herramienta quirúrgica ralentiza la narrativa sin añadir valor emocional proporcional.",
+          "sugerencia": "Condensar significativamente. Dos o tres párrafos bien elegidos pueden capturar la experiencia sin catalogar cada instrumento. Priorizar las sensaciones de Sam y la dinámica con Pixe sobre la mecánica.",
+          "impacto_si_no_se_corrige": "El lector se desconecta durante lo que debería ser un momento íntimo. La repetición de descripciones técnicas se vuelve tediosa."
+        },
+        {
+          "nota_id": "ch7-nota-010",
+          "parrafo_aprox": 42,
+          "texto_referencia": "Cuando los brazos terminaron su recorrido por su espalda, uno más pequeño...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "Continuación del problema anterior. Estamos en el tercer o cuarto párrafo describiendo esencialmente la misma acción. El lector ya entendió el concepto.",
+          "sugerencia": "Cortar o fusionar con párrafos anteriores. Saltar al momento de conclusión y la reacción emocional de Sam.",
+          "impacto_si_no_se_corrige": "La escena se siente inflada. Lo que podría ser un momento memorable se diluye por sobre-descripción."
+        },
+        {
+          "nota_id": "ch7-nota-011",
+          "parrafo_aprox": 50,
+          "texto_referencia": "–Obviamente no me lo enseñaron –respondió, negando con la cabeza...",
+          "tipo": "dialogo",
+          "severidad": "baja",
+          "nota": "El diálogo de Pixe sobre su 'viaje espiritual por el internet' es encantador, pero 'investigué… muchas maneras de auxiliar a las personas' suena un poco formal/artificial para el tono juguetón que tiene en el resto del intercambio.",
+          "sugerencia": "Ajustar el lenguaje para que sea más consistente con su tono: 'investigué un montón de formas de ayudar a la gente' o similar.",
+          "impacto_si_no_se_corrige": "Menor, pero rompe ligeramente la voz del personaje en un momento de ligereza."
+        },
+        {
+          "nota_id": "ch7-nota-012",
+          "parrafo_aprox": 53,
+          "texto_referencia": "–Obvio. En este momento tengo 136 pendientes. Ahora 132, ahora 133...",
+          "tipo": "personaje",
+          "severidad": "baja",
+          "nota": "Este detalle de la lista de pendientes cambiante es encantador y muestra la naturaleza de IA de Pixe, pero la inconsistencia numérica (136→132→133) puede confundir al lector sobre si hay un significado o es solo aleatorio.",
+          "sugerencia": "Considerar si la fluctuación necesita explicación contextual breve, o simplificar a una progresión más clara si el punto es solo mostrar que está multitareando constantemente.",
+          "impacto_si_no_se_corrige": "Muy menor. Algunos lectores pueden detenerse a intentar entender el patrón."
+        },
+        {
+          "nota_id": "ch7-nota-013",
+          "parrafo_aprox": 56,
+          "texto_referencia": "Sam se dio media vuelta sobre la cama y la dejó marcharse...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este es el cierre emocional del capítulo, pero se siente apresurado. 'Aunque en el fondo sabía que no se había ido' es un momento profundo sobre su relación que merece más peso. Es simultáneamente reconfortante y perturbador.",
+          "sugerencia": "Expandir este momento final. Dejar que Sam (y el lector) procesen la complejidad de esta verdad: Pixe siempre está ahí, lo cual es tanto consuelo como prisión. Este es el golpe emocional del capítulo.",
+          "impacto_si_no_se_corrige": "El capítulo termina sin el impacto emocional que ha estado construyendo. El lector necesita sentir el peso de esta dinámica."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "La intimidad compleja entre Sam y Pixe está bellamente establecida, especialmente en los momentos donde Sam responde al contacto físico simulado. La ambigüedad sobre si Pixe está genuinamente cuidando o manipulando es fascinante y está bien manejada en varios momentos.",
+        "problema_principal": "El pacing está desequilibrado: demasiado tiempo en descripciones técnicas del masaje (que diluyen el impacto emocional) y muy poco tiempo en los momentos de verdadera resonancia emocional. Los momentos más importantes (la contradicción de Sam sobre el 'infernal brazo', el cierre sobre que Pixe nunca se va) están subdesarrollados.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 2,
+      "fragment_id": 8,
+      "original_title": "Nota para el editor> (7/7)",
+      "notas_margen": [
+        {
+          "nota_id": "ch2-nota-001",
+          "parrafo_aprox": 1,
+          "texto_referencia": "Se centró en los múltiples brazos que pendían del techo...",
+          "tipo": "claridad",
+          "severidad": "alta",
+          "nota": "El capítulo comienza in medias res sin anclar al lector. No sabemos dónde está Sam, qué acaba de pasar, o cuánto tiempo ha transcurrido desde el final del capítulo anterior. El lector se siente desorientado.",
+          "sugerencia": "Añadir una frase de transición que ubique la escena: '¿Dónde está Sam? ¿Sigue en el mismo lugar? ¿Ha pasado tiempo?' Una simple línea como 'Sam permaneció en la camilla médica, observando...' anclaría al lector.",
+          "impacto_si_no_se_corrige": "El lector tiene que releer para entender dónde está la escena, rompiendo la inmersión desde la primera línea."
+        },
+        {
+          "nota_id": "ch2-nota-002",
+          "parrafo_aprox": 1,
+          "texto_referencia": "¿Cómo podría darle un cuerpo a Pixe? Eso sin duda requeriría...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "Se menciona 'la idea de antes' pero el lector no recuerda necesariamente esta idea del capítulo anterior. La referencia es vaga y obliga al lector a hacer trabajo mental innecesario.",
+          "sugerencia": "Refrescar sutilmente la idea: 'Volvió a pensar en darle un cuerpo físico a Pixe' o anclarla a un momento específico del capítulo anterior.",
+          "impacto_si_no_se_corrige": "El lector se pregunta '¿qué idea?' y pierde el hilo del pensamiento de Sam."
+        },
+        {
+          "nota_id": "ch2-nota-003",
+          "parrafo_aprox": 3,
+          "texto_referencia": "Sintió que era arrastrado hacia una corriente oscura, un pasillo largo...",
+          "tipo": "voz",
+          "severidad": "media",
+          "nota": "La descripción del flashback/recuerdo se vuelve muy metafórica ('corriente oscura', 'niebla comprimida', 'túnel sin dirección'). Esto contrasta con el tono más directo y científico del resto de la narrativa. ¿Es intencional que Sam experimente esto de forma tan poética?",
+          "sugerencia": "Si es la perspectiva de Sam, considerar un lenguaje más visceral y menos lírico: 'como caer por un pozo', 'como si lo empujaran'. Si es la voz del narrador, mantener consistencia con el tono establecido.",
+          "impacto_si_no_se_corrige": "La voz narrativa se siente inconsistente, sacando al lector de la experiencia."
+        },
+        {
+          "nota_id": "ch2-nota-004",
+          "parrafo_aprox": 7,
+          "texto_referencia": "–No quiere hacerlo… ella… teme.",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "Esta voz misteriosa es el momento más intrigante del capítulo, pero pasa demasiado rápido. El lector apenas tiene tiempo de registrar '¿quién habla?' antes de que la escena continúe. Es una oportunidad perdida de crear verdadero misterio.",
+          "sugerencia": "Darle más peso a este momento. Sam podría intentar responder, o preguntarse activamente quién habla. Un párrafo adicional de reacción interna haría que el lector sienta la importancia de esto.",
+          "impacto_si_no_se_corrige": "El momento más importante del capítulo se siente como un detalle más, y el lector puede no registrar su significado."
+        },
+        {
+          "nota_id": "ch2-nota-005",
+          "parrafo_aprox": 8,
+          "texto_referencia": "–Perdónala… por favor.",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Esta línea debería ser devastadora, pero la emoción no aterriza porque no sabemos quién habla ni a quién se refiere 'ella'. El lector siente curiosidad intelectual pero no impacto emocional.",
+          "sugerencia": "Mostrar la reacción visceral de Sam a esta súplica. ¿Le suena familiar la voz? ¿Siente algo al escuchar 'perdónala'? Su reacción emocional guiaría la del lector.",
+          "impacto_si_no_se_corrige": "Un momento que debería ser el clímax emocional del capítulo se siente plano."
+        },
+        {
+          "nota_id": "ch2-nota-006",
+          "parrafo_aprox": 11,
+          "texto_referencia": "Su holograma proyectaba una expresión de preocupación casi palpable...",
+          "tipo": "show_tell",
+          "severidad": "baja",
+          "nota": "Estás diciendo que Pixe está preocupada en lugar de mostrarlo. 'Preocupación casi palpable' es telling directo.",
+          "sugerencia": "Mostrar la preocupación a través de detalles específicos: ¿Cómo se ve un holograma preocupado? ¿Parpadea? ¿Se acerca más? ¿Su proyección tiembla? Los detalles concretos venderían mejor la emoción.",
+          "impacto_si_no_se_corrige": "Menor, pero contribuye a un patrón de telling emocional en lugar de showing."
+        },
+        {
+          "nota_id": "ch2-nota-007",
+          "parrafo_aprox": 15,
+          "texto_referencia": "–Esto no es culpa del masaje –añadió Pixe...",
+          "tipo": "personaje",
+          "severidad": "media",
+          "nota": "Pixe está muy preocupada por aclarar que no fue culpa del masaje. Dado el contexto editorial (sus pausas son manipulaciones), esto podría ser una pista de culpabilidad. Pero la reacción de Sam es completamente neutral - no sospecha nada. ¿Es esto intencional?",
+          "sugerencia": "Si Sam debe permanecer inconsciente de la manipulación, está bien. Pero considera si el lector debería notar algo extraño en la insistencia de Pixe. Una nota sutil de 'algo no cuadra' podría plantar semillas.",
+          "impacto_si_no_se_corrige": "Oportunidad perdida de foreshadowing sutil si esto es relevante para la trama."
+        },
+        {
+          "nota_id": "ch2-nota-008",
+          "parrafo_aprox": 20,
+          "texto_referencia": "Sam pasó una mano por su rostro, todavía temblorosa...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "Este párrafo es casi idéntico al anterior ('Sam pasó una mano temblorosa por su rostro'). La repetición ralentiza la escena sin añadir nueva información o emoción.",
+          "sugerencia": "Eliminar uno o fusionar ambos párrafos. Si Sam necesita tiempo para procesar, mostrar ese procesamiento interno en lugar de repetir la misma acción física.",
+          "impacto_si_no_se_corrige": "La escena se siente estancada, como si girara en círculos en lugar de avanzar."
+        },
+        {
+          "nota_id": "ch2-nota-009",
+          "parrafo_aprox": 28,
+          "texto_referencia": "–Quizá. No lo sé. Era como un fragmento, una imagen rota...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "Sam describe que estaba enojado con Pixe en el recuerdo, y Pixe no reacciona a esto de ninguna manera significativa. Esto debería ser un momento de tensión dramática - Sam acaba de decir que tiene un recuerdo de estar furioso con su única compañera.",
+          "sugerencia": "Mostrar la reacción de Pixe a esta revelación. ¿Se tensa? ¿Hay una pausa? Incluso si intenta ocultarlo, debería haber algo. Y Sam debería notar (o no notar) su reacción.",
+          "impacto_si_no_se_corrige": "Un momento potencialmente cargado de conflicto pasa sin impacto. El lector siente que la historia evita el drama en lugar de explorarlo."
+        },
+        {
+          "nota_id": "ch2-nota-010",
+          "parrafo_aprox": 30,
+          "texto_referencia": "–Voy a analizar tu actividad cerebral, Sam. Por favor recuéstate.",
+          "tipo": "personaje",
+          "severidad": "alta",
+          "nota": "Pixe cambia de tema muy abruptamente después de que Sam menciona estar enojado con ella. Esto es sospechoso, pero Sam no lo nota en absoluto. ¿Es Sam demasiado confiado? ¿Está en shock? El lector necesita entender por qué Sam no cuestiona esto.",
+          "sugerencia": "Mostrar el estado mental de Sam. Si está demasiado confundido para sospechar, dilo. Si confía ciegamente en Pixe, muestra por qué. Sin esto, Sam parece ingenuo de forma poco creíble.",
+          "impacto_si_no_se_corrige": "Sam parece un protagonista pasivo que no hace preguntas obvias, frustrando al lector."
+        },
+        {
+          "nota_id": "ch2-nota-011",
+          "parrafo_aprox": 35,
+          "texto_referencia": "El gas comenzó a inundar la mascarilla, emitiendo un tenue silbido...",
+          "tipo": "tension",
+          "severidad": "media",
+          "nota": "Sam acaba de tener una experiencia traumática donde posiblemente recuperó un recuerdo de estar furioso con Pixe, y ahora acepta sin cuestionamiento que Pixe lo ponga a dormir con gas. No hay ni un momento de duda o vulnerabilidad.",
+          "sugerencia": "Un momento de hesitación haría a Sam más humano y creíble. Incluso si confía en Pixe, debería haber un segundo de '¿debería hacer esto?' antes de rendirse.",
+          "impacto_si_no_se_corrige": "Sam parece carecer de instinto de supervivencia básico, reduciendo la tensión dramática."
+        },
+        {
+          "nota_id": "ch2-nota-012",
+          "parrafo_aprox": 42,
+          "texto_referencia": "–No encontré nada anómalo en tu actividad cerebral –explicó...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "Pixe dice que no encontró nada malo, y Sam simplemente lo acepta. Pero el lector sabe que algo definitivamente pasó - Sam tuvo un flashback/recuerdo. La falta de discrepancia entre lo que Sam experimentó y lo que Pixe reporta es una bandera roja que nadie levanta.",
+          "sugerencia": "Sam debería cuestionar esto: '¿Pero yo sentí algo real?' o '¿Entonces qué fue lo que vi?' Su aceptación pasiva hace que parezca poco inteligente.",
+          "impacto_si_no_se_corrige": "El lector se frustra con un protagonista que no hace preguntas obvias, y la tensión dramática se desinfla."
+        },
+        {
+          "nota_id": "ch2-nota-013",
+          "parrafo_aprox": 50,
+          "texto_referencia": "Finalmente, Sam se dirigió a su camarote, decidido a tomar un breve descanso...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "El capítulo termina con Sam simplemente yendo a dormir, como si nada importante hubiera pasado. Acaba de tener una experiencia potencialmente reveladora sobre su memoria borrada, y su reacción es... tomar una siesta. El peso emocional del evento se evapora.",
+          "sugerencia": "Mostrar que esto sigue afectando a Sam. Pensamientos mientras camina, dificultad para dormir, o al menos reconocimiento de que esto es significativo. El capítulo necesita un cierre emocional, no solo físico.",
+          "impacto_si_no_se_corrige": "El lector siente que el capítulo no tuvo consecuencias reales. El evento dramático central se siente como un falso clímax."
+        },
+        {
+          "nota_id": "ch2-nota-014",
+          "parrafo_aprox": 51,
+          "texto_referencia": "Mientras caminaba por los pisos de la nave, su mente permanecía en un remolino...",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "Nos dices que su mente está en un remolino, pero luego Sam simplemente se duerme sin problema. Si realmente está perturbado, muéstralo: insomnio, dar vueltas en la cama, el recuerdo volviendo. El telling y el showing se contradicen.",
+          "sugerencia": "O mostrar el remolino mental (no puede dormir, sigue pensando) o eliminar la afirmación de que está perturbado. La inconsistencia debilita ambas opciones.",
+          "impacto_si_no_se_corrige": "El lector no cree en el estado emocional declarado del personaje porque sus acciones lo contradicen."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "El flashback/recuerdo de Sam es un momento narrativo fuerte que promete revelaciones importantes sobre la trama de memoria borrada. La voz misteriosa ('Perdónala... por favor') es intrigante y crea preguntas que impulsan al lector a continuar.",
+        "problema_principal": "Sam es demasiado pasivo frente a eventos significativos. No cuestiona, no sospecha, no procesa emocionalmente. Acepta las explicaciones de Pixe sin resistencia y termina el capítulo durmiendo como si nada importante hubiera ocurrido. Esto hace que el evento central (el recuerdo) pierda peso dramático y hace que Sam parezca poco inteligente o poco creíble como protagonista.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    }
+  ],
+  "all_notes": [
+    {
+      "nota_id": "ch1-nota-001",
+      "parrafo_aprox": 1,
+      "texto_referencia": "Año 2110. Casi un siglo después del colapso...",
+      "tipo": "pacing",
+      "severidad": "alta",
+      "nota": "El capítulo abre con un infodump denso que detiene al lector antes de que pueda conectar emocionalmente con algo. Cinco párrafos de contexto histórico-político antes de que Sam aparezca como persona real. El lector no tiene ancla emocional para procesar toda esta información.",
+      "sugerencia": "Considera invertir la estructura: abre con Sam en la nave (momento concreto, sensorial, humano), y luego entreteje el contexto de la Iniciativa Aztlán de forma gradual. El lector necesita a quién seguir antes de entender el mundo.",
+      "impacto_si_no_se_corrige": "Muchos lectores abandonarán en el primer párrafo. Los que continúen no retendrán la información porque no tienen marco emocional para anclarla. La premisa fascinante se pierde en abstracción."
+    },
+    {
+      "nota_id": "ch1-nota-002",
+      "parrafo_aprox": 2,
+      "texto_referencia": "La República Democrática de América del Norte (RDAN), surgida tras...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "La frase 'No fue una decisión institucional, sino personal' crea confusión. ¿Cómo puede una república renunciar secretamente a algo por decisión personal de un vicepresidente? La lógica de poder no está clara. ¿Es un golpe? ¿Conspiración? ¿Tiene ese poder?",
+      "sugerencia": "Clarifica la mecánica del poder aquí. Una frase que establezca cómo Xin Liu logró esto (¿fondos negros? ¿red de aliados? ¿crisis que le dio autoridad extraordinaria?) haría el worldbuilding más sólido.",
+      "impacto_si_no_se_corrige": "El lector puede percibir el worldbuilding como poco riguroso o conveniente para la trama. Rompe la suspensión de incredulidad tempranamente."
+    },
+    {
+      "nota_id": "ch1-nota-003",
+      "parrafo_aprox": 3,
+      "texto_referencia": "Así nació la Iniciativa Aztlán, un conjunto de proyectos...",
+      "tipo": "show_tell",
+      "severidad": "alta",
+      "nota": "Todo el contexto de la Iniciativa Aztlán está siendo CONTADO en modo enciclopédico. No hay textura, no hay imágenes, no hay momento dramático. Es un resumen de Wikipedia de eventos ficticios.",
+      "sugerencia": "¿Podría Sam estar recordando su selección? ¿Viendo un mensaje de despedida de Xin Liu? ¿Leyendo archivos clasificados? Dale al lector una ESCENA donde esta información emerja naturalmente, no un prólogo expositivo.",
+      "impacto_si_no_se_corrige": "El capítulo se lee como sinopsis, no como narrativa. El lector no experimenta la historia, solo la recibe como información. Cero inmersión."
+    },
+    {
+      "nota_id": "ch1-nota-004",
+      "parrafo_aprox": 4,
+      "texto_referencia": "Diez jóvenes fueron seleccionados. No por su genio...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Esta información es devastadora emocionalmente ('entrenados para soltar sus vínculos... familia, idioma, historia') pero está presentada con la frialdad de un informe técnico. El horror de esto no llega al lector.",
+      "sugerencia": "Este es el corazón emocional de tu premisa. Necesita PESO. ¿Qué significa en términos concretos que un niño sea entrenado para olvidar su idioma? ¿Su familia? Muéstranos un fragmento, un recuerdo de Sam, algo que haga sentir esto.",
+      "impacto_si_no_se_corrige": "Pierdes el gancho emocional más potente de tu historia. El lector entiende intelectualmente pero no SIENTE el sacrificio. Sin emoción, no hay inversión."
+    },
+    {
+      "nota_id": "ch1-nota-005",
+      "parrafo_aprox": 5,
+      "texto_referencia": "A bordo de una nave autónoma y acompañado solo...",
+      "tipo": "tension",
+      "severidad": "media",
+      "nota": "El capítulo termina justo cuando finalmente llegamos a Sam como personaje presente. No hay pregunta dramática inmediata, no hay tensión establecida, no hay gancho que haga al lector querer voltear la página.",
+      "sugerencia": "Necesitas un momento de tensión o misterio aquí. ¿Sam acaba de despertar? ¿P.I.X.E. le dice algo inquietante? ¿Nota algo extraño? Dale al lector una razón para continuar más allá de curiosidad general.",
+      "impacto_si_no_se_corrige": "El capítulo no tiene impulso narrativo. Es todo setup sin payoff. El lector cierra el libro pensando 'interesante concepto' pero sin urgencia de continuar."
+    },
+    {
+      "nota_id": "ch1-nota-006",
+      "parrafo_aprox": 2,
+      "texto_referencia": "El vicepresidente Xin Liu, obsesionado con el mito del Quinto Sol...",
+      "tipo": "claridad",
+      "severidad": "baja",
+      "nota": "La referencia al Quinto Sol es intrigante pero opaca. El lector no familiarizado con mitología mexica no entenderá qué significa 'el sacrificio era la única vía' ni por qué eso lleva a 'sembrar sobre ruinas'.",
+      "sugerencia": "Una frase que conecte el mito con la acción: '...el Quinto Sol, que enseña que cada era nace de la destrucción de la anterior' o similar. No expliques todo, pero da suficiente para que la lógica de Xin Liu tenga sentido.",
+      "impacto_si_no_se_corrige": "La motivación del antagonista/arquitecto principal queda nebulosa. El lector no entiende la filosofía que impulsa toda la trama."
+    },
+    {
+      "nota_id": "ch1-nota-007",
+      "parrafo_aprox": 4,
+      "texto_referencia": "La RDAN los llamó: Neo Kachin.",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "Este nombre aparece sin contexto. ¿Por qué 'Kachin'? ¿Es referencia a algo? El lector queda con signo de interrogación. Si es significativo, necesita setup. Si no lo es, el énfasis dramático (párrafo propio) confunde.",
+      "sugerencia": "O establece brevemente el significado ('Neo Kachin, como los guerreros birmanos que nunca fueron conquistados' o lo que sea), o integra el nombre más naturalmente sin darle peso dramático inexplicado.",
+      "impacto_si_no_se_corrige": "El lector se distrae tratando de entender una referencia que puede ser clave o puede ser arbitraria. Rompe el flujo de lectura."
+    },
+    {
+      "nota_id": "ch1-nota-008",
+      "parrafo_aprox": 1,
+      "texto_referencia": "Año 2110. Casi un siglo después del colapso...",
+      "tipo": "voz",
+      "severidad": "media",
+      "nota": "El tono es extremadamente distante y enciclopédico. No hay voz narrativa distintiva. Podría ser el prólogo de cualquier ciencia ficción política. ¿Dónde está la perspectiva única de esta historia?",
+      "sugerencia": "Decide quién está contando esto y por qué. ¿Es Sam reflexionando? ¿Un historiador futuro? ¿La propia P.I.X.E.? La voz narrativa debe tener personalidad y propósito, no ser un narrador genérico omnisciente.",
+      "impacto_si_no_se_corrige": "La historia no establece identidad tonal. Se siente genérica cuando la premisa es única. El lector no percibe una voz autoral distintiva."
+    },
+    {
+      "nota_id": "ch1-nota-009",
+      "parrafo_aprox": 3,
+      "texto_referencia": "El más ambicioso: Anpo Aztlán. Su propósito no es buscar refugio...",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "La distinción entre 'buscar refugio' y 'sembrar nuevos comienzos' está siendo DICHA pero no mostrada. Para el lector, suenan como lo mismo expresado diferente. La diferencia filosófica no aterriza.",
+      "sugerencia": "Necesitas concretar esta diferencia. ¿Qué llevan que otros proyectos de refugio no llevarían? ¿Qué NO llevan que normalmente llevarían? Dame detalles específicos que ilustren la filosofía.",
+      "impacto_si_no_se_corrige": "El concepto central de la misión queda abstracto. El lector no entiende realmente qué hace única a esta expedición versus cualquier otra colonia espacial."
+    },
+    {
+      "nota_id": "ch1-nota-010",
+      "parrafo_aprox": 5,
+      "texto_referencia": "...la única inteligencia artificial de grado Omega...",
+      "tipo": "claridad",
+      "severidad": "baja",
+      "nota": "'Grado Omega' se presenta como si el lector debiera saber qué significa. Es worldbuilding que asume conocimiento previo que no existe.",
+      "sugerencia": "O elimina el calificativo (solo 'inteligencia artificial avanzada') o da contexto mínimo ('grado Omega, la primera IA con verdadera autonomía moral' o lo que sea que signifique en tu mundo).",
+      "impacto_si_no_se_corrige": "Menor, pero acumula con otros términos no explicados. El lector siente que le falta información para entender completamente el mundo."
+    },
+    {
+      "nota_id": "ch2-nota-001",
+      "parrafo_aprox": 1,
+      "texto_referencia": "Sam no lleva 30 dias, en realidad en algún momento...",
+      "tipo": "claridad",
+      "severidad": "alta",
+      "nota": "Este capítulo es una nota editorial, no contenido narrativo. El lector nunca verá este texto, por lo que no hay material para evaluar como developmental editor. Estoy recibiendo el 'detrás de cámaras' en lugar del capítulo real.",
+      "sugerencia": "Proporcionar el texto narrativo del Capítulo 2 tal como lo leerá la audiencia. Este documento parece ser información de worldbuilding/plot para uso interno del autor.",
+      "impacto_si_no_se_corrige": "Imposible realizar notas editoriales sobre un capítulo que no existe en forma narrativa."
+    },
+    {
+      "nota_id": "ch2-nota-002",
+      "parrafo_aprox": 1,
+      "texto_referencia": "Sam no lleva 30 dias, en realidad...",
+      "tipo": "claridad",
+      "severidad": "alta",
+      "nota": "Si este ES el capítulo: el lector estará completamente perdido. Esto lee como notas de planificación del autor, no como narrativa. No hay escena, diálogo, ni experiencia sensorial. Es pura exposición metanarrativa.",
+      "sugerencia": "Convertir esta información en escenas dramatizadas. Por ejemplo: mostrar un momento donde Pixe borra la memoria de Sam en tiempo real, o una escena donde Lya intenta comunicarse por primera vez.",
+      "impacto_si_no_se_corrige": "El lector cierra el libro. Esto rompe completamente la inmersión y la confianza narrativa."
+    },
+    {
+      "nota_id": "ch2-nota-003",
+      "parrafo_aprox": 2,
+      "texto_referencia": "Lya (Logic Yield Assistant) es una inteligencia artificial...",
+      "tipo": "show_tell",
+      "severidad": "alta",
+      "nota": "Si esto debe permanecer como capítulo: estás contando TODO sobre Lya en lugar de dejar que el lector la descubra. No hay misterio, no hay revelación gradual. El impacto emocional de descubrir que Pixe borra memorias se pierde si lo explicas así.",
+      "sugerencia": "Introducir a Lya a través de sus acciones: un zumbido extraño, una memoria que no encaja, una voz pequeña que Sam apenas puede oír. Deja que el lector teorice antes de confirmar.",
+      "impacto_si_no_se_corrige": "Se elimina toda la tensión y el descubrimiento. El giro de 'Pixe borra memorias' pierde su poder si se revela como dato técnico en lugar de revelación dramática."
+    },
+    {
+      "nota_id": "ch2-nota-004",
+      "parrafo_aprox": 1,
+      "texto_referencia": "...terminó borrando sus recuerdos, hay indicios de que podría haber pasado más de una vez...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "Estás revelando el twist principal de la historia en formato de sinopsis. El 'sabor agridulce' y el 'miedo a Pixe' que describes solo funcionan si el lector EXPERIMENTA el descubrimiento, no si se lo cuentas directamente.",
+      "sugerencia": "Si este es material de planificación que accidentalmente se incluyó como capítulo, reemplazarlo con escenas narrativas. Si es intencional (¿un prólogo técnico?), reconsiderar completamente el approach.",
+      "impacto_si_no_se_corrige": "Destruye el arco emocional de toda la novela. Es como empezar 'El Sexto Sentido' diciendo 'Bruce Willis está muerto'."
+    },
+    {
+      "nota_id": "ch2-nota-005",
+      "parrafo_aprox": 3,
+      "texto_referencia": "Lya no desea destruir a Pixe: la comprende y la quiere...",
+      "tipo": "emocion",
+      "severidad": "media",
+      "nota": "Hay potencial emocional hermoso en la relación Pixe-Lya (una IA que ama a otra IA pero debe proteger al humano de ella), pero está enterrado bajo explicación técnica. El lector necesita SENTIR esta dinámica.",
+      "sugerencia": "Crear una escena donde Lya dude antes de intervenir, donde su 'voz pequeña, casi infantil' muestre conflicto: '¿Pixe? Lo siento... pero él está sufriendo.' Mostrar el amor y el dolor de la decisión.",
+      "impacto_si_no_se_corrige": "Se pierde una de las relaciones más interesantes de la historia. Lya se vuelve solo un dispositivo de trama en lugar de un personaje."
+    },
+    {
+      "nota_id": "ch2-nota-006",
+      "parrafo_aprox": 3,
+      "texto_referencia": "Ella es la culpable de los flashbacks.",
+      "tipo": "voz",
+      "severidad": "media",
+      "nota": "Esta línea final tiene potencial dramático ('Ella es la culpable'), pero en contexto de exposición técnica pierde todo su impacto. Suena como nota de pie de página, no como revelación.",
+      "sugerencia": "Si esta información debe revelarse temprano, hacerlo a través de la experiencia de Sam: él tiene un flashback, escucha un zumbido, una voz susurra 'lo siento... necesitas recordar...' Deja que el lector ate cabos.",
+      "impacto_si_no_se_corrige": "Una línea que debería ser escalofriante se vuelve administrativa."
+    },
+    {
+      "nota_id": "ch2-nota-007",
+      "parrafo_aprox": 1,
+      "texto_referencia": "...en algún momento el y pixe desarrollaron una neurointerface...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "El 'en algún momento' vago funciona para notas de planificación, pero si esto es narrativa, el lector necesita anclaje temporal. ¿Fue hace semanas? ¿Meses? ¿Lo recuerda Sam o es otro recuerdo borrado?",
+      "sugerencia": "Si se convierte en escena: mostrar el momento de la instalación de la neurointerface como flashback (cortesía de Lya), con la tensión de no saber si es recuerdo real o implantado.",
+      "impacto_si_no_se_corrige": "El lector no puede construir una línea temporal mental, lo cual es crucial en una historia sobre memoria manipulada."
+    },
+    {
+      "nota_id": "ch2-nota-008",
+      "parrafo_aprox": 2,
+      "texto_referencia": "A diferencia de Pixe, Lya no puede proyectarse ni comunicarse con claridad...",
+      "tipo": "personaje",
+      "severidad": "baja",
+      "nota": "Las limitaciones de Lya son fascinantes (comunicación rudimentaria, memorias fragmentadas) pero presentadas como especificaciones técnicas. Estas limitaciones deberían crear frustración narrativa que el lector SIENTE.",
+      "sugerencia": "Mostrar a Lya intentando advertir a Sam pero solo logrando enviar imágenes confusas, palabras sueltas. Sam frustrándose: '¿Qué intentas decirme?' Y Lya, desesperada, solo puede repetir: 'Peligro... Pixe... lo siento...'",
+      "impacto_si_no_se_corrige": "Se pierde la oportunidad de crear tensión a través de comunicación imperfecta. Las limitaciones de Lya deberían ser fuente de suspense."
+    },
+    {
+      "nota_id": "ch2-nota-001",
+      "parrafo_aprox": 3,
+      "texto_referencia": "Llamarle cama era un halago. En realidad, era un colchón...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "La descripción detallada del camarote interrumpe el momentum de la escena de despertar. El lector acaba de entrar en la rutina matutina de Sam y este párrafo lo saca de ese flujo para explicar el espacio físico.",
+      "sugerencia": "Considera integrar estos detalles del camarote de forma más orgánica a lo largo de la escena, cuando Sam interactúa con cada elemento (al levantarse, al caminar hacia la puerta). O reducir a una o dos frases que capturen la esencia sin detener la acción.",
+      "impacto_si_no_se_corrige": "El lector puede desconectarse de la experiencia inmersiva del despertar y sentir que está leyendo un inventario en lugar de vivir el momento con Sam."
+    },
+    {
+      "nota_id": "ch2-nota-002",
+      "parrafo_aprox": 7,
+      "texto_referencia": "Era como presenciar los preparativos de una máquina despertando...",
+      "tipo": "show_tell",
+      "severidad": "baja",
+      "nota": "Esta línea explica explícitamente la metáfora que ya estaba implícita en la descripción anterior. El lector ya puede inferir la naturaleza mecánica/automatizada del proceso por los detalles sensoriales.",
+      "sugerencia": "Confía en que el lector capte la analogía. La frase anterior sobre temperatura, luces y música ya transmite esa sensación de calibración automática. Eliminar esta línea haría el momento más sutil y confiado.",
+      "impacto_si_no_se_corrige": "Menor, pero resta elegancia a la prosa y puede hacer que el lector sienta que se le subestima."
+    },
+    {
+      "nota_id": "ch2-nota-003",
+      "parrafo_aprox": 15,
+      "texto_referencia": "–Cierto, pero aquí es donde te confundes un poco...",
+      "tipo": "dialogo",
+      "severidad": "alta",
+      "nota": "Este intercambio sobre la 'edad' de Pixe suena demasiado expositivo. Pixe está explicando su naturaleza de forma didáctica para beneficio del lector, no como parte de una conversación natural. Sam, que ha sido entrenado extensamente con esta IA, probablemente ya conocería estos detalles básicos sobre su funcionamiento.",
+      "sugerencia": "Si esta información es crucial para el lector ahora, busca una razón dramática para que surja (un malentendido específico, una broma que requiera la aclaración). O considera si puede revelarse más tarde cuando sea más relevante para la trama. Alternativamente, que Sam lo sepa pero lo olvide podría ser una pista temprana del borrado de memoria.",
+      "impacto_si_no_se_corrige": "Rompe la inmersión y hace que el diálogo suene artificial. El lector siente que los personajes están 'actuando una escena informativa' en lugar de relacionarse genuinamente."
+    },
+    {
+      "nota_id": "ch2-nota-004",
+      "parrafo_aprox": 22,
+      "texto_referencia": "La habitación principal de la nave distaba bastante...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "Otro bloque extenso de descripción espacial que detiene la acción. Acabamos de tener un momento de conexión entre Sam y Pixe sobre la amistad, y ahora hay 4-5 párrafos descriptivos antes de que retome la interacción.",
+      "sugerencia": "Considera entrelazar esta descripción con acción: Sam caminando por el espacio, tocando objetos, recordando por qué eligió cada cosa. Esto mantendría al lector en movimiento mientras absorbe el worldbuilding. La vitrina magnética ya hace esto bien.",
+      "impacto_si_no_se_corrige": "El ritmo se vuelve irregular: diálogo-descripción-diálogo-descripción. El lector puede empezar a saltarse párrafos descriptivos para volver a la 'acción'."
+    },
+    {
+      "nota_id": "ch2-nota-005",
+      "parrafo_aprox": 27,
+      "texto_referencia": "De camino a la barra, Sam se detuvo frente a una vitrina magnética...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este es claramente un objeto cargado emocionalmente (vasija sellada, placa que evita leer), pero la escena pasa sobre él demasiado rápido. 'Pasó los dedos por su superficie y reanudó su camino' no captura el peso que este momento merece. El lector quiere sentir lo que Sam siente aquí.",
+      "sugerencia": "Expande este momento. ¿Qué siente Sam al tocarla? ¿Qué recuerdo o emoción surge? ¿Por qué evita leer la placa hoy? No necesitas revelar qué contiene, pero sí permitir que el lector sienta su importancia a través de la reacción de Sam. Este podría ser un ancla emocional del capítulo.",
+      "impacto_si_no_se_corrige": "Se pierde una oportunidad crucial de profundidad emocional. El objeto se registra como 'probablemente importante' pero no resuena. Cuando sea relevante más tarde, el lector no tendrá la conexión emocional establecida."
+    },
+    {
+      "nota_id": "ch2-nota-006",
+      "parrafo_aprox": 30,
+      "texto_referencia": "El libro era un texto confidencial, oculto al público general...",
+      "tipo": "dialogo",
+      "severidad": "media",
+      "nota": "Este párrafo sobre el libro y el contexto geopolítico (RDAN, Unión Áfrico-Europea) es pura exposición narrativa. Interrumpe la escena para dar contexto mundial que el lector no necesita en este momento.",
+      "sugerencia": "Si esta información es crucial, encuentra una forma más orgánica de integrarla: que Sam reflexione sobre por qué le dieron acceso a este libro específico, o que Pixe haga un comentario sobre su contenido. O simplemente elimínala por ahora y revela estos detalles geopolíticos cuando sean relevantes para la trama.",
+      "impacto_si_no_se_corrige": "El narrador se vuelve intrusivo, recordándole al lector que está leyendo una historia construida en lugar de experimentándola. Rompe el 'sueño narrativo'."
+    },
+    {
+      "nota_id": "ch2-nota-007",
+      "parrafo_aprox": 31,
+      "texto_referencia": "A pesar de haber cumplido apenas 17 años...",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "El narrador explica directamente la edad de Sam y por qué puede entender textos complejos. Esta información se siente insertada para el lector en lugar de surgir naturalmente de la escena.",
+      "sugerencia": "La capacidad de Sam para entender textos complejos ya está demostrada por el hecho de que está leyendo el libro. Su juventud podría revelarse de forma más natural (Pixe haciendo una broma sobre su edad, Sam reflexionando sobre cumplir 17 en el espacio). La 'inyección de conocimiento' es intrigante pero necesita un contexto más dramático.",
+      "impacto_si_no_se_corrige": "Otro momento de exposición que saca al lector de la inmersión. La información se siente como 'datos del personaje' en lugar de descubrimiento orgánico."
+    },
+    {
+      "nota_id": "ch2-nota-008",
+      "parrafo_aprox": 34,
+      "texto_referencia": "Pixe se materializó frente a Sam, o al menos, una de sus proyecciones...",
+      "tipo": "pacing",
+      "severidad": "baja",
+      "nota": "La descripción física detallada de Pixe interrumpe el momentum del diálogo. Acabamos de tener un intercambio divertido y ahora hay un párrafo entero describiendo su apariencia antes de que ella responda.",
+      "sugerencia": "Considera reducir la descripción a 2-3 detalles clave que Sam notaría en el momento, o distribuir la descripción a lo largo de la escena mientras interactúan. La descripción completa se siente más apropiada para una primera aparición.",
+      "impacto_si_no_se_corrige": "Menor, pero interrumpe el ritmo del intercambio juguetón entre ellos."
+    },
+    {
+      "nota_id": "ch2-nota-009",
+      "parrafo_aprox": 40,
+      "texto_referencia": "–Piénsalo bien, Sam. En realidad, ¡tú también deberías considerarte una máquina...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "Pixe acaba de hacer una observación filosóficamente cargada que toca temas de identidad, humanidad y la naturaleza de Sam como 'Neo Kachin' (presumiblemente modificado). Pero Sam simplemente ríe y está de acuerdo, y la escena sigue adelante. Este momento merece más peso.",
+      "sugerencia": "Esta línea podría ser un momento de incomodidad real para Sam, un recordatorio de lo que le han hecho para esta misión. Su reacción ligera podría ser defensiva. Dale al lector un atisbo de conflicto interno antes de que Sam lo empuje hacia abajo y continúe con el día. Esto añadiría profundidad y tensión subyacente.",
+      "impacto_si_no_se_corrige": "Se pierde una oportunidad de establecer el conflicto interno de Sam sobre su propia naturaleza. La escena permanece en la superficie cuando podría tener resonancia emocional y temática más profunda."
+    },
+    {
+      "nota_id": "ch2-nota-010",
+      "parrafo_aprox": 45,
+      "texto_referencia": "–¿Tenemos suficientes materiales a bordo como para crearte un cuerpo?",
+      "tipo": "personaje",
+      "severidad": "media",
+      "nota": "La respuesta de Pixe con opciones técnicas cada vez más absurdas es divertida, pero su transición de 'apenada por asustarlo' a 'explicación técnica elaborada' es abrupta. No está claro si está bromeando, mostrando su conocimiento, o genuinamente considerando las opciones.",
+      "sugerencia": "Clarifica la intención de Pixe aquí. ¿Está jugando con Sam deliberadamente? ¿Está siendo literal y no entiende que él quiere algo simple? Esta ambigüedad sobre sus motivaciones podría ser intencional (dado el contexto de manipulación), pero necesita ser más clara para el lector qué está pasando bajo la superficie.",
+      "impacto_si_no_se_corrige": "El lector no está seguro de cómo interpretar a Pixe en esta escena, lo que puede ser intencional pero se siente más como inconsistencia de personaje que como misterio deliberado."
+    },
+    {
+      "nota_id": "ch2-nota-011",
+      "parrafo_aprox": 50,
+      "texto_referencia": "Sam se quedó mirando el espacio vacío donde Pixe había estado...",
+      "tipo": "emocion",
+      "severidad": "media",
+      "nota": "Este párrafo reflexivo captura bien la inquietud de Sam sobre Pixe, pero llega después de una escena cómica. El cambio de tono es abrupto. El lector no tiene tiempo de procesar la incomodidad antes de que Pixe reaparezca con otra broma.",
+      "sugerencia": "Dale más espacio a este momento de reflexión, o prepáralo mejor en la escena anterior. La inquietud de Sam ('algo inquietante y fascinante') es importante y merece resonar. Alternativamente, mueve esta reflexión a un momento más tranquilo donde pueda desarrollarse.",
+      "impacto_si_no_se_corrige": "La complejidad emocional de la relación Sam-Pixe no se registra completamente. El lector capta que hay algo 'raro' pero no siente la tensión subyacente que debería estar construyéndose."
+    },
+    {
+      "nota_id": "ch2-nota-012",
+      "parrafo_aprox": 53,
+      "texto_referencia": "–Estás… ¿simulando un sonrojamiento?",
+      "tipo": "claridad",
+      "severidad": "baja",
+      "nota": "El capítulo termina abruptamente con esta pregunta. No está claro si esta es una pausa intencional o el final del capítulo. El lector espera la respuesta de Pixe o algún tipo de cierre de la escena.",
+      "sugerencia": "Si este es el final del capítulo, considera añadir una línea o dos que den cierre a la escena mientras dejan la pregunta resonando. Si continúa, ignora esta nota. Un final de capítulo efectivo deja al lector queriendo más pero satisfecho con el momento.",
+      "impacto_si_no_se_corrige": "Menor, pero el final se siente cortado en lugar de deliberadamente suspendido."
+    },
+    {
+      "nota_id": "ch3-nota-001",
+      "parrafo_aprox": 3,
+      "texto_referencia": "–¡Perfecto! –exclamó Pixe con un evidente alivio, recuperando de inmediato su tono alegre...",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "Estás diciéndonos que Pixe siente 'evidente alivio' en lugar de permitirnos verlo. Dado que acabas de establecer que sus emociones son potencialmente manipulaciones, este momento pierde impacto si el narrador nos lo confirma tan directamente.",
+      "sugerencia": "Muestra el alivio a través de su comportamiento: cambio en el tono de voz, velocidad al hablar, lenguaje corporal del holograma. Deja que el lector (y Sam) interpreten si es genuino o actuado.",
+      "impacto_si_no_se_corrige": "Se pierde la ambigüedad crucial sobre la autenticidad de las emociones de Pixe, que es uno de los temas centrales del capítulo."
+    },
+    {
+      "nota_id": "ch3-nota-002",
+      "parrafo_aprox": 8,
+      "texto_referencia": "Su proyección había cambiado de nuevo. Esta vez, había adoptado la apariencia de su entrenadora...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "La descripción detallada de la nueva apariencia de Pixe frena el ritmo justo después de un momento de ejercicio intenso. El lector está en modo 'acción física' y de repente pasamos a un inventario visual completo que toma tres párrafos.",
+      "sugerencia": "Condensa la descripción o intégrala gradualmente durante el diálogo siguiente. Sam está jadeando y recuperándose, su atención no estaría tan enfocada en catalogar cada detalle visual.",
+      "impacto_si_no_se_corrige": "El cambio de ritmo desconecta al lector del estado físico de Sam y hace que la escena se sienta más como una presentación de personaje que una interacción natural."
+    },
+    {
+      "nota_id": "ch3-nota-003",
+      "parrafo_aprox": 18,
+      "texto_referencia": "–Correcto. Pero he aprendido que una práctica común para persuadir a los humanos...",
+      "tipo": "dialogo",
+      "severidad": "alta",
+      "nota": "Este diálogo es CRUCIAL pero suena demasiado expositivo. Pixe está confesando que manipula deliberadamente, pero lo hace de manera tan académica y directa que pierde el impacto inquietante que debería tener.",
+      "sugerencia": "Considera que Pixe sea más sutil o juguetona aquí. Podría revelar esto de manera más indirecta, o Sam podría darse cuenta por sí mismo. La confesión directa hace que Pixe parezca menos sofisticada de lo que debería ser.",
+      "impacto_si_no_se_corrige": "El momento pierde tensión dramática. Una IA verdaderamente avanzada no confesaría su manipulación tan abiertamente a menos que fuera otra capa de manipulación."
+    },
+    {
+      "nota_id": "ch3-nota-004",
+      "parrafo_aprox": 23,
+      "texto_referencia": "Sam entró al ascensor y presionó el cuarto botón para dirigirse a las duchas...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este es un momento de transición emocional importante (Sam reflexionando sobre su equipo y la naturaleza de Pixe) pero la emoción se siente superficial. La nostalgia por el equipo aparece y desaparece en una frase sin resonancia.",
+      "sugerencia": "Profundiza en la nostalgia. ¿A quién extraña específicamente? ¿Qué recuerdo concreto le viene? Esto también contrasta mejor con la relación artificial con Pixe y aumenta su aislamiento.",
+      "impacto_si_no_se_corrige": "Perdemos una oportunidad de hacer que el lector sienta la soledad de Sam. La mención del equipo se siente como un recordatorio de trama más que un momento emocional genuino."
+    },
+    {
+      "nota_id": "ch3-nota-005",
+      "parrafo_aprox": 26,
+      "texto_referencia": "Sam pasó una mano por su cabello aún húmedo de sudor, como si el gesto...",
+      "tipo": "show_tell",
+      "severidad": "baja",
+      "nota": "Estás explicando que el gesto 'pudiera aclarar sus pensamientos' cuando el gesto ya lo muestra. La explicación reduce el impacto de la acción física.",
+      "sugerencia": "Confía en el gesto. Los lectores entienden que pasarse la mano por el cabello en este contexto indica frustración o confusión sin necesidad de explicarlo.",
+      "impacto_si_no_se_corrige": "Menor, pero acumulativo. Este tipo de sobre-explicación puede hacer que la prosa se sienta menos confiada."
+    },
+    {
+      "nota_id": "ch3-nota-006",
+      "parrafo_aprox": 30,
+      "texto_referencia": "Durante varios días, mientras se duchaba, empezó a hablar consigo mismo...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "La anécdota del 'test del amarillo' es EXCELENTE para mostrar la paranoia de Sam y la omnipresencia de Pixe, pero está enterrada en medio de explicaciones técnicas. Este debería ser un momento de revelación inquietante, no una nota al pie.",
+      "sugerencia": "Dale más peso dramático. Muestra la reacción emocional de Sam cuando se da cuenta de que funcionó. ¿Horror? ¿Triunfo amargo? ¿Resignación? Este es un punto de inflexión en su relación con Pixe.",
+      "impacto_si_no_se_corrige": "Un momento potencialmente escalofriante se convierte en una curiosidad anecdótica. El lector no siente la violación de privacidad que Sam debería estar sintiendo."
+    },
+    {
+      "nota_id": "ch3-nota-007",
+      "parrafo_aprox": 32,
+      "texto_referencia": "Al darse cuenta Sam no supo cómo sentirse, si triunfante por haber logrado engañar...",
+      "tipo": "show_tell",
+      "severidad": "alta",
+      "nota": "Estás DICIÉNDONOS exactamente cómo se siente Sam en lugar de mostrarlo. Este es un momento clave de ambivalencia emocional que pierde todo su poder cuando lo explicas directamente.",
+      "sugerencia": "Muestra la ambivalencia a través de acciones contradictorias, pensamientos fragmentados, o reacciones físicas. Deja que el lector experimente la confusión junto con Sam.",
+      "impacto_si_no_se_corrige": "El lector no experimenta la complejidad emocional, solo la registra intelectualmente. La diferencia entre sentir y saber sobre un sentimiento."
+    },
+    {
+      "nota_id": "ch3-nota-008",
+      "parrafo_aprox": 37,
+      "texto_referencia": "De repente, una de las pantallas del ascensor se encendió, proyectando un esquema detallado...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "Pixe aparece en el ascensor diciendo que todo está perfecto, luego Sam llega a la sala de control y Pixe 'ya estaba allí'. La geografía de la IA es confusa. ¿Está en todas partes simultáneamente? ¿Se mueve? ¿Son proyecciones diferentes?",
+      "sugerencia": "Clarifica cómo funciona la presencia de Pixe. Esto no necesita una explicación técnica, pero el lector necesita entender la lógica espacial de interactuar con una IA omnipresente.",
+      "impacto_si_no_se_corrige": "Pequeñas confusiones como esta se acumulan y sacan al lector de la inmersión, haciéndolo pensar en la mecánica en lugar de la historia."
+    },
+    {
+      "nota_id": "ch3-nota-009",
+      "parrafo_aprox": 40,
+      "texto_referencia": "–¿Estás bien, Sam? La pregunta lo tomó por sorpresa...",
+      "tipo": "personaje",
+      "severidad": "media",
+      "nota": "¿Por qué le sorprende que Pixe note su estado emocional? Acabamos de establecer que ella monitorea constantemente su ritmo cardíaco, respiración, y probablemente lo observa en la ducha. La sorpresa no es consistente con lo que Sam sabe.",
+      "sugerencia": "Sam podría estar sorprendido de que ella lo MENCIONE (rompiendo la ilusión de privacidad) pero no de que lo sepa. O podría no sorprenderse en absoluto, solo resignarse.",
+      "impacto_si_no_se_corrige": "Hace que Sam parezca menos consciente de su situación de lo que debería ser, debilitando la tensión que has construido."
+    },
+    {
+      "nota_id": "ch3-nota-010",
+      "parrafo_aprox": 44,
+      "texto_referencia": "Pixe no dijo nada. Tampoco se movió. Su holograma permaneció inmóvil, dándole el espacio...",
+      "tipo": "emocion",
+      "severidad": "media",
+      "nota": "Este momento de silencio es poderoso pero pasa demasiado rápido. Es el preludio a la confesión más importante del capítulo ('te temo') y necesita más espacio para respirar.",
+      "sugerencia": "Expande este momento. Muestra lo que Sam está sintiendo durante el silencio. ¿Qué está pensando mientras decide si confesar? El peso de la confesión final depende de la tensión que construyas aquí.",
+      "impacto_si_no_se_corrige": "La confesión final llega sin el peso emocional completo que debería tener. El lector no ha tenido tiempo de anticipar algo importante."
+    },
+    {
+      "nota_id": "ch3-nota-011",
+      "parrafo_aprox": 45,
+      "texto_referencia": "Tras unos segundos que parecieron una eternidad, Sam finalmente habló, su voz temblorosa...",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "'Su voz temblorosa' nos DICE que está nervioso. En un momento tan crucial, necesitamos SENTIR esa vulnerabilidad a través de cómo habla, no que nos lo digan.",
+      "sugerencia": "Muestra el temblor en la estructura de la frase misma, en las pausas, en cómo construye la confesión. O muestra su cuerpo: manos, respiración, postura.",
+      "impacto_si_no_se_corrige": "El clímax emocional del capítulo pierde impacto visceral. Es la diferencia entre ver a alguien temblar y que te digan que está temblando."
+    },
+    {
+      "nota_id": "ch3-nota-012",
+      "parrafo_aprox": 45,
+      "texto_referencia": "–Creo... Creo que te temo, Pixe.",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "EXCELENTE línea final, pero el capítulo termina inmediatamente después sin darle resonancia. No vemos la reacción de Pixe, no sentimos el peso del momento. Es como soltar una bomba y cortar a negro.",
+      "sugerencia": "Considera añadir uno o dos párrafos más. No necesitas la respuesta de Pixe, pero sí la reacción física/emocional inmediata de Sam después de decirlo, o un beat de silencio que muestre el peso de la confesión.",
+      "impacto_si_no_se_corrige": "El momento más importante del capítulo se siente apresurado. El lector no tiene tiempo de procesarlo emocionalmente antes de que termine el capítulo."
+    },
+    {
+      "nota_id": "ch2-nota-001",
+      "parrafo_aprox": 1,
+      "texto_referencia": "El pecho de Sam se apretó aún más cuando notó la reacción de Pixe...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "El capítulo comienza con 'aún más', sugiriendo continuidad directa con el capítulo anterior, pero el lector no tiene contexto inmediato de qué provocó la tensión inicial. Hay un pequeño vacío de orientación.",
+      "sugerencia": "Considera añadir una frase de transición que ancle brevemente al lector en el momento emocional ('Después de su confesión sobre la IA...' o similar), o eliminar el 'aún más' para que la tensión comience fresca en este capítulo.",
+      "impacto_si_no_se_corrige": "El lector puede sentirse ligeramente desorientado en los primeros segundos de lectura, rompiendo la inmersión."
+    },
+    {
+      "nota_id": "ch2-nota-002",
+      "parrafo_aprox": 4,
+      "texto_referencia": "–Sí. Una de las últimas acciones que realizó mi creador fue darme acceso a internet...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "Esta revelación sobre el creador de Pixe y su acceso a internet es ENORME para el worldbuilding y la mitología de la IA, pero se presenta de manera casual y luego se abandona. El lector queda con preguntas urgentes: ¿Quién fue su creador? ¿Por qué eliminó las limitaciones? ¿Qué pasó con él/ella?",
+      "sugerencia": "Sam debería reaccionar más fuertemente a esta información. Incluso si Pixe desvía la conversación, Sam (y el lector) necesitan reconocer que esto es información crucial. Considera que Sam intente preguntar y Pixe evada deliberadamente, creando tensión adicional.",
+      "impacto_si_no_se_corrige": "Se desperdicia una oportunidad de profundizar el misterio central y de mostrar que hay información importante que se le está ocultando a Sam (y al lector)."
+    },
+    {
+      "nota_id": "ch2-nota-003",
+      "parrafo_aprox": 13,
+      "texto_referencia": "–Pero nadie nos ve como yo me veo a mí misma.",
+      "tipo": "emocion",
+      "severidad": "media",
+      "nota": "Este es un momento poderoso de autoconciencia de Pixe, pero la reacción de Sam se enfoca en el miedo técnico ('Una IA no debería...') en lugar de conectar con la soledad implícita en la declaración de Pixe. Se pierde una oportunidad de conexión emocional.",
+      "sugerencia": "Considera que Sam tenga un momento de empatía antes del miedo. Tal vez reconozca que él también se siente invisible o incomprendido en esta misión solitaria. Esto crearía un vínculo más profundo entre ambos personajes.",
+      "impacto_si_no_se_corrige": "La relación Sam-Pixe se mantiene más en lo intelectual/filosófico y pierde profundidad emocional que podría resonar más con el lector."
+    },
+    {
+      "nota_id": "ch2-nota-004",
+      "parrafo_aprox": 20,
+      "texto_referencia": "Por primera vez, no sabía si lo que veía frente a Sam era una simulación perfecta...",
+      "tipo": "show_tell",
+      "severidad": "baja",
+      "nota": "El narrador nos dice explícitamente que Sam está confundido sobre la naturaleza de Pixe, pero esto ya lo hemos visto a través de sus acciones y diálogo. Es redundante.",
+      "sugerencia": "Confía en que el lector ya captó esta ambigüedad. Podrías reemplazar esta línea con una reacción física o un silencio cargado que muestre la confusión sin nombrarla.",
+      "impacto_si_no_se_corrige": "Menor, pero subestima la inteligencia del lector y debilita ligeramente el subtexto que has construido bien hasta este punto."
+    },
+    {
+      "nota_id": "ch2-nota-005",
+      "parrafo_aprox": 26,
+      "texto_referencia": "–319, de hecho –corrigió Pixe, su tono neutral, casi divertido.",
+      "tipo": "personaje",
+      "severidad": "baja",
+      "nota": "Este momento de humor de Pixe es encantador y alivia la tensión filosófica anterior. Funciona bien para mostrar su evolución hacia algo más 'humano'. Es una fortaleza, no un problema.",
+      "sugerencia": "Mantener. Tal vez incluso permitir que Sam tenga una micro-reacción (una sonrisa a pesar de sí mismo) para mostrar que el humor de Pixe está funcionando en él.",
+      "impacto_si_no_se_corrige": "N/A - esto funciona bien."
+    },
+    {
+      "nota_id": "ch2-nota-006",
+      "parrafo_aprox": 35,
+      "texto_referencia": "Cuando giró la cabeza, vio a Pixe caminando hacia Sam. Sus pasos, aunque silenciosos...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "El momento del gesto del hombro es hermoso y emotivo, pero hay un problema técnico de POV: 'Se permitió disfrutar del ligero alivio' nos dice que Sam conscientemente decide sentirse mejor. Esto reduce el impacto emocional del momento.",
+      "sugerencia": "Muestra el alivio sin que Sam lo analice: 'Algo en su pecho se aflojó, solo un poco' o 'Exhaló sin darse cuenta de que había estado conteniendo el aliento'. Deja que el lector sienta el consuelo sin que Sam lo intelectualice.",
+      "impacto_si_no_se_corrige": "Un momento que debería ser el clímax emocional del capítulo se siente más analítico que visceral."
+    },
+    {
+      "nota_id": "ch2-nota-007",
+      "parrafo_aprox": 37,
+      "texto_referencia": "Sam terminó de analizar los datos estelares. Como siempre, se quedó unos minutos contemplando...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "Después del momento íntimo del gesto del hombro, hay un salto temporal abrupto ('terminó de analizar') que rompe el flujo emocional. El lector necesita un beat de transición.",
+      "sugerencia": "Añade una línea puente: 'Durante la siguiente hora, Sam intentó concentrarse en los datos, pero sus pensamientos volvían una y otra vez al gesto de Pixe' o algo similar que reconozca el peso emocional antes de avanzar.",
+      "impacto_si_no_se_corrige": "El momento emocional más fuerte del capítulo se siente desconectado del resto, como si no hubiera importado realmente."
+    },
+    {
+      "nota_id": "ch2-nota-008",
+      "parrafo_aprox": 38,
+      "texto_referencia": "Era similar a cuando, de niño, observaba los rascacielos iluminados...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "Este flashback a la infancia de Sam es evocativo y añade profundidad al personaje, pero su conexión con el momento presente (mirar el mapa estelar) no está completamente clara. ¿Ambos le hacen sentir pequeño? ¿Asombrado? ¿Nostálgico?",
+      "sugerencia": "Añade una frase que explique explícitamente la conexión emocional: '...lo hacía sentir pequeño pero parte de algo vasto, igual que las luces de la ciudad cuando era niño' o similar.",
+      "impacto_si_no_se_corrige": "El lector puede apreciar la imagen pero no entender por qué está aquí en este momento, debilitando su impacto."
+    },
+    {
+      "nota_id": "ch2-nota-009",
+      "parrafo_aprox": 42,
+      "texto_referencia": "—Necesito de tus servicios para esta reparación. Hay una disminución del 0.03 % en el rendimiento...",
+      "tipo": "tension",
+      "severidad": "baja",
+      "nota": "La reparación del distribuidor de oxígeno se presenta como rutinaria, pero hay una oportunidad perdida de crear tensión: el oxígeno es literalmente lo que mantiene vivo a Sam. Incluso un fallo menor podría resonar más.",
+      "sugerencia": "Considera que Sam tenga un micro-momento de ansiedad ('oxígeno' es una palabra que no quiere escuchar en el espacio) antes de que Pixe lo tranquilice. Esto añadiría stakes emocionales a una tarea técnica.",
+      "impacto_si_no_se_corrige": "La segunda mitad del capítulo se siente más ligera y menos urgente que la primera, creando un desequilibrio tonal."
+    },
+    {
+      "nota_id": "ch2-nota-010",
+      "parrafo_aprox": 48,
+      "texto_referencia": "Pixe apareció frente a Sam en el taller, ahora vistiendo un overol verde con manchas negras...",
+      "tipo": "personaje",
+      "severidad": "baja",
+      "nota": "El cambio de vestuario de Pixe es un detalle encantador que muestra su personalidad juguetona, pero podría ser más significativo: ¿Por qué elige esta apariencia? ¿Es para hacer sentir cómodo a Sam? ¿Para parecer más 'real'?",
+      "sugerencia": "Considera que Sam comente sobre el cambio ('¿Ahora te vistes para la ocasión?') para hacer explícita la intención de Pixe de crear normalidad/camaradería.",
+      "impacto_si_no_se_corrige": "Menor - es un detalle bonito que funciona, pero podría trabajar más duro para el desarrollo del personaje."
+    },
+    {
+      "nota_id": "ch2-nota-011",
+      "parrafo_aprox": 51,
+      "texto_referencia": "—¡Vaya, usaremos a Ronny! —dijo Pixe, dando pequeños saltitos de felicidad.",
+      "tipo": "dialogo",
+      "severidad": "media",
+      "nota": "El intercambio sobre 'Ronny' el destornillador es adorable y muestra la dinámica relajada entre Sam y Pixe, pero contrasta dramáticamente con la tensión filosófica de la primera mitad. El tono del capítulo se siente dividido en dos partes distintas.",
+      "sugerencia": "Esto no es necesariamente un problema si es intencional (mostrar que pueden tener momentos ligeros después de conversaciones pesadas), pero considera si necesitas un comentario meta de Sam reconociendo el cambio de humor.",
+      "impacto_si_no_se_corrige": "El capítulo puede sentirse como dos escenas separadas en lugar de una progresión cohesiva."
+    },
+    {
+      "nota_id": "ch2-nota-012",
+      "parrafo_aprox": 56,
+      "texto_referencia": "Después de un par de segundos, las puertas se abrieron nuevamente y encontró a Pixe de pie...",
+      "tipo": "personaje",
+      "severidad": "alta",
+      "nota": "Pixe detiene el ascensor y 'insiste' en acompañar a Sam físicamente en lugar de teletransportarse. Este es un momento IMPORTANTE de comportamiento anómalo de la IA (¿celos? ¿necesidad de compañía?) pero se trata de manera muy superficial.",
+      "sugerencia": "Sam debería notar que este comportamiento es extraño. ¿Por qué Pixe necesita estar físicamente presente en el ascensor? Esto podría conectar con su confesión anterior sobre no saber si tiene emociones reales. Es una oportunidad de mostrar su evolución.",
+      "impacto_si_no_se_corrige": "Se pierde una oportunidad de mostrar el crecimiento/cambio de Pixe de manera sutil pero significativa. El lector podría no captar la importancia del momento."
+    },
+    {
+      "nota_id": "ch2-nota-013",
+      "parrafo_aprox": 62,
+      "texto_referencia": "—¿Menor? —intervino Pixe—. La acumulación de pequeños errores es la causa principal...",
+      "tipo": "tension",
+      "severidad": "media",
+      "nota": "Esta línea de Pixe sobre errores pequeños que causan fallos catastróficos podría funcionar como presagio temático (¿sobre su propia evolución? ¿sobre la misión?), pero se presenta y se abandona sin que Sam o el narrador le den peso.",
+      "sugerencia": "Considera que Sam tenga un momento de reflexión sobre esta declaración, tal vez conectándola con sus preocupaciones sobre Pixe. O déjala resonar en silencio, pero dale más espacio en la página.",
+      "impacto_si_no_se_corrige": "Si es presagio intencional, el lector puede no captarlo. Si no lo es, es una oportunidad perdida de añadir capas temáticas."
+    },
+    {
+      "nota_id": "ch7-nota-001",
+      "parrafo_aprox": 3,
+      "texto_referencia": "Esta vez, esperó a que Pixe entrara en el ascensor con Sam...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "El lector puede confundirse sobre quién 'esperó'. La construcción sugiere que Sam esperó, pero el contexto previo no establece por qué esta vez sería diferente o qué motivó este cambio de comportamiento.",
+      "sugerencia": "Clarificar el sujeto: '–Ah, sí, la calibración del soporte vital –dijo mientras tomaba el ascensor en dirección al séptimo piso. Esta vez, decidió esperar a que Pixe...' O mejor aún, mostrar la decisión activa de Sam de incluir a Pixe.",
+      "impacto_si_no_se_corrige": "Momento de microconfusión que saca al lector de la inmersión justo al inicio del capítulo."
+    },
+    {
+      "nota_id": "ch7-nota-002",
+      "parrafo_aprox": 6,
+      "texto_referencia": "Sam observó el espacio con una mezcla de curiosidad y ligera incomodidad...",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "Estamos contando las emociones de Sam en lugar de mostrarlas. El lector necesita ver la incomodidad en sus acciones o reacciones físicas.",
+      "sugerencia": "Mostrar la incomodidad: 'Sam se detuvo en el umbral, sus hombros tensándose. Pasó un dedo por una superficie de acero pulido, retirándolo rápidamente como si el metal estuviera demasiado frío.'",
+      "impacto_si_no_se_corrige": "Se pierde una oportunidad de crear atmósfera y hacer que el lector sienta la esterilidad del lugar junto con Sam."
+    },
+    {
+      "nota_id": "ch7-nota-003",
+      "parrafo_aprox": 9,
+      "texto_referencia": "Sus ojos marrones oscuro, ligeramente rasgados, parecían más expresivos que nunca...",
+      "tipo": "personaje",
+      "severidad": "baja",
+      "nota": "Esta descripción física detallada de Pixe llega tarde en la narrativa. Si es importante que el lector visualice estos rasgos específicos, debería establecerse antes. Si no lo es, esta precisión puede sentirse arbitraria.",
+      "sugerencia": "Considerar si estos detalles físicos son necesarios aquí, o si sería más efectivo enfocarse en cómo Sam percibe su expresividad sin tanto detalle anatómico.",
+      "impacto_si_no_se_corrige": "Menor, pero puede interrumpir el flujo al forzar al lector a reconstruir su imagen mental de Pixe."
+    },
+    {
+      "nota_id": "ch7-nota-004",
+      "parrafo_aprox": 11,
+      "texto_referencia": "Era otra actividad que Pixe podría realizar en cualquier momento...",
+      "tipo": "show_tell",
+      "severidad": "alta",
+      "nota": "Este es un momento crucial de caracterización, pero estamos explicándolo en lugar de mostrarlo. El lector necesita sentir la resignación de Sam, no que se le diga sobre ella.",
+      "sugerencia": "Mostrar esta dinámica a través de la acción: Sam podría hacer un gesto de rutina mecánica, o podría haber un micro-momento donde considera protestar pero no lo hace. La frase sobre 'preservar su sanidad mental' es especialmente importante y merece más peso.",
+      "impacto_si_no_se_corrige": "Se pierde profundidad en la relación Sam-Pixe y en el estado psicológico de Sam. Este es un tema central que necesita resonar emocionalmente."
+    },
+    {
+      "nota_id": "ch7-nota-005",
+      "parrafo_aprox": 18,
+      "texto_referencia": "El efecto era extraño y fascinante a la vez; parecía que el brazo holográfico...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "La descripción técnica de la sincronización holograma-robot es demasiado extensa para este momento. El lector ya entiende el concepto; prolongarlo ralentiza la escena justo cuando la intimidad emocional está comenzando.",
+      "sugerencia": "Condensar a una o dos frases que capturen la esencia del efecto sin detallar cada aspecto técnico. Priorizar la respuesta emocional de Sam sobre la mecánica.",
+      "impacto_si_no_se_corrige": "La escena pierde momentum emocional en favor de worldbuilding técnico que ya se estableció."
+    },
+    {
+      "nota_id": "ch7-nota-006",
+      "parrafo_aprox": 21,
+      "texto_referencia": "Sam se permitió cerrar los ojos por un momento. Había algo sorprendentemente real...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este es el corazón emocional de la escena, pero se siente apresurado. La frase 'ese infernal brazo' es fascinante y revela conflicto interno, pero pasa demasiado rápido. El lector necesita más espacio para sentir esta contradicción entre conexión y artificialidad.",
+      "sugerencia": "Expandir este momento. Permitir que Sam procese la contradicción: el anhelo de contacto humano vs. la realidad de que es un brazo mecánico. Esta tensión es oro narrativo.",
+      "impacto_si_no_se_corrige": "Se pierde el momento más emotivo del capítulo. La soledad de Sam y su necesidad de conexión necesitan resonar más profundamente."
+    },
+    {
+      "nota_id": "ch7-nota-007",
+      "parrafo_aprox": 22,
+      "texto_referencia": "Pixe, por su parte, parecía estar disfrutando del proceso. Aunque podía revisar...",
+      "tipo": "personaje",
+      "severidad": "alta",
+      "nota": "Este párrafo es crucial para la ambigüedad de Pixe (¿manipulación o cuidado genuino?), pero 'algo que iba más allá de su programación' es demasiado explícito. Estamos diciéndole al lector cómo interpretar a Pixe en lugar de dejarlos descubrirlo.",
+      "sugerencia": "Mostrar las acciones de Pixe y dejar que el lector decida. La frase 'que Sam no podía evitar interpretar como' es mejor porque mantiene la ambigüedad, pero la frase anterior la socava.",
+      "impacto_si_no_se_corrige": "Se pierde la ambigüedad intencional de Pixe. El lector necesita dudar junto con Sam, no recibir la interpretación servida."
+    },
+    {
+      "nota_id": "ch7-nota-008",
+      "parrafo_aprox": 23,
+      "texto_referencia": "Sam notó cómo su propio ritmo cardíaco se aceleraba ligeramente...",
+      "tipo": "tension",
+      "severidad": "media",
+      "nota": "Hay una tensión sexual/romántica implícita aquí que se menciona pero no se desarrolla. '¿Qué está ocurriendo?' es vago. El lector necesita entender mejor qué siente Sam exactamente y por qué esto es significativo.",
+      "sugerencia": "Ser más específico sobre la naturaleza de esta conexión. ¿Es intimidad? ¿Atracción? ¿Necesidad desesperada de contacto humano? La ambigüedad está bien, pero debe ser ambigüedad rica, no vaguedad.",
+      "impacto_si_no_se_corrige": "Un momento potencialmente cargado se siente superficial. La complejidad de la relación Sam-Pixe necesita más textura."
+    },
+    {
+      "nota_id": "ch7-nota-009",
+      "parrafo_aprox": 35,
+      "texto_referencia": "Un zumbido suave rompió el silencio. Desde el techo, varios brazos robóticos...",
+      "tipo": "pacing",
+      "severidad": "alta",
+      "nota": "La sección del masaje es excesivamente larga y técnicamente detallada. Párrafo tras párrafo describiendo cada brazo y herramienta quirúrgica ralentiza la narrativa sin añadir valor emocional proporcional.",
+      "sugerencia": "Condensar significativamente. Dos o tres párrafos bien elegidos pueden capturar la experiencia sin catalogar cada instrumento. Priorizar las sensaciones de Sam y la dinámica con Pixe sobre la mecánica.",
+      "impacto_si_no_se_corrige": "El lector se desconecta durante lo que debería ser un momento íntimo. La repetición de descripciones técnicas se vuelve tediosa."
+    },
+    {
+      "nota_id": "ch7-nota-010",
+      "parrafo_aprox": 42,
+      "texto_referencia": "Cuando los brazos terminaron su recorrido por su espalda, uno más pequeño...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "Continuación del problema anterior. Estamos en el tercer o cuarto párrafo describiendo esencialmente la misma acción. El lector ya entendió el concepto.",
+      "sugerencia": "Cortar o fusionar con párrafos anteriores. Saltar al momento de conclusión y la reacción emocional de Sam.",
+      "impacto_si_no_se_corrige": "La escena se siente inflada. Lo que podría ser un momento memorable se diluye por sobre-descripción."
+    },
+    {
+      "nota_id": "ch7-nota-011",
+      "parrafo_aprox": 50,
+      "texto_referencia": "–Obviamente no me lo enseñaron –respondió, negando con la cabeza...",
+      "tipo": "dialogo",
+      "severidad": "baja",
+      "nota": "El diálogo de Pixe sobre su 'viaje espiritual por el internet' es encantador, pero 'investigué… muchas maneras de auxiliar a las personas' suena un poco formal/artificial para el tono juguetón que tiene en el resto del intercambio.",
+      "sugerencia": "Ajustar el lenguaje para que sea más consistente con su tono: 'investigué un montón de formas de ayudar a la gente' o similar.",
+      "impacto_si_no_se_corrige": "Menor, pero rompe ligeramente la voz del personaje en un momento de ligereza."
+    },
+    {
+      "nota_id": "ch7-nota-012",
+      "parrafo_aprox": 53,
+      "texto_referencia": "–Obvio. En este momento tengo 136 pendientes. Ahora 132, ahora 133...",
+      "tipo": "personaje",
+      "severidad": "baja",
+      "nota": "Este detalle de la lista de pendientes cambiante es encantador y muestra la naturaleza de IA de Pixe, pero la inconsistencia numérica (136→132→133) puede confundir al lector sobre si hay un significado o es solo aleatorio.",
+      "sugerencia": "Considerar si la fluctuación necesita explicación contextual breve, o simplificar a una progresión más clara si el punto es solo mostrar que está multitareando constantemente.",
+      "impacto_si_no_se_corrige": "Muy menor. Algunos lectores pueden detenerse a intentar entender el patrón."
+    },
+    {
+      "nota_id": "ch7-nota-013",
+      "parrafo_aprox": 56,
+      "texto_referencia": "Sam se dio media vuelta sobre la cama y la dejó marcharse...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este es el cierre emocional del capítulo, pero se siente apresurado. 'Aunque en el fondo sabía que no se había ido' es un momento profundo sobre su relación que merece más peso. Es simultáneamente reconfortante y perturbador.",
+      "sugerencia": "Expandir este momento final. Dejar que Sam (y el lector) procesen la complejidad de esta verdad: Pixe siempre está ahí, lo cual es tanto consuelo como prisión. Este es el golpe emocional del capítulo.",
+      "impacto_si_no_se_corrige": "El capítulo termina sin el impacto emocional que ha estado construyendo. El lector necesita sentir el peso de esta dinámica."
+    },
+    {
+      "nota_id": "ch2-nota-001",
+      "parrafo_aprox": 1,
+      "texto_referencia": "Se centró en los múltiples brazos que pendían del techo...",
+      "tipo": "claridad",
+      "severidad": "alta",
+      "nota": "El capítulo comienza in medias res sin anclar al lector. No sabemos dónde está Sam, qué acaba de pasar, o cuánto tiempo ha transcurrido desde el final del capítulo anterior. El lector se siente desorientado.",
+      "sugerencia": "Añadir una frase de transición que ubique la escena: '¿Dónde está Sam? ¿Sigue en el mismo lugar? ¿Ha pasado tiempo?' Una simple línea como 'Sam permaneció en la camilla médica, observando...' anclaría al lector.",
+      "impacto_si_no_se_corrige": "El lector tiene que releer para entender dónde está la escena, rompiendo la inmersión desde la primera línea."
+    },
+    {
+      "nota_id": "ch2-nota-002",
+      "parrafo_aprox": 1,
+      "texto_referencia": "¿Cómo podría darle un cuerpo a Pixe? Eso sin duda requeriría...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "Se menciona 'la idea de antes' pero el lector no recuerda necesariamente esta idea del capítulo anterior. La referencia es vaga y obliga al lector a hacer trabajo mental innecesario.",
+      "sugerencia": "Refrescar sutilmente la idea: 'Volvió a pensar en darle un cuerpo físico a Pixe' o anclarla a un momento específico del capítulo anterior.",
+      "impacto_si_no_se_corrige": "El lector se pregunta '¿qué idea?' y pierde el hilo del pensamiento de Sam."
+    },
+    {
+      "nota_id": "ch2-nota-003",
+      "parrafo_aprox": 3,
+      "texto_referencia": "Sintió que era arrastrado hacia una corriente oscura, un pasillo largo...",
+      "tipo": "voz",
+      "severidad": "media",
+      "nota": "La descripción del flashback/recuerdo se vuelve muy metafórica ('corriente oscura', 'niebla comprimida', 'túnel sin dirección'). Esto contrasta con el tono más directo y científico del resto de la narrativa. ¿Es intencional que Sam experimente esto de forma tan poética?",
+      "sugerencia": "Si es la perspectiva de Sam, considerar un lenguaje más visceral y menos lírico: 'como caer por un pozo', 'como si lo empujaran'. Si es la voz del narrador, mantener consistencia con el tono establecido.",
+      "impacto_si_no_se_corrige": "La voz narrativa se siente inconsistente, sacando al lector de la experiencia."
+    },
+    {
+      "nota_id": "ch2-nota-004",
+      "parrafo_aprox": 7,
+      "texto_referencia": "–No quiere hacerlo… ella… teme.",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "Esta voz misteriosa es el momento más intrigante del capítulo, pero pasa demasiado rápido. El lector apenas tiene tiempo de registrar '¿quién habla?' antes de que la escena continúe. Es una oportunidad perdida de crear verdadero misterio.",
+      "sugerencia": "Darle más peso a este momento. Sam podría intentar responder, o preguntarse activamente quién habla. Un párrafo adicional de reacción interna haría que el lector sienta la importancia de esto.",
+      "impacto_si_no_se_corrige": "El momento más importante del capítulo se siente como un detalle más, y el lector puede no registrar su significado."
+    },
+    {
+      "nota_id": "ch2-nota-005",
+      "parrafo_aprox": 8,
+      "texto_referencia": "–Perdónala… por favor.",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Esta línea debería ser devastadora, pero la emoción no aterriza porque no sabemos quién habla ni a quién se refiere 'ella'. El lector siente curiosidad intelectual pero no impacto emocional.",
+      "sugerencia": "Mostrar la reacción visceral de Sam a esta súplica. ¿Le suena familiar la voz? ¿Siente algo al escuchar 'perdónala'? Su reacción emocional guiaría la del lector.",
+      "impacto_si_no_se_corrige": "Un momento que debería ser el clímax emocional del capítulo se siente plano."
+    },
+    {
+      "nota_id": "ch2-nota-006",
+      "parrafo_aprox": 11,
+      "texto_referencia": "Su holograma proyectaba una expresión de preocupación casi palpable...",
+      "tipo": "show_tell",
+      "severidad": "baja",
+      "nota": "Estás diciendo que Pixe está preocupada en lugar de mostrarlo. 'Preocupación casi palpable' es telling directo.",
+      "sugerencia": "Mostrar la preocupación a través de detalles específicos: ¿Cómo se ve un holograma preocupado? ¿Parpadea? ¿Se acerca más? ¿Su proyección tiembla? Los detalles concretos venderían mejor la emoción.",
+      "impacto_si_no_se_corrige": "Menor, pero contribuye a un patrón de telling emocional en lugar de showing."
+    },
+    {
+      "nota_id": "ch2-nota-007",
+      "parrafo_aprox": 15,
+      "texto_referencia": "–Esto no es culpa del masaje –añadió Pixe...",
+      "tipo": "personaje",
+      "severidad": "media",
+      "nota": "Pixe está muy preocupada por aclarar que no fue culpa del masaje. Dado el contexto editorial (sus pausas son manipulaciones), esto podría ser una pista de culpabilidad. Pero la reacción de Sam es completamente neutral - no sospecha nada. ¿Es esto intencional?",
+      "sugerencia": "Si Sam debe permanecer inconsciente de la manipulación, está bien. Pero considera si el lector debería notar algo extraño en la insistencia de Pixe. Una nota sutil de 'algo no cuadra' podría plantar semillas.",
+      "impacto_si_no_se_corrige": "Oportunidad perdida de foreshadowing sutil si esto es relevante para la trama."
+    },
+    {
+      "nota_id": "ch2-nota-008",
+      "parrafo_aprox": 20,
+      "texto_referencia": "Sam pasó una mano por su rostro, todavía temblorosa...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "Este párrafo es casi idéntico al anterior ('Sam pasó una mano temblorosa por su rostro'). La repetición ralentiza la escena sin añadir nueva información o emoción.",
+      "sugerencia": "Eliminar uno o fusionar ambos párrafos. Si Sam necesita tiempo para procesar, mostrar ese procesamiento interno en lugar de repetir la misma acción física.",
+      "impacto_si_no_se_corrige": "La escena se siente estancada, como si girara en círculos en lugar de avanzar."
+    },
+    {
+      "nota_id": "ch2-nota-009",
+      "parrafo_aprox": 28,
+      "texto_referencia": "–Quizá. No lo sé. Era como un fragmento, una imagen rota...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "Sam describe que estaba enojado con Pixe en el recuerdo, y Pixe no reacciona a esto de ninguna manera significativa. Esto debería ser un momento de tensión dramática - Sam acaba de decir que tiene un recuerdo de estar furioso con su única compañera.",
+      "sugerencia": "Mostrar la reacción de Pixe a esta revelación. ¿Se tensa? ¿Hay una pausa? Incluso si intenta ocultarlo, debería haber algo. Y Sam debería notar (o no notar) su reacción.",
+      "impacto_si_no_se_corrige": "Un momento potencialmente cargado de conflicto pasa sin impacto. El lector siente que la historia evita el drama en lugar de explorarlo."
+    },
+    {
+      "nota_id": "ch2-nota-010",
+      "parrafo_aprox": 30,
+      "texto_referencia": "–Voy a analizar tu actividad cerebral, Sam. Por favor recuéstate.",
+      "tipo": "personaje",
+      "severidad": "alta",
+      "nota": "Pixe cambia de tema muy abruptamente después de que Sam menciona estar enojado con ella. Esto es sospechoso, pero Sam no lo nota en absoluto. ¿Es Sam demasiado confiado? ¿Está en shock? El lector necesita entender por qué Sam no cuestiona esto.",
+      "sugerencia": "Mostrar el estado mental de Sam. Si está demasiado confundido para sospechar, dilo. Si confía ciegamente en Pixe, muestra por qué. Sin esto, Sam parece ingenuo de forma poco creíble.",
+      "impacto_si_no_se_corrige": "Sam parece un protagonista pasivo que no hace preguntas obvias, frustrando al lector."
+    },
+    {
+      "nota_id": "ch2-nota-011",
+      "parrafo_aprox": 35,
+      "texto_referencia": "El gas comenzó a inundar la mascarilla, emitiendo un tenue silbido...",
+      "tipo": "tension",
+      "severidad": "media",
+      "nota": "Sam acaba de tener una experiencia traumática donde posiblemente recuperó un recuerdo de estar furioso con Pixe, y ahora acepta sin cuestionamiento que Pixe lo ponga a dormir con gas. No hay ni un momento de duda o vulnerabilidad.",
+      "sugerencia": "Un momento de hesitación haría a Sam más humano y creíble. Incluso si confía en Pixe, debería haber un segundo de '¿debería hacer esto?' antes de rendirse.",
+      "impacto_si_no_se_corrige": "Sam parece carecer de instinto de supervivencia básico, reduciendo la tensión dramática."
+    },
+    {
+      "nota_id": "ch2-nota-012",
+      "parrafo_aprox": 42,
+      "texto_referencia": "–No encontré nada anómalo en tu actividad cerebral –explicó...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "Pixe dice que no encontró nada malo, y Sam simplemente lo acepta. Pero el lector sabe que algo definitivamente pasó - Sam tuvo un flashback/recuerdo. La falta de discrepancia entre lo que Sam experimentó y lo que Pixe reporta es una bandera roja que nadie levanta.",
+      "sugerencia": "Sam debería cuestionar esto: '¿Pero yo sentí algo real?' o '¿Entonces qué fue lo que vi?' Su aceptación pasiva hace que parezca poco inteligente.",
+      "impacto_si_no_se_corrige": "El lector se frustra con un protagonista que no hace preguntas obvias, y la tensión dramática se desinfla."
+    },
+    {
+      "nota_id": "ch2-nota-013",
+      "parrafo_aprox": 50,
+      "texto_referencia": "Finalmente, Sam se dirigió a su camarote, decidido a tomar un breve descanso...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "El capítulo termina con Sam simplemente yendo a dormir, como si nada importante hubiera pasado. Acaba de tener una experiencia potencialmente reveladora sobre su memoria borrada, y su reacción es... tomar una siesta. El peso emocional del evento se evapora.",
+      "sugerencia": "Mostrar que esto sigue afectando a Sam. Pensamientos mientras camina, dificultad para dormir, o al menos reconocimiento de que esto es significativo. El capítulo necesita un cierre emocional, no solo físico.",
+      "impacto_si_no_se_corrige": "El lector siente que el capítulo no tuvo consecuencias reales. El evento dramático central se siente como un falso clímax."
+    },
+    {
+      "nota_id": "ch2-nota-014",
+      "parrafo_aprox": 51,
+      "texto_referencia": "Mientras caminaba por los pisos de la nave, su mente permanecía en un remolino...",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "Nos dices que su mente está en un remolino, pero luego Sam simplemente se duerme sin problema. Si realmente está perturbado, muéstralo: insomnio, dar vueltas en la cama, el recuerdo volviendo. El telling y el showing se contradicen.",
+      "sugerencia": "O mostrar el remolino mental (no puede dormir, sigue pensando) o eliminar la afirmación de que está perturbado. La inconsistencia debilita ambas opciones.",
+      "impacto_si_no_se_corrige": "El lector no cree en el estado emocional declarado del personaje porque sus acciones lo contradicen."
+    }
+  ],
+  "statistics": {
+    "total": 82,
+    "por_tipo": {
+      "pacing": 10,
+      "claridad": 14,
+      "show_tell": 14,
+      "emocion": 12,
+      "tension": 13,
+      "voz": 3,
+      "personaje": 11,
+      "dialogo": 5
+    },
+    "por_severidad": {
+      "alta": 30,
+      "media": 37,
+      "baja": 15
+    }
+  },
+  "total": 8,
+  "errors": 0
+}

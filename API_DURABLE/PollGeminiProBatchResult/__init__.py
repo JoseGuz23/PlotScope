@@ -58,12 +58,13 @@ def main(batch_info: dict) -> dict:
         # =======================================================
         # CASO A: AÚN PROCESANDO
         # =======================================================
-        if state in ["JOB_STATE_NEW", "JOB_STATE_PENDING", "JOB_STATE_PROCESSING", None]:
+        if state in ["JOB_STATE_NEW", "JOB_STATE_PENDING", "JOB_STATE_PROCESSING", "JOB_STATE_RUNNING", None]:
             return {
-                'status': 'processing', 
+                'status': 'processing',
                 'batch_job_name': job_name,
                 'id_map': id_map,
-                'analysis_type': analysis_type
+                'analysis_type': analysis_type,
+                'state': str(state)
             }
 
         # =======================================================

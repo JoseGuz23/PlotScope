@@ -8,6 +8,7 @@ import logging
 import json
 import os
 from datetime import datetime
+from typing import Any
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from io import BytesIO
 from .structure_changes import structure_changes # Asumimos que esta función existe
@@ -167,7 +168,7 @@ def generate_changes_report_v5(chapters: list) -> str:
 
 
 # Función principal de la Activity (FIX aplicado aquí)
-def main(input_data: any) -> dict:
+def main(input_data: Any) -> dict:
     """
     Guarda todos los outputs del proceso Sylphrena 5.0.
     """

@@ -325,16 +325,37 @@ def main(edit_requests: dict) -> dict:
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
             return {"error": "ANTHROPIC_API_KEY no configurada", "status": "config_error"}
-        
-        chapters = edit_requests.get('chapters', [])
+
+        # CORRECCIÓN: El Orchestrator envía 'edit_requests' como lista de {'chapter': frag}
+        raw_edit_requests = edit_requests.get('edit_requests', [])
+
+        # Extraer capítulos de la estructura [{'chapter': {...}}, ...]
+        if raw_edit_requests and isinstance(raw_edit_requests, list):
+            if isinstance(raw_edit_requests[0], dict) and 'chapter' in raw_edit_requests[0]:
+                chapters = [req['chapter'] for req in raw_edit_requests]
+            else:
+                chapters = raw_edit_requests
+        else:
+            # Fallback: buscar en 'chapters' directamente
+            chapters = edit_requests.get('chapters', [])
+
         bible = edit_requests.get('bible', {})
-        analyses = edit_requests.get('analyses', [])
+        analyses = edit_requests.get('consolidated_chapters', edit_requests.get('analyses', []))
         margin_notes_by_chapter = edit_requests.get('margin_notes', {})  # NUEVO: notas de margen
         book_metadata = edit_requests.get('book_metadata', {})
         
         libro_titulo = book_metadata.get('title', bible.get('identidad_obra', {}).get('titulo', 'Sin título'))
-        
+
         logging.info(f"📦 Preparando Claude Batch PROFESIONAL: {len(chapters)} capítulos")
+
+        # DEBUG: Verificar si chapters está vacío
+        if not chapters:
+            logging.error(f"❌ CRÍTICO: No hay capítulos para procesar!")
+            logging.error(f"   raw_edit_requests type: {type(raw_edit_requests)}")
+            logging.error(f"   raw_edit_requests length: {len(raw_edit_requests) if isinstance(raw_edit_requests, list) else 'N/A'}")
+            if raw_edit_requests and isinstance(raw_edit_requests, list) and len(raw_edit_requests) > 0:
+                logging.error(f"   Primer elemento: {raw_edit_requests[0]}")
+            return {"error": "No chapters to process", "status": "error"}
         
         client = Anthropic(api_key=api_key)
         

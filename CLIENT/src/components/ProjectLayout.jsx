@@ -1,3 +1,7 @@
+// =============================================================================
+// ProjectLayout.jsx - SIN CUADRO RANDOM (Fix Final)
+// =============================================================================
+
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useParams, useLocation, Link, Navigate } from 'react-router-dom';
 import { projectsAPI } from '../services/api';
@@ -22,9 +26,6 @@ export default function ProjectLayout() {
       setProject(data);
     } catch (err) {
       console.error(err);
-      // Si hay un error de carga, redirigimos al dashboard para evitar el loop
-      // Usamos el hook Navigate para la redirección más limpia.
-      // Ya que no podemos usar hooks fuera de la función, la redirección se manejará en el Router si es nulo.
       setProject(null); 
     } finally {
       setLoading(false);
@@ -32,41 +33,47 @@ export default function ProjectLayout() {
   }
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-[#f8f9fa]">
-      <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+    // Quitamos pt-20 aquí también para centrar el loader
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <Loader2 className="w-10 h-10 animate-spin text-theme-primary" />
     </div>
   );
   
-  // Si no se pudo cargar el proyecto y ya no estamos cargando, redirigimos al dashboard.
   if (!project) return <Navigate to="/dashboard" replace />;
   
-  // Enrutamos el índice (el path base /proyecto/:id) a la primera pestaña
   if (location.pathname === `/proyecto/${projectId}`) {
     return <Navigate to={`/proyecto/${projectId}/status`} replace />;
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#f8f9fa] font-sans">
+    // 1. ELIMINADO EL pt-20. Esto borra el cuadro blanco gigante.
+    // El Layout padre ya se encarga de no tapar el contenido inicial.
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       
-      {/* --- TOP BAR DE NAVEGACIÓN --- */}
-      <header className="bg-white border-b border-gray-200 shrink-0 z-30">
+      {/* HEADER DEL PROYECTO */}
+      {/* 2. sticky top-20: Cuando bajes, este header se quedará pegado justo debajo 
+             de tu Navbar principal (que mide 80px / 20 tailwind units). */}
+      <header className="bg-white border-b border-gray-200 shrink-0 z-40 shadow-sm w-full sticky top-20 transition-all">
         
-        {/* Fila 1: Info del Proyecto y Salida */}
-        <div className="flex justify-between items-center px-6 py-3 border-b border-gray-100">
+        {/* Fila 1: Breadcrumbs */}
+        <div className="px-8 py-3 border-b border-gray-100 flex justify-between items-center bg-white">
           <div className="flex items-center gap-3 text-sm">
-            <Link to="/dashboard" className="text-gray-400 hover:text-gray-800 transition-colors flex items-center gap-1 font-bold uppercase tracking-wider text-xs">
-              <ArrowLeft className="w-3 h-3" /> Biblioteca
+            <Link to="/dashboard" className="text-gray-400 hover:text-theme-primary transition-colors flex items-center gap-2 font-bold uppercase tracking-wider text-xs">
+              <ArrowLeft className="w-4 h-4" /> Biblioteca
             </Link>
-            <ChevronRight className="w-3 h-3 text-gray-300" />
-            <span className="font-bold text-gray-900 truncate max-w-xs md:max-w-md">
-              {project?.book_name || 'Proyecto sin título'}
+            
+            <ChevronRight className="w-4 h-4 text-gray-300" />
+            
+            <span className="font-editorial font-bold text-xl text-gray-900 truncate max-w-md">
+              {project?.book_name || 'Manuscrito sin título'}
             </span>
+            
             <StatusBadge status={project?.status} />
           </div>
         </div>
 
-        {/* Fila 2: PESTAÑAS PRINCIPALES */}
-        <nav className="flex px-6 gap-8">
+        {/* Fila 2: TABS (Font corregida) */}
+        <nav className="flex px-8 gap-8 bg-white">
           <ProjectTab 
             to={`/proyecto/${projectId}/status`} 
             icon={Activity} 
@@ -81,17 +88,15 @@ export default function ProjectLayout() {
             to={`/proyecto/${projectId}/resultados`} 
             icon={LayoutIcon} 
             label="3. Entregables Finales" 
-            // La pestaña Resultados está activa si la ruta contiene /resultados, /carta o /editor
             isActive={location.pathname.includes('/resultados') || location.pathname.includes('/carta') || location.pathname.includes('/editor')}
           />
         </nav>
       </header>
 
-      {/* --- CONTENIDO DE LA PESTAÑA SELECCIONADA --- */}
-      <div className="flex-1 overflow-hidden relative">
-        {/* Pasamos el objeto del proyecto a los hijos mediante el context */}
+      {/* CONTENIDO PRINCIPAL */}
+      <main className="flex-1 w-full">
         <Outlet context={{ project }} />
-      </div>
+      </main>
 
     </div>
   );
@@ -102,13 +107,14 @@ function ProjectTab({ to, icon: Icon, label, isActive }) {
     <NavLink 
       to={to}
       className={({ isActive: routeActive }) => `
-        flex items-center gap-2 py-4 text-sm font-bold border-b-2 transition-all
+        flex items-center gap-2 py-4 border-b-[3px] transition-all 
+        font-sans text-xs font-extrabold uppercase tracking-wide
         ${(isActive || routeActive)
           ? 'border-theme-primary text-theme-primary' 
-          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-200'}
+          : 'border-transparent text-gray-400 hover:text-theme-primary hover:border-gray-200'}
       `}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-4 h-4 mb-0.5" />
       {label}
     </NavLink>
   );
@@ -116,14 +122,14 @@ function ProjectTab({ to, icon: Icon, label, isActive }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    completed: 'bg-green-100 text-green-700',
-    processing: 'bg-yellow-100 text-yellow-700',
-    failed: 'bg-red-100 text-red-700',
-    terminated: 'bg-gray-200 text-gray-600',
-    pending: 'bg-gray-100 text-gray-600'
+    completed: 'bg-green-100 text-green-800 border-green-200',
+    processing: 'bg-blue-50 text-blue-700 border-blue-100 animate-pulse',
+    failed: 'bg-red-50 text-red-700 border-red-100',
+    terminated: 'bg-gray-100 text-gray-600 border-gray-200',
+    pending: 'bg-gray-50 text-gray-400 border-gray-100'
   };
   return (
-    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-extrabold tracking-wider ${styles[status] || styles.pending}`}>
+    <span className={`ml-4 px-2 py-0.5 rounded-sm border text-[10px] uppercase font-black tracking-widest ${styles[status] || styles.pending}`}>
       {status}
     </span>
   );

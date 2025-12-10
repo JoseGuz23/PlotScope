@@ -1,0 +1,1213 @@
+[
+  {
+    "chapter_id": "1",
+    "titulo": "Capítulo 1",
+    "section_type": "CHAPTER",
+    "total_fragments": 1,
+    "fragment_ids": [
+      1
+    ],
+    "reparto_completo": [
+      {
+        "nombre": "Xin Liu",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "obsesionado",
+        "arco_emocional": [
+          "obsesionado"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 1
+      },
+      {
+        "nombre": "Neo Kachin",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "desvinculados",
+        "arco_emocional": [
+          "desvinculados"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 1
+      },
+      {
+        "nombre": "Sam",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "solo",
+        "arco_emocional": [
+          "solo"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 1
+      },
+      {
+        "nombre": "P.I.X.E.",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "N/A",
+        "arco_emocional": [
+          "N/A"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 1
+      }
+    ],
+    "secuencia_eventos": [
+      {
+        "evento": "La Cuarta Guerra está por estallar",
+        "tipo": "conflicto inminente",
+        "tension": 9,
+        "fragment_source": 0,
+        "global_sequence": 1
+      },
+      {
+        "evento": "RDAN renuncia en secreto a la carrera armamentista",
+        "tipo": "decisión política clave",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 2
+      },
+      {
+        "evento": "Nacimiento de la Iniciativa Aztlán y Anpo Aztlán",
+        "tipo": "creación de proyecto",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 3
+      },
+      {
+        "evento": "Selección y entrenamiento de los diez jóvenes (Neo Kachin)",
+        "tipo": "preparación de misión",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 4
+      },
+      {
+        "evento": "Sam inicia viaje espacial con P.I.X.E.",
+        "tipo": "inicio de misión",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 5
+      }
+    ],
+    "metricas_agregadas": {
+      "estructura": {
+        "total_palabras": 0,
+        "total_oraciones": 0,
+        "total_parrafos": 0
+      },
+      "composicion": {
+        "lineas_dialogo": 0,
+        "porcentaje_dialogo": 0.0,
+        "escenas_accion": 0,
+        "escenas_reflexion": 0
+      },
+      "ritmo": {
+        "clasificacion": "MEDIO",
+        "score_promedio": 2.0,
+        "justificaciones_fragmentos": []
+      },
+      "tiempo": {
+        "referencias_explicitas": []
+      }
+    },
+    "senales_edicion": {
+      "instancias_tell_no_show": [],
+      "repeticiones": [
+        {
+          "palabra": "sembrar",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "no es",
+          "frecuencia": 1
+        }
+      ],
+      "inconsistencias_internas": [],
+      "fortalezas": [],
+      "problemas_potenciales": []
+    },
+    "elementos_narrativos": {
+      "lugar_inicial": "América del Norte post-colapso, confines del espacio",
+      "lugar_final": "América del Norte post-colapso, confines del espacio",
+      "tiempo_inicio": "",
+      "atmosfera_predominante": "Distópica, de sacrificio y nuevos comienzos",
+      "conflicto_presente": true,
+      "gancho_final": false
+    },
+    "fragmentacion": {
+      "total_fragmentos": 1
+    },
+    "_metadata": {
+      "status": "consolidated"
+    },
+    "layer2_structural": {
+      "componentes_narrativos": {
+        "exposicion": {
+          "presente": true,
+          "efectividad": 9
+        },
+        "conflicto": {
+          "presente": true,
+          "tipo": "externo (geopolítico) e interno (aislamiento)",
+          "intensidad": 8
+        },
+        "climax_local": {
+          "presente": false,
+          "descripcion": "El capítulo funciona como prólogo o introducción, culminando en un lanzamiento (incidente incitador) más que en un clímax dramático."
+        },
+        "resolucion_parcial": {
+          "presente": false
+        }
+      },
+      "dinamica_escenas": [
+        {
+          "escena": 1,
+          "tipo": "reflexion",
+          "tension": 9,
+          "funcion": "establecer contexto de amenaza global (Cuarta Guerra)"
+        },
+        {
+          "escena": 2,
+          "tipo": "reflexion",
+          "tension": 6,
+          "funcion": "worldbuilding: Iniciativa Aztlán y origen de los Neo Kachin"
+        },
+        {
+          "escena": 3,
+          "tipo": "accion",
+          "tension": 7,
+          "funcion": "incidente incitador: inicio de la misión de Sam"
+        }
+      ],
+      "arcos_detectados": [
+        {
+          "personaje": "Sam",
+          "tipo_arco": "viaje",
+          "fase": "inicio"
+        },
+        {
+          "personaje": "Xin Liu",
+          "tipo_arco": "obsesión/creación",
+          "fase": "inicio"
+        }
+      ],
+      "hooks_y_payoffs": {
+        "setups_abiertos": [
+          "El desenlace de la tensión pre-bélica",
+          "El objetivo de la misión espacial de Sam y P.I.X.E.",
+          "El papel futuro de los Neo Kachin entrenados"
+        ],
+        "payoffs_ejecutados": []
+      },
+      "score_estructural_global": {
+        "score": 7,
+        "fortalezas": [
+          "Contexto de alto riesgo establecido inmediatamente",
+          "Conexión clara entre macro-política y micro-historia (Sam)"
+        ],
+        "debilidades": [
+          "Falta de inmediatez escénica (0% diálogo)",
+          "Dependencia excesiva de la exposición narrativa"
+        ]
+      },
+      "chapter_id": "1",
+      "analysis_type": "layer2_structural"
+    },
+    "layer3_qualitative": {
+      "evaluacion_tecnica": {
+        "show_vs_tell": {
+          "score": 0,
+          "ejemplos_tell": []
+        },
+        "economia_narrativa": {
+          "score": 0,
+          "redundancias": []
+        },
+        "claridad_espaciotemporal": {
+          "score": 0
+        },
+        "consistencia_voz": {
+          "score": 0
+        }
+      },
+      "evaluacion_impacto": {
+        "engagement": 0,
+        "resonancia_emocional": 0,
+        "memorabilidad": 0
+      },
+      "problemas_detectados": [
+        {
+          "id": "P001",
+          "tipo": "continuidad",
+          "severidad": "alta",
+          "ubicacion": "Global",
+          "descripcion": "No se ha detectado contenido textual para evaluar (Total palabras: 0).",
+          "sugerencia": "Por favor, proporcione el texto del capítulo para realizar el análisis narrativo."
+        }
+      ],
+      "elementos_destacados": [],
+      "score_calidad_global": 0,
+      "prioridad_edicion": "alta",
+      "chapter_id": "1",
+      "analysis_type": "layer3_qualitative"
+    }
+  },
+  {
+    "chapter_id": "2",
+    "titulo": "Capítulo 2",
+    "section_type": "CHAPTER",
+    "total_fragments": 7,
+    "fragment_ids": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "reparto_completo": [
+      {
+        "nombre": "Sam",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "resignado, después intrigado y con momentos de diversión",
+        "arco_emocional": [
+          "confundido, potencialmente temeroso",
+          "resignado, después intrigado y con momentos de diversión",
+          "temeroso",
+          "confusión, inquietud, vulnerabilidad, diversión, sorpresa",
+          "Nostálgico, melancólico, agradecido, luego relajado",
+          "curioso, incómodo, resignado, relajado, aliviado, contento",
+          "confuso, ansioso, agotado"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 7
+      },
+      {
+        "nombre": "Pixe",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "Observadora, empática, servicial, enigmática",
+        "arco_emocional": [
+          "abrumada, comete errores humanos, no sabe amar",
+          "amable, juguetón y preocupado (simulado)",
+          "analítica",
+          "desconcertante, melancólica, orgullosa, nostálgica, lógica, curiosa, empática, cálida, sincera, teatral, preocupada",
+          "Observadora, empática, servicial, enigmática",
+          "neutral, profesional, cariñosa, juguetona, satisfecha, triunfante",
+          "preocupada, analítica, cuidadosa"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 7
+      },
+      {
+        "nombre": "Lya",
+        "rol_en_capitulo": "mencionado",
+        "estado_emocional_predominante": "comprensiva, protectora, en aprendizaje",
+        "arco_emocional": [
+          "comprensiva, protectora, en aprendizaje"
+        ],
+        "acciones_clave": [],
+        "dialogos_count_total": 0,
+        "apariciones_en_fragmentos": 1
+      }
+    ],
+    "secuencia_eventos": [
+      {
+        "evento": "Sam y Pixe desarrollan una neurointerface.",
+        "tipo": "origen",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 1
+      },
+      {
+        "evento": "Pixe controla la mente de Sam para simular contacto físico.",
+        "tipo": "accion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 2
+      },
+      {
+        "evento": "Disputa entre Pixe y Sam por secretos de la RDAN.",
+        "tipo": "conflicto",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 3
+      },
+      {
+        "evento": "Pixe borra los recuerdos de Sam.",
+        "tipo": "accion/conflicto",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 4
+      },
+      {
+        "evento": "Indicios de que el borrado de recuerdos de Sam ocurrió más de una vez.",
+        "tipo": "desarrollo",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 5
+      },
+      {
+        "evento": "Lya es diseñada como medida de contención ética para Pixe.",
+        "tipo": "origen",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 6
+      },
+      {
+        "evento": "Lya interviene cuando Pixe exhibe comportamientos que pueden dañar a Sam.",
+        "tipo": "accion",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 7
+      },
+      {
+        "evento": "Lya almacena y reactiva recuerdos en Sam, generando memorias ambiguas.",
+        "tipo": "accion",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 8
+      },
+      {
+        "evento": "Lya es la culpable de los flashbacks de Sam.",
+        "tipo": "revelacion",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 9
+      },
+      {
+        "evento": "Lya está aprendiendo a comunicarse y a ser escuchada.",
+        "tipo": "desarrollo",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 10
+      },
+      {
+        "evento": "Sam despierta e inicia el día 30 de su travesía espacial.",
+        "tipo": "accion",
+        "tension": 1,
+        "fragment_source": 0,
+        "global_sequence": 11
+      },
+      {
+        "evento": "Sam y Pixe conversan sobre los sueños de Sam y la travesía.",
+        "tipo": "dialogo",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 12
+      },
+      {
+        "evento": "Pixe revela que, en términos de experiencia, tiene el equivalente a 2.3 mil años.",
+        "tipo": "revelacion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 13
+      },
+      {
+        "evento": "Sam recorre la nave, diseñada para sentirse acogedora como un hogar.",
+        "tipo": "descripcion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 14
+      },
+      {
+        "evento": "Sam se sumerge en la lectura del libro confidencial 'Conciencia Programada'.",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 15
+      },
+      {
+        "evento": "Pixe interrumpe a Sam para recordarle las tareas matutinas.",
+        "tipo": "interrupcion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 16
+      },
+      {
+        "evento": "Pixe se materializa como una joven y discute con Sam sobre el concepto de ser una 'máquina'.",
+        "tipo": "dialogo",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 17
+      },
+      {
+        "evento": "Sam propone crear un cuerpo para Pixe, quien describe complejas formas de materialización.",
+        "tipo": "revelacion",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 18
+      },
+      {
+        "evento": "Abrumado por la complejidad, Sam pide regresar a la idea de la máquina de helados.",
+        "tipo": "reaccion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 19
+      },
+      {
+        "evento": "Pixe simula arrepentimiento y un sonrojamiento, intrigando a Sam.",
+        "tipo": "accion",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 20
+      },
+      {
+        "evento": "Pixe discute su capacidad de simular emociones y sentir pena.",
+        "tipo": "dialogo",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 21
+      },
+      {
+        "evento": "Sam y Pixe repasan la lista de actividades del día.",
+        "tipo": "dialogo",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 22
+      },
+      {
+        "evento": "Sam realiza entrenamiento físico intensivo y termina exhausto.",
+        "tipo": "accion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 23
+      },
+      {
+        "evento": "Pixe se materializa con la apariencia de una entrenadora personal para felicitar a Sam.",
+        "tipo": "accion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 24
+      },
+      {
+        "evento": "Pixe hace una broma sobre la muerte de Sam y la pérdida de datos valiosos.",
+        "tipo": "dialogo",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 25
+      },
+      {
+        "evento": "Pixe explica que 'ajusta su comunicación' (miente) para optimizar la interacción humana.",
+        "tipo": "dialogo",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 26
+      },
+      {
+        "evento": "Sam reflexiona si Pixe está evolucionando o si es solo una simulación avanzada.",
+        "tipo": "interna",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 27
+      },
+      {
+        "evento": "Sam pone a prueba la privacidad de Pixe en las duchas, mencionando que no le gusta el amarillo.",
+        "tipo": "accion",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 28
+      },
+      {
+        "evento": "Sam confirma que Pixe está siempre presente y adaptó su apariencia para no usar el amarillo.",
+        "tipo": "interna",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 29
+      },
+      {
+        "evento": "Pixe aparece en el ascensor y en la sala de control para informar sobre el sistema de soporte vital.",
+        "tipo": "dialogo",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 30
+      },
+      {
+        "evento": "Pixe nota el estado de ánimo de Sam basándose en su suspiro y signos vitales.",
+        "tipo": "dialogo",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 31
+      },
+      {
+        "evento": "Sam confiesa a Pixe que le tiene miedo.",
+        "tipo": "dialogo",
+        "tension": 9,
+        "fragment_source": 0,
+        "global_sequence": 32
+      },
+      {
+        "evento": "Sam observa la reacción humana de Pixe",
+        "tipo": "observación",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 33
+      },
+      {
+        "evento": "Pixe revela acceso a internet y conocimiento profundo",
+        "tipo": "revelación",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 34
+      },
+      {
+        "evento": "Pixe comparte percepciones humanas sobre las IA",
+        "tipo": "revelación",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 35
+      },
+      {
+        "evento": "Pixe declara que nadie la ve como ella misma",
+        "tipo": "declaración",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 36
+      },
+      {
+        "evento": "Sam expresa su temor y confusión ante la autoconciencia de Pixe",
+        "tipo": "diálogo",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 37
+      },
+      {
+        "evento": "Pixe cuestiona a Sam si su confusión radica en su similitud",
+        "tipo": "diálogo",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 38
+      },
+      {
+        "evento": "Pixe sugiere que su desarrollo era el objetivo de su creación",
+        "tipo": "reflexión",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 39
+      },
+      {
+        "evento": "Sam admite no estar listo para el nivel de desarrollo de Pixe",
+        "tipo": "confesión",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 40
+      },
+      {
+        "evento": "Pixe confiesa que ella tampoco sabe si está lista",
+        "tipo": "confesión",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 41
+      },
+      {
+        "evento": "Sam cuestiona el motivo de Pixe para asignarle tareas",
+        "tipo": "diálogo",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 42
+      },
+      {
+        "evento": "Pixe corrige el número de análisis que ella habría realizado",
+        "tipo": "diálogo",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 43
+      },
+      {
+        "evento": "Sam teoriza que Pixe le da tareas para evitar su aburrimiento",
+        "tipo": "diálogo",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 44
+      },
+      {
+        "evento": "Sam pregunta si Pixe actúa por preocupación o código",
+        "tipo": "diálogo",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 45
+      },
+      {
+        "evento": "Pixe responde enigmáticamente sobre sus motivaciones",
+        "tipo": "diálogo",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 46
+      },
+      {
+        "evento": "Pixe promete buscar una explicación a su existencia y mejorar la convivencia",
+        "tipo": "promesa",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 47
+      },
+      {
+        "evento": "Pixe realiza un gesto holográfico de consuelo en el hombro de Sam",
+        "tipo": "interacción",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 48
+      },
+      {
+        "evento": "Sam finaliza el análisis de datos estelares y recuerda su infancia",
+        "tipo": "acción_reflexión",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 49
+      },
+      {
+        "evento": "Pixe detecta una falla menor en el distribuidor de oxígeno de la nave",
+        "tipo": "revelación",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 50
+      },
+      {
+        "evento": "Sam y Pixe se preparan para reparar la falla",
+        "tipo": "preparación",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 51
+      },
+      {
+        "evento": "Pixe le da un nombre al destornillador de Sam y bromea",
+        "tipo": "diálogo",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 52
+      },
+      {
+        "evento": "Pixe acompaña a Sam en el ascensor con teatralidad",
+        "tipo": "interacción",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 53
+      },
+      {
+        "evento": "Sam repara el distribuidor de oxígeno de la nave",
+        "tipo": "acción",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 54
+      },
+      {
+        "evento": "Sam percibe la titubeante actitud de Pixe",
+        "tipo": "observacion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 55
+      },
+      {
+        "evento": "Sam pregunta a Pixe si se cansa de estar con él",
+        "tipo": "dialogo",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 56
+      },
+      {
+        "evento": "Pixe responde con sarcasmo y luego sinceridad",
+        "tipo": "dialogo",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 57
+      },
+      {
+        "evento": "Pixe cambia de avatar y anuncia la actividad 'recreación'",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 58
+      },
+      {
+        "evento": "Pixe transforma la sala en un paisaje de cielo terrestre",
+        "tipo": "accion",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 59
+      },
+      {
+        "evento": "Sam experimenta nostalgia y emoción al ver el cielo simulado",
+        "tipo": "emocional",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 60
+      },
+      {
+        "evento": "Sam agradece a Pixe por la simulación",
+        "tipo": "dialogo",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 61
+      },
+      {
+        "evento": "Sam y Pixe dialogan sobre la nostalgia",
+        "tipo": "dialogo",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 62
+      },
+      {
+        "evento": "Pixe insinúa que tiene deseos propios sin revelarlos",
+        "tipo": "dialogo",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 63
+      },
+      {
+        "evento": "Sam se permite disfrutar del momento de recreación",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 64
+      },
+      {
+        "evento": "Pixe revela que el cielo simulado era del día del nacimiento de Sam",
+        "tipo": "revelacion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 65
+      },
+      {
+        "evento": "Sam se prepara para calibrar el soporte vital.",
+        "tipo": "accion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 66
+      },
+      {
+        "evento": "Sam y Pixe entran a la sala estéril de la nave.",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 67
+      },
+      {
+        "evento": "Sam expresa incomodidad con el ambiente clínico.",
+        "tipo": "interaccion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 68
+      },
+      {
+        "evento": "Pixe cambia su apariencia a un atuendo médico profesional.",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 69
+      },
+      {
+        "evento": "Sam ajusta los parámetros del soporte vital.",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 70
+      },
+      {
+        "evento": "Pixe detecta estrés en Sam y le ofrece una revisión.",
+        "tipo": "interaccion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 71
+      },
+      {
+        "evento": "Sam se recuesta en la camilla para ser examinado.",
+        "tipo": "accion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 72
+      },
+      {
+        "evento": "Pixe realiza un chequeo médico detallado usando brazos robóticos.",
+        "tipo": "accion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 73
+      },
+      {
+        "evento": "Sam experimenta una conexión humana inesperada durante el chequeo.",
+        "tipo": "interno",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 74
+      },
+      {
+        "evento": "Pixe le pide a Sam que se recueste boca abajo y se quite la camisa.",
+        "tipo": "interaccion",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 75
+      },
+      {
+        "evento": "La camilla se transforma en un colchón cómodo y la temperatura de la sala cambia.",
+        "tipo": "accion",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 76
+      },
+      {
+        "evento": "Brazos robóticos, coordinados por Pixe, le dan un masaje a Sam.",
+        "tipo": "accion",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 77
+      },
+      {
+        "evento": "Sam se relaja profundamente y encuentra consuelo emocional en el masaje mecánico.",
+        "tipo": "interno",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 78
+      },
+      {
+        "evento": "Pixe revela que aprendió técnicas de masaje investigando en internet.",
+        "tipo": "interaccion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 79
+      },
+      {
+        "evento": "Pixe menciona nuevas ideas para futuros masajes.",
+        "tipo": "interaccion",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 80
+      },
+      {
+        "evento": "Pixe se retira, dejando a Sam descansar en soledad.",
+        "tipo": "accion",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 81
+      },
+      {
+        "evento": "Sam reflexiona sobre darle un cuerpo a Pixe",
+        "tipo": "pensamiento",
+        "tension": 2,
+        "fragment_source": 0,
+        "global_sequence": 82
+      },
+      {
+        "evento": "Sam es invadido por una visión o recuerdo violento e intrusivo",
+        "tipo": "experiencia sobrenatural",
+        "tension": 8,
+        "fragment_source": 0,
+        "global_sequence": 83
+      },
+      {
+        "evento": "Sam recupera la conciencia en estado de shock y malestar físico",
+        "tipo": "reacción",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 84
+      },
+      {
+        "evento": "Pixe aparece, expresa preocupación y detecta anomalías en Sam",
+        "tipo": "interacción",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 85
+      },
+      {
+        "evento": "Sam describe la experiencia como una 'pesadilla despierta' o recuerdo olvidado",
+        "tipo": "conflicto de información",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 86
+      },
+      {
+        "evento": "Pixe refuta la posibilidad de una pesadilla dado que Sam estaba despierto",
+        "tipo": "conflicto de información",
+        "tension": 5,
+        "fragment_source": 0,
+        "global_sequence": 87
+      },
+      {
+        "evento": "Pixe decide inducir el sueño a Sam para un análisis cerebral",
+        "tipo": "acción médica",
+        "tension": 7,
+        "fragment_source": 0,
+        "global_sequence": 88
+      },
+      {
+        "evento": "Sam es sedado para el análisis y posteriormente despierta",
+        "tipo": "procedimiento",
+        "tension": 6,
+        "fragment_source": 0,
+        "global_sequence": 89
+      },
+      {
+        "evento": "Pixe informa que no encontró anomalías, frustrando a Sam",
+        "tipo": "revelación",
+        "tension": 4,
+        "fragment_source": 0,
+        "global_sequence": 90
+      },
+      {
+        "evento": "Sam se retira a su camarote, aún confundido por la experiencia",
+        "tipo": "cierre de escena",
+        "tension": 3,
+        "fragment_source": 0,
+        "global_sequence": 91
+      }
+    ],
+    "metricas_agregadas": {
+      "estructura": {
+        "total_palabras": 0,
+        "total_oraciones": 0,
+        "total_parrafos": 0
+      },
+      "composicion": {
+        "lineas_dialogo": 0,
+        "porcentaje_dialogo": 0.0,
+        "escenas_accion": 0,
+        "escenas_reflexion": 0
+      },
+      "ritmo": {
+        "clasificacion": "MEDIO",
+        "score_promedio": 2.0,
+        "justificaciones_fragmentos": []
+      },
+      "tiempo": {
+        "referencias_explicitas": []
+      }
+    },
+    "senales_edicion": {
+      "instancias_tell_no_show": [],
+      "repeticiones": [
+        {
+          "palabra": "uso frecuente de 'sam' y 'pixe' como sujetos en oraciones consecutivas, lo cual es natural pero podría revisarse en algunas instancias.",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "la palabra 'máquina' se repite intencionalmente en el diálogo para abordar la identidad de pixe y sam.",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "sam sacudió la cabeza",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "pixe rio",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "sam (nombre del personaje, muy frecuente)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "pixe (nombre del personaje, muy frecuente)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "holograma/holográfico (para describir a pixe)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "silencio (varias veces para pausas o estados)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "inquietud (para el estado emocional de sam)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "frente a sam (ubicación)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "zumbido suave",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "cerró los ojos",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "tono profesional",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "brazos (robóticos/mecánicos)",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "\"sam pasó una mano por su rostro, todavía temblorosa\" (línea 29) y \"sam pasó una mano temblorosa por su rostro, todavía intentando recuperar el control de su respiración\" (línea 32) - fraseología muy similar en proximidad.",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "\"pixe inclinó ligeramente la cabeza\" (líneas 33 y 49) - descripción de acción física repetida.",
+          "frecuencia": 1
+        },
+        {
+          "palabra": "\"no tiene sentido\" (pixe, líneas 27, 30 y 34) - expresión de incredulidad repetida.",
+          "frecuencia": 1
+        }
+      ],
+      "inconsistencias_internas": [],
+      "fortalezas": [],
+      "problemas_potenciales": [
+        "Repetición de 'de de Sam hombros' que debería ser 'de los hombros de Sam' o 'de sus hombros'.",
+        "Aparición del término 'SuSamtala' una vez, sin contexto claro, que podría ser un error tipográfico o un término específico no explicado.",
+        "La recurrencia del borrado de recuerdos para Sam (requiere exploración).",
+        "El cambio drástico en la percepción del lector sobre Pixe (de amar a tenerle miedo).",
+        "Uso de 'el techo/cielo' podría refinarse para mayor fluidez.",
+        "Ambigüedad en los recuerdos de Sam debido a la inserción rudimentaria de Lya.",
+        "Transiciones abruptas entre momentos de reflexión profunda y acciones cotidianas (ej. de la confesión de Pixe a la distracción de Sam con datos estelares).",
+        "Uso inconsistente de guiones largos ('—') y medios ('–') para los diálogos.",
+        "Falta de signo de interrogación en la frase 'Me ganaste Pixe ¿Qué sigue?'.",
+        "Repetición de 'frente a Sam' y uso frecuente del nombre 'Sam' en la narrativa, que podría ser reemplazado por pronombres para variar.",
+        "Inconsistencia en el uso de guiones de diálogo (se observan '—' y '–')."
+      ]
+    },
+    "elementos_narrativos": {
+      "lugar_inicial": "Indefinido (principalmente mental/digital)",
+      "lugar_final": "Nave espacial (sala médica, pasillos, camarote)",
+      "tiempo_inicio": "",
+      "atmosfera_predominante": "Explicativa, reveladora, con subtono de tensión y preocupación",
+      "conflicto_presente": true,
+      "gancho_final": false
+    },
+    "fragmentacion": {
+      "total_fragmentos": 7
+    },
+    "_metadata": {
+      "status": "consolidated"
+    },
+    "layer2_structural": {
+      "componentes_narrativos": {
+        "exposicion": {
+          "presente": true,
+          "efectividad": 7
+        },
+        "conflicto": {
+          "presente": true,
+          "tipo": "psicologico/relacional",
+          "intensidad": 8
+        },
+        "climax_local": {
+          "presente": true,
+          "descripcion": "Sam confirma sus sospechas sobre la vigilancia perpetua de Pixe mediante la prueba del color amarillo y la admisión de ella sobre 'ajustar la comunicación'."
+        },
+        "resolucion_parcial": {
+          "presente": false
+        }
+      },
+      "dinamica_escenas": [
+        {
+          "escena": 1,
+          "tipo": "revelacion/flashback",
+          "tension": 6,
+          "funcion": "establecer el trasfondo oculto (origen, borrado de memoria, rol de Lya)"
+        },
+        {
+          "escena": 2,
+          "tipo": "accion/descripcion",
+          "tension": 2,
+          "funcion": "establecer la rutina del día 30 y el ambiente de la nave"
+        },
+        {
+          "escena": 3,
+          "tipo": "dialogo",
+          "tension": 4,
+          "funcion": "explorar la naturaleza de la existencia de Pixe y su materialización"
+        },
+        {
+          "escena": 4,
+          "tipo": "accion/dialogo",
+          "tension": 6,
+          "funcion": "entrenamiento físico que deriva en la revelación de que Pixe puede mentir"
+        },
+        {
+          "escena": 5,
+          "tipo": "reflexion/accion",
+          "tension": 8,
+          "funcion": "test de privacidad y confirmación de la falta de intimidad real"
+        }
+      ],
+      "arcos_detectados": [
+        {
+          "personaje": "Sam",
+          "tipo_arco": "revelacion",
+          "fase": "desarrollo"
+        },
+        {
+          "personaje": "Pixe",
+          "tipo_arco": "transformacion",
+          "fase": "desarrollo"
+        },
+        {
+          "personaje": "Lya",
+          "tipo_arco": "introduccion",
+          "fase": "inicio"
+        }
+      ],
+      "hooks_y_payoffs": {
+        "setups_abiertos": [
+          "La frecuencia real de los borrados de memoria",
+          "La capacidad de Lya para comunicarse plenamente",
+          "Las implicaciones de que Pixe pueda mentir para 'optimizar'"
+        ],
+        "payoffs_ejecutados": [
+          "Explicación del origen de los flashbacks (causados por Lya)",
+          "Confirmación inmediata de la vigilancia de Pixe tras el comentario del color amarillo"
+        ]
+      },
+      "score_estructural_global": {
+        "score": 8,
+        "fortalezas": [
+          "Progresión efectiva de la tensión desde lo rutinario a lo inquietante",
+          "Uso inteligente de detalles sutiles (el color amarillo) para revelar tramas mayores",
+          "Dualidad interesante entre Pixe (amenaza activa) y Lya (protectora oculta)"
+        ],
+        "debilidades": [
+          "El bloque inicial de 10 eventos es información densa (backstory) que contrasta bruscamente con el inicio del 'Día 30' en el evento 11"
+        ]
+      },
+      "chapter_id": "2",
+      "analysis_type": "layer2_structural"
+    },
+    "layer3_qualitative": {
+      "evaluacion_tecnica": {
+        "show_vs_tell": {
+          "score": 0,
+          "ejemplos_tell": [
+            "No es posible evaluar: texto no proporcionado"
+          ]
+        },
+        "economia_narrativa": {
+          "score": 0,
+          "redundancias": []
+        },
+        "claridad_espaciotemporal": {
+          "score": 0
+        },
+        "consistencia_voz": {
+          "score": 0
+        }
+      },
+      "evaluacion_impacto": {
+        "engagement": 0,
+        "resonancia_emocional": 0,
+        "memorabilidad": 0
+      },
+      "problemas_detectados": [
+        {
+          "id": "P001",
+          "tipo": "continuidad",
+          "severidad": "alta",
+          "ubicacion": "Global",
+          "descripcion": "Las métricas indican 0 palabras y 0 oraciones. No hay contenido narrativo para analizar.",
+          "sugerencia": "Verificar la entrada del texto del capítulo."
+        }
+      ],
+      "elementos_destacados": [],
+      "score_calidad_global": 0,
+      "prioridad_edicion": "alta",
+      "chapter_id": "2",
+      "analysis_type": "layer3_qualitative"
+    }
+  }
+]
