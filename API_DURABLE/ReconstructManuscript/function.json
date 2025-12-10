@@ -2,7 +2,7 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "reconstruct_input",
+      "name": "inputData",
       "type": "activityTrigger",
       "direction": "in"
     }

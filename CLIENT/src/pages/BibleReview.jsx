@@ -1,5 +1,5 @@
 // =============================================================================
-// BibleReview.jsx - DASHBOARD DE APROBACIÓN EDITORIAL
+// BibleReview.jsx - DASHBOARD DE APROBACIÓN EDITORIAL (CORREGIDO)
 // =============================================================================
 
 import { useState, useEffect } from 'react';
@@ -7,7 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { bibleAPI } from '../services/api';
 import { 
   Book, Users, Anchor, Flag, Save, CheckCircle2, 
-  ChevronRight, AlertCircle, Loader2, Edit3, ArrowLeft 
+  ChevronRight, AlertCircle, Loader2, ArrowLeft, PenTool
 } from 'lucide-react';
 
 export default function BibleReview() {
@@ -18,7 +18,7 @@ export default function BibleReview() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [approving, setApproving] = useState(false);
-  const [activeSection, setActiveSection] = useState('resumen'); // 'resumen', 'personajes', 'temas'
+  const [activeSection, setActiveSection] = useState('identidad'); // identidad, reparto, arco, voz
 
   useEffect(() => {
     loadBible();
@@ -27,6 +27,7 @@ export default function BibleReview() {
   async function loadBible() {
     try {
       const data = await bibleAPI.get(projectId);
+      console.log("Biblia cargada:", data); // Debug para ver estructura real
       setBible(data);
     } catch (err) {
       console.error(err);
@@ -40,7 +41,6 @@ export default function BibleReview() {
     setSaving(true);
     try {
       await bibleAPI.save(projectId, bible);
-      // Feedback visual sutil podría ir aquí
     } catch (err) {
       alert('Error al guardar: ' + err.message);
     } finally {
@@ -58,7 +58,7 @@ export default function BibleReview() {
       // 2. Aprobar y despertar orquestador
       await bibleAPI.approve(projectId);
       
-      // 3. Redirigir al status para ver cómo avanza la edición
+      // 3. Redirigir al status
       navigate(`/proyecto/${projectId}/status`);
     } catch (err) {
       alert('Error al aprobar: ' + err.message);
@@ -66,14 +66,11 @@ export default function BibleReview() {
     }
   }
 
-  // Render helpers
-  const updateField = (section, key, value) => {
+  // Helper para actualizar una sección completa del JSON
+  const updateSection = (sectionName, newData) => {
     setBible(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: value
-      }
+      [sectionName]: newData
     }));
   };
 
@@ -96,7 +93,7 @@ export default function BibleReview() {
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       
       {/* SIDEBAR DE NAVEGACIÓN */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0">
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0 z-20 shadow-sm">
         <div className="p-6 border-b border-gray-100">
           <h1 className="font-editorial text-2xl font-bold text-gray-900">Biblia Narrativa</h1>
           <p className="text-xs text-gray-400 mt-1 font-mono">ID: {projectId.substring(0, 8)}</p>
@@ -104,24 +101,29 @@ export default function BibleReview() {
         
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <NavItem 
-            icon={Book} label="Resumen y Tono" 
-            active={activeSection === 'resumen'} 
-            onClick={() => setActiveSection('resumen')} 
+            icon={Book} label="Identidad y Tono" 
+            active={activeSection === 'identidad'} 
+            onClick={() => setActiveSection('identidad')} 
           />
           <NavItem 
-            icon={Users} label="Personajes" 
-            active={activeSection === 'personajes'} 
-            onClick={() => setActiveSection('personajes')} 
+            icon={Users} label="Reparto (Personajes)" 
+            active={activeSection === 'reparto'} 
+            onClick={() => setActiveSection('reparto')} 
           />
           <NavItem 
-            icon={Anchor} label="Estructura" 
-            active={activeSection === 'estructura'} 
-            onClick={() => setActiveSection('estructura')} 
+            icon={Anchor} label="Arco Narrativo" 
+            active={activeSection === 'arco'} 
+            onClick={() => setActiveSection('arco')} 
           />
           <NavItem 
-            icon={Flag} label="Temas Clave" 
-            active={activeSection === 'temas'} 
-            onClick={() => setActiveSection('temas')} 
+            icon={PenTool} label="Voz del Autor" 
+            active={activeSection === 'voz'} 
+            onClick={() => setActiveSection('voz')} 
+          />
+           <NavItem 
+            icon={Flag} label="Instrucciones IA" 
+            active={activeSection === 'guia'} 
+            onClick={() => setActiveSection('guia')} 
           />
         </nav>
 
@@ -138,8 +140,14 @@ export default function BibleReview() {
         {/* Toolbar Superior */}
         <header className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Editando Sección</h2>
-            <p className="text-xl font-bold text-gray-900 capitalize">{activeSection}</p>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Editando Sección</h2>
+            <p className="text-xl font-bold text-gray-900 capitalize">
+              {activeSection === 'identidad' && 'Identidad de la Obra'}
+              {activeSection === 'reparto' && 'Reparto Completo'}
+              {activeSection === 'arco' && 'Estructura y Arco'}
+              {activeSection === 'voz' && 'Voz del Autor'}
+              {activeSection === 'guia' && 'Guía para Claude'}
+            </p>
           </div>
           
           <div className="flex gap-3">
@@ -165,37 +173,75 @@ export default function BibleReview() {
 
         {/* Contenido Scrollable */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          <div className="max-w-4xl mx-auto space-y-8 pb-20">
+          <div className="max-w-5xl mx-auto space-y-8 pb-20">
             
-            {/* RENDERIZADO DINÁMICO SEGÚN SECCIÓN */}
-            {activeSection === 'resumen' && (
+            {/* 1. IDENTIDAD */}
+            {activeSection === 'identidad' && (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
-                <SectionHeader title="Resumen Ejecutivo" icon={Book} />
-                <JsonEditor data={bible.holistic_analysis || {}} onChange={(v) => updateField('holistic_analysis', null, v)} />
+                <SectionHeader title="Identidad y Género" icon={Book} description="Define el alma del libro, su género y el contrato con el lector." />
+                <JsonEditor 
+                  data={bible.identidad_obra || {}} 
+                  onChange={(v) => updateSection('identidad_obra', v)} 
+                />
               </div>
             )}
 
-            {activeSection === 'personajes' && (
+            {/* 2. REPARTO (PERSONAJES) */}
+            {activeSection === 'reparto' && (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
-                <SectionHeader title="Fichas de Personajes" icon={Users} />
-                <JsonEditor data={bible.character_profiles || []} onChange={(v) => updateField('character_profiles', null, v)} />
+                <SectionHeader title="Fichas de Personajes" icon={Users} description="Protagonistas, antagonistas y roles secundarios detectados." />
+                <JsonEditor 
+                  data={bible.reparto_completo || {}} 
+                  onChange={(v) => updateSection('reparto_completo', v)} 
+                />
               </div>
             )}
 
-             {/* Puedes agregar más secciones específicas aquí */}
+            {/* 3. ARCO NARRATIVO */}
+            {activeSection === 'arco' && (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
+                <SectionHeader title="Estructura Narrativa" icon={Anchor} description="Puntos de giro, clímax y estructura global detectada." />
+                <JsonEditor 
+                  data={bible.arco_narrativo || {}} 
+                  onChange={(v) => updateSection('arco_narrativo', v)} 
+                />
+              </div>
+            )}
+
+            {/* 4. VOZ DEL AUTOR */}
+            {activeSection === 'voz' && (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
+                <SectionHeader title="Estilo y Voz" icon={PenTool} description="Elementos estilísticos que se deben preservar o potenciar." />
+                <JsonEditor 
+                  data={bible.voz_del_autor || {}} 
+                  onChange={(v) => updateSection('voz_del_autor', v)} 
+                />
+              </div>
+            )}
+
+             {/* 5. GUIA PARA CLAUDE */}
+             {activeSection === 'guia' && (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
+                <SectionHeader title="Instrucciones de Edición" icon={Flag} description="Directrices específicas que la IA seguirá durante la reescritura." />
+                <JsonEditor 
+                  data={bible.guia_para_claude || {}} 
+                  onChange={(v) => updateSection('guia_para_claude', v)} 
+                />
+              </div>
+            )}
              
-             {/* Fallback genérico para ver todo el JSON si hace falta */}
-             <div className="mt-8 bg-gray-100 p-4 rounded-lg border border-gray-200">
-               <h4 className="text-xs font-bold uppercase text-gray-500 mb-2">Vista Raw (Debug)</h4>
-               <textarea 
-                  className="w-full h-64 p-4 text-xs font-mono bg-white border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                  value={JSON.stringify(bible, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      setBible(JSON.parse(e.target.value));
-                    } catch(err) { /* ignore invalid json while typing */ }
-                  }}
-               />
+             {/* Fallback Debug */}
+             <div className="mt-12 pt-8 border-t border-gray-200">
+               <details>
+                 <summary className="cursor-pointer text-xs font-bold uppercase text-gray-400 hover:text-gray-600 mb-2 select-none">
+                    Ver JSON Completo (Raw Debug)
+                 </summary>
+                 <textarea 
+                    className="w-full h-64 p-4 text-xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-600 outline-none mt-2"
+                    value={JSON.stringify(bible, null, 2)}
+                    readOnly
+                 />
+               </details>
              </div>
 
           </div>
@@ -212,7 +258,7 @@ function NavItem({ icon: Icon, label, active, onClick }) {
     <button
       onClick={onClick}
       className={`
-        w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all group
+        w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all group mb-1
         ${active 
           ? 'bg-blue-50 text-theme-primary ring-1 ring-blue-100' 
           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
@@ -227,40 +273,61 @@ function NavItem({ icon: Icon, label, active, onClick }) {
   );
 }
 
-function SectionHeader({ title, icon: Icon }) {
+function SectionHeader({ title, icon: Icon, description }) {
   return (
-    <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
-      <div className="p-2 bg-blue-50 rounded-lg text-theme-primary">
-        <Icon className="w-5 h-5" />
+    <div className="flex items-start gap-4 mb-6 border-b border-gray-100 pb-6">
+      <div className="p-3 bg-blue-50 rounded-xl text-theme-primary shrink-0">
+        <Icon className="w-6 h-6" />
       </div>
-      <h3 className="font-editorial text-xl font-bold text-gray-900">{title}</h3>
+      <div>
+        <h3 className="font-editorial text-2xl font-bold text-gray-900 leading-tight">{title}</h3>
+        {description && <p className="text-gray-500 mt-1 text-sm">{description}</p>}
+      </div>
     </div>
   );
 }
 
-// Editor simple para objetos JSON (se puede mejorar con un editor real si hay tiempo)
+// Editor JSON mejorado
 function JsonEditor({ data, onChange }) {
   const [text, setText] = useState(JSON.stringify(data, null, 2));
+  const [error, setError] = useState(false);
+
+  // Sincronizar si la data externa cambia (ej. al cambiar de tab)
+  useEffect(() => {
+    setText(JSON.stringify(data, null, 2));
+  }, [data]);
 
   const handleChange = (e) => {
     const val = e.target.value;
     setText(val);
     try {
-      onChange(JSON.parse(val));
+      const parsed = JSON.parse(val);
+      onChange(parsed);
+      setError(false);
     } catch (err) {
-      // Allow typing invalid JSON
+      setError(true);
     }
   };
 
   return (
-    <div>
-      <p className="text-sm text-gray-500 mb-2">Edita los valores directamente. Mantén el formato JSON.</p>
+    <div className="relative group">
+      <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold ${error ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600 opacity-0 group-hover:opacity-100 transition-opacity'}`}>
+        {error ? 'JSON Inválido' : 'Válido'}
+      </div>
       <textarea
-        className="w-full h-96 p-4 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-y"
+        className={`
+          w-full h-[500px] p-4 font-mono text-sm leading-relaxed rounded-lg border outline-none transition-all resize-y
+          ${error 
+            ? 'bg-red-50 border-red-300 focus:ring-red-200' 
+            : 'bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'}
+        `}
         value={text}
         onChange={handleChange}
         spellCheck={false}
       />
+      <p className="text-xs text-gray-400 mt-2 text-right">
+        Edita con cuidado. La IA usará estos valores estrictamente.
+      </p>
     </div>
   );
 }

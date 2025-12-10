@@ -50,7 +50,9 @@ export default function Editor() {
         setChapters(uniqueChapters.map(id => ({
           chapter_id: id,
           display_title: changesArray.find(c => c.chapter_id === id)?.chapter_title || `Capítulo ${id}`,
-          contenido_editado: ''
+          // Si no hay capítulos, al menos inicializar las bases para la lógica de exportación
+          contenido_editado: '', 
+          contenido_original: '' 
         })));
       }
       
@@ -133,7 +135,7 @@ export default function Editor() {
     }
   }
 
-  // EXPORT A DOCX - VERSIÓN PROFESIONAL
+  // EXPORT A DOCX - VERSIÓN PROFESIONAL (LÓGICA CORREGIDA)
   async function exportToDocx() {
     try {
       setIsExporting(true);
@@ -204,19 +206,35 @@ export default function Editor() {
           })
         );
         
-        // Obtener contenido editado del capítulo
-        let content = chapter.contenido_editado || chapter.contenido_original || '';
+        // ---------------------------------------------------------------------
+        // INICIO CORRECCIÓN DE LA LÓGICA DE APLICACIÓN DE CAMBIOS
+        // ---------------------------------------------------------------------
         
-        // Aplicar cambios aceptados al contenido
+        // CORRECCIÓN: Usar contenido ORIGINAL como base para reconstruir según decisiones
+        let content = chapter.contenido_original || '';
+        
+        // Si no hay contenido original (fallback), usamos el editado pero avisamos
+        if (!content) {
+            content = chapter.contenido_editado || '';
+            console.warn(`[Chapter ${chapterId}] WARNING: Missing 'contenido_original'. Exporting based on 'contenido_editado' (may not reflect rejections).`);
+        }
+
+        // Aplicar SOLO los cambios aceptados
         for (const change of chapterChanges) {
           if (change.status === 'accepted' && change.original && change.editado) {
-            // Reemplazar el texto original con el editado
-            content = content.replace(change.original, change.editado);
+            // Reemplazar el texto original con el editado globalmente
+            // Usamos split/join para reemplazar todas las ocurrencias si se repite
+            content = content.split(change.original).join(change.editado);
           }
-          // Si está rechazado, mantener el original (no hacer nada)
+          // Si está rechazado (rejected) o pendiente, NO hacemos nada 
+          // (se queda el texto original de base)
         }
         
-        // Si no hay contenido, mostrar los cambios como párrafos
+        // ---------------------------------------------------------------------
+        // FIN CORRECCIÓN
+        // ---------------------------------------------------------------------
+        
+        // Si no hay contenido, mostrar los cambios como párrafos (FALLBACK)
         if (!content && chapterChanges.length > 0) {
           for (const change of chapterChanges) {
             const text = change.status === 'accepted' ? change.editado : change.original;
@@ -235,7 +253,8 @@ export default function Editor() {
               children.push(
                 new Paragraph({
                   children: [new TextRun({ text: para.trim(), size: 24 })],
-                  spacing: { after: 200, line: 360 }
+                  // Espaciado estándar de novela
+                  spacing: { after: 200, line: 360 } 
                 })
               );
             }
@@ -252,7 +271,7 @@ export default function Editor() {
           properties: {
             page: {
               margin: {
-                top: 1440,    // 1 inch
+                top: 1440,     // 1 inch
                 right: 1440,
                 bottom: 1440,
                 left: 1440
@@ -551,7 +570,7 @@ export default function Editor() {
 }
 
 // =============================================================================
-// COMPONENTES AUXILIARES
+// COMPONENTES AUXILIARES (Sin cambios, se mantienen para la funcionalidad)
 // =============================================================================
 
 function StatBadge({ label, value, color }) {

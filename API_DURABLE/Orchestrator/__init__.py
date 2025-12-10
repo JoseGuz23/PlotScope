@@ -1,10 +1,9 @@
 # =============================================================================
-# Orchestrator/__init__.py - SYLPHRENA 4.1.0 (CON PAUSA APROBACIÓN)
+# Orchestrator/__init__.py - SYLPHRENA 4.1.1 (FIX: SAVE BEFORE PAUSE)
 # =============================================================================
-# CAMBIOS v4.1.0:
-#   - Agregada PAUSA EXPLÍCITA después de Fase 6.
-#   - Espera evento 'BibleApproved' para continuar.
-#   - Sin emojis.
+# CAMBIOS v4.1.1:
+#   - CORRECCIÓN CRÍTICA: Se llama a 'SaveOutputs' antes de la pausa de aprobación.
+#   - Esto genera los archivos JSON necesarios para que el Frontend no de error 404.
 # =============================================================================
 
 import azure.functions as func
@@ -341,7 +340,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         
         logging.info(f"")
         logging.info(f"{'#'*70}")
-        logging.info(f"#  SYLPHRENA 4.1.0 - ORQUESTADOR INICIADO")
+        logging.info(f"#  SYLPHRENA 4.1.1 - ORQUESTADOR INICIADO")
         logging.info(f"#  Libro: {book_name}")
         logging.info(f"#  Inicio: {start_time.isoformat()}")
         logging.info(f"#  Límite capítulos: {LIMIT_TO_FIRST_N_CHAPTERS or 'Sin límite'}")
@@ -495,21 +494,37 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f"[TIME] Tiempo Biblia: {tiempos['biblia']}")
         
         # =====================================================================
+        # >>> CORRECCIÓN: GUARDAR BIBLIA ANTES DE LA PAUSA <<<
+        # =====================================================================
+        # Esto asegura que el archivo exista cuando el usuario va a revisarlo
+        logging.info(f"[SAVE] Guardando biblia preliminar para el Frontend...")
+        
+        pre_save_payload = {
+            'job_id': context.instance_id,
+            'book_name': book_name,
+            'bible': bible,
+            'consolidated_chapters': consolidated, # Necesario para generar cambios_estructurados.json
+            'statistics': {}, 
+            'tiempos': tiempos
+        }
+        
+        try:
+            yield context.call_activity('SaveOutputs', pre_save_payload)
+            logging.info("[SAVE] Guardado intermedio exitoso.")
+        except Exception as e:
+            logging.error(f"[ERROR] Falló el guardado intermedio: {str(e)}")
+            # No lanzamos excepción aquí para permitir que la pausa ocurra y el usuario pueda reintentar
+        
+        # =====================================================================
         # >>> PAUSA PARA APROBACIÓN HUMANA <<<
         # =====================================================================
-        # 1. Avisar que estamos esperando
         logging.info(f"[WAIT] Esperando aprobación humana de la Biblia...")
         context.set_custom_status("Esperando aprobacion de Biblia...")
         
-        # 2. Pausar ejecución hasta recibir evento 'BibleApproved'
-        # El frontend (BibleReview.jsx) enviará este evento al darle 'Aprobar'
+        # Pausar ejecución hasta recibir evento 'BibleApproved'
         yield context.wait_for_external_event("BibleApproved")
         
         logging.info(f"[RESUME] Biblia aprobada por usuario. Continuando...")
-        
-        # (Opcional) Recargar la biblia si fue modificada durante la revisión
-        # En esta versión simplificada asumimos que el frontend ya actualizó el JSON
-        # en el blob storage antes de mandar el evento.
 
         # ---------------------------------------------------------------------
         # FASE 10: ARCOS
@@ -577,7 +592,6 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             'status': 'success',
             'job_id': context.instance_id,
             'book_name': book_name,
-            # Extraer campos de manuscript para que SaveOutputs los encuentre
             'manuscripts': manuscript.get('manuscripts', {}),
             'consolidated_chapters': manuscript.get('consolidated_chapters', []),
             'statistics': manuscript.get('statistics', {}),
@@ -599,7 +613,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         # RESUMEN FINAL
         logging.info(f"")
         logging.info(f"{'#'*70}")
-        logging.info(f"#  [SUCCESS] SYLPHRENA 4.1.0 - COMPLETADO EXITOSAMENTE")
+        logging.info(f"#  [SUCCESS] SYLPHRENA 4.1.1 - COMPLETADO EXITOSAMENTE")
         logging.info(f"{'#'*70}")
         logging.info(f"#  Libro: {book_name}")
         logging.info(f"#  Fragmentos procesados: {len(fragments)}")

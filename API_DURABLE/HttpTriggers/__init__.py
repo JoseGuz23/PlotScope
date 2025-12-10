@@ -143,34 +143,53 @@ async def get_orchestrator_status(client, instance_id):
             rt = str(status.runtime_status.value) if hasattr(status.runtime_status, 'value') else str(status.runtime_status)
             cust = status.custom_status
             
-            # Textos Profesionales
-            friendly = str(cust) if cust else "Procesando..."
-            
-            # Mapeo inteligente para evitar el "bug del reinicio" visual
-            cust_str = str(cust).lower()
-            if 'segment' in cust_str: friendly = 'Segmentando manuscrito'
-            elif 'capa 1' in cust_str: friendly = 'Analisis factual'
-            elif 'consolid' in cust_str: friendly = 'Consolidando datos'
-            elif 'estructur' in cust_str: friendly = 'Analisis estructural'
-            elif 'cualitativ' in cust_str: friendly = 'Analisis cualitativo'
-            elif 'biblia' in cust_str: friendly = 'Generando Biblia'
-            elif 'esperando' in cust_str: friendly = 'Esperando aprobacion'
-            elif 'arco' in cust_str: friendly = 'Mapeando arcos'
-            elif 'edici' in cust_str: friendly = 'Editando contenido'
-            elif 'finaliz' in cust_str: friendly = 'Guardando resultados'
+            # --- TRADUCTOR DE ESTADOS (SOLO TEXTO) ---
+            cust_str = str(cust).lower() if cust else ""
+            friendly = "Iniciando motores..." # Default
+
+            if 'segment' in cust_str: 
+                friendly = 'Segmentando manuscrito...'
+            elif 'capa 1' in cust_str or 'batch c1' in cust_str: 
+                friendly = 'Analizando hechos y datos (Capa 1)...'
+            elif 'consolid' in cust_str: 
+                friendly = 'Unificando hallazgos...'
+            # Capa 2
+            elif 'layer2' in cust_str or 'estructur' in cust_str or 'structur' in cust_str: 
+                friendly = 'Analizando estructura narrativa (Capa 2)...'
+            # Capa 3
+            elif 'layer3' in cust_str or 'cualitativ' in cust_str or 'qualitative' in cust_str: 
+                friendly = 'Evaluando estilo y profundidad (Capa 3)...'
+            # Biblia / Holístico
+            elif 'biblia' in cust_str or 'holistic' in cust_str: 
+                friendly = 'Escribiendo la Biblia Narrativa...'
+            # Espera
+            elif 'esperando' in cust_str or 'wait' in cust_str: 
+                friendly = 'Esperando revisión de Biblia...'
+            # Arcos
+            elif 'arco' in cust_str or 'arc' in cust_str: 
+                friendly = 'Mapeando arcos de personajes...'
+            # Edición
+            elif 'edici' in cust_str or 'claude' in cust_str: 
+                friendly = 'El Editor IA está puliendo el texto...'
+            # Finalización
+            elif 'finaliz' in cust_str or 'save' in cust_str: 
+                friendly = 'Guardando y empaquetando proyecto...'
+            elif cust:
+                # Fallback para estados desconocidos pero con texto
+                friendly = 'Procesando análisis avanzado...'
             
             return success_response({
                 'instance_id': instance_id,
                 'runtime_status': rt,
-                'custom_status': cust,
-                'friendly_message': friendly,
+                'custom_status': cust,          
+                'friendly_message': friendly,   
                 'is_completed': rt == 'Completed',
                 'is_failed': rt == 'Failed',
                 'is_running': rt == 'Running',
                 'output': status.output if rt == 'Completed' else None
             })
             
-        # Fallback Metadata
+        # Fallback Metadata (cuando el proceso ya murió o se limpió del historial)
         try:
             c = get_blob_service().get_blob_client("sylphrena-outputs", f"{instance_id}/metadata.json")
             if c.exists():
@@ -180,7 +199,7 @@ async def get_orchestrator_status(client, instance_id):
                     'instance_id': instance_id,
                     'runtime_status': 'Terminated' if is_terminated else 'Pending',
                     'custom_status': 'Detenido' if is_terminated else 'Iniciando',
-                    'friendly_message': 'Proceso detenido manualmente' if is_terminated else 'Inicializando sistema...',
+                    'friendly_message': 'Proyecto detenido manualmente' if is_terminated else 'Inicializando...',
                     'is_completed': False, 
                     'is_failed': is_terminated,
                     'metadata': meta
@@ -189,7 +208,7 @@ async def get_orchestrator_status(client, instance_id):
         
         return error_response('Proceso no encontrado', 404)
     except Exception as e: return error_response(str(e), 500)
-
+    
 async def terminate_orchestrator(client, instance_id, req):
     try:
         await client.terminate(instance_id, 'User termination')
