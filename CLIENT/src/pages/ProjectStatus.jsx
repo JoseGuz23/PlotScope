@@ -138,37 +138,43 @@ export default function ProjectStatus() {
     };
   }, [projectId]);
 
-  // 2B. TIMER SEPARADO - Se reinicia cuando projectCreatedAt se establece
+  // 2B. TIMER SEPARADO - Solo depende de projectCreatedAt
   useEffect(() => {
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
+    if (!projectCreatedAt) return;
 
-    if (projectCreatedAt && !status?.is_completed && !status?.is_failed && !terminated) {
-      console.log("⏱️ Timer iniciado con fecha:", projectCreatedAt);
+    console.log("⏱️ Timer iniciado con fecha:", projectCreatedAt);
 
-      // Función de actualización del timer dentro del useEffect
-      const tick = () => {
-        const now = new Date();
-        const diff = Math.floor((now.getTime() - projectCreatedAt.getTime()) / 1000);
-
-        if (diff >= 0) {
-          const m = Math.floor(diff / 60);
-          const s = diff % 60;
-          setElapsedTime(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+    // Función de actualización del timer dentro del useEffect
+    const tick = () => {
+      // Verificar condiciones de parada dentro del tick
+      if (status?.is_completed || status?.is_failed || terminated) {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+          timerIntervalRef.current = null;
         }
-      };
+        return;
+      }
 
-      tick(); // Actualizar inmediatamente
-      timerIntervalRef.current = setInterval(tick, 1000);
-    }
+      const now = new Date();
+      const diff = Math.floor((now.getTime() - projectCreatedAt.getTime()) / 1000);
+
+      if (diff >= 0) {
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        setElapsedTime(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+      }
+    };
+
+    tick(); // Actualizar inmediatamente
+    timerIntervalRef.current = setInterval(tick, 1000);
 
     return () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
     };
-  }, [projectCreatedAt, status?.is_completed, status?.is_failed, terminated]);
+  }, [projectCreatedAt]); // Solo depende de projectCreatedAt
 
   // 3. AUTO-SCROLL LOGS
   useEffect(() => {
@@ -364,9 +370,9 @@ export default function ProjectStatus() {
         </div>
       </div>
 
-      {/* DERECHA: LOGS */}
-      <aside className="hidden lg:flex w-[380px] bg-[#0f172a] border-l border-gray-800 shrink-0 flex-col shadow-2xl z-20 
-          sticky top-[200px] h-[calc(100vh-200px)]">
+      {/* LOGS - Mobile: abajo | Desktop: lateral derecho */}
+      <aside className="w-full lg:w-[380px] bg-[#0f172a] border-t lg:border-t-0 lg:border-l border-gray-800 shrink-0 flex flex-col shadow-2xl z-20
+          lg:sticky lg:top-[200px] h-[400px] lg:h-[calc(100vh-200px)]">
          
          <div className="bg-[#1e293b] px-6 py-4 border-b border-gray-700 flex justify-between items-center shrink-0">
              <div className="flex items-center gap-3">
