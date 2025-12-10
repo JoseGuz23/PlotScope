@@ -598,14 +598,16 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         # GUARDAR BIBLIA ANTES DE PAUSA
         logging.info(f"[SAVE] Guardando biblia preliminar...")
         
+        # --- CORRECCIÓN APLICADA AQUÍ ---
         pre_save_payload = {
-    '       job_id': job_id,
+            'job_id': job_id,          # Clave corregida sin espacios
             'book_name': book_name,
             'bible': bible,
             'consolidated_chapters': consolidated,
             'statistics': {}, 
             'tiempos': tiempos
         }
+        # --------------------------------
         
         try:
             yield context.call_activity('SaveOutputs', pre_save_payload)

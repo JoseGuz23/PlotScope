@@ -27,11 +27,17 @@ export default function BibleReview() {
   async function loadBible() {
     try {
       const data = await bibleAPI.get(projectId);
-      console.log("Biblia cargada:", data); // Debug para ver estructura real
+      console.log("Biblia cargada:", data);
       setBible(data);
     } catch (err) {
-      console.error(err);
-      alert('Error cargando la Biblia. Asegúrate de que la fase de análisis haya terminado.');
+      console.warn("Biblia no disponible aún o error:", err);
+      // No mostramos alert ni error crítico si es 404, mantenemos loading o estado vacío
+      if (err.message && err.message.includes('404')) {
+         // Opcional: Podrías implementar un polling aquí si quisieras reintentar
+         console.log("Esperando generación de la biblia...");
+      } else {
+         alert('Error cargando la Biblia: ' + err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -81,14 +87,23 @@ export default function BibleReview() {
     </div>
   );
 
-  if (!bible) return (
+  if (!bible && !loading) return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
-      <AlertCircle className="w-12 h-12 text-red-400" />
-      <h2 className="text-xl font-bold text-gray-800">No se encontró la Biblia</h2>
-      <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline">Volver</button>
+      <div className="p-4 bg-yellow-50 rounded-full">
+         <Loader2 className="w-8 h-8 text-yellow-600 animate-spin" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-800">Generando Biblia...</h2>
+      <p className="text-gray-500 text-sm max-w-md text-center">
+        El orquestador está escribiendo la Biblia Narrativa. Esto puede tomar unos minutos.
+        <br/>Por favor, recarga la página en un momento.
+      </p>
+      <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-theme-primary text-white rounded hover:bg-blue-700 transition">
+        Recargar
+      </button>
+      <button onClick={() => navigate(-1)} className="text-gray-400 text-sm hover:underline">Volver</button>
     </div>
   );
-
+  
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       
