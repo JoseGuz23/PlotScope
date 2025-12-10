@@ -1,5 +1,5 @@
 // =============================================================================
-// App.jsx - RUTAS COMPLETAS CON STATUS DE PROCESAMIENTO
+// App.jsx - RUTAS COMPLETAS SYLPHRENA 5.0
 // =============================================================================
 
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
@@ -12,8 +12,9 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
-import ProjectStatus from './pages/ProjectStatus';  // NUEVO
+import ProjectStatus from './pages/ProjectStatus';
 import BibleReview from './pages/BibleReview';
+import EditorialLetter from './pages/EditorialLetter'; // NUEVA PÁGINA
 import Editor from './pages/Editor';
 import Features from './pages/Features'; 
 import Pricing from './pages/Pricing';   
@@ -29,11 +30,11 @@ function ProtectedRoute({ children }) {
   return <Layout>{children}</Layout>;
 }
 
-// Router auxiliar para proyectos - redirige según estado
+// Router auxiliar para proyectos - redirige según flujo 5.0
 function ProjectRouter() {
   const { id } = useParams();
-  // Por defecto ir al editor, pero el backend puede indicar otro destino
-  return <Navigate to={`/proyecto/${id}/editor`} replace />;
+  // En Sylphrena 5.0, el flujo natural post-proceso es ver la Carta Editorial
+  return <Navigate to={`/proyecto/${id}/carta`} replace />;
 }
 
 // 404
@@ -80,28 +81,35 @@ function App() {
             </ProtectedRoute>
           } />
           
-          {/* PROYECTO: Redirige según estado */}
+          {/* PROYECTO: Redirige inteligentemente */}
           <Route path="/proyecto/:id" element={
             <ProtectedRoute>
               <ProjectRouter />
             </ProtectedRoute>
           } />
           
-          {/* NUEVO: Estado de procesamiento */}
+          {/* FASE: Estado de procesamiento */}
           <Route path="/proyecto/:id/status" element={
             <ProtectedRoute>
               <ProjectStatus />
             </ProtectedRoute>
           } />
           
-          {/* Revisión de Biblia */}
+          {/* FASE: Revisión de Biblia */}
           <Route path="/proyecto/:id/biblia" element={
             <ProtectedRoute>
               <BibleReview />
             </ProtectedRoute>
           } />
+
+          {/* FASE: Carta Editorial (NUEVO 5.0) */}
+          <Route path="/proyecto/:id/carta" element={
+            <ProtectedRoute>
+              <EditorialLetter />
+            </ProtectedRoute>
+          } />
           
-          {/* Editor de cambios */}
+          {/* FASE: Editor de cambios */}
           <Route path="/proyecto/:id/editor" element={
             <ProtectedRoute>
               <Editor />

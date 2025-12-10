@@ -112,9 +112,9 @@ function ProjectCard({ project, onDelete, isDeleting }) {
   const isFailed = project.status === 'failed';
   
   // Determinar ruta de destino según estado
-  const destination = isComplete 
-    ? `/proyecto/${project.id}/biblia` 
-    : `/proyecto/${project.id}/status`;
+const destination = isComplete 
+  ? `/proyecto/${project.id}/carta`  // <-- CAMBIO PRINCIPAL: Ir a la Carta primero
+  : `/proyecto/${project.id}/status`;
 
   return (
     <Link 

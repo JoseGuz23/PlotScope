@@ -1,5 +1,5 @@
 // =============================================================================
-// api.js - CLIENTE API SYLPHRENA (COMPLETO)
+// api.js - CLIENTE API SYLPHRENA (COMPLETO & ACTUALIZADO 5.0)
 // =============================================================================
 
 // --- CONFIGURACIÓN ---
@@ -151,6 +151,20 @@ export const bibleAPI = {
 };
 
 // =============================================================================
+// CARTA EDITORIAL Y NOTAS (NUEVO 5.0)
+// =============================================================================
+
+export const editorialAPI = {
+  async getLetter(projectId) {
+    return await apiFetch(`project/${projectId}/editorial-letter`);
+  },
+  
+  async getMarginNotes(projectId) {
+    return await apiFetch(`project/${projectId}/margin-notes`);
+  }
+};
+
+// =============================================================================
 // MANUSCRITOS
 // =============================================================================
 
@@ -272,10 +286,12 @@ function fileToBase64(file) {
   });
 }
 
+// Exportación unificada
 export default {
   auth: authAPI,
   projects: projectsAPI,
   bible: bibleAPI,
+  editorial: editorialAPI, // NUEVO: Incluido explícitamente
   manuscript: manuscriptAPI,
   upload: uploadAPI,
 };
