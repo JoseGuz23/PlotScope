@@ -70,7 +70,6 @@ export const bibleAPI = {
   async approve(id) { return await apiFetch(`project/${id}/bible/approve`, { method: 'POST' }); },
 };
 
-// --- ESTO ES LO QUE TE FALTA Y CAUSA EL ERROR ---
 export const editorialAPI = {
   async getLetter(projectId) { return await apiFetch(`project/${projectId}/editorial-letter`); },
   async getMarginNotes(projectId) { return await apiFetch(`project/${projectId}/margin-notes`); }
@@ -93,15 +92,26 @@ export const uploadAPI = {
     const base64 = await fileToBase64(file);
     return await apiFetch('project/upload', { method: 'POST', body: JSON.stringify({ filename: file.name, projectName, content: base64 }) });
   },
-  async startOrchestrator(jobId, blobPath) {
+  
+  // CORRECCIÓN APLICADA: Se agregó el parámetro bookName y se envía en el body como book_name
+  async startOrchestrator(jobId, blobPath, bookName) {
     const baseUrl = API_BASE.replace('/api', '');
     let url = `${baseUrl}/api/HttpStart${FUNCTION_KEY ? `?code=${FUNCTION_KEY}` : ''}`;
     try {
-      const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ job_id: jobId, blob_path: blobPath }) });
+      const response = await fetch(url, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, 
+        body: JSON.stringify({ 
+          job_id: jobId, 
+          blob_path: blobPath,
+          book_name: bookName // <-- ESTA LÍNEA ES CRÍTICA PARA EL TÍTULO
+        }) 
+      });
       if (!response.ok) throw new Error(`Error iniciando: ${response.status}`);
       return await response.json();
     } catch (error) { return { status: 'pending', message: 'Orquestador en cola' }; }
   },
+  
   async analyzeForQuote(file) {
     const base64 = await fileToBase64(file);
     return await apiFetch('analyze-file', { method: 'POST', body: JSON.stringify({ filename: file.name, content: base64 }) });
@@ -117,12 +127,11 @@ function fileToBase64(file) {
   });
 }
 
-// IMPORTANTE: Asegúrate de exportar editorialAPI aquí
 export default {
   auth: authAPI,
   projects: projectsAPI,
   bible: bibleAPI,
-  editorial: editorialAPI, // <--- ESTO FALTABA
+  editorial: editorialAPI,
   manuscript: manuscriptAPI,
   upload: uploadAPI,
 };

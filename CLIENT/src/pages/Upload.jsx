@@ -78,7 +78,8 @@ export default function Upload() {
       // Nota: El backend v2 devuelve start_url, pero usamos el helper para consistencia
       const startRes = await uploadAPI.startOrchestrator(
         uploadRes.job_id, 
-        uploadRes.blob_path
+        uploadRes.blob_path,
+        projectName // <--- AGREGAR ESTO
       );
       
       console.log('Orquestador iniciado:', startRes);
