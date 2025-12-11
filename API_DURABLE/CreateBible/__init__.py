@@ -1,5 +1,5 @@
 # =============================================================================
-# CreateBible/__init__.py - SYLPHRENA 4.0 (CORREGIDO)
+# CreateBible/__init__.py - LYA 4.0 (CORREGIDO)
 # =============================================================================
 # CORRECCIÓN:
 #   - Soluciona el bug de "Inputs: 0" mapeando correctamente la entrada

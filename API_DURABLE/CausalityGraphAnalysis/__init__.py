@@ -1,5 +1,5 @@
 # =============================================================================
-# CausalityGraphAnalysis/__init__.py - SYLPHRENA 4.0
+# CausalityGraphAnalysis/__init__.py - LYA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN:
 #   - Construye grafo de relaciones causales entre eventos

@@ -1,5 +1,5 @@
 # =============================================================================
-# GenerateEditorialLetter/__init__.py - SYLPHRENA 5.0 (UPDATED SDK)
+# GenerateEditorialLetter/__init__.py - LYA 5.0 (UPDATED SDK)
 # =============================================================================
 
 import logging

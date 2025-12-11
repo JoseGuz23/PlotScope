@@ -1,5 +1,5 @@
 # =============================================================================
-# QualitativeEffectivenessAnalysis/__init__.py - SYLPHRENA 4.0
+# QualitativeEffectivenessAnalysis/__init__.py - LYA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN - CAPA 3:
 #   - Evaluación cualitativa de efectividad dramática

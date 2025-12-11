@@ -1,5 +1,5 @@
 # =============================================================================
-# ValidateBibleCrossCheck/__init__.py - SYLPHRENA 4.0
+# ValidateBibleCrossCheck/__init__.py - LYA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN:
 #   - Extrae afirmaciones verificables de la Biblia

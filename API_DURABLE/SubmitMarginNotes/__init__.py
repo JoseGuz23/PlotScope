@@ -1,5 +1,5 @@
 # =============================================================================
-# SubmitMarginNotes/__init__.py - SYLPHRENA 5.0
+# SubmitMarginNotes/__init__.py - LYA 5.0
 # =============================================================================
 # NUEVA FUNCIÓN: Genera "notas de margen" como las de un editor profesional
 # Comentarios tipo: "Aquí el lector se pierde", "Este diálogo suena forzado"

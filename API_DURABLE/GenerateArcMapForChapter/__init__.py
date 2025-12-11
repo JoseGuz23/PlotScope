@@ -1,5 +1,5 @@
 # =============================================================================
-# GenerateArcMapForChapter/__init__.py - SYLPHRENA 4.0
+# GenerateArcMapForChapter/__init__.py - LYA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN:
 #   - Genera mapa de arco específico para cada capítulo antes de edición

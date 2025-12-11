@@ -1,13 +1,13 @@
 # measure_costs_detailed.py
 """
-Script de análisis detallado de costos para Sylphrena MVP
+Script de análisis detallado de costos para LYA MVP
 """
 
 def calculate_detailed_costs(book_words=50000, chapters=30):
     """
     Calcula costos detallados por fase del proceso
     """
-    print("=== CALCULADORA DE COSTOS SYLPHRENA ===\n")
+    print("=== CALCULADORA DE COSTOS LYA ===\n")
     print(f"Libro de {book_words:,} palabras en {chapters} capítulos\n")
     
     # Factor de conversión palabras a tokens

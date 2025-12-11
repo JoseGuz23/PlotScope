@@ -295,7 +295,7 @@ def main(batch_input: dict) -> dict:
                 model="models/gemini-3-pro-preview",
                 src=uploaded_file.name,
                 config={
-                    'display_name': f'sylphrena_{analysis_type}'
+                    'display_name': f'lya_{analysis_type}'
                 }
             )
             

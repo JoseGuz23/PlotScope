@@ -1,5 +1,5 @@
 # =============================================================================
-# SaveOutputs/__init__.py - SYLPHRENA 5.3 (FULL + STABLE)
+# SaveOutputs/__init__.py - LYA 5.3 (FULL + STABLE)
 # =============================================================================
 
 import logging
@@ -122,7 +122,7 @@ def structure_changes_safe(consolidated):
 
 def main(input_data: Any) -> dict:
     """
-    Guarda todos los outputs del proceso Sylphrena 5.0.
+    Guarda todos los outputs del proceso LYA 5.0.
     """
     logging.info(f"SaveOutputs Activity ejecutada. Tipo de input: {type(input_data)}")
     
@@ -166,7 +166,7 @@ def main(input_data: Any) -> dict:
             raise ValueError("AzureWebJobsStorage no configurado")
         
         blob_service = BlobServiceClient.from_connection_string(connect_str)
-        container_name = "sylphrena-outputs"
+        container_name = "lya-outputs"
         try: blob_service.create_container(container_name)
         except: pass
         
@@ -206,7 +206,7 @@ def main(input_data: Any) -> dict:
             'job_id': job_id,
             'book_name': book_name,
             'project_name': original_project_name or book_name,  # Mantener compatibilidad
-            'version': 'Sylphrena 5.3',
+            'version': 'LYA 5.3',
             'created_at': original_created_at or datetime.now().isoformat(),  # Preservar original
             'status': final_status,
             'counts': {'chapters': len(consolidated_chapters)}
@@ -257,7 +257,7 @@ def main(input_data: Any) -> dict:
         resumen = {
             'job_id': job_id,
             'book_name': book_name,
-            'version': 'Sylphrena 5.3',
+            'version': 'LYA 5.3',
             'fecha_procesamiento': datetime.now().isoformat(),
             'total_cambios': structured_changes.get('total_changes', 0), # <--- AHORA SEGURO
             'total_notas': len(margin_notes.get('all_notes', [])) if margin_notes else 0,

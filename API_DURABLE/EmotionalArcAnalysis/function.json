@@ -1,0 +1,10 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "consolidated_chapters",
+      "type": "activityTrigger",
+      "direction": "in"
+    }
+  ]
+}

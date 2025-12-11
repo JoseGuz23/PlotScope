@@ -1,5 +1,5 @@
 # =============================================================================
-# SubmitBatchAnalysis/__init__.py - SYLPHRENA 4.0
+# SubmitBatchAnalysis/__init__.py - LYA 4.0
 # =============================================================================
 import logging
 import json
@@ -119,7 +119,7 @@ def main(chapters: list) -> dict:
         uploaded_file = client.files.upload(
             file=temp_filename,
             config={
-                'display_name': f"sylphrena-batch-{timestamp}",
+                'display_name': f"lya-batch-{timestamp}",
                 'mime_type': "application/jsonl"
             }
         )
@@ -133,7 +133,7 @@ def main(chapters: list) -> dict:
             model="models/gemini-2.5-flash",
             src=uploaded_file.name,
             config={
-                'display_name': f"sylphrena-analysis-{timestamp}"
+                'display_name': f"lya-analysis-{timestamp}"
             }
         )
         

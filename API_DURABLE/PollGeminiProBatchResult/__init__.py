@@ -1,5 +1,5 @@
 # =============================================================================
-# PollGeminiProBatchResult/__init__.py - SYLPHRENA 4.0.1 CORREGIDO
+# PollGeminiProBatchResult/__init__.py - LYA 4.0.1 CORREGIDO
 # =============================================================================
 # CORRECCIONES:
 #   - job.dest.file_name en vez de job.output_file

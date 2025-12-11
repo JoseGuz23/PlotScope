@@ -1,5 +1,5 @@
 """
-HTTP API Endpoints para Sylphrena Web Platform
+HTTP API Endpoints para LYA Web Platform
 VERSIÓN 5.0 - FIX: save_all_decisions + nuevos endpoints
 """
 
@@ -16,8 +16,8 @@ from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient, ContentSettings
 
 # Configuración
-ADMIN_PASSWORD = os.environ.get('SYLPHRENA_PASSWORD', 'sylphrena2025')
-TOKEN_SECRET = os.environ.get('SYLPHRENA_TOKEN_SECRET', 'sylphrena-secret-key-2025')
+ADMIN_PASSWORD = os.environ.get('LYA_PASSWORD', 'lya2025')
+TOKEN_SECRET = os.environ.get('LYA_TOKEN_SECRET', 'lya-secret-key-2025')
 logging.basicConfig(level=logging.INFO)
 
 # =============================================================================
@@ -123,7 +123,7 @@ async def approve_bible_and_resume(client, instance_id):
         
         # 1. Actualizar Metadata (Para historial)
         try:
-            c = get_blob_service().get_blob_client("sylphrena-outputs", f"{instance_id}/metadata.json")
+            c = get_blob_service().get_blob_client("lya-outputs", f"{instance_id}/metadata.json")
             if c.exists():
                 meta = json.loads(c.download_blob().readall())
                 meta['bible_approved'] = True
@@ -202,7 +202,7 @@ async def get_orchestrator_status(client, instance_id):
             
         # Fallback Metadata
         try:
-            c = get_blob_service().get_blob_client("sylphrena-outputs", f"{instance_id}/metadata.json")
+            c = get_blob_service().get_blob_client("lya-outputs", f"{instance_id}/metadata.json")
             if c.exists():
                 meta = json.loads(c.download_blob().readall())
                 is_terminated = meta.get('status') == 'terminated'
@@ -224,7 +224,7 @@ async def terminate_orchestrator(client, instance_id, req):
     try:
         await client.terminate(instance_id, 'User termination')
         try:
-            c = get_blob_service().get_blob_client("sylphrena-outputs", f"{instance_id}/metadata.json")
+            c = get_blob_service().get_blob_client("lya-outputs", f"{instance_id}/metadata.json")
             if c.exists():
                 meta = json.loads(c.download_blob().readall())
                 meta['status'] = 'terminated'
@@ -249,12 +249,12 @@ def handle_upload(req):
         job_id = f"{safe_name}_{timestamp}"
         
         service = get_blob_service()
-        try: service.create_container("sylphrena-inputs")
+        try: service.create_container("lya-inputs")
         except: pass
-        try: service.create_container("sylphrena-outputs")
+        try: service.create_container("lya-outputs")
         except: pass
         
-        service.get_blob_client("sylphrena-inputs", f"{job_id}/{filename}").upload_blob(base64.b64decode(content), overwrite=True)
+        service.get_blob_client("lya-inputs", f"{job_id}/{filename}").upload_blob(base64.b64decode(content), overwrite=True)
 
         meta = {
             'job_id': job_id,
@@ -264,7 +264,7 @@ def handle_upload(req):
             'status': 'starting',
             'created_at': datetime.utcnow().isoformat() + 'Z'
         }
-        service.get_blob_client("sylphrena-outputs", f"{job_id}/metadata.json").upload_blob(json.dumps(meta), overwrite=True)
+        service.get_blob_client("lya-outputs", f"{job_id}/metadata.json").upload_blob(json.dumps(meta), overwrite=True)
         
         return success_response({'job_id': job_id, 'status': 'uploaded', 'blob_path': f"{job_id}/{filename}"})
     except Exception as e: return error_response(str(e), 500)
@@ -272,7 +272,7 @@ def handle_upload(req):
 def delete_project(job_id):
     try:
         srv = get_blob_service()
-        for c in ["sylphrena-outputs", "sylphrena-inputs"]:
+        for c in ["lya-outputs", "lya-inputs"]:
             try:
                 cont = srv.get_container_client(c)
                 for b in cont.list_blobs(name_starts_with=job_id): cont.delete_blob(b.name)
@@ -282,7 +282,7 @@ def delete_project(job_id):
 
 def handle_projects_list(req, method):
     try:
-        c = get_blob_service().get_container_client("sylphrena-outputs")
+        c = get_blob_service().get_container_client("lya-outputs")
         projects = []
         seen = set()
         for b in c.list_blobs():
@@ -312,7 +312,7 @@ def verify_token(token):
     try:
         data = base64.urlsafe_b64decode(token).decode()
         exp_str, sig = data.split(':')
-        expected = hmac.new(TOKEN_SECRET.encode(), f"sylphrena:{exp_str}".encode(), hashlib.sha256).hexdigest()[:32]
+        expected = hmac.new(TOKEN_SECRET.encode(), f"lya:{exp_str}".encode(), hashlib.sha256).hexdigest()[:32]
         if not hmac.compare_digest(sig, expected): return False
         if datetime.utcnow() > datetime.strptime(exp_str, '%Y%m%d%H%M%S'): return False
         return True
@@ -323,7 +323,7 @@ def handle_login(req):
         if req.get_json().get('password') != ADMIN_PASSWORD: return error_response('Bad password', 401)
         exp = datetime.utcnow() + timedelta(hours=24)
         exp_str = exp.strftime('%Y%m%d%H%M%S')
-        sig = hmac.new(TOKEN_SECRET.encode(), f"sylphrena:{exp_str}".encode(), hashlib.sha256).hexdigest()[:32]
+        sig = hmac.new(TOKEN_SECRET.encode(), f"lya:{exp_str}".encode(), hashlib.sha256).hexdigest()[:32]
         tk = base64.urlsafe_b64encode(f"{exp_str}:{sig}".encode()).decode()
         return success_response({'token': tk})
     except: return error_response('Login error', 500)
@@ -341,17 +341,17 @@ def error_response(m, c): return func.HttpResponse(json.dumps({'error': m}), sta
 def get_cors_headers(): return {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': '*', 'Access-Control-Allow-Headers': '*'}
 
 def get_blob_json(jid, f):
-    try: return success_response(json.loads(get_blob_service().get_blob_client("sylphrena-outputs", f"{jid}/{f}").download_blob().readall()))
+    try: return success_response(json.loads(get_blob_service().get_blob_client("lya-outputs", f"{jid}/{f}").download_blob().readall()))
     except: return error_response("Not found", 404)
 
 def save_blob_json(jid, f, d):
     try: 
-        get_blob_service().get_blob_client("sylphrena-outputs", f"{jid}/{f}").upload_blob(json.dumps(d), overwrite=True)
+        get_blob_service().get_blob_client("lya-outputs", f"{jid}/{f}").upload_blob(json.dumps(d), overwrite=True)
         return success_response({'success': True})
     except: return error_response("Error saving", 500)
 
 def get_blob_text(jid, f):
-    try: return func.HttpResponse(get_blob_service().get_blob_client("sylphrena-outputs", f"{jid}/{f}").download_blob().readall().decode(), headers=get_cors_headers())
+    try: return func.HttpResponse(get_blob_service().get_blob_client("lya-outputs", f"{jid}/{f}").download_blob().readall().decode(), headers=get_cors_headers())
     except: return error_response("Not found", 404)
 
 # =============================================================================
@@ -387,7 +387,7 @@ def regenerate_editorial_letter(jid):
         logging.info(f"🔄 Regenerando Carta Editorial para job: {jid}")
 
         service = get_blob_service()
-        container = "sylphrena-outputs"
+        container = "lya-outputs"
 
         # 1. Cargar datos existentes del blob storage
         try:
@@ -525,7 +525,7 @@ def save_all_decisions_fixed(jid, req):
     try:
         service = get_blob_service()
         blob_path = f"{jid}/cambios_estructurados.json"
-        blob_client = service.get_blob_client("sylphrena-outputs", blob_path)
+        blob_client = service.get_blob_client("lya-outputs", blob_path)
         
         # 1. Leer archivo existente
         try:

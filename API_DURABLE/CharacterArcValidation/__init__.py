@@ -1,5 +1,5 @@
 # =============================================================================
-# CharacterArcValidation/__init__.py - SYLPHRENA 4.0
+# CharacterArcValidation/__init__.py - LYA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN:
 #   - Valida la coherencia lógica de los arcos de personaje

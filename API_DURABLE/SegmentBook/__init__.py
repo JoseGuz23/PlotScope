@@ -1,5 +1,5 @@
 # =============================================================================
-# SegmentBook/__init__.py - SYLPHRENA 4.1.0 (BLOB STORAGE)
+# SegmentBook/__init__.py - LYA 4.1.0 (BLOB STORAGE)
 # =============================================================================
 # MEJORAS:
 #   - Lee archivos desde Azure Blob Storage
@@ -60,7 +60,7 @@ def read_from_blob_storage(blob_path: str) -> bytes:
     if len(parts) < 2:
         raise ValueError(f"blob_path inválido: {blob_path}")
     
-    container_name = "sylphrena-inputs"
+    container_name = "lya-inputs"
     blob_name = blob_path
     
     logging.info(f"📥 Leyendo desde Blob Storage: {container_name}/{blob_name}")

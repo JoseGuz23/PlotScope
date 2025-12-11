@@ -1,5 +1,5 @@
 # =============================================================================
-# ReconstructManuscript/__init__.py - SYLPHRENA 4.3 - ROBUST TEXT & CHANGES
+# ReconstructManuscript/__init__.py - LYA 4.3 - ROBUST TEXT & CHANGES
 # =============================================================================
 
 import logging

@@ -1,5 +1,5 @@
 # =============================================================================
-# PollClaudeBatchResult/__init__.py - SYLPHRENA 4.0.2 CORREGIDO
+# PollClaudeBatchResult/__init__.py - LYA 4.0.2 CORREGIDO
 # =============================================================================
 # 
 # CORRECCIONES v4.0.2:

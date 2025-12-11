@@ -1,5 +1,5 @@
 # =============================================================================
-# AnalyzeChapter/__init__.py - SYLPHRENA 4.0 (MIGRADO A SDK V1)
+# AnalyzeChapter/__init__.py - LYA 4.0 (MIGRADO A SDK V1)
 # =============================================================================
 # CAMBIOS:
 #   - Migrado a 'google-genai' (SDK nuevo) para eliminar conflicto de dependencias.

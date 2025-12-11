@@ -1,5 +1,5 @@
 # =============================================================================
-# StructuralPatternAnalysis/__init__.py - SYLPHRENA 4.0
+# StructuralPatternAnalysis/__init__.py - LYA 4.0
 # =============================================================================
 # NUEVA FUNCIÓN - CAPA 2:
 #   - Analiza patrones estructurales de nivel superior

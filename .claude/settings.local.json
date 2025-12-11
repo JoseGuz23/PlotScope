@@ -6,7 +6,15 @@
       "Bash(python -m pip install:*)",
       "Bash(python:*)",
       "Bash(ls:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(dir:*)",
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" test_gemini.py)",
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" test_claude.py)",
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" -m pip install google-genai anthropic)",
+      "Bash(PYTHONIOENCODING=utf-8 \"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\":*)",
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" rename_sylphrena_to_lya.py)"
     ]
   }
 }

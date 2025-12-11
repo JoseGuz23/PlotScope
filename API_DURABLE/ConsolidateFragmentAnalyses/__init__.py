@@ -1,5 +1,5 @@
 # =============================================================================
-# ConsolidateFragmentAnalyses/__init__.py - SYLPHRENA 4.0 (ULTRA ROBUST)
+# ConsolidateFragmentAnalyses/__init__.py - LYA 4.0 (ULTRA ROBUST)
 # =============================================================================
 # CORRECCIONES APLICADAS:
 #   - Safety-checks para conversiones int() en 'frecuencia' y 'dialogos_count'

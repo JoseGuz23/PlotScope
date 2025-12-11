@@ -1,5 +1,5 @@
 # =============================================================================
-# SpecializedAnalyses/__init__.py - SYLPHRENA 4.2 (GEMINI + CLAUDE FALLBACK)
+# SpecializedAnalyses/__init__.py - LYA 4.2 (GEMINI + CLAUDE FALLBACK)
 # =============================================================================
 import logging
 import json

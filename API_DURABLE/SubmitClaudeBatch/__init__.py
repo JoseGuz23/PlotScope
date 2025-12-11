@@ -1,5 +1,5 @@
 # =============================================================================
-# SubmitClaudeBatch/__init__.py - SYLPHRENA 5.0 (PROMPT EXPANDIDO)
+# SubmitClaudeBatch/__init__.py - LYA 5.0 (PROMPT EXPANDIDO)
 # =============================================================================
 # ACTUALIZACIÓN: Prompt de edición profesional con criterios expandidos
 # Ahora incluye las notas de margen y criterios de developmental editor
@@ -12,7 +12,7 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 # =============================================================================
-# PROMPT PROFESIONAL DE EDICIÓN - SYLPHRENA 5.0
+# PROMPT PROFESIONAL DE EDICIÓN - LYA 5.0
 # =============================================================================
 
 EDIT_PROMPT_PROFESSIONAL = """Eres un DEVELOPMENTAL EDITOR profesional editando "{titulo}" ({genero}).
