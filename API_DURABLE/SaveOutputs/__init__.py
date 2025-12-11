@@ -1,7 +1,5 @@
 # =============================================================================
-# SaveOutputs/__init__.py - SYLPHRENA 5.0 (FIXED)
-# =============================================================================
-# NUEVO: Guarda carta editorial, notas de margen, y todos los outputs
+# SaveOutputs/__init__.py - SYLPHRENA 5.3 (FULL + STABLE)
 # =============================================================================
 
 import logging
@@ -10,403 +8,256 @@ import os
 from datetime import datetime
 from typing import Any
 from azure.storage.blob import BlobServiceClient, ContentSettings
-from io import BytesIO
-from .structure_changes import structure_changes # Asumimos que esta función existe
 
 logging.basicConfig(level=logging.INFO)
 
+# -----------------------------------------------------------------------------
+# HELPERS (Funciones auxiliares necesarias)
+# -----------------------------------------------------------------------------
 
 def safe_get(obj, key, default=''):
     """Extrae valor de forma segura."""
     val = obj.get(key, default)
     return val if val else default
 
-
 def generate_bible_markdown(bible: dict) -> str:
     """Genera versión markdown legible de la Biblia."""
-    lines = []
-    lines.append("# 📖 BIBLIA NARRATIVA\n")
-    lines.append(f"*Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}*\n")
-    lines.append("---\n")
-    
-    # 1. IDENTIDAD
-    identidad = bible.get('identidad_obra', {})
-    if identidad:
-        lines.append("## 🎭 IDENTIDAD DE LA OBRA\n")
-        lines.append(f"**Género:** {safe_get(identidad, 'genero')}")
-        lines.append(f"**Tono:** {safe_get(identidad, 'tono_predominante')}")
-        lines.append(f"**Tema Central:** {safe_get(identidad, 'tema_central')}")
-        lines.append("")
+    try:
+        lines = []
+        lines.append("# 📖 BIBLIA NARRATIVA\n")
+        lines.append(f"*Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}*\n")
+        lines.append("---\n")
+        
+        # 1. IDENTIDAD
+        identidad = bible.get('identidad_obra', {})
+        if identidad:
+            lines.append("## 🎭 IDENTIDAD DE LA OBRA\n")
+            lines.append(f"**Género:** {safe_get(identidad, 'genero')}")
+            lines.append(f"**Tono:** {safe_get(identidad, 'tono_predominante')}")
+            lines.append(f"**Tema Central:** {safe_get(identidad, 'tema_central')}")
+            lines.append("")
 
-    # 2. VOZ DEL AUTOR
-    voz = bible.get('voz_del_autor', {})
-    if voz:
-        lines.append("## ✍️ VOZ DEL AUTOR\n")
-        lines.append(f"**Estilo:** {safe_get(voz, 'estilo_detectado')}")
-        no_corregir = voz.get('NO_CORREGIR', [])
-        if no_corregir:
-            lines.append("\n**Elementos a preservar:**")
-            for item in no_corregir[:10]:
-                lines.append(f"- {item}")
-        lines.append("")
+        # 2. VOZ DEL AUTOR
+        voz = bible.get('voz_del_autor', {})
+        if voz:
+            lines.append("## ✍️ VOZ DEL AUTOR\n")
+            lines.append(f"**Estilo:** {safe_get(voz, 'estilo_detectado')}")
+            no_corregir = voz.get('NO_CORREGIR', [])
+            if no_corregir:
+                lines.append("\n**Elementos a preservar:**")
+                for item in no_corregir[:10]:
+                    lines.append(f"- {item}")
+            lines.append("")
 
-    # 3. ESTRUCTURA
-    estructura = bible.get('estructura_narrativa', {})
-    if estructura:
-        lines.append("## 📊 ESTRUCTURA NARRATIVA\n")
-        modelo = safe_get(estructura, 'modelo_detectado')
-        lines.append(f"**Modelo:** {modelo}")
-        lines.append("")
-
-    # 4. REPARTO
-    reparto = bible.get('reparto_completo', {})
-    if isinstance(reparto, dict):
-        lines.append("## 👥 REPARTO\n")
-        for categoria, personajes in reparto.items():
-            if personajes and isinstance(personajes, list):
-                lines.append(f"### {categoria.upper()}")
-                for p in personajes:
-                    nombre = safe_get(p, 'nombre')
-                    rol = safe_get(p, 'rol_arquetipo')
-                    lines.append(f"- **{nombre}** ({rol})")
-                lines.append("")
-
-    # 5. ANÁLISIS PROFUNDOS
-    profundos = bible.get('analisis_profundos', {})
-    if isinstance(profundos, dict):
-        lines.append("## 🧠 ANÁLISIS PROFUNDOS\n")
-        temas = profundos.get('temas_detectados', [])
-        if temas:
-            lines.append(f"**Temas Centrales:** {', '.join(temas)}")
-        lines.append("")
-
-    return "\n".join(lines)
-
+        # 3. REPARTO
+        reparto = bible.get('reparto_completo', {})
+        if isinstance(reparto, dict):
+            lines.append("## 👥 REPARTO\n")
+            for categoria, personajes in reparto.items():
+                if personajes and isinstance(personajes, list):
+                    lines.append(f"### {categoria.upper()}")
+                    for p in personajes:
+                        nombre = safe_get(p, 'nombre')
+                        rol = safe_get(p, 'rol_arquetipo')
+                        lines.append(f"- **{nombre}** ({rol})")
+                    lines.append("")
+        
+        return "\n".join(lines)
+    except Exception as e:
+        logging.error(f"Error generando MD Biblia: {e}")
+        return "# Error generando Biblia MD"
 
 def generate_changes_report_v5(chapters: list) -> str:
-    """Genera reporte detallado de cambios - SYLPHRENA 5.0."""
-    lines = []
-    lines.append("# 📝 REPORTE DE CAMBIOS - SYLPHRENA 5.0")
-    lines.append("")
-    lines.append(f"*Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}*")
-    lines.append("")
-    
-    total_cambios = sum(len(ch.get('cambios_realizados', [])) for ch in chapters)
-    total_preservados = sum(len(ch.get('elementos_preservados', [])) for ch in chapters)
-    
-    # Contar por categoría
-    por_categoria = {'prosa': 0, 'narrativa': 0, 'dialogo': 0, 'consistencia': 0, 'otro': 0}
-    por_impacto = {'alto': 0, 'medio': 0, 'bajo': 0}
-    
-    for ch in chapters:
-        for cambio in ch.get('cambios_realizados', []):
-            cat = cambio.get('categoria', 'otro')
-            imp = cambio.get('impacto_narrativo', 'medio')
-            if cat in por_categoria:
-                por_categoria[cat] += 1
-            else:
-                por_categoria['otro'] += 1
-            if imp in por_impacto:
-                por_impacto[imp] += 1
-    
-    lines.append(f"**Total de cambios:** {total_cambios}")
-    lines.append(f"**Elementos preservados:** {total_preservados}")
-    lines.append("")
-    lines.append("### Por Categoría")
-    for cat, count in por_categoria.items():
-        if count > 0:
-            lines.append(f"- {cat.upper()}: {count}")
-    lines.append("")
-    lines.append("### Por Impacto")
-    for imp, count in por_impacto.items():
-        if count > 0:
-            emoji = "🔴" if imp == 'alto' else "🟡" if imp == 'medio' else "🟢"
-            lines.append(f"- {emoji} {imp.upper()}: {count}")
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    
-    for ch in chapters:
-        ch_id = ch.get('chapter_id', '?')
-        title = ch.get('display_title', ch.get('original_title', f'Capítulo {ch_id}'))
-        cambios = ch.get('cambios_realizados', [])
+    """Genera reporte detallado de cambios."""
+    try:
+        lines = []
+        lines.append("# 📝 REPORTE DE CAMBIOS\n")
+        lines.append(f"*Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}*\n")
         
-        lines.append(f"## {title}")
-        lines.append("")
-        
-        if not cambios:
-            lines.append("*(Sin cambios en este capítulo)*")
-            lines.append("")
-            lines.append("---")
-            lines.append("")
-            continue
-        
-        lines.append(f"### Cambios ({len(cambios)})")
-        lines.append("")
-        
-        for i, cambio in enumerate(cambios, 1):
-            tipo = cambio.get('tipo', 'otro').upper()
-            categoria = cambio.get('categoria', '')
-            impacto = cambio.get('impacto_narrativo', 'N/A')
+        for ch in chapters:
+            title = ch.get('titulo', f"Capítulo {ch.get('chapter_id', '?')}")
+            cambios = ch.get('cambios_realizados', [])
             
-            imp_emoji = "🔴" if impacto == 'alto' else "🟡" if impacto == 'medio' else "🟢" if impacto == 'bajo' else ""
+            lines.append(f"## {title}")
+            if not cambios:
+                lines.append("*(Sin cambios)*\n")
+                continue
+                
+            for i, c in enumerate(cambios, 1):
+                tipo = c.get('tipo', 'Mejora')
+                just = c.get('justificacion', '')
+                lines.append(f"**{i}. [{tipo}]** {just}")
+                lines.append(f"> *Original:* \"{c.get('original', '')[:100]}...\"")
+                lines.append(f"> *Editado:* \"{c.get('editado', '')[:100]}...\"\n")
             
-            lines.append(f"**{i}. [{tipo}]** {imp_emoji} ({categoria})")
+            lines.append("---\n")
             
-            original = cambio.get('original', '')[:100]
-            editado = cambio.get('editado', '')[:100]
-            
-            lines.append(f"- Original: *\"{original}...\"*")
-            lines.append(f"- Editado: *\"{editado}...\"*")
-            lines.append(f"- Razón: {cambio.get('justificacion', '')}")
-            lines.append("")
-        
-        lines.append("---")
-        lines.append("")
-    
-    return "\n".join(lines)
+        return "\n".join(lines)
+    except Exception as e:
+        logging.error(f"Error generando Reporte Cambios: {e}")
+        return "# Error generando Reporte"
 
+# Mock para structure_changes si no existe el módulo
+def structure_changes_safe(consolidated):
+    """Calcula estadísticas básicas de cambios."""
+    try:
+        from .structure_changes import structure_changes
+        return structure_changes(consolidated)
+    except ImportError:
+        # Fallback simple si no existe el módulo
+        total = 0
+        changes_list = []
+        for ch in consolidated:
+            cambios = ch.get('cambios_realizados', [])
+            total += len(cambios)
+            changes_list.extend(cambios)
+        return {"total_changes": total, "changes": changes_list}
+    except Exception as e:
+        logging.error(f"Error estructurando cambios: {e}")
+        return {"total_changes": 0, "changes": []}
 
-# Función principal de la Activity (FIX aplicado aquí)
+# -----------------------------------------------------------------------------
+# MAIN FUNCTION
+# -----------------------------------------------------------------------------
+
 def main(input_data: Any) -> dict:
     """
     Guarda todos los outputs del proceso Sylphrena 5.0.
     """
-    
     logging.info(f"SaveOutputs Activity ejecutada. Tipo de input: {type(input_data)}")
     
-    # ---------------------------------------------------------------------
-    # FIX CRÍTICO: Manejar input que puede ser string o dict
-    # ---------------------------------------------------------------------
+    # 1. FIX DE INPUT: Asegurar que sea dict
     payload = input_data
     if isinstance(input_data, str):
         try:
             payload = json.loads(input_data)
         except json.JSONDecodeError as e:
-            logging.error(f"[CRITICAL ERROR] No se pudo deserializar el input JSON: {e}")
-            raise Exception(f"Input JSON inválido para SaveOutputs: {e}")
+            logging.error(f"[CRITICAL ERROR] JSON inválido: {e}")
+            raise Exception(f"Input JSON inválido: {e}")
 
     if not isinstance(payload, dict):
-        logging.error(f"[CRITICAL ERROR] El input final no es un diccionario. Tipo: {type(payload)}")
-        raise Exception("El formato de datos de entrada a SaveOutputs es incorrecto.")
-    # ---------------------------------------------------------------------
+        raise Exception("El formato de datos de entrada es incorrecto.")
 
+    # 2. FIX DE VARIABLES: Inicialización temprana para evitar UnboundLocalError
+    structured_changes = {"total_changes": 0, "changes": []} 
+    urls = {}
+    
     try:
-        # Extraer datos (ahora es seguro)
+        # Extraer datos básicos
         job_id = payload.get('job_id', 'unknown')
         book_name = payload.get('book_name', 'Sin título')
+        
+        # Extraer componentes principales
         bible = payload.get('bible', {})
         consolidated_chapters = payload.get('consolidated_chapters', [])
-        manuscripts = payload.get('manuscripts', {})
-        statistics = payload.get('statistics', {})
-        tiempos = payload.get('tiempos', {})
-        original_fragments = payload.get('original_fragments', [])
-        
         carta_editorial = payload.get('carta_editorial', {})
         carta_markdown = payload.get('carta_markdown', '')
         margin_notes = payload.get('margin_notes', {})
         
-        logging.info(f"")
-        logging.info(f"{'='*60}")
-        logging.info(f">>> SAVE OUTPUTS - SYLPHRENA 5.0")
-        logging.info(f"    Job ID: {job_id}")
-        logging.info(f"    Libro: {book_name}")
-        logging.info(f"{'='*60}")
+        # Extraer métricas y tiempos
+        statistics = payload.get('statistics', {})
+        tiempos = payload.get('tiempos', {})
+        
+        logging.info(f">>> SAVE OUTPUTS: {job_id} | {book_name}")
 
-        # Conexión a Blob Storage
-        connection_string = os.environ.get('AzureWebJobsStorage')
-        if not connection_string:
+        # Configuración Azure
+        connect_str = os.environ.get('AzureWebJobsStorage')
+        if not connect_str:
             raise ValueError("AzureWebJobsStorage no configurado")
         
-        blob_service = BlobServiceClient.from_connection_string(connection_string)
+        blob_service = BlobServiceClient.from_connection_string(connect_str)
         container_name = "sylphrena-outputs"
-        
-        try:
-            blob_service.create_container(container_name)
-        except:
-            pass
+        try: blob_service.create_container(container_name)
+        except: pass
         
         container_client = blob_service.get_container_client(container_name)
         base_path = job_id
-        urls = {}
-        
-        # Helper para subir blobs
+
+        # Helper upload interno
         def upload_blob(path, content, content_type):
-            """Sube contenido y retorna la URL (simulación de URL pública)."""
-            # Guardar en Blob Storage
             blob_client = container_client.get_blob_client(path)
             content_bytes = content if isinstance(content, (str, bytes)) else json.dumps(content, indent=2, ensure_ascii=False)
-            blob_client.upload_blob(
-                content_bytes,
-                overwrite=True,
-                content_settings=ContentSettings(content_type=content_type)
-            )
-
-            # NUEVO: Si estamos en desarrollo local, también guardar en carpeta outputs
-            if connection_string and 'UseDevelopmentStorage=true' in connection_string:
-                try:
-                    import os
-                    # Obtener la raíz del proyecto (asumiendo que estamos en API_DURABLE/SaveOutputs)
-                    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-                    local_outputs = os.path.join(project_root, 'outputs')
-
-                    # Crear directorio outputs si no existe
-                    os.makedirs(local_outputs, exist_ok=True)
-
-                    # Extraer solo el nombre del archivo (sin la ruta del job_id)
-                    filename = os.path.basename(path)
-                    local_path = os.path.join(local_outputs, filename)
-
-                    # Guardar archivo localmente
-                    with open(local_path, 'w', encoding='utf-8') as f:
-                        if isinstance(content_bytes, bytes):
-                            f.write(content_bytes.decode('utf-8'))
-                        else:
-                            f.write(content_bytes)
-
-                    logging.info(f"[DEV] Archivo guardado localmente: {filename}")
-                except Exception as e:
-                    logging.warning(f"[DEV] No se pudo guardar localmente {path}: {e}")
-
-            # Retorna una URL que el Frontend puede usar para saber que el archivo existe
+            blob_client.upload_blob(content_bytes, overwrite=True, content_settings=ContentSettings(content_type=content_type))
             return f"https://{blob_service.account_name}.blob.core.windows.net/{container_name}/{path}"
 
+        # -----------------------------------------------------------------
+        # GUARDADO DE ARCHIVOS
+        # -----------------------------------------------------------------
 
-        # ─────────────────────────────────────────────────────────────────
-        # A. METADATA
-        # ─────────────────────────────────────────────────────────────────
-        metadata_counts = {
-            'original_chapters': len(set(ch.get('chapter_id') for ch in consolidated_chapters)),
-            'original_fragments': len(original_fragments) if original_fragments else len(consolidated_chapters)
-        }
-        
-        # Determinar el estado correcto: si tiene carta_editorial, está completado
+        # A. Metadata
+        # Detectar estado real: Si hay carta editorial, el proceso "narrativo" terminó
         final_status = 'completed' if carta_editorial else payload.get('status', 'processing')
-        # Normalizar 'success' a 'completed' para consistencia con el frontend
-        if final_status == 'success':
-            final_status = 'completed'
+        if final_status == 'success': final_status = 'completed'
 
         metadata = {
-            'job_id': job_id,
-            'book_name': book_name,
-            'version': 'Sylphrena 5.0',
-            'created_at': datetime.now().isoformat(),
-            'status': final_status,
-            'counts': metadata_counts
+            'job_id': job_id, 'book_name': book_name, 'version': 'Sylphrena 5.3',
+            'created_at': datetime.now().isoformat(), 'status': final_status,
+            'counts': {'chapters': len(consolidated_chapters)}
         }
-        
         urls['metadata'] = upload_blob(f"{base_path}/metadata.json", metadata, 'application/json')
-        logging.info("✅ Metadata guardada")
 
-        # ─────────────────────────────────────────────────────────────────
-        # B. BIBLIA (Ahora guardará correctamente porque el input ya es dict)
-        # ─────────────────────────────────────────────────────────────────
+        # B. Biblia
         if bible:
             urls['biblia_json'] = upload_blob(f"{base_path}/biblia_validada.json", bible, 'application/json')
-            
             biblia_md = generate_bible_markdown(bible)
             urls['biblia_narrativa'] = upload_blob(f"{base_path}/biblia_narrativa.md", biblia_md, 'text/markdown')
-            logging.info("✅ Biblia guardada")
 
-        # ─────────────────────────────────────────────────────────────────
-        # C. CARTA EDITORIAL (NUEVO 5.0)
-        # ─────────────────────────────────────────────────────────────────
+        # C. Carta Editorial
         if carta_editorial:
             urls['carta_editorial_json'] = upload_blob(f"{base_path}/carta_editorial.json", carta_editorial, 'application/json')
-            if carta_markdown:
-                urls['carta_editorial_md'] = upload_blob(f"{base_path}/carta_editorial.md", carta_markdown, 'text/markdown')
-            logging.info("✅ Carta Editorial guardada")
-        else:
-            logging.warning(f"⚠️ carta_editorial está vacía - NO se guardará archivo")
-            logging.warning(f"⚠️ Tipo de carta_editorial: {type(carta_editorial)}, valor: {carta_editorial}")
+        
+        # Prioridad de Markdown: Argumento directo > Texto dentro de JSON > Vacío
+        md_content = carta_markdown
+        if not md_content and isinstance(carta_editorial, dict):
+            md_content = carta_editorial.get('texto_completo', '')
+            
+        if md_content:
+            urls['carta_editorial_md'] = upload_blob(f"{base_path}/carta_editorial.md", md_content, 'text/markdown')
 
-        # ─────────────────────────────────────────────────────────────────
-        # D. NOTAS DE MARGEN (NUEVO 5.0)
-        # ─────────────────────────────────────────────────────────────────
+        # D. Notas Margen
         if margin_notes:
             urls['notas_margen'] = upload_blob(f"{base_path}/notas_margen.json", margin_notes, 'application/json')
-            logging.info(f"✅ {len(margin_notes.get('all_notes', [])) if margin_notes else 0} notas de margen guardadas")
 
-        # ─────────────────────────────────────────────────────────────────
-        # E. CAPÍTULOS CONSOLIDADOS Y CAMBIOS
-        # ─────────────────────────────────────────────────────────────────
+        # E. Capítulos y Cambios (El núcleo de la edición)
         if consolidated_chapters:
             urls['capitulos'] = upload_blob(f"{base_path}/capitulos_consolidados.json", consolidated_chapters, 'application/json')
-
-            logging.info("🔄 Estructurando cambios para editor...")
-            structured_changes = structure_changes(consolidated_chapters)
-
+            
+            # Generar estructura de cambios
+            logging.info("🔄 Estructurando cambios...")
+            # Usamos el input si viene calculado, o lo calculamos aquí
+            if 'cambios_estructurados' in payload:
+                structured_changes = payload['cambios_estructurados']
+            else:
+                structured_changes = structure_changes_safe(consolidated_chapters)
+            
             urls['cambios'] = upload_blob(f"{base_path}/cambios_estructurados.json", structured_changes, 'application/json')
-            logging.info(f"✅ {structured_changes.get('total_changes', 0)} cambios estructurados")
+            
+            # Reporte MD de cambios
+            reporte_md = generate_changes_report_v5(consolidated_chapters)
+            urls['reporte_cambios'] = upload_blob(f"{base_path}/reporte_cambios.md", reporte_md, 'text/markdown')
+
+        # F. Resumen Ejecutivo (JSON final para el frontend)
+        resumen = {
+            'job_id': job_id,
+            'book_name': book_name,
+            'version': 'Sylphrena 5.3',
+            'fecha_procesamiento': datetime.now().isoformat(),
+            'total_cambios': structured_changes.get('total_changes', 0), # <--- AHORA SEGURO
+            'total_notas': len(margin_notes.get('all_notes', [])) if margin_notes else 0,
+            'urls': urls
+        }
+        urls['resumen'] = upload_blob(f"{base_path}/resumen_ejecutivo.json", resumen, 'application/json')
+
+        logging.info(f"✅ SAVE OUTPUTS completado. Cambios: {structured_changes.get('total_changes', 0)}")
         
-        # ─────────────────────────────────────────────────────────────────
-        # F. REPORTE DE CAMBIOS Y RESUMEN FINAL
-        # ─────────────────────────────────────────────────────────────────
-        # (El resto de tu lógica de reporte y resumen final)
-        
-        # Si la fase 6 se completó (Biblia), pero no hay más datos,
-        # significa que estamos en el guardado intermedio (Fase 6).
-        is_final_save = bool(carta_editorial)
-        if is_final_save:
-            # Reporte de cambios (solo se genera si hay consolidated_chapters)
-            if consolidated_chapters:
-                cambios_md = generate_changes_report_v5(consolidated_chapters)
-                urls['reporte_cambios'] = upload_blob(f"{base_path}/reporte_cambios.md", cambios_md, 'text/markdown')
-
-            # Resumen final
-            total_caps_orig = metadata_counts.get('original_chapters', 0)
-            resumen = {
-                 # ... (Resumen de tu código original)
-                 'job_id': job_id,
-                 'book_name': book_name,
-                 'version': 'Sylphrena 5.0',
-                 'fecha_procesamiento': datetime.now().isoformat(),
-                 'capitulos_originales': total_caps_orig, 
-                 'capitulos_procesados': len(consolidated_chapters),
-                 'fragmentos_totales': metadata_counts.get('original_fragments', len(original_fragments) if original_fragments else 0),
-                 'total_cambios': structured_changes.get('total_changes', 0),
-                 'total_notas_margen': len(margin_notes.get('all_notes', [])) if margin_notes else 0,
-                 'estadisticas': statistics,
-                 'tiempos': tiempos,
-                 'archivos_generados': {
-                    'biblia_json': 'biblia_validada.json', 'biblia_md': 'biblia_narrativa.md',
-                    'carta_editorial_json': 'carta_editorial.json', 'carta_editorial_md': 'carta_editorial.md',
-                    'notas_margen': 'notas_margen.json', 'capitulos': 'capitulos_consolidados.json',
-                    'cambios': 'cambios_estructurados.json', 'reporte_cambios': 'reporte_cambios.md'
-                 },
-                 'urls': urls
-             }
-            urls['resumen'] = upload_blob(f"{base_path}/resumen_ejecutivo.json", resumen, 'application/json')
-            logging.info("✅ Resumen ejecutivo guardado")
-
-            # Capítulos individuales (solo en la fase final)
-            chapters_folder = f"{base_path}/capitulos_individuales"
-            for ch in consolidated_chapters:
-                 ch_id = ch.get('chapter_id', '?')
-                 title = ch.get('display_title', f'Capitulo_{ch_id}')
-                 safe_title = title.replace('/', '_').replace('\\', '_')[:50]
-                 upload_blob(f"{chapters_folder}/{safe_title}.json", ch, 'application/json')
-            logging.info(f"✅ {len(consolidated_chapters)} capítulos individuales guardados")
-
-        # ─────────────────────────────────────────────────────────────────
-        # RESUMEN FINAL DE RETORNO
-        # ─────────────────────────────────────────────────────────────────
-        logging.info("="*60)
-        logging.info("✅ SAVE OUTPUTS completado.")
-
         return {
             'status': 'success',
             'job_id': job_id,
             'urls': urls,
-            'files_saved': len(urls)
+            'stats': {'total_cambios': structured_changes.get('total_changes', 0)}
         }
 
     except Exception as e:
         logging.error(f"❌ Error en SaveOutputs: {str(e)}")
-        import traceback
-        logging.error(traceback.format_exc())
-        # Devolvemos el error al Orchestrator para que pueda registrar la falla
-        return {
-            'status': 'error',
-            'error': str(e)
-        }
+        # Retorno de error controlado para no tumbar la orquestación si ya se guardó algo
+        return {'status': 'error', 'error': str(e)}
