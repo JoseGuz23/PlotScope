@@ -135,7 +135,7 @@ RESPONDE ÚNICAMENTE CON JSON VÁLIDO:
   }},
   "_metadata": {{
     "analysis_layer": 2,
-    "model": "gemini-3-pro"
+    "model": "gemini-3-pro-preview"
   }}
 }}
 """

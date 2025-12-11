@@ -79,6 +79,8 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
             # --- CARTA EDITORIAL (NUEVO 5.0) ---
             if len(parts) >= 3 and parts[2] == 'editorial-letter':
                 if method == 'GET': return get_editorial_letter(job_id)
+                if method == 'POST' and len(parts) == 4 and parts[3] == 'regenerate':
+                    return regenerate_editorial_letter(job_id)
             
             # --- NOTAS DE MARGEN (NUEVO 5.0) ---
             if len(parts) >= 3 and parts[2] == 'margin-notes':
@@ -362,6 +364,144 @@ def get_editorial_letter(jid): return get_blob_json(jid, 'carta_editorial.json')
 
 # NUEVO 5.0: Notas de margen
 def get_margin_notes(jid): return get_blob_json(jid, 'notas_margen.json')
+
+# =============================================================================
+# REGENERAR CARTA EDITORIAL (Útil para debugging o regeneración manual)
+# =============================================================================
+
+def regenerate_editorial_letter(jid):
+    """
+    Regenera SOLO la carta editorial usando la biblia y datos existentes.
+    No requiere reprocesar todo el manuscrito.
+
+    Uso: POST /project/{jid}/editorial-letter/regenerate
+    """
+    try:
+        logging.info(f"🔄 Regenerando Carta Editorial para job: {jid}")
+
+        service = get_blob_service()
+        container = "sylphrena-outputs"
+
+        # 1. Cargar datos existentes del blob storage
+        try:
+            bible_blob = service.get_blob_client(container, f"{jid}/biblia_validada.json")
+            bible = json.loads(bible_blob.download_blob().readall())
+            logging.info(f"✅ Biblia cargada")
+        except Exception as e:
+            return error_response(f"No se encontró la biblia: {str(e)}", 404)
+
+        try:
+            chapters_blob = service.get_blob_client(container, f"{jid}/capitulos_consolidados.json")
+            consolidated_chapters = json.loads(chapters_blob.download_blob().readall())
+            logging.info(f"✅ Capítulos consolidados cargados ({len(consolidated_chapters)} caps)")
+        except Exception as e:
+            logging.warning(f"⚠️ No se encontraron capítulos consolidados: {e}")
+            consolidated_chapters = []
+
+        try:
+            meta_blob = service.get_blob_client(container, f"{jid}/metadata.json")
+            metadata = json.loads(meta_blob.download_blob().readall())
+            book_name = metadata.get('book_name', metadata.get('project_name', 'Sin título'))
+            logging.info(f"✅ Metadata cargada: {book_name}")
+        except Exception as e:
+            logging.warning(f"⚠️ No se encontró metadata: {e}")
+            book_name = "Sin título"
+
+        # 2. Importar y ejecutar GenerateEditorialLetter
+        try:
+            import importlib.util
+            import os
+
+            # Cargar el módulo GenerateEditorialLetter dinámicamente
+            gen_letter_path = os.path.join(os.path.dirname(__file__), '..', 'GenerateEditorialLetter', '__init__.py')
+            spec = importlib.util.spec_from_file_location("generate_editorial_letter", gen_letter_path)
+            gen_letter_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(gen_letter_module)
+
+            logging.info(f"✅ Módulo GenerateEditorialLetter cargado")
+            logging.info(f"🔄 Llamando a GenerateEditorialLetter...")
+
+            # Preparar input (fragments vacío ya que no es crítico para la carta)
+            carta_input = {
+                'bible': bible,
+                'consolidated_chapters': consolidated_chapters,
+                'fragments': [],  # No es crítico para carta editorial
+                'book_metadata': {
+                    'title': book_name,
+                    'job_id': jid
+                }
+            }
+
+            # Ejecutar la función main del módulo
+            carta_result = gen_letter_module.main(carta_input)
+
+            if carta_result.get('status') == 'error':
+                logging.error(f"❌ Error al generar carta: {carta_result.get('error')}")
+                return error_response(f"Error generando carta: {carta_result.get('error')}", 500)
+
+            logging.info(f"✅ Carta Editorial generada exitosamente")
+
+        except ImportError as e:
+            logging.error(f"❌ Error importando GenerateEditorialLetter: {e}")
+            return error_response(f"Error de importación: {str(e)}", 500)
+        except Exception as e:
+            logging.error(f"❌ Error ejecutando GenerateEditorialLetter: {e}")
+            import traceback
+            logging.error(traceback.format_exc())
+            return error_response(f"Error generando carta: {str(e)}", 500)
+
+        # 3. Guardar resultados en blob storage
+        carta_editorial = carta_result.get('carta_editorial', {})
+        carta_markdown = carta_result.get('carta_markdown', '')
+
+        if not carta_editorial:
+            logging.error(f"❌ carta_editorial está vacía")
+            return error_response("La carta editorial generada está vacía", 500)
+
+        try:
+            # Guardar JSON
+            carta_json_blob = service.get_blob_client(container, f"{jid}/carta_editorial.json")
+            carta_json_blob.upload_blob(
+                json.dumps(carta_editorial, ensure_ascii=False, indent=2),
+                overwrite=True
+            )
+            logging.info(f"✅ carta_editorial.json guardada")
+
+            # Guardar Markdown
+            if carta_markdown:
+                carta_md_blob = service.get_blob_client(container, f"{jid}/carta_editorial.md")
+                carta_md_blob.upload_blob(carta_markdown, overwrite=True)
+                logging.info(f"✅ carta_editorial.md guardada")
+
+            # Actualizar metadata para marcar como completed
+            try:
+                meta_blob = service.get_blob_client(container, f"{jid}/metadata.json")
+                if meta_blob.exists():
+                    meta = json.loads(meta_blob.download_blob().readall())
+                    meta['status'] = 'completed'
+                    meta['carta_regenerated_at'] = datetime.utcnow().isoformat() + 'Z'
+                    meta_blob.upload_blob(json.dumps(meta, ensure_ascii=False), overwrite=True)
+                    logging.info(f"✅ Metadata actualizada a 'completed'")
+            except Exception as e:
+                logging.warning(f"⚠️ No se pudo actualizar metadata: {e}")
+
+            return success_response({
+                'success': True,
+                'message': 'Carta Editorial regenerada exitosamente',
+                'job_id': jid,
+                'sections': list(carta_editorial.keys())[:5] if isinstance(carta_editorial, dict) else [],
+                'has_markdown': bool(carta_markdown)
+            })
+
+        except Exception as e:
+            logging.error(f"❌ Error guardando carta editorial: {e}")
+            return error_response(f"Error guardando carta: {str(e)}", 500)
+
+    except Exception as e:
+        logging.error(f"❌ Error general regenerando carta editorial: {e}")
+        import traceback
+        logging.error(traceback.format_exc())
+        return error_response(f"Error: {str(e)}", 500)
 
 # =============================================================================
 # FIX: save_all_decisions - ACTUALIZA en lugar de SOBRESCRIBIR

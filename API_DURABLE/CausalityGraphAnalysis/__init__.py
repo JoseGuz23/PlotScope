@@ -131,7 +131,7 @@ RESPONDE ÚNICAMENTE CON JSON VÁLIDO:
   }},
   "_metadata": {{
     "status": "success",
-    "model": "gemini-2.5-pro"
+    "model": "gemini-3-pro-preview"
   }}
 }}
 """
@@ -307,7 +307,7 @@ def main(chapters_consolidated) -> dict:
         # Agregar metadata
         causality_analysis['_metadata'] = {
             'status': 'success',
-            'model': 'gemini-2.5-pro',
+            'model': 'gemini-3-pro-preview',
             'total_events_analyzed': len(all_events),
             'processing_time_seconds': round(elapsed, 2)
         }

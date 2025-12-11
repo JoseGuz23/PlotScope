@@ -647,11 +647,28 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 carta_result = json.loads(carta_result)
             except Exception as e:
                 logging.error(f"[CRITICAL FIX] Falló deserialización de GenerateEditorialLetter: {e}")
-        
+                carta_result = {}
+
+        # VALIDACIÓN: Verificar que realmente se generó la carta
+        if not isinstance(carta_result, dict):
+            logging.error(f"[ERROR] GenerateEditorialLetter retornó tipo inválido: {type(carta_result)}")
+            carta_result = {}
+
         carta_editorial = carta_result.get('carta_editorial', {})
         carta_markdown = carta_result.get('carta_markdown', '')
-        
-        logging.info(f"[OK] Carta Editorial generada")
+
+        # DIAGNÓSTICO
+        if carta_result.get('status') == 'error':
+            logging.error(f"[ERROR] GenerateEditorialLetter falló: {carta_result.get('error', 'Unknown error')}")
+
+        if not carta_editorial:
+            logging.warning(f"[WARNING] carta_editorial está vacía. Result keys: {list(carta_result.keys())}")
+            logging.warning(f"[WARNING] carta_result completo: {json.dumps(carta_result, ensure_ascii=False)[:500]}")
+        else:
+            logging.info(f"[OK] Carta Editorial generada - Secciones: {list(carta_editorial.keys())[:5]}")
+
+        if not carta_markdown:
+            logging.warning(f"[WARNING] carta_markdown está vacía")
         
         t7 = context.current_utc_datetime
         tiempos['carta_editorial'] = str(t7 - t6)

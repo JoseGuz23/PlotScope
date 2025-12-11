@@ -11,7 +11,12 @@ export default function ResultsHub() {
   const [activeSubTab, setActiveSubTab] = useState('carta'); 
 
   // Si el proyecto no está disponible o no ha pasado las fases iniciales
-  if (project?.status !== 'completed' && project?.status !== 'failed' && project?.status !== 'terminated') {
+  // FIX: Aceptar tanto 'success' como 'completed' porque el backend puede retornar cualquiera de los dos
+  const isCompleted = project?.status === 'completed' || project?.status === 'success';
+  const isFailed = project?.status === 'failed';
+  const isTerminated = project?.status === 'terminated';
+
+  if (!isCompleted && !isFailed && !isTerminated) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-gray-50/50 text-center p-8">
         <div className="bg-white p-10 rounded-2xl shadow-lg border border-gray-100 max-w-md">
@@ -20,7 +25,7 @@ export default function ResultsHub() {
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Entregables No Disponibles</h2>
           <p className="text-gray-500 mb-6">
-            La Carta Editorial, las Notas de Margen y el Editor se generan después de la Fase de **Biblia Narrativa**. 
+            La Carta Editorial, las Notas de Margen y el Editor se generan después de la Fase de **Biblia Narrativa**.
             Por favor, revisa la pestaña anterior y aprueba la Biblia para continuar.
           </p>
           <Loader2 className="w-6 h-6 animate-spin text-theme-primary mx-auto" />

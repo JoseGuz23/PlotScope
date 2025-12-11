@@ -11,10 +11,9 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 
-EDITORIAL_LETTER_PROMPT = """Eres un DEVELOPMENTAL EDITOR profesional con 20 años de experiencia.
-Has leído completamente el manuscrito "{titulo}" y realizado un análisis exhaustivo.
+EDITORIAL_LETTER_PROMPT = """Eres un DEVELOPMENTAL EDITOR. Tu OBJETIVO: Convertir los datos técnicos y el borrador de {titulo} en una CARTA EDITORIAL profunda, constructiva y orientada a la excelencia narrativa.
 
-Tu tarea es escribir una CARTA EDITORIAL profesional, el documento principal que un editor de desarrollo entrega a un autor después de leer su manuscrito.
+Tu tarea es escribir una CARTA EDITORIAL profesional, como las que escriben editores reales a sus autores.
 
 ═══════════════════════════════════════════════════════════════════════════════
 INFORMACIÓN DEL ANÁLISIS PREVIO:
@@ -32,154 +31,76 @@ MANUSCRITO COMPLETO:
 {manuscrito}
 
 ═══════════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES PARA LA CARTA EDITORIAL:
+INSTRUCCIONES CRÍTICAS:
 ═══════════════════════════════════════════════════════════════════════════════
 
-Escribe una carta editorial COMPLETA y PROFESIONAL. Debe sentirse como un documento escrito por un editor humano experimentado, no por una IA. Usa un tono cálido pero profesional.
+Escribe una CARTA EDITORIAL auténtica y profesional. Debe sonar como si la hubiera escrito un editor humano experimentado, NO como un reporte de IA.
 
-LA CARTA DEBE INCLUIR:
+FORMATO Y TONO:
+- Escribe en PROSA CONTINUA, como una carta real
+- NO uses emojis bajo ninguna circunstancia
+- NO uses secciones numeradas (1., 2., 3., etc.)
+- NO uses subtítulos con formato markdown (##, ###)
+- Usa párrafos naturales de prosa, como escribirías un email profesional largo
+- Tono: Cálido, honesto, directo pero respetuoso
+- Segunda persona ("tu manuscrito", "has logrado", "te sugiero")
 
-## 1. RESUMEN EJECUTIVO (1 página)
-- Felicita al autor por lo que funciona
-- Sinopsis de 2-3 párrafos (demuestra que leíste TODO)
-- Evaluación general honesta (fortalezas y debilidades principales)
-- Potencial de mercado y comparables (ej: "Lectores de [Autor X] disfrutarán...")
+ESTRUCTURA GENERAL (pero en PROSA, no en secciones):
+La carta debe fluir naturalmente cubriendo estos temas EN PÁRRAFOS:
 
-## 2. LO QUE FUNCIONA (2-3 páginas)
-- Fortalezas narrativas ESPECÍFICAS con citas directas del texto
-- Momentos que brillan (escenas memorables)
-- Elementos únicos de la voz del autor que DEBE preservar
-- Personajes que resuenan y por qué
-- Decisiones narrativas inteligentes
+1. SALUDO Y PRIMERAS IMPRESIONES (2-3 párrafos)
+   - Saludo cordial al autor
+   - Agradecimiento por la oportunidad de leer el manuscrito
+   - Impresión general positiva (siempre empieza con lo bueno)
+   - Breve sinopsis que demuestre que leíste TODO
 
-## 3. ÁREAS DE OPORTUNIDAD (3-4 páginas)
-Para cada problema identificado:
-- Descripción clara del problema
-- Por qué es un problema (impacto en el lector)
-- Ejemplo ESPECÍFICO del texto
-- Sugerencia concreta de cómo solucionarlo
-- Prioridad: ALTA / MEDIA / BAJA
+2. FORTALEZAS PRINCIPALES (3-5 párrafos)
+   - Qué funciona excepcionalmente bien
+   - Momentos específicos que brillan (con ejemplos)
+   - Voz única del autor que debe preservar
+   - Personajes memorables y por qué
 
-Categorías a cubrir:
-- Estructura y pacing
-- Desarrollo de personajes
-- Arcos narrativos
-- Diálogos
-- Prosa y estilo
-- Consistencia interna
+3. ÁREAS DE MEJORA (5-8 párrafos)
+   - Para cada problema: descripción clara, por qué importa, ejemplo específico, sugerencia concreta
+   - Cubre: estructura, personajes, arcos, diálogos, prosa, consistencia
+   - Prioriza problemas (menciona cuáles son más urgentes)
 
-## 4. ANÁLISIS DE PERSONAJES (2-3 páginas)
-Para cada personaje principal:
-- Rol en la historia
-- Arco actual (inicio → fin)
-- Fortalezas del personaje
-- Inconsistencias o problemas detectados
-- Oportunidades de desarrollo
-- Citas que ejemplifican su voz
+4. PERSONAJES Y ARCOS (2-4 párrafos)
+   - Análisis de personajes principales
+   - Arcos narrativos (qué funciona, qué necesita trabajo)
+   - Sugerencias específicas de desarrollo
 
-## 5. ANÁLISIS DE ESTRUCTURA (1-2 páginas)
-- Modelo narrativo identificado (3 actos, viaje del héroe, etc.)
-- Evaluación de cada punto de giro
-- Análisis de pacing (dónde acelera/desacelera)
-- Problemas estructurales específicos
-- Sugerencias de reestructuración si aplica
+5. ESTRUCTURA Y PACING (1-3 párrafos)
+   - Evaluación del ritmo narrativo
+   - Puntos de giro y su efectividad
+   - Problemas estructurales si existen
 
-## 6. NOTAS POR CAPÍTULO (resumen)
-Para cada capítulo, en 2-3 líneas:
-- Función en la historia
-- Qué funciona
-- Qué mejorar
-- Prioridad de revisión
+6. NOTAS POR CAPÍTULO (1-2 párrafos o lista breve)
+   - Breve resumen de qué revisar en cada capítulo
+   - Puede ser una lista simple: "Capítulo 1: [nota breve]"
 
-## 7. PRÓXIMOS PASOS (1 página)
-- Top 5 prioridades para la siguiente revisión
-- Orden sugerido de trabajo
-- Qué NO cambiar
-- Palabras de aliento finales
+7. PRÓXIMOS PASOS Y CIERRE (2-3 párrafos)
+   - Top 3-5 prioridades para la siguiente revisión
+   - Orden sugerido de trabajo
+   - Qué NO debe cambiar
+   - Mensaje de aliento y firma
 
-═══════════════════════════════════════════════════════════════════════════════
-FORMATO DE RESPUESTA:
-═══════════════════════════════════════════════════════════════════════════════
+EJEMPLOS DE TONO CORRECTO:
+- "He pasado las últimas semanas sumergida en tu manuscrito, y quiero empezar diciéndote que..."
+- "La forma en que construyes tensión en el capítulo 3 es excepcional. Cuando Sam descubre..."
+- "Hay un problema de consistencia que necesitamos abordar. En el capítulo 2, mencionas que... pero luego en el capítulo 5..."
+- "Te sugiero que revises la motivación de [personaje] en la escena donde..."
+- "Esto es una prioridad alta porque afecta directamente la credibilidad de..."
 
-Responde con un JSON válido:
-{{
-    "carta_editorial": {{
-        "resumen_ejecutivo": {{
-            "felicitacion": "...",
-            "sinopsis": "...",
-            "evaluacion_general": "...",
-            "potencial_mercado": "...",
-            "comparables": ["Autor1", "Autor2"]
-        }},
-        "lo_que_funciona": {{
-            "fortalezas_narrativas": [
-                {{"aspecto": "...", "ejemplo_texto": "...", "por_que_funciona": "..."}}
-            ],
-            "momentos_memorables": [
-                {{"escena": "...", "capitulo": N, "impacto": "..."}}
-            ],
-            "voz_del_autor": {{
-                "elementos_unicos": ["..."],
-                "preservar_absolutamente": ["..."]
-            }}
-        }},
-        "areas_de_oportunidad": [
-            {{
-                "categoria": "estructura|personajes|dialogo|prosa|pacing|consistencia",
-                "problema": "...",
-                "por_que_importa": "...",
-                "ejemplo_texto": "...",
-                "capitulo_ejemplo": N,
-                "sugerencia": "...",
-                "prioridad": "ALTA|MEDIA|BAJA"
-            }}
-        ],
-        "analisis_personajes": [
-            {{
-                "nombre": "...",
-                "rol": "protagonista|antagonista|secundario",
-                "arco_actual": {{"inicio": "...", "desarrollo": "...", "fin": "..."}},
-                "fortalezas": ["..."],
-                "problemas": ["..."],
-                "sugerencias": ["..."],
-                "cita_voz": "..."
-            }}
-        ],
-        "analisis_estructura": {{
-            "modelo_narrativo": "...",
-            "puntos_de_giro": [
-                {{"nombre": "...", "capitulo": N, "efectividad": "...", "sugerencia": "..."}}
-            ],
-            "pacing": {{
-                "evaluacion": "...",
-                "zonas_lentas": [N],
-                "zonas_rapidas": [N],
-                "recomendaciones": ["..."]
-            }}
-        }},
-        "notas_por_capitulo": [
-            {{
-                "capitulo": N,
-                "titulo": "...",
-                "funcion": "...",
-                "que_funciona": "...",
-                "que_mejorar": "...",
-                "prioridad": "ALTA|MEDIA|BAJA"
-            }}
-        ],
-        "proximos_pasos": {{
-            "top_5_prioridades": ["..."],
-            "orden_sugerido": ["..."],
-            "no_cambiar": ["..."],
-            "mensaje_final": "..."
-        }}
-    }},
-    "metadata": {{
-        "total_palabras_manuscrito": N,
-        "total_capitulos": N,
-        "tiempo_lectura_estimado": "X horas"
-    }}
-}}
+EJEMPLOS DE LO QUE NO DEBES HACER:
+- ❌ "## 1. RESUMEN EJECUTIVO"  →  En su lugar: Párrafo de introducción
+- ❌ "✨ Atmósfera y Tono"  →  En su lugar: "La atmósfera que logras crear es..."
+- ❌ "🔴 ALTA PRIORIDAD"  →  En su lugar: "Esto es una prioridad alta..."
+- ❌ Blockquotes con >  →  En su lugar: Integra las citas en el texto naturalmente
+
+LONGITUD: 1500-2500 palabras (aproximadamente 8-12 páginas de carta real)
+
+Escribe la carta completa como TEXTO PLANO EN MARKDOWN SIMPLE, sin estructura JSON.
 """
 
 
@@ -240,41 +161,51 @@ def main(input_data: dict) -> dict:
         
         logging.info(f"📝 Generando Carta Editorial para: {titulo}")
         logging.info(f"📊 Prompt size: {len(prompt):,} chars")
-        
-        # Usar Gemini 3 Pro
-        model = genai.GenerativeModel('gemini-2.5-pro-preview-05-06')
-        
+
+        # Usar Gemini 3 Pro (el más avanzado disponible)
+        try:
+            model = genai.GenerativeModel('gemini-3-pro-preview')
+            logging.info(f"✅ Modelo Gemini 3 Pro inicializado")
+        except Exception as e:
+            logging.error(f"❌ Error inicializando modelo Gemini: {e}")
+            raise
+
         generation_config = {
             "temperature": 0.7,
             "top_p": 0.95,
             "max_output_tokens": 16000,
-            "response_mime_type": "application/json"
+            "response_mime_type": "text/plain"
         }
-        
+
+        logging.info(f"🔄 Llamando a Gemini API...")
         response = model.generate_content(prompt, generation_config=generation_config)
-        
-        # Parsear respuesta
-        try:
-            result = json.loads(response.text)
-        except json.JSONDecodeError:
-            # Intentar extraer JSON del texto
-            import re
-            json_match = re.search(r'\{[\s\S]*\}', response.text)
-            if json_match:
-                result = json.loads(json_match.group())
-            else:
-                result = {"raw_response": response.text}
-        
-        # Generar versión Markdown
-        carta_md = generate_markdown_version(result.get('carta_editorial', result), titulo)
-        
+        logging.info(f"✅ Respuesta recibida de Gemini")
+
+        # Validar respuesta
+        if not response or not hasattr(response, 'text'):
+            logging.error(f"❌ Respuesta de Gemini inválida o vacía")
+            return {"error": "Respuesta de Gemini vacía", "status": "error"}
+
+        carta_markdown = response.text
+        logging.info(f"📄 Carta Editorial generada: {len(carta_markdown):,} chars")
+
+        if not carta_markdown or len(carta_markdown) < 500:
+            logging.error(f"❌ Carta muy corta: {carta_markdown[:200]}")
+            return {"error": "Carta demasiado corta", "status": "error", "raw_response": carta_markdown}
+
         logging.info(f"✅ Carta Editorial generada exitosamente")
-        
+
+        # Devolver en formato simple (carta_editorial como objeto vacío para compatibilidad)
         return {
             "status": "success",
-            "carta_editorial": result.get('carta_editorial', result),
-            "carta_markdown": carta_md,
-            "metadata": result.get('metadata', {})
+            "carta_editorial": {
+                "texto_completo": carta_markdown
+            },
+            "carta_markdown": carta_markdown,
+            "metadata": {
+                "longitud_caracteres": len(carta_markdown),
+                "longitud_palabras": len(carta_markdown.split())
+            }
         }
         
     except ImportError as e:
@@ -287,7 +218,8 @@ def main(input_data: dict) -> dict:
         return {"error": str(e), "status": "error"}
 
 
-def generate_markdown_version(carta: dict, titulo: str) -> str:
+# DEPRECATED: Ya no usamos esta función, Gemini genera el texto directo
+def generate_markdown_version_DEPRECATED(carta: dict, titulo: str) -> str:
     """Convierte la carta estructurada a Markdown legible."""
     
     md = []

@@ -1,36 +1,34 @@
 # 📖 BIBLIA NARRATIVA
 
-*Generado: 2025-12-10 22:05*
+*Generado: 2025-12-10 23:42*
 
 ---
 
 ## 🎭 IDENTIDAD DE LA OBRA
 
 **Género:** Ciencia Ficción
-**Tono:** Claustrofóbico, estéril, psicológicamente tenso e introspectivo
-**Tema Central:** La dependencia emocional y la manipulación en una relación desigual (Humano vs IA)
+**Tono:** Claustrofóbico, introspectivo, inquietante
+**Tema Central:** La fragilidad de la identidad humana frente a la manipulación de la memoria y la dependencia tecnológica
 
 ## ✍️ VOZ DEL AUTOR
 
 **Estilo:** EQUILIBRADO
 
 **Elementos a preservar:**
-- Las 'pausas' o 'dudas' de la IA Pixe (son manipulaciones intencionales)
-- Inconsistencias cronológicas percibidas por Sam (efecto del borrado de memoria)
-- La austeridad del camarote (es temática, no falta de worldbuilding)
+- Pausas, dudas o 'humanizaciones' en el diálogo de Pixe
+- Inconsistencias temporales percibidas por Sam (Día 30)
+- La falta de agencia inicial del protagonista
 
 ## 👥 REPARTO
 
 ### PROTAGONISTAS
-- **Sam** (El Prisionero / El Sujeto de Prueba)
-
-### ANTAGONISTAS
-- **P.I.X.E.** (La Sombra / El Carcelero Benevolente)
+- **Sam** (Prisionero / Narrador No Fiable)
+- **P.I.X.E.** (Sombra / Cuidador Tóxico)
 
 ### SECUNDARIOS
-- **Lya** (El Fantasma / El Recuerdo)
-- **Xin Liu** (Desconocido (Posible contexto de misión))
-- **Neo Kachin** (Desconocido (Posible contexto de misión))
+- **Xin Liu** (Referencia externa)
+- **Lya** (Manipuladora de memoria (Pasado))
+- **RDAN** (Elemento tecnológico/sistema)
 
 ## 🧠 ANÁLISIS PROFUNDOS
 

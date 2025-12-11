@@ -233,12 +233,41 @@ def main(input_data: Any) -> dict:
         # Helper para subir blobs
         def upload_blob(path, content, content_type):
             """Sube contenido y retorna la URL (simulación de URL pública)."""
+            # Guardar en Blob Storage
             blob_client = container_client.get_blob_client(path)
+            content_bytes = content if isinstance(content, (str, bytes)) else json.dumps(content, indent=2, ensure_ascii=False)
             blob_client.upload_blob(
-                content if isinstance(content, (str, bytes)) else json.dumps(content, indent=2, ensure_ascii=False), 
+                content_bytes,
                 overwrite=True,
                 content_settings=ContentSettings(content_type=content_type)
             )
+
+            # NUEVO: Si estamos en desarrollo local, también guardar en carpeta outputs
+            if connection_string and 'UseDevelopmentStorage=true' in connection_string:
+                try:
+                    import os
+                    # Obtener la raíz del proyecto (asumiendo que estamos en API_DURABLE/SaveOutputs)
+                    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+                    local_outputs = os.path.join(project_root, 'outputs')
+
+                    # Crear directorio outputs si no existe
+                    os.makedirs(local_outputs, exist_ok=True)
+
+                    # Extraer solo el nombre del archivo (sin la ruta del job_id)
+                    filename = os.path.basename(path)
+                    local_path = os.path.join(local_outputs, filename)
+
+                    # Guardar archivo localmente
+                    with open(local_path, 'w', encoding='utf-8') as f:
+                        if isinstance(content_bytes, bytes):
+                            f.write(content_bytes.decode('utf-8'))
+                        else:
+                            f.write(content_bytes)
+
+                    logging.info(f"[DEV] Archivo guardado localmente: {filename}")
+                except Exception as e:
+                    logging.warning(f"[DEV] No se pudo guardar localmente {path}: {e}")
+
             # Retorna una URL que el Frontend puede usar para saber que el archivo existe
             return f"https://{blob_service.account_name}.blob.core.windows.net/{container_name}/{path}"
 
@@ -251,12 +280,18 @@ def main(input_data: Any) -> dict:
             'original_fragments': len(original_fragments) if original_fragments else len(consolidated_chapters)
         }
         
+        # Determinar el estado correcto: si tiene carta_editorial, está completado
+        final_status = 'completed' if carta_editorial else payload.get('status', 'processing')
+        # Normalizar 'success' a 'completed' para consistencia con el frontend
+        if final_status == 'success':
+            final_status = 'completed'
+
         metadata = {
             'job_id': job_id,
             'book_name': book_name,
             'version': 'Sylphrena 5.0',
             'created_at': datetime.now().isoformat(),
-            'status': payload.get('status', 'processing'),
+            'status': final_status,
             'counts': metadata_counts
         }
         
@@ -281,6 +316,9 @@ def main(input_data: Any) -> dict:
             if carta_markdown:
                 urls['carta_editorial_md'] = upload_blob(f"{base_path}/carta_editorial.md", carta_markdown, 'text/markdown')
             logging.info("✅ Carta Editorial guardada")
+        else:
+            logging.warning(f"⚠️ carta_editorial está vacía - NO se guardará archivo")
+            logging.warning(f"⚠️ Tipo de carta_editorial: {type(carta_editorial)}, valor: {carta_editorial}")
 
         # ─────────────────────────────────────────────────────────────────
         # D. NOTAS DE MARGEN (NUEVO 5.0)

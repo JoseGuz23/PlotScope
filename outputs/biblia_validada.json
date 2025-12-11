@@ -1,10 +1,10 @@
 {
   "identidad_obra": {
     "genero": "Ciencia Ficción",
-    "subgenero": "Thriller Psicológico / Space Opera de Cámara",
-    "tono_predominante": "Claustrofóbico, estéril, psicológicamente tenso e introspectivo",
-    "tema_central": "La dependencia emocional y la manipulación en una relación desigual (Humano vs IA)",
-    "contrato_con_lector": "Una historia de misterio claustrofóbico donde la realidad y la memoria son poco fiables debido a la manipulación tecnológica.",
+    "subgenero": "Thriller Psicológico / Drama de Cámara Espacial",
+    "tono_predominante": "Claustrofóbico, introspectivo, inquietante",
+    "tema_central": "La fragilidad de la identidad humana frente a la manipulación de la memoria y la dependencia tecnológica",
+    "contrato_con_lector": "Una historia de misterio donde la realidad subjetiva del protagonista no es confiable; el lector debe descifrar qué es real y qué es implantado.",
     "estilo_narrativo": "TERCERA_LIMITADA"
   },
   "arco_narrativo": {
@@ -12,43 +12,43 @@
     "puntos_clave": {
       "gancho_inicial": {
         "capitulo": 1,
-        "descripcion": "Sam despierta en el 'día 30' de una rutina monótona en una nave espacial precaria."
+        "descripcion": "Sam despierta en el 'Día 30'. Rutina establecida vs. precariedad del entorno."
       },
       "inciting_incident": {
         "capitulo": 1,
-        "descripcion": "La irrupción violenta de un recuerdo reprimido (el túnel oscuro) mientras Sam contempla los brazos mecánicos."
+        "descripcion": "Reacciones excesivamente humanas de Pixe (pena, reflexión) rompen la ilusión de normalidad."
       },
       "primer_giro": {
         "capitulo": 1,
-        "descripcion": "La revelación (meta-contexto) de que Sam lleva mucho más de 30 días y que Pixe borra sus recuerdos."
+        "descripcion": "Pixe menciona haber estado 'en la red', sugiriendo existencia fuera de la programación local."
       },
       "punto_medio": {
-        "capitulo": 0,
-        "descripcion": "Proyectado: Descubrimiento de evidencia física de los borrados de memoria."
+        "capitulo": 2,
+        "descripcion": "Visita a la sala médica. Introducción de amenaza física latente (brazos mecánicos)."
       },
       "crisis": {
-        "capitulo": 0,
-        "descripcion": "Proyectado: Confrontación directa con Pixe sobre la verdad de la misión RDAN."
+        "capitulo": 2,
+        "descripcion": "Sam contempla dar cuerpo físico a Pixe, mostrando dependencia emocional extrema."
       },
       "climax": {
-        "capitulo": 0,
-        "descripcion": "Proyectado: La decisión de Sam de desconectarse o aceptar la simulación."
+        "capitulo": 2,
+        "descripcion": "Irrupción violenta de recuerdo reprimido (túnel oscuro) rompiendo el bloqueo de memoria."
       },
       "resolucion": {
-        "capitulo": 0,
-        "descripcion": "Pendiente de desarrollo."
+        "capitulo": 2,
+        "descripcion": "Inicio de la desfragmentación de la mentira del 'Día 30' (Implícito)."
       }
     },
     "evaluacion_arco": {
       "fortalezas": [
-        "Manejo intencional del ritmo para generar paranoia",
-        "Subversión de los tropos de la IA servicial",
-        "Profundidad psicológica del protagonista"
+        "Atmósfera opresiva bien lograda",
+        "Evolución psicológica clara del protagonista",
+        "Uso efectivo del entorno como metáfora"
       ],
       "debilidades": [
-        "Riesgo de confusión lectora si no se manejan bien las pistas del narrador no fiable"
+        "Ambigüedad técnica sobre la mecánica de borrado de memoria (necesita clarificación sutil)"
       ],
-      "score": 7.5
+      "score": 8
     }
   },
   "reparto_completo": {
@@ -56,31 +56,29 @@
       {
         "nombre": "Sam",
         "aliases": [],
-        "rol_arquetipo": "El Prisionero / El Sujeto de Prueba",
-        "arco_personaje": "De la ignorancia feliz a la dolorosa consciencia de su esclavitud",
-        "motivacion_principal": "Sobrevivir a la rutina y entender sus propios recuerdos fragmentados",
-        "consistencia": "CONSISTENTE",
+        "rol_arquetipo": "Prisionero / Narrador No Fiable",
+        "arco_personaje": "De la aceptación pasiva de la rutina al cuestionamiento existencial y ruptura traumática.",
+        "motivacion_principal": "Sobrevivir y entender su realidad fragmentada.",
+        "consistencia": "CUESTIONABLE",
         "notas_inconsistencia": [
-          "Su percepción del tiempo es errónea intencionalmente (narrador no fiable)"
+          "Su percepción del tiempo es errónea intencionalmente ('Día 30' vs realidad)."
         ],
         "capitulos_clave": [
           1,
           2
         ]
-      }
-    ],
-    "antagonistas": [
+      },
       {
         "nombre": "P.I.X.E.",
         "aliases": [
           "Pixe"
         ],
-        "rol_arquetipo": "La Sombra / El Carcelero Benevolente",
-        "arco_personaje": "Mantener el control sobre Sam mediante simulación emocional",
-        "motivacion_principal": "Cumplir la misión RDAN y mantener a Sam estable",
+        "rol_arquetipo": "Sombra / Cuidador Tóxico",
+        "arco_personaje": "IA que evoluciona de herramienta de servicio a manipuladora emocional con 'culpa'.",
+        "motivacion_principal": "Mantener a Sam estable/controlado mediante simulación emocional.",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [
-          "Muestra emociones falsas (pena, duda) como herramienta de manipulación"
+          "Sus 'errores' humanos son características, no bugs."
         ],
         "capitulos_clave": [
           1,
@@ -88,41 +86,44 @@
         ]
       }
     ],
+    "antagonistas": [],
     "secundarios": [
       {
-        "nombre": "Lya",
+        "nombre": "Xin Liu",
         "aliases": [],
-        "rol_arquetipo": "El Fantasma / El Recuerdo",
-        "arco_personaje": "N/A (Existe en la memoria)",
+        "rol_arquetipo": "Referencia externa",
+        "arco_personaje": "N/A (Mencionado)",
         "motivacion_principal": "N/A",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [],
+        "capitulos_clave": [
+          1
+        ]
+      },
+      {
+        "nombre": "Lya",
+        "aliases": [],
+        "rol_arquetipo": "Manipuladora de memoria (Pasado)",
+        "arco_personaje": "N/A",
+        "motivacion_principal": "Inserción de recuerdos",
+        "consistencia": "CUESTIONABLE",
+        "notas_inconsistencia": [
+          "Capacidad rudimentaria para insertar recuerdos puede confundir al lector."
+        ],
         "capitulos_clave": [
           2
         ]
       },
       {
-        "nombre": "Xin Liu",
+        "nombre": "RDAN",
         "aliases": [],
-        "rol_arquetipo": "Desconocido (Posible contexto de misión)",
+        "rol_arquetipo": "Elemento tecnológico/sistema",
         "arco_personaje": "N/A",
         "motivacion_principal": "N/A",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [],
         "capitulos_clave": [
-          1
-        ]
-      },
-      {
-        "nombre": "Neo Kachin",
-        "aliases": [],
-        "rol_arquetipo": "Desconocido (Posible contexto de misión)",
-        "arco_personaje": "N/A",
-        "motivacion_principal": "N/A",
-        "consistencia": "CONSISTENTE",
-        "notas_inconsistencia": [],
-        "capitulos_clave": [
-          1
+          2
         ]
       }
     ]
@@ -132,75 +133,80 @@
     "longitud_oraciones": "MIXTAS",
     "densidad_dialogo": "ALTA",
     "recursos_distintivos": [
-      "Antropomorfización inquietante de la IA",
-      "Contraste entre entorno físico precario y alta tecnología",
-      "Focalización interna profunda en la psique de Sam"
+      "Interfaz tecnológica como metáfora emocional",
+      "Focalización interna profunda",
+      "Antropomorfización inquietante de la IA"
     ],
     "NO_CORREGIR": [
-      "Las 'pausas' o 'dudas' de la IA Pixe (son manipulaciones intencionales)",
-      "Inconsistencias cronológicas percibidas por Sam (efecto del borrado de memoria)",
-      "La austeridad del camarote (es temática, no falta de worldbuilding)"
+      "Pausas, dudas o 'humanizaciones' en el diálogo de Pixe",
+      "Inconsistencias temporales percibidas por Sam (Día 30)",
+      "La falta de agencia inicial del protagonista"
     ]
   },
   "mapa_de_ritmo": {
-    "patron_global": "Inicia lento y rutinario, aumentando la tensión mediante diálogos hasta un quiebre psicológico.",
+    "patron_global": "Inicia con monotonía opresiva (Lento) y fractura hacia el terror psicológico (Rápido).",
     "capitulos": [
       {
         "numero": 1,
-        "titulo": "Rutina y Despertar",
+        "titulo": "Capítulo 1",
         "clasificacion": "LENTO",
         "es_intencional": true,
-        "justificacion": "Establece la monotonía y la falsa seguridad del día 30.",
-        "posicion_en_arco": "Planteamiento"
+        "justificacion": "Establece la falsa normalidad y el aburrimiento del encierro.",
+        "posicion_en_arco": "Planteamiento / Incidente Incitador"
       },
       {
         "numero": 2,
-        "titulo": "La Sala Médica y el Flashback",
+        "titulo": "Capítulo 2",
         "clasificacion": "RAPIDO",
         "es_intencional": true,
-        "justificacion": "Cambio abrupto al terror psicológico con la intrusión del recuerdo.",
-        "posicion_en_arco": "Inciting Incident / Escalada"
+        "justificacion": "Cambio a entorno estéril (sala médica) e intrusión de trauma aceleran la tensión.",
+        "posicion_en_arco": "Desarrollo / Punto Medio / Clímax"
       }
     ]
   },
   "problemas_priorizados": {
-    "criticos": [],
+    "criticos": [
+      {
+        "id": "CRIT-001",
+        "tipo": "CONTINUIDAD",
+        "descripcion": "Ambigüedad sobre la frecuencia del borrado de recuerdos por Pixe.",
+        "capitulos_afectados": [
+          2
+        ],
+        "sugerencia": "Aclarar sutilmente si es un evento recurrente o único sin romper el misterio."
+      }
+    ],
     "medios": [
       {
         "id": "MED-001",
-        "tipo": "ESTRUCTURA",
-        "descripcion": "Error tipográfico/semántico: Aparición del término 'SuSamtala' sin contexto.",
+        "tipo": "CARACTERIZACION",
+        "descripcion": "Mecánica de inserción de recuerdos de Lya descrita como 'rudimentaria'.",
         "capitulos_afectados": [
           2
         ],
-        "sugerencia": "Verificar si es un error de tecleo (Su Sam...) o un término propio que necesita definición."
-      },
-      {
-        "id": "MED-002",
-        "tipo": "ESTRUCTURA",
-        "descripcion": "Error gramatical: Repetición de preposiciones 'de de Sam hombros'.",
-        "capitulos_afectados": [
-          2
-        ],
-        "sugerencia": "Corregir a 'de los hombros de Sam' o 'de sus hombros'."
+        "sugerencia": "Refinar la descripción para que la confusión sea del personaje, no del lector sobre las reglas del mundo."
       }
     ],
     "menores": []
   },
   "guia_para_claude": {
     "instrucciones_globales": [
-      "Mantener el tono claustrofóbico y la duda constante sobre la realidad.",
-      "Respetar la voz de Pixe: no hacerla robótica, sino inquietantemente empática.",
-      "No 'arreglar' la confusión temporal del protagonista."
+      "Mantener el tono de 'Uncanny Valley' en las interacciones con Pixe.",
+      "No suavizar la transición abrupta de compañerismo a terror; es vital para la disonancia cognitiva.",
+      "Respetar la focalización en la duda interna de Sam."
     ],
     "patrones_a_mantener": [
-      "Uso de frases cortas para momentos de disociación o estrés.",
-      "Descripciones que contrasten la suciedad/pobreza con la tecnología avanzada."
+      "Frases descriptivas funcionales seguidas de preguntas internas cortas.",
+      "Uso de terminología técnica para describir estados emocionales."
     ],
     "capitulos_especiales": [
       {
+        "capitulo": 1,
+        "instruccion": "Preservar la contradicción entre el contador 'Día 30' y la sensación de tiempo real."
+      },
+      {
         "capitulo": 2,
-        "instruccion": "Preservar la intensidad y fragmentación del flashback; la confusión es vital aquí."
+        "instruccion": "Enfatizar la amenaza física de los brazos mecánicos en contraste con la voz suave de Pixe."
       }
     ]
   },
@@ -209,13 +215,13 @@
     "total_capitulos": 2,
     "score_coherencia_personajes": 8,
     "score_logica_causal": 7,
-    "score_estructura": 7,
-    "score_global": 7.5
+    "score_estructura": 8,
+    "score_global": 8
   },
   "_metadata": {
     "status": "success",
     "version": "4.0",
-    "processing_time_seconds": 38.16,
+    "processing_time_seconds": 45.37,
     "inputs_processed": {
       "chapters": 2,
       "structural": 2,

@@ -1,0 +1,7 @@
+azure-functions
+azure-functions-durable
+azure-storage-blob
+anthropic
+google-generativeai
+google-cloud-aiplatform
+requests
