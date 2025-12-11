@@ -1,31 +1,34 @@
 # 📖 BIBLIA NARRATIVA
 
-*Generado: 2025-12-11 04:43*
+*Generado: 2025-12-11 14:05*
 
 ---
 
 ## 🎭 IDENTIDAD DE LA OBRA
 
-**Género:** Fantasía Oscura
-**Tono:** Visceral, Opresivo, Fatalista
-**Tema Central:** La indefensión absoluta ante la crueldad jerárquica y el destino
+**Género:** Fantasía Oscura (Grimdark)
+**Tono:** Visceral, opresivo, sensorial y sombrío
+**Tema Central:** La fragilidad humana frente a la crueldad (humana y natural)
 
 ## ✍️ VOZ DEL AUTOR
 
-**Estilo:** EQUILIBRADO
+**Estilo:** POETICO
 
 **Elementos a preservar:**
-- La crudeza de la violencia (es género Grimdark)
-- La repetición de conceptos como el frío o el temblor (efecto hipnótico intencional)
-- El pesimismo inherente a la narración
+- Término 'Cuernomuro'
+- Uso de 'cobertijo' (verificar intencionalidad arcaica)
+- Descripciones de violencia explícita (necesarias para el género)
+- Arquitectura basada en huesos
 
 ## 👥 REPARTO
 
 ### PROTAGONISTAS
-- **Ana** (Víctima / Superviviente)
+- **Ana** (La Sobreviviente / La Víctima)
 
 ### ANTAGONISTAS
-- **El Amo** (Tirano Doméstico)
+- **El Frío / El Entorno** (Fuerza de la Naturaleza)
+- **El Amo y La Esposa** (Opresores)
 
 ### SECUNDARIOS
-- **El niño** (Agresor infantil)
+- **Cuernomuro** (Bestia de Carga)
+- **La Guerrera** (Figura de autoridad/transporte)

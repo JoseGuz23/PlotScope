@@ -5,7 +5,8 @@
       "Bash(pip install:*)",
       "Bash(python -m pip install:*)",
       "Bash(python:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(unzip:*)"
     ]
   }
 }

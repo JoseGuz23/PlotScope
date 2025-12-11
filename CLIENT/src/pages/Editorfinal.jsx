@@ -35,24 +35,31 @@ export default function Editor() {
       const [summaryData, changesData, chaptersData] = await Promise.all([
         manuscriptAPI.getSummary(projectId).catch(() => null),
         manuscriptAPI.getChanges(projectId).catch(() => ({ changes: [] })),
-        manuscriptAPI.getChapters(projectId).catch(() => ({ chapters: [] })),
+        manuscriptAPI.getChapters(projectId).catch(() => []),
       ]);
-      
+
       setSummary(summaryData);
       setChanges(changesData.changes || []);
-      
-      // Usar capítulos del backend si existen, sino extraer de cambios
-      if (chaptersData.chapters && chaptersData.chapters.length > 0) {
-        setChapters(chaptersData.chapters);
+
+      // FIX: El backend devuelve un array directamente, no un objeto con propiedad 'chapters'
+      if (Array.isArray(chaptersData) && chaptersData.length > 0) {
+        // Normalizar estructura: asegurar que tengan display_title
+        const normalizedChapters = chaptersData.map(ch => ({
+          ...ch,
+          display_title: ch.original_title || ch.display_title || `Capítulo ${ch.chapter_id}`
+        }));
+        setChapters(normalizedChapters);
+        console.log('✅ Capítulos cargados correctamente:', normalizedChapters.length);
       } else {
+        // Fallback: extraer de cambios si no hay capítulos disponibles
+        console.warn('⚠️ No se encontraron capítulos, usando fallback desde cambios');
         const changesArray = changesData.changes || [];
         const uniqueChapters = [...new Set(changesArray.map(c => c.chapter_id))].sort((a, b) => a - b);
         setChapters(uniqueChapters.map(id => ({
           chapter_id: id,
           display_title: changesArray.find(c => c.chapter_id === id)?.chapter_title || `Capítulo ${id}`,
-          // Si no hay capítulos, al menos inicializar las bases para la lógica de exportación
-          contenido_editado: '', 
-          contenido_original: '' 
+          contenido_editado: '',
+          contenido_original: ''
         })));
       }
       
@@ -139,14 +146,46 @@ export default function Editor() {
   async function exportToDocx() {
     try {
       setIsExporting(true);
-      
+
+      // =====================================================================
+      // FIX: VALIDACIÓN DE DATOS ANTES DE EXPORTAR
+      // =====================================================================
+
+      // Validar que haya capítulos cargados
+      if (!chapters || chapters.length === 0) {
+        alert('⚠️ No hay capítulos cargados. Por favor, recarga la página e intenta de nuevo.');
+        return;
+      }
+
+      // Validar que al menos un capítulo tenga contenido
+      const chaptersWithContent = chapters.filter(ch =>
+        ch.contenido_editado || ch.contenido_original
+      );
+
+      if (chaptersWithContent.length === 0) {
+        alert('⚠️ Los capítulos no tienen contenido. Verifica que el procesamiento haya completado correctamente.');
+        return;
+      }
+
+      // Advertir si algunos capítulos no tienen contenido
+      if (chaptersWithContent.length < chapters.length) {
+        const missingContent = chapters.length - chaptersWithContent.length;
+        console.warn(`⚠️ ${missingContent} capítulo(s) sin contenido serán omitidos`);
+      }
+
+      console.log(`✅ Exportando ${chaptersWithContent.length} capítulos con contenido`);
+
+      // =====================================================================
+      // FIN VALIDACIÓN
+      // =====================================================================
+
       // Agrupar cambios por capítulo
       const changesByChapter = {};
       changes.forEach(c => {
         if (!changesByChapter[c.chapter_id]) changesByChapter[c.chapter_id] = [];
         changesByChapter[c.chapter_id].push(c);
       });
-      
+
       const children = [];
       
       // Título del libro
@@ -183,9 +222,9 @@ export default function Editor() {
       
       // Separador
       children.push(new Paragraph({ text: '', spacing: { after: 400 } }));
-      
-      // Procesar cada capítulo
-      for (const chapter of chapters) {
+
+      // Procesar solo los capítulos que tienen contenido
+      for (const chapter of chaptersWithContent) {
         const chapterId = chapter.chapter_id;
         const chapterChanges = changesByChapter[chapterId] || [];
         
@@ -207,31 +246,69 @@ export default function Editor() {
         );
         
         // ---------------------------------------------------------------------
-        // INICIO CORRECCIÓN DE LA LÓGICA DE APLICACIÓN DE CAMBIOS
+        // FIX: LÓGICA MEJORADA DE APLICACIÓN DE CAMBIOS
         // ---------------------------------------------------------------------
-        
-        // CORRECCIÓN: Usar contenido ORIGINAL como base para reconstruir según decisiones
-        let content = chapter.contenido_original || '';
-        
-        // Si no hay contenido original (fallback), usamos el editado pero avisamos
-        if (!content) {
-            content = chapter.contenido_editado || '';
-            console.warn(`[Chapter ${chapterId}] WARNING: Missing 'contenido_original'. Exporting based on 'contenido_editado' (may not reflect rejections).`);
+
+        // Determinar qué contenido usar como base
+        let content = '';
+        const useOriginal = chapterChanges.some(c => c.status === 'rejected');
+
+        if (useOriginal && chapter.contenido_original) {
+          // Si hay cambios rechazados, debemos partir del original y aplicar solo los aceptados
+          content = chapter.contenido_original;
+          console.log(`[Chapter ${chapterId}] Usando contenido original como base`);
+        } else if (chapter.contenido_editado) {
+          // Si todos están aceptados/pendientes, usar el editado directamente (más eficiente)
+          content = chapter.contenido_editado;
+          console.log(`[Chapter ${chapterId}] Usando contenido editado (todos los cambios aceptados)`);
+        } else if (chapter.contenido_original) {
+          // Fallback al original
+          content = chapter.contenido_original;
+          console.warn(`[Chapter ${chapterId}] Fallback a contenido original`);
+        } else {
+          console.error(`[Chapter ${chapterId}] ⚠️ No hay contenido disponible!`);
         }
 
-        // Aplicar SOLO los cambios aceptados
-        for (const change of chapterChanges) {
-          if (change.status === 'accepted' && change.original && change.editado) {
-            // Reemplazar el texto original con el editado globalmente
-            // Usamos split/join para reemplazar todas las ocurrencias si se repite
-            content = content.split(change.original).join(change.editado);
+        // Si estamos usando el original, aplicar SOLO los cambios aceptados
+        if (useOriginal && chapter.contenido_original) {
+          let appliedCount = 0;
+          let failedCount = 0;
+
+          for (const change of chapterChanges) {
+            if (change.status !== 'accepted' || !change.original || !change.editado) continue;
+
+            // Intentar encontrar el texto usando el contexto si está disponible
+            const position = change.position;
+            let replaced = false;
+
+            if (position && position.context_before && position.context_after) {
+              // Método 1: Buscar usando contexto (más preciso)
+              const searchPattern = `${position.context_before}${change.original}${position.context_after}`;
+              if (content.includes(searchPattern)) {
+                const replacement = `${position.context_before}${change.editado}${position.context_after}`;
+                content = content.replace(searchPattern, replacement);
+                replaced = true;
+                appliedCount++;
+              }
+            }
+
+            if (!replaced) {
+              // Método 2: Buscar el texto original directamente (solo primera ocurrencia)
+              if (content.includes(change.original)) {
+                content = content.replace(change.original, change.editado);
+                appliedCount++;
+              } else {
+                console.warn(`[Chapter ${chapterId}] No se encontró texto para cambio:`, change.original.substring(0, 50));
+                failedCount++;
+              }
+            }
           }
-          // Si está rechazado (rejected) o pendiente, NO hacemos nada 
-          // (se queda el texto original de base)
+
+          console.log(`[Chapter ${chapterId}] Cambios aplicados: ${appliedCount}, Fallidos: ${failedCount}`);
         }
-        
+
         // ---------------------------------------------------------------------
-        // FIN CORRECCIÓN
+        // FIN FIX
         // ---------------------------------------------------------------------
         
         // Si no hay contenido, mostrar los cambios como párrafos (FALLBACK)
@@ -246,15 +323,18 @@ export default function Editor() {
             );
           }
         } else if (content) {
-          // Dividir contenido en párrafos
-          const paragraphs = content.split(/\n\n+/);
+          // FIX: Dividir contenido en párrafos usando saltos de línea simples
+          // El backend guarda el contenido con \n (simple), no \n\n (doble)
+          const paragraphs = content.split(/\n+/);
+
           for (const para of paragraphs) {
-            if (para.trim()) {
+            const trimmed = para.trim();
+            if (trimmed) {
               children.push(
                 new Paragraph({
-                  children: [new TextRun({ text: para.trim(), size: 24 })],
+                  children: [new TextRun({ text: trimmed, size: 24 })],
                   // Espaciado estándar de novela
-                  spacing: { after: 200, line: 360 } 
+                  spacing: { after: 200, line: 360 }
                 })
               );
             }

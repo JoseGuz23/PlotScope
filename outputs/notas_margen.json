@@ -5,138 +5,7 @@
       "chapter_id": 1,
       "fragment_id": 1,
       "original_title": "Prólogo.",
-      "notas_margen": [
-        {
-          "nota_id": "ch1-nota-001",
-          "parrafo_aprox": 1,
-          "texto_referencia": "El golpe seco de la madera contra el hueso retumbó por toda la choza.",
-          "tipo": "claridad",
-          "severidad": "media",
-          "nota": "El lector entra en medio de la acción sin contexto. No sabemos quién es Ana, dónde está, o qué relación tiene con esta familia. La desorientación inicial es efectiva para el tono, pero podría beneficiarse de un micro-anclaje: una línea que sitúe a Ana en el espacio físico antes del golpe.",
-          "sugerencia": "Considera añadir una frase breve antes del golpe que posicione a Ana en la habitación (ej: 'Ana barrió las cenizas del hogar cuando escuchó...' o 'Ana estaba arrodillada junto a los niños cuando...'). Esto ancla al lector sin sacrificar el impacto del inicio in medias res.",
-          "impacto_si_no_se_corrige": "El lector pasa los primeros párrafos tratando de orientarse en lugar de conectar emocionalmente con la violencia que presencia."
-        },
-        {
-          "nota_id": "ch1-nota-002",
-          "parrafo_aprox": 7,
-          "texto_referencia": "Bramó algo que Ana no pudo entender.",
-          "tipo": "personaje",
-          "severidad": "alta",
-          "nota": "Esta es información crucial sobre Ana que se menciona de pasada: no entiende el idioma de sus captores. Esto redefine toda la escena, pero el lector puede pasarlo por alto en medio de la acción. La barrera lingüística es fundamental para entender su impotencia y aislamiento.",
-          "sugerencia": "Dale más peso a este detalle. Podría ser un momento de POV interno donde Ana registra conscientemente su incomprensión, quizá con una referencia a cuánto tiempo lleva sin entender lo que le gritan. Esto también establecería cuánto tiempo lleva cautiva.",
-          "impacto_si_no_se_corrige": "El lector puede no captar que Ana está doblemente prisionera: física y lingüísticamente. Esto reduce el impacto de su aislamiento total."
-        },
-        {
-          "nota_id": "ch1-nota-003",
-          "parrafo_aprox": 12,
-          "texto_referencia": "A pesar de los meses siendo golpeada, el dolor nunca había cesado.",
-          "tipo": "show_tell",
-          "severidad": "media",
-          "nota": "Esta línea DICE directamente información temporal y emocional importante. Rompe con el estilo 'show' que domina el resto de la escena. El lector ya está viendo que Ana sabe no cubrirse, que no grita—su cuerpo ya nos muestra que esto es rutina.",
-          "sugerencia": "Confía en lo que ya has mostrado. La línea 'No se cubrió. Si lo hacía, su castigo sería peor' ya comunica que esto es aprendido. Si quieres establecer el tiempo, hazlo de forma más orgánica (ej: a través de cicatrices viejas que contrastan con las heridas frescas).",
-          "impacto_si_no_se_corrige": "La voz narrativa se vuelve inconsistente, oscilando entre mostrar visceralmente y explicar didácticamente."
-        },
-        {
-          "nota_id": "ch1-nota-004",
-          "parrafo_aprox": 25,
-          "texto_referencia": "No eran hombres. Eran muros de fibra y tendones.",
-          "tipo": "voz",
-          "severidad": "baja",
-          "nota": "Esta descripción es poética y efectiva, pero '¿muros de fibra y tendones' suena ligeramente incongruente con el POV de Ana. ¿Una esclava golpeada pensaría en términos anatómicos como 'tendones'? La metáfora es hermosa pero quizá demasiado educada para el filtro del personaje.",
-          "sugerencia": "Considera ajustar a términos más viscerales y menos técnicos que Ana conocería de su experiencia: 'músculos como cuerdas', 'carne apretada sobre hueso', algo más táctil y menos clínico.",
-          "impacto_si_no_se_corrige": "Pequeñas grietas en la consistencia del POV que pueden acumularse y distanciar al lector del personaje."
-        },
-        {
-          "nota_id": "ch1-nota-005",
-          "parrafo_aprox": 38,
-          "texto_referencia": "Ana no entendía el idioma gutural, ni las costumbres. Pero el gesto de su Ama fue universal.",
-          "tipo": "emocion",
-          "severidad": "alta",
-          "nota": "Este es el momento de mayor traición emocional del capítulo—Ana está siendo vendida por la mujer a quien servía—pero la narración lo trata casi clínicamente. El lector necesita SENTIR esta puñalada. ¿Qué pasa en el cuerpo de Ana? ¿En su estómago? ¿Su respiración?",
-          "sugerencia": "Expande este momento. Ralentiza. Deja que el lector registre la comprensión de Ana a través de sensaciones físicas antes de la línea 'La estaba vendiendo'. El horror de entender sin palabras merece más espacio.",
-          "impacto_si_no_se_corrige": "El momento emocional más potente del capítulo se siente apresurado, reduciendo el impacto de la traición y la desesperación de Ana."
-        },
-        {
-          "nota_id": "ch1-nota-006",
-          "parrafo_aprox": 45,
-          "texto_referencia": "En un movimiento veloz, lanzó su hoja de obsidiana contra la mujer que se retorcía en el suelo.",
-          "tipo": "tension",
-          "severidad": "media",
-          "nota": "La guerrera mata a la mujer que intentaba venderle a Ana. Esto sugiere algo importante sobre las guerreras (¿rechazan la esclavitud? ¿desprecian la cobardía?), pero sucede tan rápido que el lector puede no captar las implicaciones. Ana tampoco parece registrar qué significa esto.",
-          "sugerencia": "Dale a Ana un momento de reacción interna. ¿Esperaba que aceptaran el trato? ¿La confunde que la mataran? Esta es información crucial sobre sus nuevos captores y sobre lo que Ana puede esperar.",
-          "impacto_si_no_se_corrige": "Se pierde una oportunidad de establecer que estas guerreras operan bajo un código diferente, información que será crucial para entender la dinámica futura."
-        },
-        {
-          "nota_id": "ch1-nota-007",
-          "parrafo_aprox": 52,
-          "texto_referencia": "Cuando abrió los ojos, entendió que la guerrera aún esperaba respuesta.",
-          "tipo": "claridad",
-          "severidad": "media",
-          "nota": "La interacción entre Ana y la guerrera es confusa aquí. La guerrera hace una pregunta que Ana no entiende, pero luego Ana 'entiende' que espera respuesta. ¿Cómo? La comunicación no verbal necesita ser más clara para que el lector siga el intercambio.",
-          "sugerencia": "Muestra más específicamente cómo Ana deduce lo que la guerrera quiere: ¿su postura? ¿la intensidad de su mirada? ¿repite el gesto? Esto también refuerza la inteligencia de Ana para leer situaciones sin palabras.",
-          "impacto_si_no_se_corrige": "El lector se confunde sobre cómo se están comunicando, lo cual rompe la inmersión en un momento crucial."
-        },
-        {
-          "nota_id": "ch1-nota-008",
-          "parrafo_aprox": 65,
-          "texto_referencia": "Los sollozos de los niños vibraban contra las costillas de Ana.",
-          "tipo": "emocion",
-          "severidad": "alta",
-          "nota": "Los niños acaban de ver/oír matar a sus padres y están llorando contra Ana. Este es un momento devastador, pero no sabemos qué siente Ana al respecto. ¿Siente algo por estos niños que pertenecen a la familia que la golpeaba? ¿Culpa? ¿alivio? ¿entumecimiento?",
-          "sugerencia": "Este es un momento perfecto para mostrar la complejidad emocional de Ana. Incluso una línea sobre la contradicción de proteger a los hijos de su torturador añadiría profundidad tremenda.",
-          "impacto_si_no_se_corrige": "Ana se siente unidimensional como víctima pasiva. Perder esta oportunidad de mostrar su conflicto interno la hace menos tridimensional."
-        },
-        {
-          "nota_id": "ch1-nota-009",
-          "parrafo_aprox": 68,
-          "texto_referencia": "Ana la mordió.",
-          "tipo": "personaje",
-          "severidad": "baja",
-          "nota": "¡Excelente! Este es el primer momento de verdadera resistencia activa de Ana. La mordida es perfecta—instintiva, desesperada, inútil pero valiente. Es un destello crucial de quién es ella bajo la supervivencia.",
-          "sugerencia": "Esto funciona muy bien. Considera si quieres ecoar este gesto más adelante como característica de Ana—que muerde cuando está acorralada. Podría convertirse en un motif de su resistencia.",
-          "impacto_si_no_se_corrige": "N/A - esto funciona. Nota de refuerzo positivo."
-        },
-        {
-          "nota_id": "ch1-nota-010",
-          "parrafo_aprox": 75,
-          "texto_referencia": "Los niños gritaban su nombre. O lo que fuera que usaran para llamarla.",
-          "tipo": "emocion",
-          "severidad": "media",
-          "nota": "Momento potencialmente devastador: ni siquiera sabe si los niños conocen su nombre real. Pero la línea se siente demasiado distanciada, casi cínica. ¿Puede Ana permitirse sentir algo aquí o está demasiado en modo supervivencia?",
-          "sugerencia": "Decide si Ana está emocionalmente entumecida en este momento (lo cual es válido) o si hay una grieta de dolor. Cualquiera funciona, pero necesita ser intencional. El tono actual está en un limbo incómodo.",
-          "impacto_si_no_se_corrige": "El lector no sabe cómo sentirse respecto a este momento porque Ana no transmite una respuesta emocional clara."
-        },
-        {
-          "nota_id": "ch1-nota-011",
-          "parrafo_aprox": 82,
-          "texto_referencia": "El mundo de afuera no era el mundo que Ana conocía.",
-          "tipo": "pacing",
-          "severidad": "media",
-          "nota": "Esta transición al exterior es abrupta después de la intensidad de la lucha. El lector necesita un micro-beat para procesar que Ana ha perdido—que la arrancaron de los niños—antes de bombardearnos con el caos exterior.",
-          "sugerencia": "Considera un párrafo de transición más suave: quizá Ana aún puede oír a los niños llorando adentro mientras la sacan, o el contraste entre el calor de la choza y el frío exterior. Algo que marque el cruce del umbral.",
-          "impacto_si_no_se_corrige": "El cambio de escena se siente cinematográficamente abrupto, como un corte de edición demasiado rápido que no deja al lector procesar."
-        },
-        {
-          "nota_id": "ch1-nota-012",
-          "parrafo_aprox": 88,
-          "texto_referencia": "Dejó de luchar. No porque quisiera. Porque el cuerpo dejó de obedecerle.",
-          "tipo": "emocion",
-          "severidad": "alta",
-          "nota": "Este es el momento de rendición física de Ana, y es poderoso. Pero falta el componente psicológico: ¿qué significa para ella dejar de luchar? ¿Es la primera vez? ¿O es un patrón familiar? Esta distinción importa para su arco.",
-          "sugerencia": "Añade una línea que indique si esto es nuevo o conocido para Ana. '(Otra vez)' o '(Como antes)' o '(Nunca antes había...)'. Una palabra puede cambiar completamente cómo leemos su rendición.",
-          "impacto_si_no_se_corrige": "Perdemos información crucial sobre el estado psicológico de Ana y cuánto la ha quebrado su cautiverio previo."
-        },
-        {
-          "nota_id": "ch1-nota-013",
-          "parrafo_aprox": 92,
-          "texto_referencia": "Ana había cambiado de dueño. Pero esta vez, los dueños eran incluso peores.",
-          "tipo": "tension",
-          "severidad": "alta",
-          "nota": "Línea final potente, pero 'incluso peores' es un juicio que Ana no puede hacer todavía—acaba de conocer a estas guerreras. Sí, son violentas, pero mataron a sus abusadores. ¿Por qué asume que serán peores? Necesita justificación en el texto.",
-          "sugerencia": "O muestra algo específico que haga que Ana tema más a estas guerreras (¿algo que vio en la aldea en llamas? ¿historias que escuchó?), o cambia la línea a algo más ambiguo: 'Ana había cambiado de dueño. Y esta vez, no sabía qué esperar.' Mantiene el gancho sin la contradicción lógica.",
-          "impacto_si_no_se_corrige": "La línea final se siente como manipulación narrativa en lugar de la conclusión orgánica de Ana, lo cual debilita el cierre del capítulo."
-        }
-      ],
+      "notas_margen": [],
       "resumen_capitulo": {},
       "status": "success"
     },
@@ -147,13 +16,13 @@
       "notas_margen": [
         {
           "nota_id": "ch2-nota-001",
-          "parrafo_aprox": 3,
-          "texto_referencia": "El mundo se había reducido a una vibración constante. Cada paso de la bestia...",
+          "parrafo_aprox": 1,
+          "texto_referencia": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía...",
           "tipo": "claridad",
           "severidad": "media",
-          "nota": "El lector no sabe qué ha pasado entre el final del capítulo anterior y este momento. Ana está atada sobre una bestia, pero no vimos la transición. ¿Cuánto tiempo ha pasado? ¿Perdió la consciencia? La desorientación de Ana es efectiva, pero el lector necesita un ancla temporal mínima.",
-          "sugerencia": "Considera una frase de transición al inicio que indique vagamente el paso del tiempo o la pérdida de consciencia: 'No recordaba cuándo la habían atado' o 'El tiempo se había vuelto líquido desde...'",
-          "impacto_si_no_se_corrige": "El lector se siente expulsado de la narrativa por un salto temporal confuso, rompiendo la inmersión justo cuando el capítulo comienza."
+          "nota": "El lector acaba de terminar el capítulo anterior (presumiblemente la captura) y se encuentra desorientado. No hay transición temporal ni espacial clara. ¿Cuánto tiempo ha pasado? ¿Dónde está exactamente? La mención de 'nuevos captores' sugiere que hubo captores anteriores, pero esto no se ha establecido claramente.",
+          "sugerencia": "Considera anclar al lector con un detalle sensorial o temporal que conecte con el final del capítulo anterior. Incluso algo mínimo como 'Habían pasado horas desde...' o un detalle que establezca continuidad.",
+          "impacto_si_no_se_corrige": "El lector comienza el capítulo confundido sobre la línea temporal y el contexto, lo que reduce la inmersión en la experiencia física de Ana."
         },
         {
           "nota_id": "ch2-nota-002",
@@ -161,114 +30,370 @@
           "texto_referencia": "El viento aullaba. No como el viento del valle, que silbaba entre las rendijas...",
           "tipo": "show_tell",
           "severidad": "baja",
-          "nota": "Aquí el narrador explica la diferencia del viento en vez de dejar que el lector la experimente. La frase 'Era un animal vivo que le arrancaba el calor' ya muestra perfectamente la diferencia sin necesidad de la comparación explícita.",
-          "sugerencia": "Elimina 'No como el viento del valle, que silbaba entre las rendijas de las chozas. Este era diferente.' y deja que la descripción visceral hable por sí misma.",
-          "impacto_si_no_se_corrige": "Momento menor, pero la explicación innecesaria debilita la inmediatez sensorial que el resto del párrafo construye tan bien."
+          "nota": "Aquí el narrador explica explícitamente la diferencia entre los vientos en lugar de confiar en que la descripción sensorial lo transmita. La frase 'Este era diferente' es innecesaria cuando la siguiente descripción ('un animal vivo que le arrancaba el calor') ya muestra esa diferencia.",
+          "sugerencia": "Elimina 'Este era diferente' y deja que la metáfora del animal vivo haga el trabajo. La comparación con el valle puede quedarse porque establece contraste, pero la explicación intermedia debilita el impacto.",
+          "impacto_si_no_se_corrige": "Menor, pero contribuye a un patrón de sobre-explicación que puede hacer que la prosa poética se sienta menos confiada."
         },
         {
           "nota_id": "ch2-nota-003",
           "parrafo_aprox": 18,
-          "texto_referencia": "Entonces, algo cambió. Una mano enorme le tomó la cara...",
-          "tipo": "pacing",
+          "texto_referencia": "Escuchó una voz. Grave, ronca, hablando en ese idioma de piedras y guturales...",
+          "tipo": "personaje",
           "severidad": "alta",
-          "nota": "La transición de 'mundo gris, luego negro' a 'algo cambió' es demasiado abrupta. El lector acaba de experimentar a Ana perdiendo la consciencia, pero inmediatamente está consciente de nuevo sin ninguna sensación de tiempo perdido o desorientación al despertar. Este es un momento crucial de supervivencia que se siente apresurado.",
-          "sugerencia": "Añade un párrafo de transición que capture la sensación de flotar en la inconsciencia, o fragmentos de consciencia que van y vienen, antes de que la mano la agarre. Esto daría peso al momento y haría la 'resurrección' más impactante.",
-          "impacto_si_no_se_corrige": "El lector pierde el impacto emocional de Ana casi muriendo. La escena se siente mecánica: 'casi muere → la salvan' sin el peso dramático que merece."
+          "nota": "Este es el primer contacto directo entre Ana y sus captores, un momento crucial. Pero la reacción de Ana es puramente física (intentar abrir los ojos, fracasar). No hay miedo, confusión, esperanza o desesperación. Para alguien que acaba de aceptar la muerte, este contacto humano debería provocar ALGO emocionalmente, incluso si es solo resignación o terror renovado.",
+          "sugerencia": "Añade una línea de reacción interna antes o después de la descripción física. ¿Qué siente Ana al ser tocada por primera vez? ¿Espera violencia? ¿Muerte rápida? ¿Algo peor?",
+          "impacto_si_no_se_corrige": "Perdemos una oportunidad crucial de caracterización. Ana se siente como un cuerpo pasivo en lugar de una persona experimentando terror o alivio o cualquier emoción humana."
         },
         {
           "nota_id": "ch2-nota-004",
-          "parrafo_aprox": 25,
-          "texto_referencia": "Líquido. Espeso. Tibio. Su estómago se retorció...",
+          "parrafo_aprox": 24,
+          "texto_referencia": "El líquido bajó como barro caliente. Espeso, pastoso, con grumos que raspaban la garganta...",
           "tipo": "emocion",
           "severidad": "media",
-          "nota": "Esta es la primera vez que alguien intenta salvarle la vida a Ana. Es un momento cargado: estos captores brutales están eligiendo mantenerla viva. Pero la escena se enfoca solo en lo físico (el líquido, el asco). Falta la dimensión psicológica: ¿qué significa para Ana que la mantengan viva? ¿Esperanza? ¿Terror renovado?",
-          "sugerencia": "Después de tragar, antes de que el calor comience, añade un pensamiento fragmentado de Ana procesando que la están salvando. No necesita ser esperanzador, puede ser más terror: ahora tiene que seguir viviendo esto.",
-          "impacto_si_no_se_corrige": "Perdemos una oportunidad de profundizar en el estado mental de Ana y de establecer su relación compleja con la supervivencia (que parece ser un tema central)."
+          "nota": "La descripción sensorial del líquido es visceral y efectiva, pero falta la dimensión psicológica. Ana acaba de ser forzada a tragar algo desconocido y repulsivo. ¿Piensa que es veneno? ¿Orina? ¿Sangre de sacrificio? La ausencia de especulación o terror hace que el momento se sienta menos personal.",
+          "sugerencia": "Después de 'Sabía a cobre oxidado...', considera añadir un pensamiento fragmentado de Ana. No necesita ser coherente (está medio muerta), pero debería reflejar su estado mental.",
+          "impacto_si_no_se_corrige": "El momento es físicamente repulsivo pero emocionalmente plano. El lector observa en lugar de experimentar con Ana."
         },
         {
           "nota_id": "ch2-nota-005",
-          "parrafo_aprox": 42,
-          "texto_referencia": "Con la ayuda de aquella bebida extraña, por fin pudo abrir los ojos...",
-          "tipo": "voz",
-          "severidad": "baja",
-          "nota": "Esta frase suena demasiado neutral y explicativa para el tono visceral que has establecido. 'Con la ayuda de aquella bebida extraña' es casi clínico, rompe con la voz inmersiva del resto del capítulo.",
-          "sugerencia": "Reformula para mantener la inmediatez: 'Sus párpados obedecieron por fin.' o 'El mundo volvió a tener forma.' La conexión con la bebida ya está clara por el contexto.",
-          "impacto_si_no_se_corrige": "Pequeña ruptura de tono que saca al lector momentáneamente de la experiencia sensorial directa."
+          "parrafo_aprox": 32,
+          "texto_referencia": "Comenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "Esta secuencia de transformación física es hermosa y bien escrita, pero se extiende por 6-7 párrafos describiendo esencialmente el mismo proceso: el calor se extiende y el frío retrocede. La repetición hace que el ritmo se arrastre justo cuando el capítulo necesita avanzar hacia la revelación del valle.",
+          "sugerencia": "Condensa esta secuencia a 3-4 párrafos. Mantén los mejores detalles sensoriales ('brasa enterrada bajo ceniza', 'muro contra el frío') pero elimina la repetición de 'se extendió... poco a poco... despacio'.",
+          "impacto_si_no_se_corrige": "El lector puede impacientarse durante una descripción que, aunque bella, se siente circular. Esto debilita el impacto de la revelación visual que viene después."
         },
         {
           "nota_id": "ch2-nota-006",
-          "parrafo_aprox": 45,
-          "texto_referencia": "Lo primero que vio fue una silueta inclinada caminando junto a su montura...",
-          "tipo": "pacing",
-          "severidad": "media",
-          "nota": "La revelación de la criatura es efectiva, pero la descripción se extiende por varios párrafos antes del momento de contacto visual. El lector está esperando que Ana y la criatura se miren, y la tensión se diluye un poco con tanto detalle anatómico antes del payoff.",
-          "sugerencia": "Considera acortar la descripción física inicial o intercalar la descripción con la reacción de Ana. El momento 'El animal giró la cabeza hacia ella' debería llegar más rápido.",
-          "impacto_si_no_se_corrige": "La tensión del primer encuentro visual pierde fuerza. El lector puede empezar a catalogar detalles en vez de sentir el terror visceral."
+          "parrafo_aprox": 41,
+          "texto_referencia": "Con la ayuda de aquella bebida extraña, por fin pudo abrir los ojos...",
+          "tipo": "voz",
+          "severidad": "baja",
+          "nota": "'Con la ayuda de aquella bebida extraña' suena demasiado explicativo y distanciado para el registro poético establecido. Rompe la inmediatez sensorial que has construido.",
+          "sugerencia": "Algo más directo y visceral: 'Abrió los ojos' o 'Sus párpados finalmente obedecieron'. La conexión con la bebida ya está clara por el contexto.",
+          "impacto_si_no_se_corrige": "Menor, pero el cambio de registro es perceptible y saca al lector de la inmersión justo antes de un momento crucial."
         },
         {
           "nota_id": "ch2-nota-007",
+          "parrafo_aprox": 45,
+          "texto_referencia": "No tenía rostro. O sí, pero no era un rostro que debiera existir...",
+          "tipo": "tension",
+          "severidad": "alta",
+          "nota": "La descripción del Cuernomuro es efectiva, pero la reacción de Ana ('El corazón de Ana se detuvo') llega DESPUÉS de varios párrafos de descripción objetiva. El terror debería ser simultáneo a la visión, no retrasado. Esto reduce el impacto del horror.",
+          "sugerencia": "Intercala la reacción emocional de Ana con la descripción física. Muestra cómo su mente intenta procesar lo que ve mientras lo ve. 'No tenía rostro—Ana intentó gritar pero no tenía voz—o sí, pero...'",
+          "impacto_si_no_se_corrige": "El encuentro con el primer Cuernomuro debería ser el momento de mayor terror del capítulo, pero se siente más como una descripción de bestiario que como una experiencia aterradora."
+        },
+        {
+          "nota_id": "ch2-nota-008",
           "parrafo_aprox": 52,
           "texto_referencia": "Entonces, una mano dura y callosa se posó en la espalda de Ana...",
           "tipo": "claridad",
           "severidad": "alta",
-          "nota": "No está claro de quién es esta mano. ¿De la criatura que la está mirando? ¿De uno de los captores humanos? El lector asume que es de la criatura por contexto, pero la ambigüedad en un momento tan cargado es confusa. Especialmente porque después la criatura 'se aleja' como si nunca hubiera tocado a Ana.",
-          "sugerencia": "Clarifica la procedencia de la mano. Si es de la criatura, hazlo explícito. Si es de un captor humano que está montado detrás de ella, también debe quedar claro.",
-          "impacto_si_no_se_corrige": "El lector se confunde sobre la geografía de la escena y quién está haciendo qué, lo que destruye el impacto emocional del momento de contacto."
+          "nota": "El lector está confundido sobre quién pone la mano en la espalda de Ana. ¿Es el Cuernomuro que acaba de mirarla? ¿Es su jinete? ¿Otro captor? La ambigüedad no parece intencional y rompe la claridad de la escena.",
+          "sugerencia": "Clarifica la fuente del contacto. Si es el jinete del Cuernomuro, establécelo. Si es la criatura misma, eso necesita ser explícito porque cambia completamente la dinámica.",
+          "impacto_si_no_se_corrige": "El lector se distrae tratando de visualizar la escena en lugar de experimentar el momento emocional del contacto reconfortante en medio del terror."
         },
         {
-          "nota_id": "ch2-nota-008",
+          "nota_id": "ch2-nota-009",
           "parrafo_aprox": 60,
           "texto_referencia": "Ana vio el valle. Y entendió que había cruzado a un mundo de muertos...",
           "tipo": "show_tell",
           "severidad": "media",
-          "nota": "La frase 'entendió que había cruzado a un mundo de muertos' es innecesaria. La descripción que sigue (las costillas gigantes, las chozas de hueso) ya comunica esto perfectamente. El narrador está subrayando lo que la imagen ya grita.",
-          "sugerencia": "Elimina la interpretación y deja que la revelación visual hable sola: 'Ana vio el valle. Costillas. Enormes...' El impacto será mayor.",
-          "impacto_si_no_se_corrige": "Se reduce el impacto de la revelación visual al pre-explicarla. El lector quiere descubrir, no que le digan qué descubrir."
-        },
-        {
-          "nota_id": "ch2-nota-009",
-          "parrafo_aprox": 75,
-          "texto_referencia": "Ana intentó respirar hondo. No pudo. El aire no entraba...",
-          "tipo": "emocion",
-          "severidad": "baja",
-          "nota": "La descripción del mal de altura es efectiva físicamente, pero viene inmediatamente después de la revelación visual del valle. El lector todavía está procesando el horror de las costillas gigantes y las chozas de hueso, y de repente estamos en síntomas físicos. Se siente como un cambio de enfoque demasiado rápido.",
-          "sugerencia": "Considera retrasar la descripción del mal de altura unos párrafos, o intercalarla más sutilmente con la observación del valle. Deja que el horror visual respire un momento.",
-          "impacto_si_no_se_corrige": "Impacto menor, pero el momento de revelación pierde algo de fuerza al ser interrumpido inmediatamente por preocupaciones físicas."
+          "nota": "'Y entendió que había cruzado a un mundo de muertos' es una interpretación que el narrador le da al lector en lugar de dejar que la descripción que sigue haga ese trabajo. Es innecesariamente explicativo.",
+          "sugerencia": "Elimina la segunda frase. 'Ana vio el valle.' Punto. Luego deja que las costillas gigantes, las chozas de hueso y la desolación comuniquen que es un mundo de muertos. Confía en tu descripción.",
+          "impacto_si_no_se_corrige": "Reduce el impacto de la revelación visual al pre-interpretarla para el lector. Es más poderoso si el lector llega a esa conclusión simultáneamente con Ana."
         },
         {
           "nota_id": "ch2-nota-010",
-          "parrafo_aprox": 78,
-          "texto_referencia": "El animal bajo su cuerpo no parecía notarlo. Seguía avanzando, imperturbable...",
-          "tipo": "show_tell",
-          "severidad": "baja",
-          "nota": "La explicación sobre los 'cuernomuros' y su capacidad de carga rompe la inmersión. Ana está en un momento de terror y asombro, y de repente el narrador nos da información enciclopédica. Además, no está claro cómo Ana 'conocía relatos' sobre estas bestias si viene de un valle de esclavos.",
-          "sugerencia": "Elimina la explicación o reduce a algo más orgánico: Ana observa que la bestia respira normal mientras ella se ahoga. El nombre y los detalles pueden venir después, en un contexto más apropiado.",
-          "impacto_si_no_se_corrige": "Ruptura de la inmersión y posible inconsistencia de personaje (¿cómo conoce Ana estos relatos?)."
+          "parrafo_aprox": 75,
+          "texto_referencia": "Ana no entendía cómo no estaban muertos. El frío era un animal vivo...",
+          "tipo": "personaje",
+          "severidad": "media",
+          "nota": "Este es un buen momento de caracterización (Ana observando y no comprendiendo), pero se siente aislado. No hay seguimiento emocional. ¿Esto la hace sentir más vulnerable? ¿Más alienada? ¿Admiración involuntaria? La observación existe en el vacío.",
+          "sugerencia": "Añade una consecuencia emocional a la observación. Incluso algo breve como 'Eran de otra especie' o 'Ana nunca sería como ellos' daría peso personal a la observación.",
+          "impacto_si_no_se_corrige": "Las observaciones de Ana se sienten como notas de un narrador omnisciente en lugar de experiencias de un personaje con vida interior."
         },
         {
           "nota_id": "ch2-nota-011",
-          "parrafo_aprox": 95,
+          "parrafo_aprox": 85,
           "texto_referencia": "Una mujer salió de una de esas entradas. Llevaba un cuenco de hueso...",
-          "tipo": "tension",
-          "severidad": "media",
-          "nota": "Esta escena de la mujer vaciando sangre es un buen detalle de worldbuilding, pero no añade tensión dramática. El capítulo está en modo 'tour del valle' en este punto, y el lector puede empezar a desconectarse porque no hay conflicto inmediato ni pregunta dramática urgente.",
-          "sugerencia": "Considera añadir un elemento de tensión personal para Ana: ¿reconoce algo? ¿Ve algo que la aterroriza específicamente? ¿Hace contacto visual significativo con alguien? El capítulo necesita mantener stakes emocionales durante la descripción.",
-          "impacto_si_no_se_corrige": "El final del capítulo se siente más como descripción que como narrativa. El lector puede perder engagement justo antes del cierre."
+          "tipo": "emocion",
+          "severidad": "baja",
+          "nota": "El intercambio de miradas entre Ana y la mujer es efectivo en su frialdad, pero es el único momento de contacto visual humano en toda la secuencia del valle. Podría tener más peso emocional dado el aislamiento de Ana.",
+          "sugerencia": "Considera expandir ligeramente este momento. ¿Qué busca Ana en esos ojos? ¿Reconocimiento? ¿Piedad? ¿Y qué encuentra en cambio? La ausencia de humanidad puede ser más devastadora si primero vemos a Ana buscándola.",
+          "impacto_si_no_se_corrige": "Menor, pero es una oportunidad perdida de mostrar la desesperación de Ana por conexión humana."
         },
         {
           "nota_id": "ch2-nota-012",
-          "parrafo_aprox": 105,
-          "texto_referencia": "Su nueva casa era El Valle de los Restos. El lugar donde los huesos antiguos...",
+          "parrafo_aprox": 95,
+          "texto_referencia": "Su nueva casa era El Valle de los Restos. El lugar donde los huesos antiguos eran hogar...",
           "tipo": "voz",
           "severidad": "media",
-          "nota": "Estas tres frases finales suenan como resumen de contraportada, no como el pensamiento de Ana. El tono cambia a algo más poético y distanciado ('El lugar donde los huesos antiguos eran hogar') que no coincide con el estado mental agotado y aterrorizado de Ana que has establecido.",
-          "sugerencia": "Termina con algo más crudo y directo que refleje el estado de Ana: su miedo, su agotamiento, o una observación visceral específica. O simplemente termina antes, con 'había llegado.'",
-          "impacto_si_no_se_corrige": "El cierre suena artificial y debilita el impacto emocional del capítulo. El lector siente que el narrador está 'cerrando con moraleja' en vez de dejar que la escena hable."
+          "nota": "El final cambia abruptamente a un tono casi de narrador omnisciente con estas declaraciones formales. 'Su nueva casa' y las frases siguientes suenan como texto de introducción de capítulo, no como el cierre de la experiencia visceral de Ana. Rompe con la voz establecida.",
+          "sugerencia": "Mantén el final más anclado en la experiencia inmediata de Ana. Las últimas líneas deberían reflejar su estado mental/emocional en este momento, no hacer declaraciones sobre el lugar. Algo como 'Ana cerró los ojos. El valle seguía ahí.' sería más consistente.",
+          "impacto_si_no_se_corrige": "El capítulo termina con un cambio de voz que se siente como si un narrador diferente hubiera entrado a dar contexto. Debilita la inmersión final."
         }
       ],
       "resumen_capitulo": {
-        "fortaleza_principal": "La descripción sensorial del frío y la hipotermia es visceral y efectiva. La secuencia de la bebida misteriosa que la salva está bien ejecutada físicamente. El worldbuilding del Valle de los Restos es original y perturbador, con imágenes memorables (las costillas como catedrales, las chozas de hueso).",
-        "problema_principal": "El capítulo sufre de dos problemas de pacing: (1) transiciones temporales confusas que desorientan al lector innecesariamente, y (2) la segunda mitad se convierte en un 'tour' descriptivo que pierde tensión dramática. Falta más procesamiento emocional de Ana sobre lo que significa ser salvada por sus captores y sobre su situación. El capítulo necesita mantener stakes personales durante las descripciones del valle.",
+        "fortaleza_principal": "La escritura sensorial es excepcional. Las descripciones del frío, la transformación física con la bebida, y la arquitectura de hueso del valle son viscerales y memorables. El estilo poético funciona bien para transmitir la experiencia física de Ana.",
+        "problema_principal": "Ana como personaje está ausente emocionalmente. El capítulo es rico en sensación física pero pobre en vida interior. El lector observa el cuerpo de Ana sufrir y recuperarse, pero rara vez accede a sus pensamientos, miedos o reacciones psicológicas. Esto la convierte en un vehículo pasivo para descripciones en lugar de un personaje que experimenta activamente su trauma.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 3,
+      "fragment_id": 3,
+      "original_title": "Capítulo 2. Nueva vida. (1/2)",
+      "notas_margen": [
+        {
+          "nota_id": "ch3-nota-001",
+          "parrafo_aprox": 1,
+          "texto_referencia": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "El lector no tiene contexto de transición desde el capítulo anterior. ¿Cuánto tiempo pasó durante el viaje? ¿Ana estuvo consciente? Esta apertura asume que sabemos que hubo un trayecto, pero la experiencia temporal de Ana se pierde completamente.",
+          "sugerencia": "Considera abrir con una línea que ancle al lector en el tiempo transcurrido o en la experiencia física de Ana durante el viaje (frío, dolor, duración). Algo como: 'Después de horas cabalgando...' o una sensación física que marque el paso del tiempo.",
+          "impacto_si_no_se_corrige": "El lector experimenta un salto narrativo desorientador que rompe la inmersión. La sensación de ser secuestrada pierde peso si no sentimos el trayecto."
+        },
+        {
+          "nota_id": "ch3-nota-002",
+          "parrafo_aprox": 2,
+          "texto_referencia": "No era una casa. Era un cobertijo. Una estructura baja construida con costillas fosilizadas...",
+          "tipo": "voz",
+          "severidad": "baja",
+          "nota": "La corrección inmediata 'No era una casa. Era un cobertijo' suena como la voz del narrador corrigiendo al lector, pero el estilo poético establecido fluye más orgánicamente. Esta construcción es más didáctica que lírica.",
+          "sugerencia": "Considera reformular para mantener el flujo poético: 'Un cobertijo, no una casa' o simplemente eliminar la corrección y dejar que la descripción detallada haga el trabajo de distinción.",
+          "impacto_si_no_se_corrige": "Pequeña ruptura en la voz narrativa que puede acumularse si se repite el patrón."
+        },
+        {
+          "nota_id": "ch3-nota-003",
+          "parrafo_aprox": 9,
+          "texto_referencia": "Ana captó fragmentos. '...khora...' (¿Bueno? ¿Útil?) '...dravik...' (¿Hierro? ¿Metal?) '...skan...' (No tenía idea.)",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "nota": "Los paréntesis con traducciones aproximadas rompen la inmersión. El lector debería experimentar la desorientación lingüística de Ana sin que el narrador intervenga para 'ayudar'. La última línea '(No tenía idea)' es especialmente problemática porque explicita lo que ya es obvio.",
+          "sugerencia": "Elimina los paréntesis. Deja las palabras extranjeras solas y permite que el contexto (gestos, objetos señalados) sugiera significados. La confusión de Ana será más visceral si el lector también está confundido.",
+          "impacto_si_no_se_corrige": "Se pierde una oportunidad poderosa de hacer que el lector experimente la alienación de Ana. La traducción entre paréntesis es una muleta narrativa que debilita la inmersión."
+        },
+        {
+          "nota_id": "ch3-nota-004",
+          "parrafo_aprox": 11,
+          "texto_referencia": "Ana seguía atada al lomo del Cuernomuro. Las cuerdas le cortaban las muñecas...",
+          "tipo": "pacing",
+          "severidad": "alta",
+          "nota": "Este recordatorio del sufrimiento físico de Ana llega DESPUÉS de varios párrafos describiendo la descarga del botín. El lector ha olvidado momentáneamente que Ana sigue ahí, sufriendo. La tensión se disipa porque la narrativa prioriza el inventario sobre el protagonista.",
+          "sugerencia": "Intercala el dolor de Ana DURANTE la descripción de la descarga. Párrafos cortos que alternen entre 'Sacos de arpillera...' y 'Las cuerdas cortaban más profundo con cada movimiento'. Mantén a Ana presente en cada momento.",
+          "impacto_si_no_se_corrige": "El lector se desconecta emocionalmente de Ana justo cuando más debería sentir su vulnerabilidad. La escena se vuelve sobre el mundo-building en vez de sobre la experiencia del personaje."
+        },
+        {
+          "nota_id": "ch3-nota-005",
+          "parrafo_aprox": 13,
+          "texto_referencia": "Nadie la miraba.",
+          "tipo": "emocion",
+          "severidad": "media",
+          "nota": "Esta línea tiene potencial devastador pero está enterrada entre descripciones de objetos. Es un momento de deshumanización total que merece más peso. El lector debería SENTIR esta invisibilidad, no solo leerla como dato.",
+          "sugerencia": "Dale a esta línea su propio párrafo. Considera expandirla ligeramente para que resuene: 'Nadie la miraba. Ni una vez. Ni siquiera por accidente.' O colócala después de un momento específico donde alguien literalmente la ignore.",
+          "impacto_si_no_se_corrige": "Un momento emocional clave pasa desapercibido. El lector pierde la oportunidad de conectar con la deshumanización de Ana."
+        },
+        {
+          "nota_id": "ch3-nota-006",
+          "parrafo_aprox": 17,
+          "texto_referencia": "Ana existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.",
+          "tipo": "voz",
+          "severidad": "baja",
+          "nota": "Esta es una observación poética hermosa, pero ¿es la voz de Ana o del narrador? Si es Ana reflexionando sobre su propia cosificación, es profunda. Si es el narrador observando, puede sonar distante. La ambigüedad no está clara.",
+          "sugerencia": "Si quieres que sea la percepción de Ana sobre sí misma, ancla la línea en su experiencia: 'Ana lo sabía. Existía al borde de su visión...' Si es el narrador, está bien como está, pero considera el tono.",
+          "impacto_si_no_se_corrige": "Ambigüedad menor en el punto de vista que puede acumularse si el patrón continúa."
+        },
+        {
+          "nota_id": "ch3-nota-007",
+          "parrafo_aprox": 23,
+          "texto_referencia": "Ana cayó. No hubo advertencia. No hubo manos que la recibieran. Solo gravedad.",
+          "tipo": "pacing",
+          "severidad": "baja",
+          "nota": "El ritmo aquí es excelente - frases cortas que mimetizan la caída. 'Solo gravedad' es una línea potente. Esto es un ejemplo de lo que funciona bien en el capítulo.",
+          "sugerencia": "No cambiar. Nota positiva: este momento está perfectamente ejecutado. El ritmo sintáctico refuerza la acción física.",
+          "impacto_si_no_se_corrige": "N/A - esto funciona."
+        },
+        {
+          "nota_id": "ch3-nota-008",
+          "parrafo_aprox": 25,
+          "texto_referencia": "Su cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió...",
+          "tipo": "emocion",
+          "severidad": "media",
+          "nota": "La descripción física del dolor es vívida, pero falta la respuesta emocional de Ana. ¿Siente miedo? ¿Rabia? ¿Resignación? ¿Sorpresa de estar viva? El lector experimenta el dolor físico pero no accede a su estado interno.",
+          "sugerencia": "Después del dolor físico, una línea sobre su reacción emocional: '¿Esto era todo? ¿La dejarían morir aquí como basura descartada?' o 'Ni siquiera esto le sorprendía ya.' Algo que revele su estado mental.",
+          "impacto_si_no_se_corrige": "Ana permanece como receptáculo pasivo de violencia sin vida interior. El lector ve su sufrimiento pero no conecta con su humanidad."
+        },
+        {
+          "nota_id": "ch3-nota-009",
+          "parrafo_aprox": 29,
+          "texto_referencia": "Uno de ellos pasó junto a Ana. Su bota estuvo a centímetros de su cara...",
+          "tipo": "tension",
+          "severidad": "media",
+          "nota": "Este momento tiene potencial para tensión extrema - la bota cerca de su cara podría aplastarla accidentalmente o a propósito - pero se resuelve sin consecuencia. El 'Ni siquiera la esquivó' es bueno, pero el lector espera más peligro del que se materializa.",
+          "sugerencia": "Considera añadir un detalle sensorial que prolongue la tensión: el olor del cuero, el peso del paso que hace vibrar el suelo bajo su mejilla, un segundo donde Ana cierra los ojos esperando el golpe. Haz que el lector TEMA antes del alivio.",
+          "impacto_si_no_se_corrige": "Oportunidad perdida de tensión. El momento pasa demasiado rápido para que el lector sienta el peligro real."
+        },
+        {
+          "nota_id": "ch3-nota-010",
+          "parrafo_aprox": 34,
+          "texto_referencia": "Ana levantó la cabeza. Sus ojos se encontraron. La mujer no tenía expresión...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este es el primer contacto visual real entre Ana y su captora. Es un momento crucial que define su relación, pero está narrado con distancia clínica. ¿Qué BUSCA Ana en esos ojos? ¿Qué espera encontrar? ¿Qué significa para ella no encontrar nada?",
+          "sugerencia": "Entra en la cabeza de Ana durante este intercambio. '¿Qué buscaba Ana en esos ojos grises? ¿Reconocimiento? ¿Crueldad que pudiera entender? No encontró nada.' Dale al lector acceso a su desesperación por conexión humana, incluso con su captora.",
+          "impacto_si_no_se_corrige": "El momento emocional más importante del capítulo pasa sin resonancia. El lector pierde la oportunidad de entender la psicología de Ana como cautiva."
+        },
+        {
+          "nota_id": "ch3-nota-011",
+          "parrafo_aprox": 38,
+          "texto_referencia": "Ana se quedó sola. Tendida en el suelo. Atada. Magullada. Respirando el aire delgado...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "La lista de estados físicos ('Tendida. Atada. Magullada.') es efectiva, pero la transición a 'Y se quedó dormida' es demasiado abrupta. Ana pasa de dolor agudo a sueño sin proceso. El lector necesita sentir el agotamiento que la vence.",
+          "sugerencia": "Añade una o dos líneas de transición: 'El dolor se convirtió en un zumbido constante. Luego en nada.' o 'No decidió dormir. El cuerpo simplemente se apagó.' Muestra el colapso, no solo el resultado.",
+          "impacto_si_no_se_corrige": "El final del capítulo se siente cortado en vez de concluido. El lector no experimenta el agotamiento total que justifica que Ana se duerma en esas condiciones."
+        },
+        {
+          "nota_id": "ch3-nota-012",
+          "parrafo_aprox": 40,
+          "texto_referencia": "Ana también cerró los suyos. Y se quedó dormida.",
+          "tipo": "tension",
+          "severidad": "media",
+          "nota": "El capítulo termina con Ana durmiendo, lo cual es realista pero narrativamente inerte. No hay gancho para el siguiente capítulo, no hay pregunta sin responder, no hay tensión que arrastre al lector. El sueño es un final, no una apertura.",
+          "sugerencia": "Considera terminar justo ANTES del sueño, con Ana consciente de su situación: 'Cerró los ojos. No para dormir. Solo para no ver.' O añade una última línea que plante una pregunta: 'Y soñó con fuego.' Algo que prometa continuación.",
+          "impacto_si_no_se_corrige": "El capítulo termina sin momentum. El lector puede cerrar el libro aquí sin urgencia de continuar. En una serialización, esto es crítico."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "La construcción del mundo es visceral y específica. Las descripciones sensoriales del cobertijo, el Cuernomuro y la violencia física son inmersivas y coherentes con el tono establecido. El estilo poético se mantiene sin caer en lo florido. La deshumanización de Ana está bien ejecutada en momentos específicos.",
+        "problema_principal": "Ana está ausente emocionalmente de su propia historia. El capítulo prioriza la descripción del entorno y las acciones de otros sobre la vida interior del protagonista. El lector VE lo que le pasa a Ana pero no SIENTE con ella. Para una novela centrada en el personaje, necesitamos acceso constante a su experiencia psicológica, no solo física. Los momentos emocionales clave (el contacto visual, la caída, la soledad final) están sub-desarrollados.",
+        "prioridad_revision": "alta"
+      },
+      "status": "success"
+    },
+    {
+      "chapter_id": 3,
+      "fragment_id": 4,
+      "original_title": "Capítulo 2. Nueva vida. (2/2)",
+      "notas_margen": [
+        {
+          "nota_id": "ch2-nota-001",
+          "parrafo_aprox": 8,
+          "texto_referencia": "La tomó con ambas manos atadas. Intentó jalarla hacia su cuerpo...",
+          "tipo": "pacing",
+          "severidad": "media",
+          "nota": "La secuencia de la piel que se desintegra es efectiva, pero la transición inmediata al temblor violento pierde una oportunidad emocional. El lector necesita un momento para sentir la desesperación de Ana ante este fracaso antes de pasar a la siguiente crisis física.",
+          "sugerencia": "Añadir un beat de reacción emocional después de que la piel se deshace. Un momento donde Ana procesa que incluso esta pequeña esperanza se le niega. Puede ser breve (2-3 líneas), pero daría peso al momento.",
+          "impacto_si_no_se_corrige": "El lector experimenta fatiga de crisis constante sin momentos de procesamiento emocional. Las escenas de supervivencia se vuelven mecánicas en vez de viscerales."
+        },
+        {
+          "nota_id": "ch2-nota-002",
+          "parrafo_aprox": 15,
+          "texto_referencia": "¿Huir? La idea cruzó su mente como un relámpago...",
+          "tipo": "show_tell",
+          "severidad": "baja",
+          "nota": "La estructura de pregunta-respuesta (¿Huir? ¿A dónde? ¿Pelear?) es efectiva para mostrar su proceso mental, pero las conclusiones son demasiado racionales para alguien en hipotermia severa. El pensamiento debería ser más fragmentado, más primitivo.",
+          "sugerencia": "Mantener la estructura pero hacer el pensamiento más caótico. Frases incompletas, imágenes en vez de argumentos lógicos. 'Puerta. Oscuridad. Frío peor. Guerrera. Manos. Fuerza.' Esto reflejaría mejor su estado físico deteriorado.",
+          "impacto_si_no_se_corrige": "Menor. La escena funciona, pero podría ser más inmersiva si el estilo del pensamiento reflejara su estado físico extremo."
+        },
+        {
+          "nota_id": "ch2-nota-003",
+          "parrafo_aprox": 25,
+          "texto_referencia": "Su casa. No la choza donde la golpeaban. La casa de antes...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este flashback es crucial para el desarrollo del personaje, pero llega en un momento de máxima tensión física (hipotermia severa) sin justificación clara. El lector puede sentir que la narrativa se detiene justo cuando más enganchado está con la supervivencia inmediata de Ana.",
+          "sugerencia": "Anclar el flashback a un trigger sensorial específico. ¿El olor del heno le recuerda algo? ¿El sonido del viento? Esto haría la transición más orgánica y justificaría por qué su mente va allí en este momento extremo. Alternativamente, acortar el flashback y distribuir esta información de backstory en otros momentos del capítulo.",
+          "impacto_si_no_se_corrige": "El lector pierde el momentum de la escena de supervivencia. El flashback se siente como una pausa narrativa en vez de una profundización del momento presente."
+        },
+        {
+          "nota_id": "ch2-nota-004",
+          "parrafo_aprox": 32,
+          "texto_referencia": "¿Cuántos años habían pasado? ¿Tres? ¿Cuatro? Ana no estaba segura...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "Esta información es importante para entender la edad de Ana, pero el lector no tiene contexto suficiente. ¿Tres o cuatro años desde qué? ¿Desde que perdió a su madre? ¿Desde que llegó con el Amo? ¿Cuántos años tiene Ana ahora? Sin esto, es difícil visualizar al personaje.",
+          "sugerencia": "Clarificar la línea temporal. Si tiene sentido para el personaje, puede pensar algo como 'Tenía seis años entonces. ¿Ahora diez? ¿Once?' Esto ancla al lector sin romper la voz.",
+          "impacto_si_no_se_corrige": "El lector no puede visualizar completamente al personaje. La edad de Ana afecta cómo interpretamos toda su experiencia y su capacidad de agencia."
+        },
+        {
+          "nota_id": "ch2-nota-005",
+          "parrafo_aprox": 45,
+          "texto_referencia": "El Cuernomuro abrió los ojos. Dos círculos brillantes en la penumbra...",
+          "tipo": "tension",
+          "severidad": "baja",
+          "nota": "La transición del flashback emocional al momento presente con el Cuernomuro es abrupta. El lector necesita un momento para reorientarse: ¿Ana sigue temblando? ¿Está llorando? ¿Cómo la afectó el recuerdo?",
+          "sugerencia": "Una línea de transición que muestre el estado de Ana antes de que el Cuernomuro se mueva. Esto reconecta al lector con el presente físico de la escena.",
+          "impacto_si_no_se_corrige": "Desorientación momentánea. El lector tiene que releer para entender que hemos vuelto al presente."
+        },
+        {
+          "nota_id": "ch2-nota-006",
+          "parrafo_aprox": 58,
+          "texto_referencia": "Ana retrocedió. Se arrastró hacia atrás, empujándose con los codos...",
+          "tipo": "personaje",
+          "severidad": "media",
+          "nota": "La reacción de miedo de Ana es comprensible, pero acabamos de pasar tiempo estableciendo que está en hipotermia severa, temblando violentamente. ¿Tiene la fuerza física para arrastrarse? Este detalle afecta la credibilidad de la escena.",
+          "sugerencia": "Mostrar que el movimiento le cuesta más de lo que quisiera. Que intenta retroceder pero su cuerpo apenas responde. Esto mantiene la tensión mientras respeta su estado físico establecido.",
+          "impacto_si_no_se_corrige": "Inconsistencia en el estado físico del personaje. El lector pierde confianza en la precisión de la narrativa de supervivencia."
+        },
+        {
+          "nota_id": "ch2-nota-007",
+          "parrafo_aprox": 72,
+          "texto_referencia": "Entonces, el Cuernomuro se giró. Le dio la espalda a Ana...",
+          "tipo": "emocion",
+          "severidad": "alta",
+          "nota": "Este es el momento emocional más importante del capítulo: el acto de protección del Cuernomuro. Pero la narrativa lo trata casi como una acción mecánica. El lector necesita sentir el peso de este momento, la sorpresa, el alivio, la confusión de Ana ante este acto de bondad inesperado.",
+          "sugerencia": "Ralentizar este momento. Cuando el Cuernomuro se gira y bloquea la entrada, Ana necesita procesarlo. ¿No entiende al principio? ¿Piensa que el animal la está ignorando? ¿Cuándo se da cuenta de lo que está haciendo? Este reconocimiento gradual daría peso emocional al momento.",
+          "impacto_si_no_se_corrige": "El lector pierde el impacto emocional del momento más importante del capítulo. La conexión entre Ana y el Cuernomuro se siente mecánica en vez de significativa."
+        },
+        {
+          "nota_id": "ch2-nota-008",
+          "parrafo_aprox": 78,
+          "texto_referencia": "Luego, con un movimiento de su hocico, señaló un lugar cerca de su estómago...",
+          "tipo": "claridad",
+          "severidad": "media",
+          "nota": "El gesto del Cuernomuro 'señalando' con el hocico puede ser difícil de visualizar para el lector. ¿Cómo señala exactamente un animal así? ¿Es un movimiento de cabeza? ¿Un resoplido direccional?",
+          "sugerencia": "Ser más específico en la descripción del gesto. Esto ayuda al lector a visualizar la escena y hace la comunicación entre Ana y el animal más creíble.",
+          "impacto_si_no_se_corrige": "Confusión visual menor. El lector puede perder el momento tratando de imaginar la acción."
+        },
+        {
+          "nota_id": "ch2-nota-009",
+          "parrafo_aprox": 85,
+          "texto_referencia": "Ana llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor...",
+          "tipo": "show_tell",
+          "severidad": "baja",
+          "nota": "La descripción sensorial aquí es efectiva, pero la frase 'pero no le importó' le dice al lector cómo sentir en vez de dejarlo experimentar el momento. Ya sabemos que no le importa porque continúa acercándose.",
+          "sugerencia": "Eliminar 'pero no le importó' y dejar que las acciones de Ana hablen. El hecho de que se acurruque más cerca a pesar del olor muestra que no le importa.",
+          "impacto_si_no_se_corrige": "Muy menor. Es un pequeño momento de telling innecesario en una escena que por lo demás muestra bien."
+        },
+        {
+          "nota_id": "ch2-nota-010",
+          "parrafo_aprox": 95,
+          "texto_referencia": "Por primera vez desde que la habían arrancado de esa choza...",
+          "tipo": "voz",
+          "severidad": "media",
+          "nota": "Esta frase rompe con la voz poética establecida del capítulo. Es demasiado explicativa y resume en vez de mostrar. El contraste entre su sufrimiento anterior y este momento de paz podría comunicarse de forma más sutil.",
+          "sugerencia": "En vez de decirlo explícitamente, mostrar el contraste a través de sensaciones. 'No había dolor. No había miedo. Solo calor. Solo esto.' Deja que el lector haga la conexión con todo lo que ha sufrido antes.",
+          "impacto_si_no_se_corrige": "Rompe momentáneamente la inmersión con una observación demasiado consciente. El estilo poético del capítulo se diluye."
+        },
+        {
+          "nota_id": "ch2-nota-011",
+          "parrafo_aprox": 100,
+          "texto_referencia": "Junto a la bestia que le había salvado la vida sin que nadie se lo pidiera.",
+          "tipo": "show_tell",
+          "severidad": "alta",
+          "nota": "Esta última línea le dice al lector la significancia del momento en vez de dejarlo sentirla. Es innecesariamente explicativa y subestima la inteligencia del lector. Ya entendemos que el Cuernomuro la salvó y que fue un acto voluntario, hemos visto toda la escena.",
+          "sugerencia": "Terminar con algo más sensorial y menos explicativo. 'Junto a la bestia que respiraba como una montaña viva.' O simplemente terminar con 'Junto a la bestia.' El silencio después de toda la intensidad del capítulo sería más poderoso.",
+          "impacto_si_no_se_corrige": "El capítulo termina con una nota de over-explanation que debilita un final que de otro modo sería poderoso. El lector se siente subestimado."
+        }
+      ],
+      "resumen_capitulo": {
+        "fortaleza_principal": "La progresión física de la hipotermia está excepcionalmente bien descrita. El lector siente el frío de forma visceral. La escena del Cuernomuro protegiéndola tiene un potencial emocional enorme y establece una relación central para la historia. El estilo poético funciona bien para crear atmósfera.",
+        "problema_principal": "Los momentos emocionales clave están sub-desarrollados. El flashback interrumpe el momentum en vez de profundizarlo, y el momento crucial donde el Cuernomuro protege a Ana necesita más peso emocional. Hay demasiado 'telling' en momentos donde el 'showing' ya ha hecho el trabajo. La línea final especialmente debilita un capítulo que de otro modo es fuerte.",
         "prioridad_revision": "media"
       },
       "status": "success"
@@ -276,144 +401,14 @@
   ],
   "all_notes": [
     {
-      "nota_id": "ch1-nota-001",
-      "parrafo_aprox": 1,
-      "texto_referencia": "El golpe seco de la madera contra el hueso retumbó por toda la choza.",
-      "tipo": "claridad",
-      "severidad": "media",
-      "nota": "El lector entra en medio de la acción sin contexto. No sabemos quién es Ana, dónde está, o qué relación tiene con esta familia. La desorientación inicial es efectiva para el tono, pero podría beneficiarse de un micro-anclaje: una línea que sitúe a Ana en el espacio físico antes del golpe.",
-      "sugerencia": "Considera añadir una frase breve antes del golpe que posicione a Ana en la habitación (ej: 'Ana barrió las cenizas del hogar cuando escuchó...' o 'Ana estaba arrodillada junto a los niños cuando...'). Esto ancla al lector sin sacrificar el impacto del inicio in medias res.",
-      "impacto_si_no_se_corrige": "El lector pasa los primeros párrafos tratando de orientarse en lugar de conectar emocionalmente con la violencia que presencia."
-    },
-    {
-      "nota_id": "ch1-nota-002",
-      "parrafo_aprox": 7,
-      "texto_referencia": "Bramó algo que Ana no pudo entender.",
-      "tipo": "personaje",
-      "severidad": "alta",
-      "nota": "Esta es información crucial sobre Ana que se menciona de pasada: no entiende el idioma de sus captores. Esto redefine toda la escena, pero el lector puede pasarlo por alto en medio de la acción. La barrera lingüística es fundamental para entender su impotencia y aislamiento.",
-      "sugerencia": "Dale más peso a este detalle. Podría ser un momento de POV interno donde Ana registra conscientemente su incomprensión, quizá con una referencia a cuánto tiempo lleva sin entender lo que le gritan. Esto también establecería cuánto tiempo lleva cautiva.",
-      "impacto_si_no_se_corrige": "El lector puede no captar que Ana está doblemente prisionera: física y lingüísticamente. Esto reduce el impacto de su aislamiento total."
-    },
-    {
-      "nota_id": "ch1-nota-003",
-      "parrafo_aprox": 12,
-      "texto_referencia": "A pesar de los meses siendo golpeada, el dolor nunca había cesado.",
-      "tipo": "show_tell",
-      "severidad": "media",
-      "nota": "Esta línea DICE directamente información temporal y emocional importante. Rompe con el estilo 'show' que domina el resto de la escena. El lector ya está viendo que Ana sabe no cubrirse, que no grita—su cuerpo ya nos muestra que esto es rutina.",
-      "sugerencia": "Confía en lo que ya has mostrado. La línea 'No se cubrió. Si lo hacía, su castigo sería peor' ya comunica que esto es aprendido. Si quieres establecer el tiempo, hazlo de forma más orgánica (ej: a través de cicatrices viejas que contrastan con las heridas frescas).",
-      "impacto_si_no_se_corrige": "La voz narrativa se vuelve inconsistente, oscilando entre mostrar visceralmente y explicar didácticamente."
-    },
-    {
-      "nota_id": "ch1-nota-004",
-      "parrafo_aprox": 25,
-      "texto_referencia": "No eran hombres. Eran muros de fibra y tendones.",
-      "tipo": "voz",
-      "severidad": "baja",
-      "nota": "Esta descripción es poética y efectiva, pero '¿muros de fibra y tendones' suena ligeramente incongruente con el POV de Ana. ¿Una esclava golpeada pensaría en términos anatómicos como 'tendones'? La metáfora es hermosa pero quizá demasiado educada para el filtro del personaje.",
-      "sugerencia": "Considera ajustar a términos más viscerales y menos técnicos que Ana conocería de su experiencia: 'músculos como cuerdas', 'carne apretada sobre hueso', algo más táctil y menos clínico.",
-      "impacto_si_no_se_corrige": "Pequeñas grietas en la consistencia del POV que pueden acumularse y distanciar al lector del personaje."
-    },
-    {
-      "nota_id": "ch1-nota-005",
-      "parrafo_aprox": 38,
-      "texto_referencia": "Ana no entendía el idioma gutural, ni las costumbres. Pero el gesto de su Ama fue universal.",
-      "tipo": "emocion",
-      "severidad": "alta",
-      "nota": "Este es el momento de mayor traición emocional del capítulo—Ana está siendo vendida por la mujer a quien servía—pero la narración lo trata casi clínicamente. El lector necesita SENTIR esta puñalada. ¿Qué pasa en el cuerpo de Ana? ¿En su estómago? ¿Su respiración?",
-      "sugerencia": "Expande este momento. Ralentiza. Deja que el lector registre la comprensión de Ana a través de sensaciones físicas antes de la línea 'La estaba vendiendo'. El horror de entender sin palabras merece más espacio.",
-      "impacto_si_no_se_corrige": "El momento emocional más potente del capítulo se siente apresurado, reduciendo el impacto de la traición y la desesperación de Ana."
-    },
-    {
-      "nota_id": "ch1-nota-006",
-      "parrafo_aprox": 45,
-      "texto_referencia": "En un movimiento veloz, lanzó su hoja de obsidiana contra la mujer que se retorcía en el suelo.",
-      "tipo": "tension",
-      "severidad": "media",
-      "nota": "La guerrera mata a la mujer que intentaba venderle a Ana. Esto sugiere algo importante sobre las guerreras (¿rechazan la esclavitud? ¿desprecian la cobardía?), pero sucede tan rápido que el lector puede no captar las implicaciones. Ana tampoco parece registrar qué significa esto.",
-      "sugerencia": "Dale a Ana un momento de reacción interna. ¿Esperaba que aceptaran el trato? ¿La confunde que la mataran? Esta es información crucial sobre sus nuevos captores y sobre lo que Ana puede esperar.",
-      "impacto_si_no_se_corrige": "Se pierde una oportunidad de establecer que estas guerreras operan bajo un código diferente, información que será crucial para entender la dinámica futura."
-    },
-    {
-      "nota_id": "ch1-nota-007",
-      "parrafo_aprox": 52,
-      "texto_referencia": "Cuando abrió los ojos, entendió que la guerrera aún esperaba respuesta.",
-      "tipo": "claridad",
-      "severidad": "media",
-      "nota": "La interacción entre Ana y la guerrera es confusa aquí. La guerrera hace una pregunta que Ana no entiende, pero luego Ana 'entiende' que espera respuesta. ¿Cómo? La comunicación no verbal necesita ser más clara para que el lector siga el intercambio.",
-      "sugerencia": "Muestra más específicamente cómo Ana deduce lo que la guerrera quiere: ¿su postura? ¿la intensidad de su mirada? ¿repite el gesto? Esto también refuerza la inteligencia de Ana para leer situaciones sin palabras.",
-      "impacto_si_no_se_corrige": "El lector se confunde sobre cómo se están comunicando, lo cual rompe la inmersión en un momento crucial."
-    },
-    {
-      "nota_id": "ch1-nota-008",
-      "parrafo_aprox": 65,
-      "texto_referencia": "Los sollozos de los niños vibraban contra las costillas de Ana.",
-      "tipo": "emocion",
-      "severidad": "alta",
-      "nota": "Los niños acaban de ver/oír matar a sus padres y están llorando contra Ana. Este es un momento devastador, pero no sabemos qué siente Ana al respecto. ¿Siente algo por estos niños que pertenecen a la familia que la golpeaba? ¿Culpa? ¿alivio? ¿entumecimiento?",
-      "sugerencia": "Este es un momento perfecto para mostrar la complejidad emocional de Ana. Incluso una línea sobre la contradicción de proteger a los hijos de su torturador añadiría profundidad tremenda.",
-      "impacto_si_no_se_corrige": "Ana se siente unidimensional como víctima pasiva. Perder esta oportunidad de mostrar su conflicto interno la hace menos tridimensional."
-    },
-    {
-      "nota_id": "ch1-nota-009",
-      "parrafo_aprox": 68,
-      "texto_referencia": "Ana la mordió.",
-      "tipo": "personaje",
-      "severidad": "baja",
-      "nota": "¡Excelente! Este es el primer momento de verdadera resistencia activa de Ana. La mordida es perfecta—instintiva, desesperada, inútil pero valiente. Es un destello crucial de quién es ella bajo la supervivencia.",
-      "sugerencia": "Esto funciona muy bien. Considera si quieres ecoar este gesto más adelante como característica de Ana—que muerde cuando está acorralada. Podría convertirse en un motif de su resistencia.",
-      "impacto_si_no_se_corrige": "N/A - esto funciona. Nota de refuerzo positivo."
-    },
-    {
-      "nota_id": "ch1-nota-010",
-      "parrafo_aprox": 75,
-      "texto_referencia": "Los niños gritaban su nombre. O lo que fuera que usaran para llamarla.",
-      "tipo": "emocion",
-      "severidad": "media",
-      "nota": "Momento potencialmente devastador: ni siquiera sabe si los niños conocen su nombre real. Pero la línea se siente demasiado distanciada, casi cínica. ¿Puede Ana permitirse sentir algo aquí o está demasiado en modo supervivencia?",
-      "sugerencia": "Decide si Ana está emocionalmente entumecida en este momento (lo cual es válido) o si hay una grieta de dolor. Cualquiera funciona, pero necesita ser intencional. El tono actual está en un limbo incómodo.",
-      "impacto_si_no_se_corrige": "El lector no sabe cómo sentirse respecto a este momento porque Ana no transmite una respuesta emocional clara."
-    },
-    {
-      "nota_id": "ch1-nota-011",
-      "parrafo_aprox": 82,
-      "texto_referencia": "El mundo de afuera no era el mundo que Ana conocía.",
-      "tipo": "pacing",
-      "severidad": "media",
-      "nota": "Esta transición al exterior es abrupta después de la intensidad de la lucha. El lector necesita un micro-beat para procesar que Ana ha perdido—que la arrancaron de los niños—antes de bombardearnos con el caos exterior.",
-      "sugerencia": "Considera un párrafo de transición más suave: quizá Ana aún puede oír a los niños llorando adentro mientras la sacan, o el contraste entre el calor de la choza y el frío exterior. Algo que marque el cruce del umbral.",
-      "impacto_si_no_se_corrige": "El cambio de escena se siente cinematográficamente abrupto, como un corte de edición demasiado rápido que no deja al lector procesar."
-    },
-    {
-      "nota_id": "ch1-nota-012",
-      "parrafo_aprox": 88,
-      "texto_referencia": "Dejó de luchar. No porque quisiera. Porque el cuerpo dejó de obedecerle.",
-      "tipo": "emocion",
-      "severidad": "alta",
-      "nota": "Este es el momento de rendición física de Ana, y es poderoso. Pero falta el componente psicológico: ¿qué significa para ella dejar de luchar? ¿Es la primera vez? ¿O es un patrón familiar? Esta distinción importa para su arco.",
-      "sugerencia": "Añade una línea que indique si esto es nuevo o conocido para Ana. '(Otra vez)' o '(Como antes)' o '(Nunca antes había...)'. Una palabra puede cambiar completamente cómo leemos su rendición.",
-      "impacto_si_no_se_corrige": "Perdemos información crucial sobre el estado psicológico de Ana y cuánto la ha quebrado su cautiverio previo."
-    },
-    {
-      "nota_id": "ch1-nota-013",
-      "parrafo_aprox": 92,
-      "texto_referencia": "Ana había cambiado de dueño. Pero esta vez, los dueños eran incluso peores.",
-      "tipo": "tension",
-      "severidad": "alta",
-      "nota": "Línea final potente, pero 'incluso peores' es un juicio que Ana no puede hacer todavía—acaba de conocer a estas guerreras. Sí, son violentas, pero mataron a sus abusadores. ¿Por qué asume que serán peores? Necesita justificación en el texto.",
-      "sugerencia": "O muestra algo específico que haga que Ana tema más a estas guerreras (¿algo que vio en la aldea en llamas? ¿historias que escuchó?), o cambia la línea a algo más ambiguo: 'Ana había cambiado de dueño. Y esta vez, no sabía qué esperar.' Mantiene el gancho sin la contradicción lógica.",
-      "impacto_si_no_se_corrige": "La línea final se siente como manipulación narrativa en lugar de la conclusión orgánica de Ana, lo cual debilita el cierre del capítulo."
-    },
-    {
       "nota_id": "ch2-nota-001",
-      "parrafo_aprox": 3,
-      "texto_referencia": "El mundo se había reducido a una vibración constante. Cada paso de la bestia...",
+      "parrafo_aprox": 1,
+      "texto_referencia": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía...",
       "tipo": "claridad",
       "severidad": "media",
-      "nota": "El lector no sabe qué ha pasado entre el final del capítulo anterior y este momento. Ana está atada sobre una bestia, pero no vimos la transición. ¿Cuánto tiempo ha pasado? ¿Perdió la consciencia? La desorientación de Ana es efectiva, pero el lector necesita un ancla temporal mínima.",
-      "sugerencia": "Considera una frase de transición al inicio que indique vagamente el paso del tiempo o la pérdida de consciencia: 'No recordaba cuándo la habían atado' o 'El tiempo se había vuelto líquido desde...'",
-      "impacto_si_no_se_corrige": "El lector se siente expulsado de la narrativa por un salto temporal confuso, rompiendo la inmersión justo cuando el capítulo comienza."
+      "nota": "El lector acaba de terminar el capítulo anterior (presumiblemente la captura) y se encuentra desorientado. No hay transición temporal ni espacial clara. ¿Cuánto tiempo ha pasado? ¿Dónde está exactamente? La mención de 'nuevos captores' sugiere que hubo captores anteriores, pero esto no se ha establecido claramente.",
+      "sugerencia": "Considera anclar al lector con un detalle sensorial o temporal que conecte con el final del capítulo anterior. Incluso algo mínimo como 'Habían pasado horas desde...' o un detalle que establezca continuidad.",
+      "impacto_si_no_se_corrige": "El lector comienza el capítulo confundido sobre la línea temporal y el contexto, lo que reduce la inmersión en la experiencia física de Ana."
     },
     {
       "nota_id": "ch2-nota-002",
@@ -421,128 +416,358 @@
       "texto_referencia": "El viento aullaba. No como el viento del valle, que silbaba entre las rendijas...",
       "tipo": "show_tell",
       "severidad": "baja",
-      "nota": "Aquí el narrador explica la diferencia del viento en vez de dejar que el lector la experimente. La frase 'Era un animal vivo que le arrancaba el calor' ya muestra perfectamente la diferencia sin necesidad de la comparación explícita.",
-      "sugerencia": "Elimina 'No como el viento del valle, que silbaba entre las rendijas de las chozas. Este era diferente.' y deja que la descripción visceral hable por sí misma.",
-      "impacto_si_no_se_corrige": "Momento menor, pero la explicación innecesaria debilita la inmediatez sensorial que el resto del párrafo construye tan bien."
+      "nota": "Aquí el narrador explica explícitamente la diferencia entre los vientos en lugar de confiar en que la descripción sensorial lo transmita. La frase 'Este era diferente' es innecesaria cuando la siguiente descripción ('un animal vivo que le arrancaba el calor') ya muestra esa diferencia.",
+      "sugerencia": "Elimina 'Este era diferente' y deja que la metáfora del animal vivo haga el trabajo. La comparación con el valle puede quedarse porque establece contraste, pero la explicación intermedia debilita el impacto.",
+      "impacto_si_no_se_corrige": "Menor, pero contribuye a un patrón de sobre-explicación que puede hacer que la prosa poética se sienta menos confiada."
     },
     {
       "nota_id": "ch2-nota-003",
       "parrafo_aprox": 18,
-      "texto_referencia": "Entonces, algo cambió. Una mano enorme le tomó la cara...",
-      "tipo": "pacing",
+      "texto_referencia": "Escuchó una voz. Grave, ronca, hablando en ese idioma de piedras y guturales...",
+      "tipo": "personaje",
       "severidad": "alta",
-      "nota": "La transición de 'mundo gris, luego negro' a 'algo cambió' es demasiado abrupta. El lector acaba de experimentar a Ana perdiendo la consciencia, pero inmediatamente está consciente de nuevo sin ninguna sensación de tiempo perdido o desorientación al despertar. Este es un momento crucial de supervivencia que se siente apresurado.",
-      "sugerencia": "Añade un párrafo de transición que capture la sensación de flotar en la inconsciencia, o fragmentos de consciencia que van y vienen, antes de que la mano la agarre. Esto daría peso al momento y haría la 'resurrección' más impactante.",
-      "impacto_si_no_se_corrige": "El lector pierde el impacto emocional de Ana casi muriendo. La escena se siente mecánica: 'casi muere → la salvan' sin el peso dramático que merece."
+      "nota": "Este es el primer contacto directo entre Ana y sus captores, un momento crucial. Pero la reacción de Ana es puramente física (intentar abrir los ojos, fracasar). No hay miedo, confusión, esperanza o desesperación. Para alguien que acaba de aceptar la muerte, este contacto humano debería provocar ALGO emocionalmente, incluso si es solo resignación o terror renovado.",
+      "sugerencia": "Añade una línea de reacción interna antes o después de la descripción física. ¿Qué siente Ana al ser tocada por primera vez? ¿Espera violencia? ¿Muerte rápida? ¿Algo peor?",
+      "impacto_si_no_se_corrige": "Perdemos una oportunidad crucial de caracterización. Ana se siente como un cuerpo pasivo en lugar de una persona experimentando terror o alivio o cualquier emoción humana."
     },
     {
       "nota_id": "ch2-nota-004",
-      "parrafo_aprox": 25,
-      "texto_referencia": "Líquido. Espeso. Tibio. Su estómago se retorció...",
+      "parrafo_aprox": 24,
+      "texto_referencia": "El líquido bajó como barro caliente. Espeso, pastoso, con grumos que raspaban la garganta...",
       "tipo": "emocion",
       "severidad": "media",
-      "nota": "Esta es la primera vez que alguien intenta salvarle la vida a Ana. Es un momento cargado: estos captores brutales están eligiendo mantenerla viva. Pero la escena se enfoca solo en lo físico (el líquido, el asco). Falta la dimensión psicológica: ¿qué significa para Ana que la mantengan viva? ¿Esperanza? ¿Terror renovado?",
-      "sugerencia": "Después de tragar, antes de que el calor comience, añade un pensamiento fragmentado de Ana procesando que la están salvando. No necesita ser esperanzador, puede ser más terror: ahora tiene que seguir viviendo esto.",
-      "impacto_si_no_se_corrige": "Perdemos una oportunidad de profundizar en el estado mental de Ana y de establecer su relación compleja con la supervivencia (que parece ser un tema central)."
+      "nota": "La descripción sensorial del líquido es visceral y efectiva, pero falta la dimensión psicológica. Ana acaba de ser forzada a tragar algo desconocido y repulsivo. ¿Piensa que es veneno? ¿Orina? ¿Sangre de sacrificio? La ausencia de especulación o terror hace que el momento se sienta menos personal.",
+      "sugerencia": "Después de 'Sabía a cobre oxidado...', considera añadir un pensamiento fragmentado de Ana. No necesita ser coherente (está medio muerta), pero debería reflejar su estado mental.",
+      "impacto_si_no_se_corrige": "El momento es físicamente repulsivo pero emocionalmente plano. El lector observa en lugar de experimentar con Ana."
     },
     {
       "nota_id": "ch2-nota-005",
-      "parrafo_aprox": 42,
-      "texto_referencia": "Con la ayuda de aquella bebida extraña, por fin pudo abrir los ojos...",
-      "tipo": "voz",
-      "severidad": "baja",
-      "nota": "Esta frase suena demasiado neutral y explicativa para el tono visceral que has establecido. 'Con la ayuda de aquella bebida extraña' es casi clínico, rompe con la voz inmersiva del resto del capítulo.",
-      "sugerencia": "Reformula para mantener la inmediatez: 'Sus párpados obedecieron por fin.' o 'El mundo volvió a tener forma.' La conexión con la bebida ya está clara por el contexto.",
-      "impacto_si_no_se_corrige": "Pequeña ruptura de tono que saca al lector momentáneamente de la experiencia sensorial directa."
+      "parrafo_aprox": 32,
+      "texto_referencia": "Comenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "Esta secuencia de transformación física es hermosa y bien escrita, pero se extiende por 6-7 párrafos describiendo esencialmente el mismo proceso: el calor se extiende y el frío retrocede. La repetición hace que el ritmo se arrastre justo cuando el capítulo necesita avanzar hacia la revelación del valle.",
+      "sugerencia": "Condensa esta secuencia a 3-4 párrafos. Mantén los mejores detalles sensoriales ('brasa enterrada bajo ceniza', 'muro contra el frío') pero elimina la repetición de 'se extendió... poco a poco... despacio'.",
+      "impacto_si_no_se_corrige": "El lector puede impacientarse durante una descripción que, aunque bella, se siente circular. Esto debilita el impacto de la revelación visual que viene después."
     },
     {
       "nota_id": "ch2-nota-006",
-      "parrafo_aprox": 45,
-      "texto_referencia": "Lo primero que vio fue una silueta inclinada caminando junto a su montura...",
-      "tipo": "pacing",
-      "severidad": "media",
-      "nota": "La revelación de la criatura es efectiva, pero la descripción se extiende por varios párrafos antes del momento de contacto visual. El lector está esperando que Ana y la criatura se miren, y la tensión se diluye un poco con tanto detalle anatómico antes del payoff.",
-      "sugerencia": "Considera acortar la descripción física inicial o intercalar la descripción con la reacción de Ana. El momento 'El animal giró la cabeza hacia ella' debería llegar más rápido.",
-      "impacto_si_no_se_corrige": "La tensión del primer encuentro visual pierde fuerza. El lector puede empezar a catalogar detalles en vez de sentir el terror visceral."
+      "parrafo_aprox": 41,
+      "texto_referencia": "Con la ayuda de aquella bebida extraña, por fin pudo abrir los ojos...",
+      "tipo": "voz",
+      "severidad": "baja",
+      "nota": "'Con la ayuda de aquella bebida extraña' suena demasiado explicativo y distanciado para el registro poético establecido. Rompe la inmediatez sensorial que has construido.",
+      "sugerencia": "Algo más directo y visceral: 'Abrió los ojos' o 'Sus párpados finalmente obedecieron'. La conexión con la bebida ya está clara por el contexto.",
+      "impacto_si_no_se_corrige": "Menor, pero el cambio de registro es perceptible y saca al lector de la inmersión justo antes de un momento crucial."
     },
     {
       "nota_id": "ch2-nota-007",
+      "parrafo_aprox": 45,
+      "texto_referencia": "No tenía rostro. O sí, pero no era un rostro que debiera existir...",
+      "tipo": "tension",
+      "severidad": "alta",
+      "nota": "La descripción del Cuernomuro es efectiva, pero la reacción de Ana ('El corazón de Ana se detuvo') llega DESPUÉS de varios párrafos de descripción objetiva. El terror debería ser simultáneo a la visión, no retrasado. Esto reduce el impacto del horror.",
+      "sugerencia": "Intercala la reacción emocional de Ana con la descripción física. Muestra cómo su mente intenta procesar lo que ve mientras lo ve. 'No tenía rostro—Ana intentó gritar pero no tenía voz—o sí, pero...'",
+      "impacto_si_no_se_corrige": "El encuentro con el primer Cuernomuro debería ser el momento de mayor terror del capítulo, pero se siente más como una descripción de bestiario que como una experiencia aterradora."
+    },
+    {
+      "nota_id": "ch2-nota-008",
       "parrafo_aprox": 52,
       "texto_referencia": "Entonces, una mano dura y callosa se posó en la espalda de Ana...",
       "tipo": "claridad",
       "severidad": "alta",
-      "nota": "No está claro de quién es esta mano. ¿De la criatura que la está mirando? ¿De uno de los captores humanos? El lector asume que es de la criatura por contexto, pero la ambigüedad en un momento tan cargado es confusa. Especialmente porque después la criatura 'se aleja' como si nunca hubiera tocado a Ana.",
-      "sugerencia": "Clarifica la procedencia de la mano. Si es de la criatura, hazlo explícito. Si es de un captor humano que está montado detrás de ella, también debe quedar claro.",
-      "impacto_si_no_se_corrige": "El lector se confunde sobre la geografía de la escena y quién está haciendo qué, lo que destruye el impacto emocional del momento de contacto."
+      "nota": "El lector está confundido sobre quién pone la mano en la espalda de Ana. ¿Es el Cuernomuro que acaba de mirarla? ¿Es su jinete? ¿Otro captor? La ambigüedad no parece intencional y rompe la claridad de la escena.",
+      "sugerencia": "Clarifica la fuente del contacto. Si es el jinete del Cuernomuro, establécelo. Si es la criatura misma, eso necesita ser explícito porque cambia completamente la dinámica.",
+      "impacto_si_no_se_corrige": "El lector se distrae tratando de visualizar la escena en lugar de experimentar el momento emocional del contacto reconfortante en medio del terror."
     },
     {
-      "nota_id": "ch2-nota-008",
+      "nota_id": "ch2-nota-009",
       "parrafo_aprox": 60,
       "texto_referencia": "Ana vio el valle. Y entendió que había cruzado a un mundo de muertos...",
       "tipo": "show_tell",
       "severidad": "media",
-      "nota": "La frase 'entendió que había cruzado a un mundo de muertos' es innecesaria. La descripción que sigue (las costillas gigantes, las chozas de hueso) ya comunica esto perfectamente. El narrador está subrayando lo que la imagen ya grita.",
-      "sugerencia": "Elimina la interpretación y deja que la revelación visual hable sola: 'Ana vio el valle. Costillas. Enormes...' El impacto será mayor.",
-      "impacto_si_no_se_corrige": "Se reduce el impacto de la revelación visual al pre-explicarla. El lector quiere descubrir, no que le digan qué descubrir."
-    },
-    {
-      "nota_id": "ch2-nota-009",
-      "parrafo_aprox": 75,
-      "texto_referencia": "Ana intentó respirar hondo. No pudo. El aire no entraba...",
-      "tipo": "emocion",
-      "severidad": "baja",
-      "nota": "La descripción del mal de altura es efectiva físicamente, pero viene inmediatamente después de la revelación visual del valle. El lector todavía está procesando el horror de las costillas gigantes y las chozas de hueso, y de repente estamos en síntomas físicos. Se siente como un cambio de enfoque demasiado rápido.",
-      "sugerencia": "Considera retrasar la descripción del mal de altura unos párrafos, o intercalarla más sutilmente con la observación del valle. Deja que el horror visual respire un momento.",
-      "impacto_si_no_se_corrige": "Impacto menor, pero el momento de revelación pierde algo de fuerza al ser interrumpido inmediatamente por preocupaciones físicas."
+      "nota": "'Y entendió que había cruzado a un mundo de muertos' es una interpretación que el narrador le da al lector en lugar de dejar que la descripción que sigue haga ese trabajo. Es innecesariamente explicativo.",
+      "sugerencia": "Elimina la segunda frase. 'Ana vio el valle.' Punto. Luego deja que las costillas gigantes, las chozas de hueso y la desolación comuniquen que es un mundo de muertos. Confía en tu descripción.",
+      "impacto_si_no_se_corrige": "Reduce el impacto de la revelación visual al pre-interpretarla para el lector. Es más poderoso si el lector llega a esa conclusión simultáneamente con Ana."
     },
     {
       "nota_id": "ch2-nota-010",
-      "parrafo_aprox": 78,
-      "texto_referencia": "El animal bajo su cuerpo no parecía notarlo. Seguía avanzando, imperturbable...",
-      "tipo": "show_tell",
-      "severidad": "baja",
-      "nota": "La explicación sobre los 'cuernomuros' y su capacidad de carga rompe la inmersión. Ana está en un momento de terror y asombro, y de repente el narrador nos da información enciclopédica. Además, no está claro cómo Ana 'conocía relatos' sobre estas bestias si viene de un valle de esclavos.",
-      "sugerencia": "Elimina la explicación o reduce a algo más orgánico: Ana observa que la bestia respira normal mientras ella se ahoga. El nombre y los detalles pueden venir después, en un contexto más apropiado.",
-      "impacto_si_no_se_corrige": "Ruptura de la inmersión y posible inconsistencia de personaje (¿cómo conoce Ana estos relatos?)."
+      "parrafo_aprox": 75,
+      "texto_referencia": "Ana no entendía cómo no estaban muertos. El frío era un animal vivo...",
+      "tipo": "personaje",
+      "severidad": "media",
+      "nota": "Este es un buen momento de caracterización (Ana observando y no comprendiendo), pero se siente aislado. No hay seguimiento emocional. ¿Esto la hace sentir más vulnerable? ¿Más alienada? ¿Admiración involuntaria? La observación existe en el vacío.",
+      "sugerencia": "Añade una consecuencia emocional a la observación. Incluso algo breve como 'Eran de otra especie' o 'Ana nunca sería como ellos' daría peso personal a la observación.",
+      "impacto_si_no_se_corrige": "Las observaciones de Ana se sienten como notas de un narrador omnisciente en lugar de experiencias de un personaje con vida interior."
     },
     {
       "nota_id": "ch2-nota-011",
-      "parrafo_aprox": 95,
+      "parrafo_aprox": 85,
       "texto_referencia": "Una mujer salió de una de esas entradas. Llevaba un cuenco de hueso...",
-      "tipo": "tension",
-      "severidad": "media",
-      "nota": "Esta escena de la mujer vaciando sangre es un buen detalle de worldbuilding, pero no añade tensión dramática. El capítulo está en modo 'tour del valle' en este punto, y el lector puede empezar a desconectarse porque no hay conflicto inmediato ni pregunta dramática urgente.",
-      "sugerencia": "Considera añadir un elemento de tensión personal para Ana: ¿reconoce algo? ¿Ve algo que la aterroriza específicamente? ¿Hace contacto visual significativo con alguien? El capítulo necesita mantener stakes emocionales durante la descripción.",
-      "impacto_si_no_se_corrige": "El final del capítulo se siente más como descripción que como narrativa. El lector puede perder engagement justo antes del cierre."
+      "tipo": "emocion",
+      "severidad": "baja",
+      "nota": "El intercambio de miradas entre Ana y la mujer es efectivo en su frialdad, pero es el único momento de contacto visual humano en toda la secuencia del valle. Podría tener más peso emocional dado el aislamiento de Ana.",
+      "sugerencia": "Considera expandir ligeramente este momento. ¿Qué busca Ana en esos ojos? ¿Reconocimiento? ¿Piedad? ¿Y qué encuentra en cambio? La ausencia de humanidad puede ser más devastadora si primero vemos a Ana buscándola.",
+      "impacto_si_no_se_corrige": "Menor, pero es una oportunidad perdida de mostrar la desesperación de Ana por conexión humana."
     },
     {
       "nota_id": "ch2-nota-012",
-      "parrafo_aprox": 105,
-      "texto_referencia": "Su nueva casa era El Valle de los Restos. El lugar donde los huesos antiguos...",
+      "parrafo_aprox": 95,
+      "texto_referencia": "Su nueva casa era El Valle de los Restos. El lugar donde los huesos antiguos eran hogar...",
       "tipo": "voz",
       "severidad": "media",
-      "nota": "Estas tres frases finales suenan como resumen de contraportada, no como el pensamiento de Ana. El tono cambia a algo más poético y distanciado ('El lugar donde los huesos antiguos eran hogar') que no coincide con el estado mental agotado y aterrorizado de Ana que has establecido.",
-      "sugerencia": "Termina con algo más crudo y directo que refleje el estado de Ana: su miedo, su agotamiento, o una observación visceral específica. O simplemente termina antes, con 'había llegado.'",
-      "impacto_si_no_se_corrige": "El cierre suena artificial y debilita el impacto emocional del capítulo. El lector siente que el narrador está 'cerrando con moraleja' en vez de dejar que la escena hable."
+      "nota": "El final cambia abruptamente a un tono casi de narrador omnisciente con estas declaraciones formales. 'Su nueva casa' y las frases siguientes suenan como texto de introducción de capítulo, no como el cierre de la experiencia visceral de Ana. Rompe con la voz establecida.",
+      "sugerencia": "Mantén el final más anclado en la experiencia inmediata de Ana. Las últimas líneas deberían reflejar su estado mental/emocional en este momento, no hacer declaraciones sobre el lugar. Algo como 'Ana cerró los ojos. El valle seguía ahí.' sería más consistente.",
+      "impacto_si_no_se_corrige": "El capítulo termina con un cambio de voz que se siente como si un narrador diferente hubiera entrado a dar contexto. Debilita la inmersión final."
+    },
+    {
+      "nota_id": "ch3-nota-001",
+      "parrafo_aprox": 1,
+      "texto_referencia": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "El lector no tiene contexto de transición desde el capítulo anterior. ¿Cuánto tiempo pasó durante el viaje? ¿Ana estuvo consciente? Esta apertura asume que sabemos que hubo un trayecto, pero la experiencia temporal de Ana se pierde completamente.",
+      "sugerencia": "Considera abrir con una línea que ancle al lector en el tiempo transcurrido o en la experiencia física de Ana durante el viaje (frío, dolor, duración). Algo como: 'Después de horas cabalgando...' o una sensación física que marque el paso del tiempo.",
+      "impacto_si_no_se_corrige": "El lector experimenta un salto narrativo desorientador que rompe la inmersión. La sensación de ser secuestrada pierde peso si no sentimos el trayecto."
+    },
+    {
+      "nota_id": "ch3-nota-002",
+      "parrafo_aprox": 2,
+      "texto_referencia": "No era una casa. Era un cobertijo. Una estructura baja construida con costillas fosilizadas...",
+      "tipo": "voz",
+      "severidad": "baja",
+      "nota": "La corrección inmediata 'No era una casa. Era un cobertijo' suena como la voz del narrador corrigiendo al lector, pero el estilo poético establecido fluye más orgánicamente. Esta construcción es más didáctica que lírica.",
+      "sugerencia": "Considera reformular para mantener el flujo poético: 'Un cobertijo, no una casa' o simplemente eliminar la corrección y dejar que la descripción detallada haga el trabajo de distinción.",
+      "impacto_si_no_se_corrige": "Pequeña ruptura en la voz narrativa que puede acumularse si se repite el patrón."
+    },
+    {
+      "nota_id": "ch3-nota-003",
+      "parrafo_aprox": 9,
+      "texto_referencia": "Ana captó fragmentos. '...khora...' (¿Bueno? ¿Útil?) '...dravik...' (¿Hierro? ¿Metal?) '...skan...' (No tenía idea.)",
+      "tipo": "show_tell",
+      "severidad": "media",
+      "nota": "Los paréntesis con traducciones aproximadas rompen la inmersión. El lector debería experimentar la desorientación lingüística de Ana sin que el narrador intervenga para 'ayudar'. La última línea '(No tenía idea)' es especialmente problemática porque explicita lo que ya es obvio.",
+      "sugerencia": "Elimina los paréntesis. Deja las palabras extranjeras solas y permite que el contexto (gestos, objetos señalados) sugiera significados. La confusión de Ana será más visceral si el lector también está confundido.",
+      "impacto_si_no_se_corrige": "Se pierde una oportunidad poderosa de hacer que el lector experimente la alienación de Ana. La traducción entre paréntesis es una muleta narrativa que debilita la inmersión."
+    },
+    {
+      "nota_id": "ch3-nota-004",
+      "parrafo_aprox": 11,
+      "texto_referencia": "Ana seguía atada al lomo del Cuernomuro. Las cuerdas le cortaban las muñecas...",
+      "tipo": "pacing",
+      "severidad": "alta",
+      "nota": "Este recordatorio del sufrimiento físico de Ana llega DESPUÉS de varios párrafos describiendo la descarga del botín. El lector ha olvidado momentáneamente que Ana sigue ahí, sufriendo. La tensión se disipa porque la narrativa prioriza el inventario sobre el protagonista.",
+      "sugerencia": "Intercala el dolor de Ana DURANTE la descripción de la descarga. Párrafos cortos que alternen entre 'Sacos de arpillera...' y 'Las cuerdas cortaban más profundo con cada movimiento'. Mantén a Ana presente en cada momento.",
+      "impacto_si_no_se_corrige": "El lector se desconecta emocionalmente de Ana justo cuando más debería sentir su vulnerabilidad. La escena se vuelve sobre el mundo-building en vez de sobre la experiencia del personaje."
+    },
+    {
+      "nota_id": "ch3-nota-005",
+      "parrafo_aprox": 13,
+      "texto_referencia": "Nadie la miraba.",
+      "tipo": "emocion",
+      "severidad": "media",
+      "nota": "Esta línea tiene potencial devastador pero está enterrada entre descripciones de objetos. Es un momento de deshumanización total que merece más peso. El lector debería SENTIR esta invisibilidad, no solo leerla como dato.",
+      "sugerencia": "Dale a esta línea su propio párrafo. Considera expandirla ligeramente para que resuene: 'Nadie la miraba. Ni una vez. Ni siquiera por accidente.' O colócala después de un momento específico donde alguien literalmente la ignore.",
+      "impacto_si_no_se_corrige": "Un momento emocional clave pasa desapercibido. El lector pierde la oportunidad de conectar con la deshumanización de Ana."
+    },
+    {
+      "nota_id": "ch3-nota-006",
+      "parrafo_aprox": 17,
+      "texto_referencia": "Ana existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.",
+      "tipo": "voz",
+      "severidad": "baja",
+      "nota": "Esta es una observación poética hermosa, pero ¿es la voz de Ana o del narrador? Si es Ana reflexionando sobre su propia cosificación, es profunda. Si es el narrador observando, puede sonar distante. La ambigüedad no está clara.",
+      "sugerencia": "Si quieres que sea la percepción de Ana sobre sí misma, ancla la línea en su experiencia: 'Ana lo sabía. Existía al borde de su visión...' Si es el narrador, está bien como está, pero considera el tono.",
+      "impacto_si_no_se_corrige": "Ambigüedad menor en el punto de vista que puede acumularse si el patrón continúa."
+    },
+    {
+      "nota_id": "ch3-nota-007",
+      "parrafo_aprox": 23,
+      "texto_referencia": "Ana cayó. No hubo advertencia. No hubo manos que la recibieran. Solo gravedad.",
+      "tipo": "pacing",
+      "severidad": "baja",
+      "nota": "El ritmo aquí es excelente - frases cortas que mimetizan la caída. 'Solo gravedad' es una línea potente. Esto es un ejemplo de lo que funciona bien en el capítulo.",
+      "sugerencia": "No cambiar. Nota positiva: este momento está perfectamente ejecutado. El ritmo sintáctico refuerza la acción física.",
+      "impacto_si_no_se_corrige": "N/A - esto funciona."
+    },
+    {
+      "nota_id": "ch3-nota-008",
+      "parrafo_aprox": 25,
+      "texto_referencia": "Su cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió...",
+      "tipo": "emocion",
+      "severidad": "media",
+      "nota": "La descripción física del dolor es vívida, pero falta la respuesta emocional de Ana. ¿Siente miedo? ¿Rabia? ¿Resignación? ¿Sorpresa de estar viva? El lector experimenta el dolor físico pero no accede a su estado interno.",
+      "sugerencia": "Después del dolor físico, una línea sobre su reacción emocional: '¿Esto era todo? ¿La dejarían morir aquí como basura descartada?' o 'Ni siquiera esto le sorprendía ya.' Algo que revele su estado mental.",
+      "impacto_si_no_se_corrige": "Ana permanece como receptáculo pasivo de violencia sin vida interior. El lector ve su sufrimiento pero no conecta con su humanidad."
+    },
+    {
+      "nota_id": "ch3-nota-009",
+      "parrafo_aprox": 29,
+      "texto_referencia": "Uno de ellos pasó junto a Ana. Su bota estuvo a centímetros de su cara...",
+      "tipo": "tension",
+      "severidad": "media",
+      "nota": "Este momento tiene potencial para tensión extrema - la bota cerca de su cara podría aplastarla accidentalmente o a propósito - pero se resuelve sin consecuencia. El 'Ni siquiera la esquivó' es bueno, pero el lector espera más peligro del que se materializa.",
+      "sugerencia": "Considera añadir un detalle sensorial que prolongue la tensión: el olor del cuero, el peso del paso que hace vibrar el suelo bajo su mejilla, un segundo donde Ana cierra los ojos esperando el golpe. Haz que el lector TEMA antes del alivio.",
+      "impacto_si_no_se_corrige": "Oportunidad perdida de tensión. El momento pasa demasiado rápido para que el lector sienta el peligro real."
+    },
+    {
+      "nota_id": "ch3-nota-010",
+      "parrafo_aprox": 34,
+      "texto_referencia": "Ana levantó la cabeza. Sus ojos se encontraron. La mujer no tenía expresión...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este es el primer contacto visual real entre Ana y su captora. Es un momento crucial que define su relación, pero está narrado con distancia clínica. ¿Qué BUSCA Ana en esos ojos? ¿Qué espera encontrar? ¿Qué significa para ella no encontrar nada?",
+      "sugerencia": "Entra en la cabeza de Ana durante este intercambio. '¿Qué buscaba Ana en esos ojos grises? ¿Reconocimiento? ¿Crueldad que pudiera entender? No encontró nada.' Dale al lector acceso a su desesperación por conexión humana, incluso con su captora.",
+      "impacto_si_no_se_corrige": "El momento emocional más importante del capítulo pasa sin resonancia. El lector pierde la oportunidad de entender la psicología de Ana como cautiva."
+    },
+    {
+      "nota_id": "ch3-nota-011",
+      "parrafo_aprox": 38,
+      "texto_referencia": "Ana se quedó sola. Tendida en el suelo. Atada. Magullada. Respirando el aire delgado...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "La lista de estados físicos ('Tendida. Atada. Magullada.') es efectiva, pero la transición a 'Y se quedó dormida' es demasiado abrupta. Ana pasa de dolor agudo a sueño sin proceso. El lector necesita sentir el agotamiento que la vence.",
+      "sugerencia": "Añade una o dos líneas de transición: 'El dolor se convirtió en un zumbido constante. Luego en nada.' o 'No decidió dormir. El cuerpo simplemente se apagó.' Muestra el colapso, no solo el resultado.",
+      "impacto_si_no_se_corrige": "El final del capítulo se siente cortado en vez de concluido. El lector no experimenta el agotamiento total que justifica que Ana se duerma en esas condiciones."
+    },
+    {
+      "nota_id": "ch3-nota-012",
+      "parrafo_aprox": 40,
+      "texto_referencia": "Ana también cerró los suyos. Y se quedó dormida.",
+      "tipo": "tension",
+      "severidad": "media",
+      "nota": "El capítulo termina con Ana durmiendo, lo cual es realista pero narrativamente inerte. No hay gancho para el siguiente capítulo, no hay pregunta sin responder, no hay tensión que arrastre al lector. El sueño es un final, no una apertura.",
+      "sugerencia": "Considera terminar justo ANTES del sueño, con Ana consciente de su situación: 'Cerró los ojos. No para dormir. Solo para no ver.' O añade una última línea que plante una pregunta: 'Y soñó con fuego.' Algo que prometa continuación.",
+      "impacto_si_no_se_corrige": "El capítulo termina sin momentum. El lector puede cerrar el libro aquí sin urgencia de continuar. En una serialización, esto es crítico."
+    },
+    {
+      "nota_id": "ch2-nota-001",
+      "parrafo_aprox": 8,
+      "texto_referencia": "La tomó con ambas manos atadas. Intentó jalarla hacia su cuerpo...",
+      "tipo": "pacing",
+      "severidad": "media",
+      "nota": "La secuencia de la piel que se desintegra es efectiva, pero la transición inmediata al temblor violento pierde una oportunidad emocional. El lector necesita un momento para sentir la desesperación de Ana ante este fracaso antes de pasar a la siguiente crisis física.",
+      "sugerencia": "Añadir un beat de reacción emocional después de que la piel se deshace. Un momento donde Ana procesa que incluso esta pequeña esperanza se le niega. Puede ser breve (2-3 líneas), pero daría peso al momento.",
+      "impacto_si_no_se_corrige": "El lector experimenta fatiga de crisis constante sin momentos de procesamiento emocional. Las escenas de supervivencia se vuelven mecánicas en vez de viscerales."
+    },
+    {
+      "nota_id": "ch2-nota-002",
+      "parrafo_aprox": 15,
+      "texto_referencia": "¿Huir? La idea cruzó su mente como un relámpago...",
+      "tipo": "show_tell",
+      "severidad": "baja",
+      "nota": "La estructura de pregunta-respuesta (¿Huir? ¿A dónde? ¿Pelear?) es efectiva para mostrar su proceso mental, pero las conclusiones son demasiado racionales para alguien en hipotermia severa. El pensamiento debería ser más fragmentado, más primitivo.",
+      "sugerencia": "Mantener la estructura pero hacer el pensamiento más caótico. Frases incompletas, imágenes en vez de argumentos lógicos. 'Puerta. Oscuridad. Frío peor. Guerrera. Manos. Fuerza.' Esto reflejaría mejor su estado físico deteriorado.",
+      "impacto_si_no_se_corrige": "Menor. La escena funciona, pero podría ser más inmersiva si el estilo del pensamiento reflejara su estado físico extremo."
+    },
+    {
+      "nota_id": "ch2-nota-003",
+      "parrafo_aprox": 25,
+      "texto_referencia": "Su casa. No la choza donde la golpeaban. La casa de antes...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este flashback es crucial para el desarrollo del personaje, pero llega en un momento de máxima tensión física (hipotermia severa) sin justificación clara. El lector puede sentir que la narrativa se detiene justo cuando más enganchado está con la supervivencia inmediata de Ana.",
+      "sugerencia": "Anclar el flashback a un trigger sensorial específico. ¿El olor del heno le recuerda algo? ¿El sonido del viento? Esto haría la transición más orgánica y justificaría por qué su mente va allí en este momento extremo. Alternativamente, acortar el flashback y distribuir esta información de backstory en otros momentos del capítulo.",
+      "impacto_si_no_se_corrige": "El lector pierde el momentum de la escena de supervivencia. El flashback se siente como una pausa narrativa en vez de una profundización del momento presente."
+    },
+    {
+      "nota_id": "ch2-nota-004",
+      "parrafo_aprox": 32,
+      "texto_referencia": "¿Cuántos años habían pasado? ¿Tres? ¿Cuatro? Ana no estaba segura...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "Esta información es importante para entender la edad de Ana, pero el lector no tiene contexto suficiente. ¿Tres o cuatro años desde qué? ¿Desde que perdió a su madre? ¿Desde que llegó con el Amo? ¿Cuántos años tiene Ana ahora? Sin esto, es difícil visualizar al personaje.",
+      "sugerencia": "Clarificar la línea temporal. Si tiene sentido para el personaje, puede pensar algo como 'Tenía seis años entonces. ¿Ahora diez? ¿Once?' Esto ancla al lector sin romper la voz.",
+      "impacto_si_no_se_corrige": "El lector no puede visualizar completamente al personaje. La edad de Ana afecta cómo interpretamos toda su experiencia y su capacidad de agencia."
+    },
+    {
+      "nota_id": "ch2-nota-005",
+      "parrafo_aprox": 45,
+      "texto_referencia": "El Cuernomuro abrió los ojos. Dos círculos brillantes en la penumbra...",
+      "tipo": "tension",
+      "severidad": "baja",
+      "nota": "La transición del flashback emocional al momento presente con el Cuernomuro es abrupta. El lector necesita un momento para reorientarse: ¿Ana sigue temblando? ¿Está llorando? ¿Cómo la afectó el recuerdo?",
+      "sugerencia": "Una línea de transición que muestre el estado de Ana antes de que el Cuernomuro se mueva. Esto reconecta al lector con el presente físico de la escena.",
+      "impacto_si_no_se_corrige": "Desorientación momentánea. El lector tiene que releer para entender que hemos vuelto al presente."
+    },
+    {
+      "nota_id": "ch2-nota-006",
+      "parrafo_aprox": 58,
+      "texto_referencia": "Ana retrocedió. Se arrastró hacia atrás, empujándose con los codos...",
+      "tipo": "personaje",
+      "severidad": "media",
+      "nota": "La reacción de miedo de Ana es comprensible, pero acabamos de pasar tiempo estableciendo que está en hipotermia severa, temblando violentamente. ¿Tiene la fuerza física para arrastrarse? Este detalle afecta la credibilidad de la escena.",
+      "sugerencia": "Mostrar que el movimiento le cuesta más de lo que quisiera. Que intenta retroceder pero su cuerpo apenas responde. Esto mantiene la tensión mientras respeta su estado físico establecido.",
+      "impacto_si_no_se_corrige": "Inconsistencia en el estado físico del personaje. El lector pierde confianza en la precisión de la narrativa de supervivencia."
+    },
+    {
+      "nota_id": "ch2-nota-007",
+      "parrafo_aprox": 72,
+      "texto_referencia": "Entonces, el Cuernomuro se giró. Le dio la espalda a Ana...",
+      "tipo": "emocion",
+      "severidad": "alta",
+      "nota": "Este es el momento emocional más importante del capítulo: el acto de protección del Cuernomuro. Pero la narrativa lo trata casi como una acción mecánica. El lector necesita sentir el peso de este momento, la sorpresa, el alivio, la confusión de Ana ante este acto de bondad inesperado.",
+      "sugerencia": "Ralentizar este momento. Cuando el Cuernomuro se gira y bloquea la entrada, Ana necesita procesarlo. ¿No entiende al principio? ¿Piensa que el animal la está ignorando? ¿Cuándo se da cuenta de lo que está haciendo? Este reconocimiento gradual daría peso emocional al momento.",
+      "impacto_si_no_se_corrige": "El lector pierde el impacto emocional del momento más importante del capítulo. La conexión entre Ana y el Cuernomuro se siente mecánica en vez de significativa."
+    },
+    {
+      "nota_id": "ch2-nota-008",
+      "parrafo_aprox": 78,
+      "texto_referencia": "Luego, con un movimiento de su hocico, señaló un lugar cerca de su estómago...",
+      "tipo": "claridad",
+      "severidad": "media",
+      "nota": "El gesto del Cuernomuro 'señalando' con el hocico puede ser difícil de visualizar para el lector. ¿Cómo señala exactamente un animal así? ¿Es un movimiento de cabeza? ¿Un resoplido direccional?",
+      "sugerencia": "Ser más específico en la descripción del gesto. Esto ayuda al lector a visualizar la escena y hace la comunicación entre Ana y el animal más creíble.",
+      "impacto_si_no_se_corrige": "Confusión visual menor. El lector puede perder el momento tratando de imaginar la acción."
+    },
+    {
+      "nota_id": "ch2-nota-009",
+      "parrafo_aprox": 85,
+      "texto_referencia": "Ana llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor...",
+      "tipo": "show_tell",
+      "severidad": "baja",
+      "nota": "La descripción sensorial aquí es efectiva, pero la frase 'pero no le importó' le dice al lector cómo sentir en vez de dejarlo experimentar el momento. Ya sabemos que no le importa porque continúa acercándose.",
+      "sugerencia": "Eliminar 'pero no le importó' y dejar que las acciones de Ana hablen. El hecho de que se acurruque más cerca a pesar del olor muestra que no le importa.",
+      "impacto_si_no_se_corrige": "Muy menor. Es un pequeño momento de telling innecesario en una escena que por lo demás muestra bien."
+    },
+    {
+      "nota_id": "ch2-nota-010",
+      "parrafo_aprox": 95,
+      "texto_referencia": "Por primera vez desde que la habían arrancado de esa choza...",
+      "tipo": "voz",
+      "severidad": "media",
+      "nota": "Esta frase rompe con la voz poética establecida del capítulo. Es demasiado explicativa y resume en vez de mostrar. El contraste entre su sufrimiento anterior y este momento de paz podría comunicarse de forma más sutil.",
+      "sugerencia": "En vez de decirlo explícitamente, mostrar el contraste a través de sensaciones. 'No había dolor. No había miedo. Solo calor. Solo esto.' Deja que el lector haga la conexión con todo lo que ha sufrido antes.",
+      "impacto_si_no_se_corrige": "Rompe momentáneamente la inmersión con una observación demasiado consciente. El estilo poético del capítulo se diluye."
+    },
+    {
+      "nota_id": "ch2-nota-011",
+      "parrafo_aprox": 100,
+      "texto_referencia": "Junto a la bestia que le había salvado la vida sin que nadie se lo pidiera.",
+      "tipo": "show_tell",
+      "severidad": "alta",
+      "nota": "Esta última línea le dice al lector la significancia del momento en vez de dejarlo sentirla. Es innecesariamente explicativa y subestima la inteligencia del lector. Ya entendemos que el Cuernomuro la salvó y que fue un acto voluntario, hemos visto toda la escena.",
+      "sugerencia": "Terminar con algo más sensorial y menos explicativo. 'Junto a la bestia que respiraba como una montaña viva.' O simplemente terminar con 'Junto a la bestia.' El silencio después de toda la intensidad del capítulo sería más poderoso.",
+      "impacto_si_no_se_corrige": "El capítulo termina con una nota de over-explanation que debilita un final que de otro modo sería poderoso. El lector se siente subestimado."
     }
   ],
   "statistics": {
-    "total": 25,
+    "total": 35,
     "por_tipo": {
-      "claridad": 4,
-      "personaje": 2,
-      "show_tell": 4,
-      "voz": 3,
-      "emocion": 6,
-      "tension": 3,
-      "pacing": 3
+      "claridad": 5,
+      "show_tell": 6,
+      "personaje": 3,
+      "emocion": 7,
+      "pacing": 5,
+      "voz": 5,
+      "tension": 4
     },
     "por_severidad": {
-      "alta": 7,
-      "media": 12,
-      "baja": 6
+      "alta": 8,
+      "media": 18,
+      "baja": 9
     }
   },
-  "total": 2,
+  "total": 4,
   "errors": 0
 }
