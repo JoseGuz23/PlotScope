@@ -255,8 +255,15 @@ def handle_upload(req):
         except: pass
         
         service.get_blob_client("sylphrena-inputs", f"{job_id}/{filename}").upload_blob(base64.b64decode(content), overwrite=True)
-        
-        meta = {'job_id': job_id, 'project_name': project_name, 'original_filename': filename, 'status': 'starting', 'created_at': datetime.utcnow().isoformat() + 'Z'}
+
+        meta = {
+            'job_id': job_id,
+            'project_name': project_name,
+            'book_name': project_name,  # FIX: Agregar book_name desde el inicio
+            'original_filename': filename,
+            'status': 'starting',
+            'created_at': datetime.utcnow().isoformat() + 'Z'
+        }
         service.get_blob_client("sylphrena-outputs", f"{job_id}/metadata.json").upload_blob(json.dumps(meta), overwrite=True)
         
         return success_response({'job_id': job_id, 'status': 'uploaded', 'blob_path': f"{job_id}/{filename}"})

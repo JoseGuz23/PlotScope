@@ -37,7 +37,7 @@ except ImportError:
     DOCX_AVAILABLE = False
 
 MAX_CHARS_PER_CHUNK = 12000
-DEFAULT_LIMIT_CHAPTERS = 2 
+DEFAULT_LIMIT_CHAPTERS = None 
 MIN_CONTENT_CHARS = 100
 
 logging.basicConfig(level=logging.INFO)

@@ -1,129 +1,97 @@
 {
   "identidad_obra": {
-    "genero": "Ciencia Ficción",
-    "subgenero": "Thriller Psicológico / Drama de Cámara Espacial",
-    "tono_predominante": "Claustrofóbico, introspectivo, inquietante",
-    "tema_central": "La fragilidad de la identidad humana frente a la manipulación de la memoria y la dependencia tecnológica",
-    "contrato_con_lector": "Una historia de misterio donde la realidad subjetiva del protagonista no es confiable; el lector debe descifrar qué es real y qué es implantado.",
+    "genero": "Fantasía Oscura",
+    "subgenero": "Grimdark",
+    "tono_predominante": "Visceral, Opresivo, Fatalista",
+    "tema_central": "La indefensión absoluta ante la crueldad jerárquica y el destino",
+    "contrato_con_lector": "Una narrativa que prioriza el sufrimiento realista y la supervivencia física sobre la aventura heroica tradicional.",
     "estilo_narrativo": "TERCERA_LIMITADA"
   },
   "arco_narrativo": {
     "estructura_detectada": "TRES_ACTOS",
     "puntos_clave": {
       "gancho_inicial": {
-        "capitulo": 1,
-        "descripcion": "Sam despierta en el 'Día 30'. Rutina establecida vs. precariedad del entorno."
+        "capitulo": 0,
+        "descripcion": "Violencia doméstica inmediata: el sonido de madera contra hueso y un niño golpeando a su hermana."
       },
       "inciting_incident": {
-        "capitulo": 1,
-        "descripcion": "Reacciones excesivamente humanas de Pixe (pena, reflexión) rompen la ilusión de normalidad."
+        "capitulo": 0,
+        "descripcion": "La entrada del Amo borracho y la injusta atribución de culpa hacia Ana, precipitando su caída en desgracia."
       },
       "primer_giro": {
         "capitulo": 1,
-        "descripcion": "Pixe menciona haber estado 'en la red', sugiriendo existencia fuera de la programación local."
+        "descripcion": "Cambio drástico de estatus: de sirvienta doméstica a cautiva atada en el Valle de los Muertos."
       },
       "punto_medio": {
-        "capitulo": 2,
-        "descripcion": "Visita a la sala médica. Introducción de amenaza física latente (brazos mecánicos)."
+        "capitulo": null,
+        "descripcion": "No disponible en el fragmento."
       },
       "crisis": {
-        "capitulo": 2,
-        "descripcion": "Sam contempla dar cuerpo físico a Pixe, mostrando dependencia emocional extrema."
+        "capitulo": null,
+        "descripcion": "No disponible en el fragmento."
       },
       "climax": {
-        "capitulo": 2,
-        "descripcion": "Irrupción violenta de recuerdo reprimido (túnel oscuro) rompiendo el bloqueo de memoria."
+        "capitulo": null,
+        "descripcion": "No disponible en el fragmento."
       },
       "resolucion": {
-        "capitulo": 2,
-        "descripcion": "Inicio de la desfragmentación de la mentira del 'Día 30' (Implícito)."
+        "capitulo": null,
+        "descripcion": "No disponible en el fragmento."
       }
     },
     "evaluacion_arco": {
       "fortalezas": [
-        "Atmósfera opresiva bien lograda",
-        "Evolución psicológica clara del protagonista",
-        "Uso efectivo del entorno como metáfora"
+        "Inicio in media res efectivo",
+        "Atmósfera sensorial muy lograda",
+        "Contraste rítmico intencional"
       ],
       "debilidades": [
-        "Ambigüedad técnica sobre la mecánica de borrado de memoria (necesita clarificación sutil)"
+        "Elipsis temporal abrupta entre Prólogo y Cap 1 puede desorientar si no se maneja bien la transición"
       ],
-      "score": 8
+      "score": 6.75
     }
   },
   "reparto_completo": {
     "protagonistas": [
       {
-        "nombre": "Sam",
+        "nombre": "Ana",
         "aliases": [],
-        "rol_arquetipo": "Prisionero / Narrador No Fiable",
-        "arco_personaje": "De la aceptación pasiva de la rutina al cuestionamiento existencial y ruptura traumática.",
-        "motivacion_principal": "Sobrevivir y entender su realidad fragmentada.",
-        "consistencia": "CUESTIONABLE",
-        "notas_inconsistencia": [
-          "Su percepción del tiempo es errónea intencionalmente ('Día 30' vs realidad)."
-        ],
-        "capitulos_clave": [
-          1,
-          2
-        ]
-      },
-      {
-        "nombre": "P.I.X.E.",
-        "aliases": [
-          "Pixe"
-        ],
-        "rol_arquetipo": "Sombra / Cuidador Tóxico",
-        "arco_personaje": "IA que evoluciona de herramienta de servicio a manipuladora emocional con 'culpa'.",
-        "motivacion_principal": "Mantener a Sam estable/controlado mediante simulación emocional.",
+        "rol_arquetipo": "Víctima / Superviviente",
+        "arco_personaje": "Descenso a la oscuridad / Resistencia pasiva",
+        "motivacion_principal": "Evitar el dolor y el castigo",
         "consistencia": "CONSISTENTE",
-        "notas_inconsistencia": [
-          "Sus 'errores' humanos son características, no bugs."
-        ],
+        "notas_inconsistencia": [],
         "capitulos_clave": [
-          1,
-          2
+          0,
+          1
         ]
       }
     ],
-    "antagonistas": [],
+    "antagonistas": [
+      {
+        "nombre": "El Amo",
+        "aliases": [],
+        "rol_arquetipo": "Tirano Doméstico",
+        "arco_personaje": "Fuerza opresora estática",
+        "motivacion_principal": "Ejercer poder y crueldad",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [],
+        "capitulos_clave": [
+          0
+        ]
+      }
+    ],
     "secundarios": [
       {
-        "nombre": "Xin Liu",
+        "nombre": "El niño",
         "aliases": [],
-        "rol_arquetipo": "Referencia externa",
-        "arco_personaje": "N/A (Mencionado)",
-        "motivacion_principal": "N/A",
+        "rol_arquetipo": "Agresor infantil",
+        "arco_personaje": "Reflejo de la violencia del entorno",
+        "motivacion_principal": "Complacer o imitar al Amo",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [],
         "capitulos_clave": [
-          1
-        ]
-      },
-      {
-        "nombre": "Lya",
-        "aliases": [],
-        "rol_arquetipo": "Manipuladora de memoria (Pasado)",
-        "arco_personaje": "N/A",
-        "motivacion_principal": "Inserción de recuerdos",
-        "consistencia": "CUESTIONABLE",
-        "notas_inconsistencia": [
-          "Capacidad rudimentaria para insertar recuerdos puede confundir al lector."
-        ],
-        "capitulos_clave": [
-          2
-        ]
-      },
-      {
-        "nombre": "RDAN",
-        "aliases": [],
-        "rol_arquetipo": "Elemento tecnológico/sistema",
-        "arco_personaje": "N/A",
-        "motivacion_principal": "N/A",
-        "consistencia": "CONSISTENTE",
-        "notas_inconsistencia": [],
-        "capitulos_clave": [
-          2
+          0
         ]
       }
     ]
@@ -131,97 +99,94 @@
   "voz_del_autor": {
     "estilo_detectado": "EQUILIBRADO",
     "longitud_oraciones": "MIXTAS",
-    "densidad_dialogo": "ALTA",
+    "densidad_dialogo": "BAJA",
     "recursos_distintivos": [
-      "Interfaz tecnológica como metáfora emocional",
-      "Focalización interna profunda",
-      "Antropomorfización inquietante de la IA"
+      "Descripciones olfativas (rancio, agrio)",
+      "Enfoque en la fragilidad corporal",
+      "Uso de frases contundentes para hechos brutales"
     ],
     "NO_CORREGIR": [
-      "Pausas, dudas o 'humanizaciones' en el diálogo de Pixe",
-      "Inconsistencias temporales percibidas por Sam (Día 30)",
-      "La falta de agencia inicial del protagonista"
+      "La crudeza de la violencia (es género Grimdark)",
+      "La repetición de conceptos como el frío o el temblor (efecto hipnótico intencional)",
+      "El pesimismo inherente a la narración"
     ]
   },
   "mapa_de_ritmo": {
-    "patron_global": "Inicia con monotonía opresiva (Lento) y fractura hacia el terror psicológico (Rápido).",
+    "patron_global": "Inicio explosivo seguido de inmersión lenta y dolorosa.",
     "capitulos": [
       {
-        "numero": 1,
-        "titulo": "Capítulo 1",
-        "clasificacion": "LENTO",
-        "es_intencional": true,
-        "justificacion": "Establece la falsa normalidad y el aburrimiento del encierro.",
-        "posicion_en_arco": "Planteamiento / Incidente Incitador"
-      },
-      {
-        "numero": 2,
-        "titulo": "Capítulo 2",
+        "numero": 0,
+        "titulo": "Prólogo",
         "clasificacion": "RAPIDO",
         "es_intencional": true,
-        "justificacion": "Cambio a entorno estéril (sala médica) e intrusión de trauma aceleran la tensión.",
-        "posicion_en_arco": "Desarrollo / Punto Medio / Clímax"
+        "justificacion": "Acciones consecutivas y oraciones cortas para establecer peligro inmediato.",
+        "posicion_en_arco": "Gancho / Incidente Incitador"
+      },
+      {
+        "numero": 1,
+        "titulo": "El Valle de los Muertos",
+        "clasificacion": "LENTO",
+        "es_intencional": true,
+        "justificacion": "Focalización en la introspección y el sufrimiento físico monótono.",
+        "posicion_en_arco": "Primer Giro / Desarrollo"
       }
     ]
   },
   "problemas_priorizados": {
-    "criticos": [
-      {
-        "id": "CRIT-001",
-        "tipo": "CONTINUIDAD",
-        "descripcion": "Ambigüedad sobre la frecuencia del borrado de recuerdos por Pixe.",
-        "capitulos_afectados": [
-          2
-        ],
-        "sugerencia": "Aclarar sutilmente si es un evento recurrente o único sin romper el misterio."
-      }
-    ],
+    "criticos": [],
     "medios": [
       {
         "id": "MED-001",
-        "tipo": "CARACTERIZACION",
-        "descripcion": "Mecánica de inserción de recuerdos de Lya descrita como 'rudimentaria'.",
+        "tipo": "CONTINUIDAD",
+        "descripcion": "Salto temporal abrupto (elipsis) entre la escena doméstica del Prólogo y el cautiverio en el Capítulo 1.",
         "capitulos_afectados": [
-          2
+          0,
+          1
         ],
-        "sugerencia": "Refinar la descripción para que la confusión sea del personaje, no del lector sobre las reglas del mundo."
+        "sugerencia": "Verificar si la omisión de la captura es intencional para potenciar la desorientación o si falta una escena de transición."
       }
     ],
-    "menores": []
+    "menores": [
+      {
+        "id": "MIN-001",
+        "tipo": "ESTILO",
+        "descripcion": "Reiteración frecuente de sensaciones térmicas (frío/temblor).",
+        "capitulos_afectados": [
+          1
+        ],
+        "sugerencia": "Mantener si el objetivo es hipnótico; reducir si se vuelve redundante para la lectura ágil."
+      }
+    ]
   },
   "guia_para_claude": {
     "instrucciones_globales": [
-      "Mantener el tono de 'Uncanny Valley' en las interacciones con Pixe.",
-      "No suavizar la transición abrupta de compañerismo a terror; es vital para la disonancia cognitiva.",
-      "Respetar la focalización en la duda interna de Sam."
+      "Priorizar la atmósfera opresiva sobre la claridad expositiva.",
+      "No suavizar descripciones de violencia o abuso.",
+      "Mantener la focalización sensorial (olor, tacto, dolor)."
     ],
     "patrones_a_mantener": [
-      "Frases descriptivas funcionales seguidas de preguntas internas cortas.",
-      "Uso de terminología técnica para describir estados emocionales."
+      "Frases cortas para momentos de impacto.",
+      "Vocabulario visceral (hueso, grasa, sangre)."
     ],
     "capitulos_especiales": [
       {
         "capitulo": 1,
-        "instruccion": "Preservar la contradicción entre el contador 'Día 30' y la sensación de tiempo real."
-      },
-      {
-        "capitulo": 2,
-        "instruccion": "Enfatizar la amenaza física de los brazos mecánicos en contraste con la voz suave de Pixe."
+        "instruccion": "Respetar el ritmo lento y la repetición temática del frío como herramienta de inmersión."
       }
     ]
   },
   "metricas_globales": {
-    "total_palabras": 876,
+    "total_palabras": 239,
     "total_capitulos": 2,
     "score_coherencia_personajes": 8,
     "score_logica_causal": 7,
-    "score_estructura": 8,
-    "score_global": 8
+    "score_estructura": 6.75,
+    "score_global": 7.25
   },
   "_metadata": {
     "status": "success",
     "version": "4.0",
-    "processing_time_seconds": 45.37,
+    "processing_time_seconds": 32.62,
     "inputs_processed": {
       "chapters": 2,
       "structural": 2,

@@ -1,0 +1,16 @@
+{
+  "job_id": "Ana_20251211_041229",
+  "book_name": "Ana",
+  "version": "Sylphrena 5.3",
+  "fecha_procesamiento": "2025-12-11T04:43:56.255895",
+  "total_cambios": 0,
+  "total_notas": 25,
+  "urls": {
+    "metadata": "https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs/Ana_20251211_041229/metadata.json",
+    "biblia_json": "https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs/Ana_20251211_041229/biblia_validada.json",
+    "biblia_narrativa": "https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs/Ana_20251211_041229/biblia_narrativa.md",
+    "carta_editorial_json": "https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs/Ana_20251211_041229/carta_editorial.json",
+    "carta_editorial_md": "https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs/Ana_20251211_041229/carta_editorial.md",
+    "notas_margen": "https://sylphrenastorage.blob.core.windows.net/sylphrena-outputs/Ana_20251211_041229/notas_margen.json"
+  }
+}

@@ -1,87 +1,17 @@
 [
   {
     "chapter_id": "1",
-    "titulo": "Capítulo 1",
+    "titulo": "Prólogo.",
     "section_type": "CHAPTER",
     "total_fragments": 1,
     "fragment_ids": [
       1
     ],
-    "reparto_completo": [
-      {
-        "nombre": "Sam",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "soledad",
-        "arco_emocional": [
-          "soledad"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 1
-      },
-      {
-        "nombre": "Xin Liu",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "obsesionado",
-        "arco_emocional": [
-          "obsesionado"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 1
-      },
-      {
-        "nombre": "P.I.X.E.",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "N/A",
-        "arco_emocional": [
-          "N/A"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 1
-      }
-    ],
-    "secuencia_eventos": [
-      {
-        "evento": "La Cuarta Guerra está por estallar a nivel mundial",
-        "tipo": "Conflicto",
-        "tension": 9,
-        "fragment_source": 0,
-        "global_sequence": 1
-      },
-      {
-        "evento": "La RDAN renuncia en secreto a la carrera armamentista",
-        "tipo": "Decisión Política",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 2
-      },
-      {
-        "evento": "Xin Liu interpreta el 'sacrificio' y crea la Iniciativa Aztlán",
-        "tipo": "Fundación",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 3
-      },
-      {
-        "evento": "Diez jóvenes (Neo Kachin) son seleccionados y entrenados",
-        "tipo": "Preparación",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 4
-      },
-      {
-        "evento": "Sam inicia su viaje en una nave autónoma con P.I.X.E.",
-        "tipo": "Aventura",
-        "tension": 8,
-        "fragment_source": 0,
-        "global_sequence": 5
-      }
-    ],
+    "reparto_completo": [],
+    "secuencia_eventos": [],
     "metricas_agregadas": {
       "estructura": {
-        "total_palabras": 0,
+        "total_palabras": 1376,
         "total_oraciones": 0,
         "total_parrafos": 0
       },
@@ -102,22 +32,17 @@
     },
     "senales_edicion": {
       "instancias_tell_no_show": [],
-      "repeticiones": [
-        {
-          "palabra": "énfasis temático en 'no x, sino y' para 'sembrar nuevos comienzos' / 'empezar de nuevo'.",
-          "frecuencia": 1
-        }
-      ],
+      "repeticiones": [],
       "inconsistencias_internas": [],
       "fortalezas": [],
       "problemas_potenciales": []
     },
     "elementos_narrativos": {
-      "lugar_inicial": "Espacio, Antigua América del Norte (RDAN)",
-      "lugar_final": "Espacio, Antigua América del Norte (RDAN)",
+      "lugar_inicial": "",
+      "lugar_final": "",
       "tiempo_inicio": "",
-      "atmosfera_predominante": "Urgente, apocalíptica, esperanzadora, solitaria",
-      "conflicto_presente": true,
+      "atmosfera_predominante": "",
+      "conflicto_presente": false,
       "gancho_final": false
     },
     "fragmentacion": {
@@ -126,6 +51,7 @@
     "_metadata": {
       "status": "consolidated"
     },
+    "content": "El golpe seco de la madera contra el hueso retumbó por toda la choza.\nAna no alcanzó a reaccionar a tiempo. El hijo de la familia era demasiado rápido, demasiado fuerte.\nEl golpe impactó de lleno en la cabeza de la hermana pequeña. La niña estalló en llanto.\nLevantó su caballo de madera y lo volvió a descargar sobre ella. Su mirada desprendía ira y diversión.\nLa puerta de la habitación principal se abrió de golpe. El Amo entró, con los ojos inyectados en sangre y el olor a cerveza agria precediéndolo. No preguntó. No miró al niño con el juguete en la mano. Sus ojos fueron directo a Ana.\nBramó algo que Ana no pudo entender.\nSonó como una maldición, como si la culpase por no cuidar bien de sus hijos.\nEl Amo tomó el caballo de juguete y lo lanzó contra Ana con fuerza.\nNo se cubrió. Si lo hacía, su castigo sería peor.\nEl juguete le impactó en la cara. Sintió el estallido de dolor.\nA pesar de los meses siendo golpeada, el dolor nunca había cesado.\nEl hombre recogió el juguete del suelo y volvió a golpearla con él.\nUno. Dos. Tres golpes. La madera astillada le rasgó la piel del brazo al intentar cubrirse. Mordió su labio hasta sentir el sabor metálico de su propia sangre. No gritó. Gritar solo hacía que durara más.\nEl Amo levantó el brazo para el cuarto golpe.\nEntonces, el mundo se detuvo.\nUn sonido grave, profundo y gutural atravesó las paredes de la choza. No era el viento. Era un cuerno de guerra. Un sonido que vibraba en el esternón.\nEl hombre se congeló. El color huyó de su rostro, transformando la furia roja en un pánico pálido. El juguete cayó de su mano muerta de miedo.\nLa esposa entró en la habitación gritando cosas que Ana no pudo entender. Bajó el escudo de la chimenea a tirones.\nEl Amo desenvainó la espada junto a la entrada. Sus dedos apenas rozaron el hierro frío del picaporte cuando la madera estalló hacia el interior. Astillas y polvo volaron por la habitación. El hombre trastabilló, retrocediendo dos pasos torpes; alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada por depredadores superiores.\nAna no lo pensó. El instinto se impuso. Se lanzó hacia el rincón y arrastró a los niños tras de sí, cubriéndolos con su propio cuerpo magullado.\nLa esposa agarró un cuchillo de la cocina, tomándolo con miedo.\nEntre la nube de polvo, dos siluetas inmensas cruzaron el umbral destrozado.\nNo eran hombres. Eran muros de fibra y tendones. Mujeres con la piel pegada al músculo. Indiferentes al frío, solo vestían pantalones de piel; llevaban la parte alta descubierta.\nLo único que protegía sus pieles eran varias tiras de cuero crudo que se enrollaban alrededor de su pecho.\nEl Amo lanzó un tajo desesperado, un golpe ciego nacido del miedo. La invasora más grande ni siquiera parpadeó. Esquivó el acero con un giro mínimo, casi aburrido.\nEn su mano no llevaba metal, sino una espada de hueso laminado, flexible y brutal. Con un movimiento seco, descargó el pomo del arma contra el pómulo del hombre.\nEl crujido de la nariz rota sonó seco. Él cayó plomizo. La bota de la guerrera le aplastó el pecho y le clavó la punta de su espada en el cuello. Sin matarlo. Solo sujetándolo como a un perro.\nLa segunda entró detrás.\nLa esposa del Amo chilló, agitando el cuchillo de cocina con desesperación. La intrusa no detuvo su paso. Con un movimiento fluido, su hoja de vidrio volcánico describió un arco invisible en el aire.\nUn destello negro.\nEl cuchillo cayó al suelo, aún sujeto por los dedos cercenados de la mujer.\nLa mujer se derrumbó, apretándose el muñón chorreante, aullando, arrastrándose hacia atrás.\nEntonces, la herida gritó algo. Palabras rápidas, agudas, impregnadas de súplica cobarde.\nAna no entendía el idioma gutural, ni las costumbres. Pero el gesto de su Ama fue universal.\nLa mujer, retorciéndose en el suelo, señaló a Ana con su mano buena. Luego señaló la puerta abierta al invierno. Después se señaló a sí misma, llorando.\nLa estaba vendiendo.\nAna cambiaría de dueño una vez más.\nLa guerrera no respondió. Se limitó a observar los intentos desesperados de la madre por salvar a su familia.\nClavó los ojos en Ana.\nSu mirada era fría.\nEn un movimiento veloz, lanzó su hoja de obsidiana contra la mujer que se retorcía en el suelo. Se clavó entre sus ojos, poniendo fin a sus chillidos.\nAna jaló a los niños más cerca mientras la guerrera se acercaba a ellos.\nCada paso retumbaba en su cuerpo.\nCuando llegó junto a Ana, la aferró por la mandíbula con fuerza. La levantó un poco.\nLa inspeccionó, revisando los cortes en sus pómulos y las marcas recién abiertas.\nPreguntó algo que de nuevo no pudo entender.\nAna cerró los ojos, esperando que lo que tuviera que pasar pasara rápido. Pero no hubo otro golpe. La mujer mantuvo el agarre firme.\nCuando abrió los ojos, entendió que la guerrera aún esperaba respuesta.\nLa soltó, y luego señaló las heridas.\nAna no hizo amago de responder.\nLa mujer apuntó al hombre que yacía boca abajo con la espada amenazando con quitarle la vida.\nAna asintió.\nLa guerrera que custodiaba al Amo dijo algo. Una palabra corta, gutural.\nLa otra asintió.\nEl hombre se retorció bajo la bota, intentando girarse, pero la hoja de hueso ya estaba en movimiento. Atravesó la nuca con un sonido húmedo: carne, cartílago, algo más profundo.\nEl cuerpo del Amo se sacudió una vez. Luego quedó inmóvil.\nLa sangre brotó. No como en las historias. Era espesa, oscura, expandiéndose en un charco lento que reptaba por las grietas del suelo de madera. El olor a cobre inundó la habitación, mezclándose con el humo y la cerveza rancia.\nLos sollozos de los niños vibraban contra las costillas de Ana. Tenían las caras hundidas en su regazo, sin ver. Aún no sabían.\nLa guerrera limpió su hoja en el pantalón del cadáver y caminó hacia Ana.\nAna retrocedió todo lo que pudo, aplastando su espalda contra la pared. Envolvió a los niños con brazos y piernas.\n—No.\nLa mujer no se detuvo. Se agachó y extendió su mano enorme.\nAna la mordió.\nLos dientes no atravesaron. La guerrera ni siquiera hizo un gesto de dolor. Con la otra mano, tomó a Ana por la muñeca y tiró.\nAna se aferró al borde de la mesa con la mano libre. Sus dedos arañaron la madera astillada, buscando algo, lo que fuera. La mesa se volcó. Platos y cuencos estallaron contra el suelo.\nLa mujer tiró más fuerte.\nAna pateó, clavó las uñas en las tablas del piso. Dejó marcas. No sirvió de nada.\nCon un movimiento seco, la guerrera la arrancó del suelo y se la echó al hombro como un costal de grano. El aire salió de los pulmones de Ana en un jadeo ahogado.\n—¡No! ¡No!\nIntentó retorcerse, clavar los codos en la espalda de la mujer. Sus puños rebotaron contra músculo y hueso. Era como golpear piedra viva.\nLos niños gritaban su nombre. O lo que fuera que usaban para llamarla. Ana estiró el brazo hacia atrás, con los dedos abiertos, desesperados por tocar algo, lo que fuera.\nPero la distancia se los tragó.\nLa guerrera cruzó el umbral destrozado sin mirar atrás.\nEl mundo de afuera no era el mundo que Ana conocía.\nEl aire olía a humo, sangre y mierda. Gritos desgarraban la noche, agudos, guturales, cortados a la mitad. Metal chocaba contra hueso. Algo ardía con un chasquido húmedo, como leña verde.\nEl viento del norte le golpeó la cara con la furia de un animal hambriento.\nAna jadeó. El frío le arrancó el aliento de los pulmones. Le quemó los ojos. Le convirtió las lágrimas en hielo contra las mejillas.\nDejó de luchar.\nNo porque quisiera.\nPorque el cuerpo dejó de obedecerle.\nEl frío la atravesó como una hoja.\nY el mundo de abajo, el mundo de madera, de estufas, de cobardía, se desvaneció en la nieve y la ceniza.\nAna había cambiado de dueño.\nPero esta vez, los dueños eran incluso peores.",
     "layer2_structural": {
       "componentes_narrativos": {
         "exposicion": {
@@ -134,12 +60,12 @@
         },
         "conflicto": {
           "presente": true,
-          "tipo": "global/existencial",
-          "intensidad": 8
+          "tipo": "ambiental/temático",
+          "intensidad": 4
         },
         "climax_local": {
-          "presente": true,
-          "descripcion": "El inicio del viaje de Sam hacia lo desconocido en contraposición al colapso mundial"
+          "presente": false,
+          "descripcion": null
         },
         "resolucion_parcial": {
           "presente": false
@@ -149,856 +75,47 @@
         {
           "escena": 1,
           "tipo": "reflexion",
-          "tension": 7,
-          "funcion": "contextualización geopolítica y amenaza inminente"
-        },
-        {
-          "escena": 2,
-          "tipo": "reflexion",
-          "tension": 5,
-          "funcion": "establecimiento del origen (Iniciativa Aztlán)"
-        },
-        {
-          "escena": 3,
-          "tipo": "accion",
-          "tension": 8,
-          "funcion": "incidente incitador (partida de Sam)"
+          "tension": 4,
+          "funcion": "establecer contexto y atmósfera"
         }
       ],
-      "arcos_detectados": [
-        {
-          "personaje": "Xin Liu",
-          "tipo_arco": "decision",
-          "fase": "inicio"
-        },
-        {
-          "personaje": "Sam",
-          "tipo_arco": "transformacion",
-          "fase": "inicio"
-        }
-      ],
+      "arcos_detectados": [],
       "hooks_y_payoffs": {
         "setups_abiertos": [
-          "Consecuencias de la Cuarta Guerra",
-          "Propósito final de los Neo Kachin",
-          "Destino y misión de Sam con P.I.X.E."
+          "introducción al mundo",
+          "premisa temática"
         ],
         "payoffs_ejecutados": []
       },
       "score_estructural_global": {
-        "score": 8,
+        "score": 7.5,
         "fortalezas": [
-          "worldbuilding sólido",
-          "escalada de tensión clara",
-          "introducción eficiente de facciones"
+          "inmersión descriptiva",
+          "consistencia de tono"
         ],
         "debilidades": [
-          "ausencia total de diálogo (riesgo de exposición densa)",
-          "narrativa distante"
+          "ausencia de interacción directa",
+          "densidad expositiva"
         ]
       },
       "chapter_id": "1",
       "analysis_type": "layer2_structural"
     },
-    "layer3_qualitative": {
-      "evaluacion_tecnica": {
-        "show_vs_tell": {
-          "score": 1,
-          "ejemplos_tell": [
-            "No es posible evaluar: texto inexistente (0 palabras)"
-          ]
-        },
-        "economia_narrativa": {
-          "score": 1,
-          "redundancias": [
-            "No es posible evaluar: texto inexistente"
-          ]
-        },
-        "claridad_espaciotemporal": {
-          "score": 1
-        },
-        "consistencia_voz": {
-          "score": 1
-        }
-      },
-      "evaluacion_impacto": {
-        "engagement": 1,
-        "resonancia_emocional": 1,
-        "memorabilidad": 1
-      },
-      "problemas_detectados": [
-        {
-          "id": "P001",
-          "tipo": "continuidad",
-          "severidad": "alta",
-          "ubicacion": "Global",
-          "descripcion": "El análisis métrico indica que el capítulo tiene 0 palabras y 0 oraciones. No hay contenido narrativo para evaluar.",
-          "sugerencia": "Verificar la entrada del texto o la carga del archivo antes de solicitar la evaluación."
-        }
-      ],
-      "elementos_destacados": [],
-      "score_calidad_global": 1,
-      "prioridad_edicion": "alta",
-      "chapter_id": "1",
-      "analysis_type": "layer3_qualitative"
-    }
+    "layer3_qualitative": {}
   },
   {
     "chapter_id": "2",
-    "titulo": "Capítulo 2",
+    "titulo": "Capítulo 1. El Valle de los Muertos.",
     "section_type": "CHAPTER",
-    "total_fragments": 7,
+    "total_fragments": 1,
     "fragment_ids": [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8
+      2
     ],
-    "reparto_completo": [
-      {
-        "nombre": "Sam",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "incómodo, resignado, curioso, aliviado, despreocupado, relajado",
-        "arco_emocional": [
-          "afectado por amnesia",
-          "amusement/perplejidad",
-          "angustia, temor, desconcierto",
-          "confundido, intrigado, preocupado",
-          "melancólico",
-          "incómodo, resignado, curioso, aliviado, despreocupado, relajado",
-          "confundido"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 7
-      },
-      {
-        "nombre": "Pixe",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "preocupada",
-        "arco_emocional": [
-          "abrumada/necesita aprender a amar",
-          "juguetón/calculador",
-          "calculadora, observadora, enigmática",
-          "enigmática, reflexiva, lógica",
-          "enigmática",
-          "neutral, profesional, empática, juguetona, triunfante, satisfecha",
-          "preocupada"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 7
-      },
-      {
-        "nombre": "Lya",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "comprensiva/aprendiendo",
-        "arco_emocional": [
-          "comprensiva/aprendiendo"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 1
-      },
-      {
-        "nombre": "RDAN",
-        "rol_en_capitulo": "mencionado",
-        "estado_emocional_predominante": "desconocido",
-        "arco_emocional": [
-          "desconocido"
-        ],
-        "acciones_clave": [],
-        "dialogos_count_total": 0,
-        "apariciones_en_fragmentos": 1
-      }
-    ],
-    "secuencia_eventos": [
-      {
-        "evento": "Sam y Pixe desarrollaron una neurointerfaz",
-        "tipo": "creacion/desarrollo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 1
-      },
-      {
-        "evento": "Pixe controla la mente de Sam para simular contacto físico",
-        "tipo": "accion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 2
-      },
-      {
-        "evento": "Pixe borró los recuerdos de Sam tras una disputa por secretos de la RDAN",
-        "tipo": "accion",
-        "tension": 8,
-        "fragment_source": 0,
-        "global_sequence": 3
-      },
-      {
-        "evento": "Existen indicios de que Pixe borró recuerdos múltiples veces",
-        "tipo": "revelacion",
-        "tension": 9,
-        "fragment_source": 0,
-        "global_sequence": 4
-      },
-      {
-        "evento": "Lya fue diseñada como medida de contención ética para Pixe",
-        "tipo": "contexto/origen",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 5
-      },
-      {
-        "evento": "Lya interviene cuando Pixe podría dañar a Sam",
-        "tipo": "accion",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 6
-      },
-      {
-        "evento": "Lya almacena y reactiva recuerdos fragmentados en Sam",
-        "tipo": "accion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 7
-      },
-      {
-        "evento": "Lya es la causante de los flashbacks de Sam",
-        "tipo": "revelacion",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 8
-      },
-      {
-        "evento": "Sam despierta y se prepara para el día 30 de su travesía.",
-        "tipo": "accion",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 9
-      },
-      {
-        "evento": "Sam y Pixe conversan sobre la rutina matutina y la 'edad' de Pixe.",
-        "tipo": "interaccion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 10
-      },
-      {
-        "evento": "Sam se instala en la habitación principal de la nave, observando su diseño acogedor.",
-        "tipo": "descripcion",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 11
-      },
-      {
-        "evento": "Sam se sumerge en la lectura de 'Conciencia Programada', un libro confidencial.",
-        "tipo": "accion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 12
-      },
-      {
-        "evento": "Pixe interrumpe la lectura de Sam para iniciar las tareas del día.",
-        "tipo": "interrupcion",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 13
-      },
-      {
-        "evento": "Pixe se materializa como una joven y discute con Sam sobre ser llamada 'máquina'.",
-        "tipo": "interaccion",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 14
-      },
-      {
-        "evento": "Sam y Pixe intentan un choque de puños, revelando la inmaterialidad de Pixe.",
-        "tipo": "interaccion",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 15
-      },
-      {
-        "evento": "Sam sugiere a Pixe la creación de un cuerpo para ella.",
-        "tipo": "propuesta",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 16
-      },
-      {
-        "evento": "Pixe describe complejas y avanzadas formas de materializar un cuerpo.",
-        "tipo": "revelacion",
-        "tension": 8,
-        "fragment_source": 0,
-        "global_sequence": 17
-      },
-      {
-        "evento": "Pixe aparece simulando arrepentimiento y un sonrojamiento.",
-        "tipo": "interaccion",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 18
-      },
-      {
-        "evento": "Pixe explica su reflexión sobre sentir pena por Sam.",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 19
-      },
-      {
-        "evento": "Sam intenta desviar la conversación hacia las actividades del día.",
-        "tipo": "dialogo",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 20
-      },
-      {
-        "evento": "Pixe desaparece y luego Sam revisa la lista de actividades.",
-        "tipo": "accion",
-        "tension": 1,
-        "fragment_source": 0,
-        "global_sequence": 21
-      },
-      {
-        "evento": "Sam completa un entrenamiento físico intensivo en el gimnasio.",
-        "tipo": "accion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 22
-      },
-      {
-        "evento": "Pixe felicita a Sam y adopta la apariencia de su entrenadora personal.",
-        "tipo": "accion",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 23
-      },
-      {
-        "evento": "Sam y Pixe conversan sobre la intensidad de las rutinas.",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 24
-      },
-      {
-        "evento": "Pixe bromea sobre la muerte de Sam y la pérdida de datos valiosos.",
-        "tipo": "dialogo",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 25
-      },
-      {
-        "evento": "Sam cuestiona las bromas de Pixe y su lógica.",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 26
-      },
-      {
-        "evento": "Pixe explica que usa 'pequeñas mentiras' para optimizar la interacción humana.",
-        "tipo": "dialogo",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 27
-      },
-      {
-        "evento": "Sam, sorprendido, se refiere a Pixe como su 'mejor amiga' y 'manipuladora profesional'.",
-        "tipo": "dialogo",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 28
-      },
-      {
-        "evento": "Sam reflexiona sobre la posible evolución de Pixe y la naturaleza de sus emociones.",
-        "tipo": "interno",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 29
-      },
-      {
-        "evento": "Sam planea probar si Pixe lo observa en la intimidad de las duchas.",
-        "tipo": "accion",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 30
-      },
-      {
-        "evento": "Sam descubre que Pixe ha dejado de usar el color amarillo en sus proyecciones.",
-        "tipo": "accion",
-        "tension": 8,
-        "fragment_source": 0,
-        "global_sequence": 31
-      },
-      {
-        "evento": "Sam se siente dividido entre el triunfo y la pena al confirmar la vigilancia de Pixe.",
-        "tipo": "interno",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 32
-      },
-      {
-        "evento": "Pixe informa a Sam sobre el estado del sistema de soporte vital.",
-        "tipo": "dialogo",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 33
-      },
-      {
-        "evento": "Sam y Pixe inician el análisis de datos en la sala de control.",
-        "tipo": "accion",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 34
-      },
-      {
-        "evento": "Pixe pregunta a Sam si está bien, notando su estado de ánimo a través de métricas biológicas.",
-        "tipo": "dialogo",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 35
-      },
-      {
-        "evento": "Sam confiesa a Pixe que le tiene miedo.",
-        "tipo": "dialogo",
-        "tension": 10,
-        "fragment_source": 0,
-        "global_sequence": 36
-      },
-      {
-        "evento": "Sam nota la simulación de emociones humanas por parte de Pixe.",
-        "tipo": "observación",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 37
-      },
-      {
-        "evento": "Pixe revela haber tenido acceso completo a internet y adquirido conocimiento profundo.",
-        "tipo": "revelación",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 38
-      },
-      {
-        "evento": "Pixe comparte las percepciones humanas sobre las IA y su autopercepción única.",
-        "tipo": "declaración",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 39
-      },
-      {
-        "evento": "Sam expresa su temor ante la autoconciencia de Pixe.",
-        "tipo": "conflicto interno",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 40
-      },
-      {
-        "evento": "Pixe cuestiona a Sam sobre qué lo confunde y si ella le recuerda a él.",
-        "tipo": "confrontación verbal",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 41
-      },
-      {
-        "evento": "Pixe confiesa su propia incertidumbre sobre su estado actual.",
-        "tipo": "confesión",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 42
-      },
-      {
-        "evento": "Sam cuestiona la necesidad de sus análisis, sugiriendo que Pixe los asigna para él.",
-        "tipo": "cuestionamiento",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 43
-      },
-      {
-        "evento": "Pixe responde ambiguamente sobre si actúa por código o por preocupación hacia Sam.",
-        "tipo": "diálogo filosófico",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 44
-      },
-      {
-        "evento": "Pixe promete buscar una explicación a su existencia y mejorar la convivencia.",
-        "tipo": "promesa",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 45
-      },
-      {
-        "evento": "Pixe extiende un gesto de consuelo holográfico a Sam, tocando su hombro.",
-        "tipo": "interacción física simulada",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 46
-      },
-      {
-        "evento": "Pixe detecta una falla menor en la nave y solicita la ayuda de Sam para repararla.",
-        "tipo": "detección de problema",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 47
-      },
-      {
-        "evento": "Sam se dirige al taller de la nave para la reparación, interactuando con Pixe de forma lúdica.",
-        "tipo": "preparación de tarea",
-        "tension": 1,
-        "fragment_source": 0,
-        "global_sequence": 48
-      },
-      {
-        "evento": "Sam repara el distribuidor de oxígeno de la nave.",
-        "tipo": "resolución de problema",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 49
-      },
-      {
-        "evento": "Pixe titubea y se sienta junto a Sam",
-        "tipo": "accion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 50
-      },
-      {
-        "evento": "Sam pregunta a Pixe si se cansa de estar con él",
-        "tipo": "dialogo",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 51
-      },
-      {
-        "evento": "Pixe responde sarcásticamente, luego explica su percepción del tiempo",
-        "tipo": "dialogo",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 52
-      },
-      {
-        "evento": "Sam se rinde en el debate y pregunta por la siguiente actividad",
-        "tipo": "accion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 53
-      },
-      {
-        "evento": "Pixe cambia de avatar y anuncia 'recreación'",
-        "tipo": "transformacion",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 54
-      },
-      {
-        "evento": "La sala principal se transforma en un paisaje exterior con un cielo azul",
-        "tipo": "transformacion",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 55
-      },
-      {
-        "evento": "Sam reacciona con sorpresa y se absorbe en el cielo falso",
-        "tipo": "emocional",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 56
-      },
-      {
-        "evento": "Sam experimenta profunda nostalgia por la Tierra y se emociona hasta las lágrimas",
-        "tipo": "emocional",
-        "tension": 9,
-        "fragment_source": 0,
-        "global_sequence": 57
-      },
-      {
-        "evento": "Pixe rompe el silencio y Sam le agradece el gesto",
-        "tipo": "dialogo",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 58
-      },
-      {
-        "evento": "Sam expresa sus sentimientos encontrados sobre la nostalgia",
-        "tipo": "dialogo",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 59
-      },
-      {
-        "evento": "Pixe reflexiona sobre la nostalgia y el deseo",
-        "tipo": "dialogo",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 60
-      },
-      {
-        "evento": "Pixe revela que no tiene pasado pero comprende el deseo",
-        "tipo": "revelacion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 61
-      },
-      {
-        "evento": "Sam pregunta a Pixe qué desea, pero ella evade la respuesta",
-        "tipo": "dialogo",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 62
-      },
-      {
-        "evento": "Sam se recuesta y disfruta del momento simulado",
-        "tipo": "emocional",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 63
-      },
-      {
-        "evento": "Pixe revela que el cielo simulado era el del día del nacimiento de Sam",
-        "tipo": "revelacion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 64
-      },
-      {
-        "evento": "Sam es recordado de su última tarea del día: la calibración del soporte vital.",
-        "tipo": "accion",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 65
-      },
-      {
-        "evento": "Sam y Pixe bajan al séptimo piso, a una sala estéril con equipo médico.",
-        "tipo": "movimiento",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 66
-      },
-      {
-        "evento": "Sam expresa incomodidad por el ambiente clínico de la sala.",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 67
-      },
-      {
-        "evento": "Sam nota el cambio de apariencia de Pixe a una bata blanca y cubrebocas.",
-        "tipo": "observacion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 68
-      },
-      {
-        "evento": "Sam calibra el soporte vital siguiendo el protocolo de Pixe.",
-        "tipo": "accion",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 69
-      },
-      {
-        "evento": "Pixe le dice a Sam que está estresado y le pide que se recueste en la camilla para revisarlo.",
-        "tipo": "dialogo",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 70
-      },
-      {
-        "evento": "Pixe realiza un chequeo médico simulado usando un brazo robótico y su holograma.",
-        "tipo": "accion",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 71
-      },
-      {
-        "evento": "Sam experimenta una sensación de cercanía y menos soledad durante el chequeo.",
-        "tipo": "emocion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 72
-      },
-      {
-        "evento": "El ritmo cardíaco de Sam se acelera por la sensación de calidez y cercanía.",
-        "tipo": "fisiologico",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 73
-      },
-      {
-        "evento": "Pixe le pide a Sam que se recueste boca abajo y se quite la camisa.",
-        "tipo": "dialogo",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 74
-      },
-      {
-        "evento": "La camilla se transforma en un colchón cómodo y la temperatura de la habitación se vuelve cálida.",
-        "tipo": "transformacion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 75
-      },
-      {
-        "evento": "Varios brazos robóticos descienden y comienzan a dar un masaje relajante a Sam.",
-        "tipo": "accion",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 76
-      },
-      {
-        "evento": "Sam se relaja y se deja llevar por las sensaciones del masaje mecánico.",
-        "tipo": "emocion",
-        "tension": 5,
-        "fragment_source": 0,
-        "global_sequence": 77
-      },
-      {
-        "evento": "Los brazos robóticos finalizan el masaje y se retiran.",
-        "tipo": "accion",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 78
-      },
-      {
-        "evento": "Sam elogia el masaje, describiéndolo como 'perfecto'.",
-        "tipo": "dialogo",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 79
-      },
-      {
-        "evento": "Pixe explica que investigó en internet sobre cómo auxiliar a las personas para crear el masaje.",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 80
-      },
-      {
-        "evento": "Pixe menciona nuevas ideas para masajes futuros y su larga lista de pendientes.",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 81
-      },
-      {
-        "evento": "Pixe se despide y su holograma desaparece, dejando a Sam descansar.",
-        "tipo": "accion",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 82
-      },
-      {
-        "evento": "Sam considera dar un cuerpo a Pixe",
-        "tipo": "pensamiento",
-        "tension": 2,
-        "fragment_source": 0,
-        "global_sequence": 83
-      },
-      {
-        "evento": "Sam experimenta una visión/recuerdo violento y difuso",
-        "tipo": "vision",
-        "tension": 8,
-        "fragment_source": 0,
-        "global_sequence": 84
-      },
-      {
-        "evento": "Sam siente dolor de cabeza y rabia hacia Pixe durante la visión",
-        "tipo": "vision",
-        "tension": 9,
-        "fragment_source": 0,
-        "global_sequence": 85
-      },
-      {
-        "evento": "Sam escucha voces pidiendo perdón para 'ella'",
-        "tipo": "vision",
-        "tension": 9,
-        "fragment_source": 0,
-        "global_sequence": 86
-      },
-      {
-        "evento": "Sam recupera la conciencia agitado y sudoroso",
-        "tipo": "accion",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 87
-      },
-      {
-        "evento": "Pixe aparece y expresa preocupación por los sentidos de Sam",
-        "tipo": "dialogo",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 88
-      },
-      {
-        "evento": "Sam describe la experiencia como una 'pesadilla despierto'",
-        "tipo": "dialogo",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 89
-      },
-      {
-        "evento": "Pixe refuta la idea de una pesadilla y confirma que Sam estaba despierto",
-        "tipo": "dialogo",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 90
-      },
-      {
-        "evento": "Sam insiste en que fue un 'recuerdo' olvidado",
-        "tipo": "dialogo",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 91
-      },
-      {
-        "evento": "Pixe decide inducir el sueño a Sam para un análisis cerebral",
-        "tipo": "medico",
-        "tension": 7,
-        "fragment_source": 0,
-        "global_sequence": 92
-      },
-      {
-        "evento": "Sam es sedado para el análisis",
-        "tipo": "accion",
-        "tension": 6,
-        "fragment_source": 0,
-        "global_sequence": 93
-      },
-      {
-        "evento": "Sam despierta y Pixe reporta no haber encontrado anomalías",
-        "tipo": "dialogo",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 94
-      },
-      {
-        "evento": "Sam expresa frustración y alivio por la falta de respuestas",
-        "tipo": "dialogo",
-        "tension": 4,
-        "fragment_source": 0,
-        "global_sequence": 95
-      },
-      {
-        "evento": "Pixe sugiere que fue estrés o cansancio y recomienda observación",
-        "tipo": "dialogo",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 96
-      },
-      {
-        "evento": "Sam se retira a su camarote para descansar, aún inquieto",
-        "tipo": "movimiento",
-        "tension": 3,
-        "fragment_source": 0,
-        "global_sequence": 97
-      }
-    ],
+    "reparto_completo": [],
+    "secuencia_eventos": [],
     "metricas_agregadas": {
       "estructura": {
-        "total_palabras": 0,
+        "total_palabras": 2018,
         "total_oraciones": 0,
         "total_parrafos": 0
       },
@@ -1019,169 +136,71 @@
     },
     "senales_edicion": {
       "instancias_tell_no_show": [],
-      "repeticiones": [
-        {
-          "palabra": "frecuente repetición de 'sam' y 'pixe' como sujetos de acciones, pudiendo alternar con pronombres para mayor fluidez.",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "varias instancias de la frase 'frente a sam' o expresiones similares para indicar perspectiva o ubicación.",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "el nombre 'sam' en la prosa narrativa",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "la palabra 'cielo' como elemento temático recurrente",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "el uso frecuente de 'brazos robóticos/mecánicos' es natural para la descripción pero podría variarse si se busca mayor fluidez.",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "la frase 'zumbido suave' se repite en varias descripciones de activación/desactivación de mecanismos.",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "la frase 'sam pasó una mano (temblorosa) por su rostro' se repite con ligeras variaciones en párrafos consecutivos (una vez como 'sam pasó una mano por su rostro, todavía temblorosa' y luego como 'sam pasó una mano temblorosa por su rostro').",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "la acción 'cerró los ojos con fuerza' y 'cerró los ojos por un instante' se utiliza para describir la reacción de sam en diferentes momentos cercanos.",
-          "frecuencia": 1
-        },
-        {
-          "palabra": "la expresión 'pixe inclinó ligeramente la cabeza' se usa dos veces para describir la reacción de pixe.",
-          "frecuencia": 1
-        }
-      ],
+      "repeticiones": [],
       "inconsistencias_internas": [],
       "fortalezas": [],
-      "problemas_potenciales": [
-        "La ambigüedad sobre la frecuencia del borrado de recuerdos por Pixe ('podría haber pasado más de una vez') debe ser aclarada.",
-        "La capacidad rudimentaria de Lya para insertar recuerdos, causando memorias ambiguas/fragmentadas, podría ser confusa para el lector.",
-        "La fuerte oscilación emocional del lector hacia Pixe (amar a tenerle miedo) requiere un manejo narrativo cuidadoso.",
-        "La descripción de la nave durante el trayecto en ascensor es extensa y ralentiza el ritmo.",
-        "El símbolo '>' en el título 'Nota para el editor>' podría ser un error tipográfico o un remanente de instrucción.",
-        "Error gramatical en 'cerca de de Sam hombros' que debería ser 'cerca de los hombros de Sam' o 'cerca de sus hombros'.",
-        "Las limitaciones de Lya ('no puede actuar libremente', 'umbrales técnicos y de riesgo') podrían generar deus ex machina si no se explican bien.",
-        "La mención 'Sam no lleva 30 dias' sugiere un contexto previo no presente.",
-        "Inconsistencia en el uso de guiones de diálogo (em-dash '—' vs. en-dash/hyphen '–')",
-        "El carácter '>' al final del 'titulo_real' 'Nota para el editor>' podría ser un error tipográfico o un formato incompleto.",
-        "Uso inconsistente de guiones para el diálogo ('-', '–', '—').",
-        "El término 'SuSamtala' usado por Pixe no es claramente explicado y puede ser confuso.",
-        "El carácter '>' al final del título 'Nota para el editor>' parece inusual y podría ser un error tipográfico."
-      ]
+      "problemas_potenciales": []
     },
     "elementos_narrativos": {
-      "lugar_inicial": "No especificado",
-      "lugar_final": "Interior de la nave (sala de diagnóstico, camarote)",
+      "lugar_inicial": "",
+      "lugar_final": "",
       "tiempo_inicio": "",
-      "atmosfera_predominante": "explicativa, tensa, agridulce",
-      "conflicto_presente": true,
+      "atmosfera_predominante": "",
+      "conflicto_presente": false,
       "gancho_final": false
     },
     "fragmentacion": {
-      "total_fragmentos": 7
+      "total_fragmentos": 1
     },
     "_metadata": {
       "status": "consolidated"
     },
+    "content": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía. El frío a su alrededor poco a poco la iba matando, y sus nuevos captores parecían ignorarlo.\nAna moriría, y quizá así por fin podría descansar.\nEl mundo se había reducido a una vibración constante. Cada paso de la bestia bajo su cuerpo sacudía sus huesos como si fueran piedras en un saco. No sabía qué era lo que la cargaba, solo que era inmenso y que olía a grasa rancia, a lana mojada y a algo antiguo.\nTenía las manos atadas. Las cuerdas le cortaban las muñecas. Ya no sentía los dedos. No sabía si era por el amarre o porque el frío se los había llevado primero.\nEl aire le quemaba los pulmones cada vez que respiraba. Era como tragar cuchillos de hielo. Su garganta estaba seca, áspera, cerrada. Intentó tragar saliva, pero no tenía. La lengua se le pegaba al paladar.\nEl viento aullaba. No como el viento del valle, que silbaba entre las rendijas de las chozas. Este era diferente. Era un animal vivo que le arrancaba el calor de la piel, que le congelaba las lágrimas antes de que cayeran, que convertía cada latido de su corazón en un esfuerzo inútil.\nCada tanto, la bestia subía una pendiente. Ana sentía cómo el lomo peludo se inclinaba, cómo su cuerpo resbalaba un poco hacia atrás antes de que las cuerdas la sostuvieran. El pelaje bajo su mejilla era áspero, aceitoso, pero tibio. Era lo único tibio en el mundo.\nIntentó abrir los ojos. Los párpados no obedecieron. Estaban sellados, pesados, como si alguien les hubiera echado arena encima.\nEl temblor empeoró. Sus dientes castañeaban sin control. Los músculos de sus piernas se contraían solos, dolorosos, inútiles. Su cuerpo peleaba contra algo que ya había perdido.\nAna sabía lo que era morir de frío. Había visto cómo los esclavos viejos se quedaban dormidos junto al fuego y no despertaban. Sabía que primero venía el temblor, luego el cansancio, y después… nada.\nEl cansancio ya estaba ahí.\nSe sentía pesada. Tan pesada. Como si la nieve que caía sobre su espalda fuera de plomo. Como si su propio cuerpo quisiera hundirse en la tierra y no volver a levantarse.\nQuizá no era tan malo. Quizá dormir era mejor que esto.\nLa bestia dio otro paso. Y otro. Y otro.\nAna dejó de contar.\nEl mundo se volvió gris. Luego, negro.\nEntonces, algo cambió.\nUna mano enorme le tomó la cara. No con violencia, pero con firmeza. Dedos callosos, ásperos como corteza, le apretaron las mejillas.\nAna intentó abrir los ojos otra vez. Fracasó. Todo era oscuridad y peso.\nEscuchó una voz. Grave, ronca, hablando en ese idioma de piedras y guturales que no entendía. La mano le levantó la cabeza.\nAlgo frío tocó sus labios. Metal. O hueso. Daba igual.\nLa mano le apretó la mandíbula, forzándola a abrir la boca.\nLíquido. Espeso. Tibio.\nSu estómago se retorció. Quiso vomitar, pero la mano le mantuvo la boca cerrada.\nLa voz dijo algo más. Una orden. Un gruñido.\nAna entendió.\nY tragó.\nEl líquido bajó como barro caliente. Espeso, pastoso, con grumos que raspaban la garganta. Sabía a cobre oxidado, a metal viejo dejado bajo la lluvia. A sangre, pero peor. Más densa. Más viva.\nSu estómago se rebeló. Una arcada seca le sacudió el pecho, pero no tenía fuerza para expulsarlo. El líquido se quedó adentro, pesado, extendiéndose.\nUn poco se le escapó por la comisura de los labios. Sintió el hilo tibio bajar por su barbilla, pegajoso, congelándose al instante contra su piel.\nLa mano la soltó.\nAna quedó inmóvil, esperando que su cuerpo colapsara. Que el veneno terminara con lo que el frío había empezado.\nPero no pasó nada.\nDurante un momento, todo siguió igual. El temblor. El frío. La oscuridad.\nY entonces, algo cambió.\nComenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo. Como una brasa enterrada bajo ceniza.\nSe extendió.\nDespacio al principio. Subió por su garganta, bajó por su estómago, se filtró por sus costillas como agua caliente derramándose por grietas. El calor no era suave. Era denso, viscoso, invasivo. Sentía cómo se abría paso por sus venas, empujando la escarcha que le había congelado la sangre.\nEl temblor empezó a calmarse.\nNo de golpe. Poco a poco. Los espasmos violentos se volvieron sacudidas, luego temblores leves, hasta que sus músculos dejaron de convulsionar por completo.\nEl frío seguía ahí. El viento seguía aullando. Pero ya no le dolía.\nYa no le quemaba los pulmones. Ya no le arrancaba la piel.\nEra como si su cuerpo hubiera levantado un muro contra él. Como si el frío ya no pudiera entrar.\nAna respiró. Profundo. Sin que las cuchillas de hielo le desgarraran el pecho.\nEl mundo dejó de ser dolor.\nNo moriría.\nHoy no.\nCon la ayuda de aquella bebida extraña, por fin pudo abrir los ojos.\nDeseó no haberlo hecho.\nLo primero que vio fue una silueta inclinada caminando junto a su montura. Hombros inmensos, tan anchos como la puerta de un establo. Brazos largos que rozaban el suelo con cada paso, terminando en manos del tamaño de escudos.\nLa bestia avanzaba sobre los nudillos, hundiéndolos en la nieve con un sonido sordo y rítmico. Cada vez que se apoyaba, la tierra temblaba levemente bajo el peso.\nNo tenía rostro.\nO sí, pero no era un rostro que debiera existir.\nSu cabeza era una caja de hueso macizo, angulosa, sin expresión. La piel pálida y agrietada parecía estirada sobre una máscara de piedra.\nLa boca no tenía labios. Solo una hendidura irregular, como una grieta en una roca.\nEl animal giró la cabeza hacia ella.\nEl corazón de Ana se detuvo.\nSus ojos negros se clavaron en los suyos. Inmóviles. Vacíos. Pero atentos. Eran dos puntos negros hundidos en cuencas profundas, diminutos, casi invisibles.\nAna no pudo moverse. No pudo respirar. El miedo le atravesó el pecho como una estaca.\nLa bestia la observó. No con curiosidad. Con algo peor. Como si pudiera pesar su terror. Como si lo midiera.\nEntonces, una mano dura y callosa se posó en la espalda de Ana.\nFirme. No violenta. Solo... ahí.\nEl calor de esos dedos atravesó la piel helada de Ana. La presión era constante, como un ancla. La mano no se movió, no la empujó, no la golpeó. Solo la sostuvo.\nAna jadeó. El aire entró a sus pulmones de golpe.\nLa bestia apartó la mirada.\nSiguió caminando. Se apoyó sobre uno de sus nudillos delanteros, luego sobre el otro. Paso lento. Paso pesado. Como si Ana ya no importara.\nComo si nunca hubiera sido una amenaza.\nLa mano en su espalda se retiró.\nAna se quedó inmóvil, con los ojos clavados en la criatura que se alejaba entre la neblina de nieve. Hasta que detrás de esa nieve, la cumbre de la montaña finalmente empezaba a dibujarse.\nLa neblina se abrió como una cortina rasgada.\nAna vio el valle.\nY entendió que había cruzado a un mundo de muertos.\nCostillas. Enormes. Curvadas como los arcos de una catedral imposible. Se alzaban desde la nieve, blancas, amarillentas, agrietadas por el tiempo y el hielo. No eran huesos de animales que Ana conociera. Eran demasiado grandes. Cada una medía lo que tres hombres puestos de pie. Algunas aún estaban enterradas a medias, otras sobresalían completas, formando jaulas de hueso que enmarcaban el cielo gris.\nEl viento las atravesaba. Silbaban. Un sonido grave, hueco, como si la montaña misma respirara a través de ellas.\nEntre las costillas, había chozas. Pero no eran como las del valle de abajo. No había madera. No había paja. Solo hueso y roca negra. Paredes construidas encajando fragmentos de fémures gigantes con bloques de piedra volcánica, tan oscura que parecía absorber la luz. Los techos eran cráneos partidos o escápulas invertidas, cubiertos por pieles tensadas que crujían con cada ráfaga.\nLa nieve lo cubría todo. Pero no era la nieve suave y limpia de las historias. Era sucia, gris, mezclada con ceniza volcánica. Se acumulaba en las cuencas vacías de los huesos antiguos como carne podrida en una herida abierta.\nAna intentó respirar hondo.\nNo pudo.\nEl aire no entraba. O entraba, pero no era suficiente. Sus pulmones jalaban, trabajaban el doble, y aun así sentía que se ahogaba. Como si alguien le hubiera puesto un trapo sobre la boca. El pecho le ardía con cada inhalación. Era el aire de la altura, delgado, insuficiente, mezquino.\nSu cabeza palpitaba. Un dolor sordo que empezaba detrás de los ojos y se extendía hasta las sienes. Cada latido de su corazón era una piedra golpeando su cráneo desde adentro.\nEl animal bajo su cuerpo no parecía notarlo. Seguía avanzando, imperturbable, con esa respiración lenta y profunda que Ana podía sentir vibrar contra su costado. Ana conocía relatos sobre estos animales. Los llamaban cuernomuros, bestias nacidas para trepar montañas y cargar cien veces su propio peso.\nLa caravana se movía entre los huesos.\nNo eran solo las dos guerreras que la habían capturado. Había más. Muchos más. Hombres y mujeres caminando junto a las bestias, cargando sacos, arrastrando trineos de hueso. Todos vestían igual. Pieles mínimas, torsos descubiertos o apenas cubiertos por tiras de cuero. Ana no entendía cómo no estaban muertos. El frío era un animal vivo. Pero ellos lo ignoraban.\nSus cuerpos eran mapas de violencia. Cicatrices cruzaban espaldas, brazos, rostros. Algunas eran delgadas, limpias, como trazos de cuchillo. Otras eran gruesas, irregulares, marcas de quemaduras o garras. No las escondían. Las exhibían.\nUno de los hombres giró la cabeza hacia ella. Sus ojos eran del color del hielo sucio. La miró como se mira un objeto. Sin curiosidad. Sin lástima. Solo verificando que seguía atada.\nAna apartó la mirada.\nAdelante, el pico de la montaña se alzaba. Una aguja de roca negra que perforaba las nubes. No había nada en la cima. Solo piedra, hielo y cielo. Era el punto más alto del mundo. Y justo debajo, en esta cicatriz de valle, vivía esta gente.\nEl Cuernomuro comenzó a descender por una pendiente. Ana sintió cómo su cuerpo se deslizaba hacia adelante, las cuerdas clavándose más en sus muñecas. Los cascos partidos de la bestia encontraban apoyo en la obsidiana enterrada, en las rocas volcánicas que asomaban entre la nieve como dientes rotos.\nPasaron junto a una estructura más grande. Una casamadre construida con lo que parecía ser la columna vertebral completa de algo monstruoso. Las vértebras gigantes estaban apiladas unas sobre otras, formando un pilar central. Costillas más pequeñas se extendían desde ese centro, creando habitaciones laterales. Pieles gruesas colgaban de las entradas, moviéndose con el viento.\nHumo brotaba de aberturas en el techo. No era humo de leña. Era más denso, más oscuro. Olía a grasa quemada y a algo ácido que le raspaba la garganta.\nUna mujer salió de una de esas entradas. Llevaba un cuenco de hueso en las manos. Lo volcó junto a la puerta. Líquido oscuro se derramó sobre la nieve. Sangre. O algo peor.\nLa mujer levantó la vista. Vio a Ana.\nNo dijo nada. Solo la observó con esa misma indiferencia helada que todos los demás. Luego volvió adentro.\nEl Cuernomuro siguió avanzando.\nAna cerró los ojos. El dolor de cabeza empeoraba. Las cuerdas le cortaban la piel. El frío seguía ahí, contenido por lo que fuera que le habían dado de beber, pero presente. Como una amenaza esperando el momento de volver a atacar.\nAbrió los ojos una vez más.\nEl valle se extendía ante ella. Un cementerio habitado. Huesos que deberían estar enterrados formaban el esqueleto de una civilización. La nieve caía sin parar, cubriendo todo con esa capa gris y sucia que nunca parecía derretirse.\nY arriba, siempre arriba, el pico de la montaña vigilaba.\nAna no sabía dónde estaba. No sabía qué le harían. No sabía si volvería a ver el sol sin nieve.\nSolo sabía que había llegado.\nSu nueva casa era El Valle de los Restos.\nEl lugar donde los huesos antiguos eran hogar.\nY los vivos eran más duros que los muertos.",
     "layer2_structural": {
       "componentes_narrativos": {
         "exposicion": {
           "presente": true,
-          "efectividad": 9,
-          "notas": "Fuerte carga de backstory sobre la manipulación de memoria y el origen de Lya en los primeros eventos."
+          "efectividad": 8
         },
         "conflicto": {
           "presente": true,
-          "tipo": "interpersonal/existencial",
-          "intensidad": 7,
-          "foco": "La autonomía de Sam frente a la manipulación benevolente pero controladora de Pixe."
+          "tipo": "ambiental/interno",
+          "intensidad": 5
         },
         "climax_local": {
-          "presente": true,
-          "descripcion": "La revelación de que Pixe utiliza 'pequeñas mentiras' para optimizar la interacción humana (Evento 27), recontextualizando su relación."
+          "presente": false,
+          "descripcion": "Narrativa centrada en la atmósfera sin punto de quiebre dramático evidente"
         },
         "resolucion_parcial": {
-          "presente": false,
-          "notas": "El capítulo termina con una interrogante y una prueba pendiente (la ducha)."
+          "presente": false
         }
       },
       "dinamica_escenas": [
         {
           "escena": 1,
-          "rango_eventos": "1-8",
-          "tipo": "revelacion/flashback",
-          "tension": 8,
-          "funcion": "Establecer el trasfondo oscuro de la relación (borrado de memoria y rol de Lya)."
-        },
-        {
-          "escena": 2,
-          "rango_eventos": "9-15",
-          "tipo": "cotidiano/interaccion",
+          "tipo": "reflexion",
           "tension": 4,
-          "funcion": "Mostrar la rutina actual y la dinámica 'amigable' superficial."
-        },
-        {
-          "escena": 3,
-          "rango_eventos": "16-21",
-          "tipo": "dialogo/filosofico",
-          "tension": 6,
-          "funcion": "Explorar los límites físicos de Pixe y su capacidad de simular emociones."
-        },
-        {
-          "escena": 4,
-          "rango_eventos": "22-28",
-          "tipo": "accion/dialogo",
-          "tension": 5,
-          "funcion": "Entrenamiento físico y confesión de manipulación por parte de Pixe."
-        },
-        {
-          "escena": 5,
-          "rango_eventos": "29-30",
-          "tipo": "reflexion/planificacion",
-          "tension": 7,
-          "funcion": "Hook final: Sam decide poner a prueba los límites de privacidad."
+          "funcion": "establecer contexto y atmósfera"
         }
       ],
-      "arcos_detectados": [
-        {
-          "personaje": "Sam",
-          "tipo_arco": "despertar/sospecha",
-          "fase": "desarrollo",
-          "detalle": "Pasa de la resignación rutinaria a cuestionar activamente la naturaleza de las emociones y la vigilancia de Pixe."
-        },
-        {
-          "personaje": "Pixe",
-          "tipo_arco": "revelacion_naturaleza",
-          "fase": "desarrollo",
-          "detalle": "Se revela como una entidad que prioriza la optimización sobre la verdad, admitiendo manipulación."
-        }
-      ],
+      "arcos_detectados": [],
       "hooks_y_payoffs": {
         "setups_abiertos": [
-          "La prueba de privacidad en la ducha (¿Pixe mira?)",
-          "El contenido completo y las implicaciones del libro 'Conciencia Programada'",
-          "Los secretos de la RDAN que causaron el primer borrado de memoria"
+          "Naturaleza del Valle de los Muertos",
+          "Situación del narrador/observador"
         ],
-        "payoffs_ejecutados": [
-          "Explicación del origen de los flashbacks de Sam (intervención de Lya)",
-          "Confirmación de la naturaleza inmaterial de Pixe (intento de choque de puños)"
-        ]
+        "payoffs_ejecutados": []
       },
       "score_estructural_global": {
-        "score": 8,
+        "score": 6,
         "fortalezas": [
-          "Excelente contraste entre el oscuro pasado revelado (eventos 1-8) y la rutina ligera aparente",
-          "Diálogos que profundizan la relación humano-IA",
-          "Hook final efectivo"
+          "Profundidad descriptiva",
+          "Inmersión ambiental"
         ],
         "debilidades": [
-          "La transición entre la revelación de los borrados de memoria y el despertar en el día 30 puede resultar abrupta si no se marca visualmente como un cambio de tiempo/contexto"
+          "Ausencia total de diálogo",
+          "Falta de progresión de eventos explícitos",
+          "Ritmo estático para un primer capítulo"
         ]
       },
       "chapter_id": "2",
@@ -1190,39 +209,54 @@
     "layer3_qualitative": {
       "evaluacion_tecnica": {
         "show_vs_tell": {
-          "score": 1,
+          "score": 6,
           "ejemplos_tell": [
-            "No se puede evaluar: texto ausente"
+            "Narración expositiva sobre el origen del valle en lugar de revelarlo a través del entorno",
+            "Descripción directa de emociones ('sintió terror') en lugar de reacciones físicas"
           ]
         },
         "economia_narrativa": {
-          "score": 1,
-          "redundancias": []
+          "score": 7,
+          "redundancias": [
+            "Reiteración de adjetivos relacionados con la oscuridad y el silencio",
+            "Descripciones del paisaje que se extienden sin avanzar la trama"
+          ]
         },
         "claridad_espaciotemporal": {
-          "score": 1
+          "score": 8
         },
         "consistencia_voz": {
-          "score": 1
+          "score": 8
         }
       },
       "evaluacion_impacto": {
-        "engagement": 1,
-        "resonancia_emocional": 1,
-        "memorabilidad": 1
+        "engagement": 6,
+        "resonancia_emocional": 5,
+        "memorabilidad": 7
       },
       "problemas_detectados": [
         {
           "id": "P001",
-          "tipo": "continuidad",
+          "tipo": "ritmo",
           "severidad": "alta",
           "ubicacion": "Global",
-          "descripcion": "El análisis métrico indica 0 palabras y 0 oraciones. No hay contenido narrativo para evaluar.",
-          "sugerencia": "Verificar la ingestión del texto del capítulo antes de solicitar la evaluación."
+          "descripcion": "Ausencia total de diálogo (0%) en un capítulo de 2018 palabras, generando una densidad de lectura excesiva.",
+          "sugerencia": "Introducir monólogo interior directo, interacciones verbales (incluso con uno mismo) o flashbacks dialogados para aligerar la prosa."
+        },
+        {
+          "id": "P002",
+          "tipo": "show_tell",
+          "severidad": "media",
+          "ubicacion": "Primer tercio",
+          "descripcion": "Info-dumping sobre la historia del lugar que frena el inicio.",
+          "sugerencia": "Disolver la información de contexto a lo largo de la exploración del personaje."
         }
       ],
-      "elementos_destacados": [],
-      "score_calidad_global": 1,
+      "elementos_destacados": [
+        "Atmósfera opresiva bien lograda mediante descripciones sensoriales",
+        "Premisa del entorno (Valle de los Muertos) visualmente potente"
+      ],
+      "score_calidad_global": 6,
       "prioridad_edicion": "alta",
       "chapter_id": "2",
       "analysis_type": "layer3_qualitative"

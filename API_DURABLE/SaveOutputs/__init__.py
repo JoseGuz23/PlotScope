@@ -189,9 +189,26 @@ def main(input_data: Any) -> dict:
         final_status = 'completed' if carta_editorial else payload.get('status', 'processing')
         if final_status == 'success': final_status = 'completed'
 
+        # FIX: Preservar created_at original y project_name del metadata existente
+        original_created_at = None
+        original_project_name = None
+        try:
+            existing_meta_client = blob_service.get_blob_client(container_name, f'{job_id}/metadata.json')
+            if existing_meta_client.exists():
+                existing_meta = json.loads(existing_meta_client.download_blob().readall())
+                original_created_at = existing_meta.get('created_at')
+                original_project_name = existing_meta.get('project_name')
+                logging.info(f"✅ Preservando created_at original: {original_created_at}")
+        except Exception as e:
+            logging.warning(f"⚠️ No se pudo leer metadata existente: {e}")
+
         metadata = {
-            'job_id': job_id, 'book_name': book_name, 'version': 'Sylphrena 5.3',
-            'created_at': datetime.now().isoformat(), 'status': final_status,
+            'job_id': job_id,
+            'book_name': book_name,
+            'project_name': original_project_name or book_name,  # Mantener compatibilidad
+            'version': 'Sylphrena 5.3',
+            'created_at': original_created_at or datetime.now().isoformat(),  # Preservar original
+            'status': final_status,
             'counts': {'chapters': len(consolidated_chapters)}
         }
         urls['metadata'] = upload_blob(f"{base_path}/metadata.json", metadata, 'application/json')

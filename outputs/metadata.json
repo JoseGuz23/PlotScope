@@ -1,12 +1,11 @@
 {
-  "job_id": "2110_20251210_223051",
-  "book_name": "Sin título",
-  "version": "Sylphrena 5.0",
-  "created_at": "2025-12-10T23:42:24.265821",
+  "job_id": "Ana_20251211_041229",
+  "book_name": "Ana",
+  "project_name": "Ana",
+  "version": "Sylphrena 5.3",
+  "created_at": "2025-12-11T04:12:29.879711Z",
   "status": "completed",
   "counts": {
-    "original_chapters": 0,
-    "original_fragments": 0
-  },
-  "carta_regenerated_at": "2025-12-11T01:21:42.521885Z"
+    "chapters": 0
+  }
 }

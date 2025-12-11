@@ -17,7 +17,7 @@ from datetime import timedelta
 # CONFIGURACIÓN OPTIMIZADA
 # =============================================================================
 
-LIMIT_TO_FIRST_N_CHAPTERS = 2  # None = procesar todos
+LIMIT_TO_FIRST_N_CHAPTERS = 3  # None = procesar todos
 MAX_WAIT_MINUTES = 60
 
 # NUEVO: Polling adaptativo - Empieza rápido, luego incrementa
@@ -267,7 +267,10 @@ def edit_with_claude_batch_v2_optimized(context, edit_requests: list, bible: dic
         if status == 'success':
             total_time = sum(get_adaptive_interval('claude', i) for i in range(attempt + 1))
             logging.info(f"[OK] EDICIÓN COMPLETADA en ~{total_time}s")
-            return result.get('edited_chapters', [])
+            # FIX: PollClaudeBatchResult devuelve 'results', no 'edited_chapters'
+            edited_chapters = result.get('results', result.get('edited_chapters', []))
+            logging.info(f"✅ Capítulos editados recibidos: {len(edited_chapters)}")
+            return edited_chapters
         
         elif status == 'failed':
             raise Exception(f"Batch edición falló: {result.get('error')}")
