@@ -1,15 +1,18 @@
 // =============================================================================
-// ProjectStatus.jsx - DISEÑO LIMPIO & AUTORECARGA
+// ProjectStatus.jsx - DISEÑO LIMPIO + AUTORECARGA + NOTIFICACIONES (SIN EMOJIS)
 // =============================================================================
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useOutletContext, Link } from 'react-router-dom'; // Agregado useOutletContext
+import { useParams, useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { projectsAPI } from '../services/api';
 import {
   Upload, BookOpen, Search, FileText, Brain, Scroll,
   Map, Edit, Save, Loader2, Clock, AlertOctagon,
-  StopCircle, ArrowRight, AlertTriangle, Check, Activity, Eye, Sparkles
+  StopCircle, ArrowRight, Check, Activity, Eye, Sparkles
 } from 'lucide-react';
+
+// --- SONIDO DE NOTIFICACIÓN (Tono tipo "Ping" suave) ---
+const REAL_NOTIFICATION_SOUND = "https://www.soundjay.com/buttons/sounds/button-3.mp3";
 
 const PHASES = [
   { key: 'upload', icon: Upload, label: 'Recepción', description: 'Carga del manuscrito' },
@@ -82,7 +85,7 @@ export default function ProjectStatus() {
   const { id: projectId } = useParams();
   const navigate = useNavigate();
   
-  // 1. OBTENER LA FUNCIÓN DE RECARGA DEL CONTEXTO
+  // 1. OBTENER LA FUNCION DE RECARGA DEL CONTEXTO
   const { refreshProject } = useOutletContext(); 
   
   const [status, setStatus] = useState(null);
@@ -93,8 +96,68 @@ export default function ProjectStatus() {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [elapsedTime, setElapsedTime] = useState('00:00');
   
+  // Refs
   const pollIntervalRef = useRef(null);
   const timerIntervalRef = useRef(null);
+  // Refs para notificaciones
+  const titleIntervalRef = useRef(null);
+  const hasPlayedSoundRef = useRef(false);
+
+  // --- LOGICA DE NOTIFICACIONES (INICIO) ---
+  useEffect(() => {
+    // Limpieza al desmontar
+    return () => {
+      clearInterval(titleIntervalRef.current);
+      document.title = "LYA - Plataforma";
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!status) return;
+
+    const isWaiting = status?.custom_status?.toLowerCase().includes('esperando') || 
+                      status?.custom_status?.toLowerCase().includes('waiting');
+    
+    clearInterval(titleIntervalRef.current);
+
+    if (isWaiting) {
+      // --- ATENCION REQUERIDA ---
+      
+      // 1. Audio (Solo una vez)
+      if (!hasPlayedSoundRef.current) {
+        try {
+          const audio = new Audio(REAL_NOTIFICATION_SOUND);
+          audio.volume = 0.4;
+          audio.play().catch(e => console.warn("Autoplay bloqueado", e));
+          hasPlayedSoundRef.current = true;
+        } catch (e) { console.error("Error audio", e); }
+      }
+
+      // 2. Titulo Parpadeante (Texto plano)
+      let toggle = false;
+      titleIntervalRef.current = setInterval(() => {
+        document.title = toggle ? "Acción Requerida" : "Aprobar Biblia - LYA";
+        toggle = !toggle;
+      }, 1000);
+
+    } else if (status.is_completed) {
+      // --- COMPLETADO ---
+      document.title = "Finalizado - LYA";
+      hasPlayedSoundRef.current = false;
+
+    } else if (terminated) {
+      // --- DETENIDO ---
+      document.title = "Detenido - LYA";
+
+    } else {
+      // --- PROCESANDO ---
+      const phaseName = status.friendly_message || "Procesando...";
+      const shortPhase = phaseName.length > 25 ? phaseName.substring(0, 25) + "..." : phaseName;
+      document.title = `${shortPhase} | LYA`;
+      hasPlayedSoundRef.current = false;
+    }
+  }, [status, terminated]);
+  // --- LOGICA DE NOTIFICACIONES (FIN) ---
 
   // 1. CARGA INICIAL
   useEffect(() => {
@@ -154,11 +217,11 @@ export default function ProjectStatus() {
       const newPhase = getPhaseIndex(data.custom_status);
       if (newPhase > 0) setCurrentPhase(newPhase);
       
-      // --- FINALIZACIÓN ---
+      // --- FINALIZACION ---
       if (data.is_completed) {
         clearInterval(pollIntervalRef.current);
         
-        // 2. FORZAR ACTUALIZACIÓN DEL CONTEXTO (Solución al F5)
+        // 2. FORZAR ACTUALIZACION DEL CONTEXTO (Solución al F5)
         await refreshProject(); 
 
         // 3. REDIRIGIR A EDITOR
@@ -235,7 +298,7 @@ export default function ProjectStatus() {
            </div>
         </header>
 
-        {/* ALERTA DE ACCIÓN (BIBLIA) */}
+        {/* ALERTA DE ACCION (BIBLIA) */}
         {isWaitingForBible && (
              <div className="mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
                 <Link 
@@ -250,8 +313,8 @@ export default function ProjectStatus() {
                         <Scroll className="w-8 h-8 text-white" />
                      </div>
                      <div className="text-left">
-                        <p className="text-xs font-bold text-purple-200 uppercase tracking-widest mb-1">Pausa Automática</p>
-                        <h3 className="text-2xl font-bold">Revisión de Biblia Narrativa Requerida</h3>
+                        <p className="text-xs font-bold text-purple-200 uppercase tracking-widest mb-1">Pausa Automatica</p>
+                        <h3 className="text-2xl font-bold">Revision de Biblia Narrativa Requerida</h3>
                      </div>
                      <ArrowRight className="w-6 h-6 ml-4 group-hover:translate-x-2 transition-transform" />
                    </div>
@@ -272,7 +335,7 @@ export default function ProjectStatus() {
         
         {/* GRID DE FASES (PIPELINE) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative">
-            {/* Línea conectora visual (solo desktop) */}
+            {/* Linea conectora visual (solo desktop) */}
             <div className="hidden xl:block absolute top-12 left-0 w-full h-0.5 bg-gray-100 -z-10"></div>
 
             {PHASES.map((phase, idx) => {
