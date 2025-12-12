@@ -1,19 +1,23 @@
 # =============================================================================
-# SubmitMarginNotes/__init__.py - LYA 5.0
+# SubmitMarginNotes/__init__.py - LYA 6.0 (Optimized)
 # =============================================================================
-# NUEVA FUNCIÓN: Genera "notas de margen" como las de un editor profesional
-# Comentarios tipo: "Aquí el lector se pierde", "Este diálogo suena forzado"
+# ACTUALIZACIÓN: Implementación de Context Caching para reducción de costos.
+# Se separa el contexto estático (instrucciones/carta) del dinámico (capítulos).
 # =============================================================================
 
 import logging
 import json
 import os
+from typing import Dict, List, Any
 
 logging.basicConfig(level=logging.INFO)
 
-MARGIN_NOTES_PROMPT = """Eres un EDITOR PROFESIONAL revisando el capítulo "{titulo}" de "{libro}".
+# -----------------------------------------------------------------------------
+# PROMPTS (Divididos para Caching)
+# -----------------------------------------------------------------------------
 
-Tu tarea es generar NOTAS DE MARGEN como las que un developmental editor escribe mientras lee. Estas son observaciones que van más allá de correcciones de texto - son comentarios sobre narrativa, personajes, ritmo y experiencia del lector.
+# PARTE 1: INSTRUCCIONES ESTÁTICAS (Se cacheará esto)
+STATIC_SYSTEM_INSTRUCTIONS = """Eres un EDITOR PROFESIONAL. Tu tarea es generar NOTAS DE MARGEN para el libro "{libro}".
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXTO EDITORIAL (de la carta editorial):
@@ -21,105 +25,65 @@ CONTEXTO EDITORIAL (de la carta editorial):
 {contexto_editorial}
 
 ═══════════════════════════════════════════════════════════════════════════════
-INFORMACIÓN DEL CAPÍTULO:
-═══════════════════════════════════════════════════════════════════════════════
-Posición: {posicion}
-Función narrativa: {funcion}
-Personajes presentes: {personajes}
-
-═══════════════════════════════════════════════════════════════════════════════
-TEXTO DEL CAPÍTULO:
-═══════════════════════════════════════════════════════════════════════════════
-{contenido}
-
-═══════════════════════════════════════════════════════════════════════════════
 TIPOS DE NOTAS A GENERAR:
 ═══════════════════════════════════════════════════════════════════════════════
-
-1. **PACING**: Donde el ritmo no funciona
-   - "Este párrafo ralentiza la acción en un momento de tensión"
-   - "La escena termina abruptamente sin resolución emocional"
-
-2. **PERSONAJE**: Inconsistencias o oportunidades
-   - "Esta reacción no cuadra con lo establecido de [nombre]"
-   - "Oportunidad de mostrar más de su conflicto interno"
-
-3. **DIALOGO**: Problemas de naturalidad
-   - "Este intercambio suena expositivo - los personajes están explicando para el lector"
-   - "Las voces de ambos personajes suenan iguales aquí"
-
-4. **CLARIDAD**: Donde el lector puede perderse
-   - "La geografía de la escena no está clara"
-   - "¿Cuánto tiempo ha pasado desde la escena anterior?"
-
-5. **EMOCION**: Oportunidades de profundizar
-   - "Aquí podríamos sentir más lo que [nombre] está experimentando"
-   - "El momento pide más peso emocional"
-
-6. **VOZ**: Inconsistencias de tono o estilo
-   - "Este párrafo rompe con el tono establecido"
-   - "La metáfora no encaja con el registro del narrador"
-
-7. **TENSION**: Problemas de stakes o conflicto
-   - "El conflicto se resuelve demasiado fácil"
-   - "¿Qué está en juego aquí para el protagonista?"
-
-8. **SHOW_TELL**: Oportunidades de mostrar en vez de contar
-   - "Estás contando la emoción en vez de mostrarla"
-   - "El narrador explica lo que la acción ya demostró"
+1. **PACING**: Donde el ritmo no funciona (muy lento/rápido).
+2. **PERSONAJE**: Inconsistencias o falta de profundidad.
+3. **DIALOGO**: Problemas de naturalidad o "infodumping".
+4. **CLARIDAD**: Confusión espacial o temporal.
+5. **EMOCION**: Falta de impacto emocional requerido.
+6. **VOZ**: Inconsistencias de tono.
+7. **TENSION**: Falta de conflicto o resolución fácil.
+8. **SHOW_TELL**: Explicar en lugar de mostrar.
 
 ═══════════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES:
+INSTRUCCIONES DE SALIDA:
 ═══════════════════════════════════════════════════════════════════════════════
+1. Lee el fragmento proporcionado por el usuario.
+2. Identifica 5-15 puntos de mejora crítica.
+3. Prioriza notas con IMPACTO REAL en la narrativa.
+4. RESPONDE ÚNICAMENTE CON JSON VÁLIDO con el siguiente formato:
 
-1. Lee el capítulo COMPLETO
-2. Identifica 5-15 puntos donde un editor dejaría una nota
-3. Cada nota debe:
-   - Ubicar el problema (párrafo aproximado)
-   - Citar el texto relevante (primeras palabras)
-   - Explicar el problema en términos de experiencia del LECTOR
-   - Ofrecer una sugerencia constructiva
-4. Prioriza notas que tengan IMPACTO REAL en la calidad narrativa
-5. NO generes notas sobre errores menores de prosa (esos van en la edición)
-
-RESPONDE ÚNICAMENTE con JSON válido:
 {{
     "notas_margen": [
         {{
-            "nota_id": "ch{chapter_id}-nota-001",
+            "nota_id": "chID-nota-001",
             "parrafo_aprox": N,
-            "texto_referencia": "Primeras 10-15 palabras del párrafo...",
-            "tipo": "pacing|personaje|dialogo|claridad|emocion|voz|tension|show_tell",
+            "texto_referencia": "Primeras 10-15 palabras...",
+            "tipo": "categoria",
             "severidad": "alta|media|baja",
-            "nota": "Descripción del problema desde la perspectiva del lector...",
-            "sugerencia": "Cómo podría mejorarse...",
-            "impacto_si_no_se_corrige": "Qué pierde el lector si esto no se arregla"
+            "nota": "Problema...",
+            "sugerencia": "Solución...",
+            "impacto_si_no_se_corrige": "Consecuencia..."
         }}
     ],
     "resumen_capitulo": {{
-        "fortaleza_principal": "Lo mejor de este capítulo",
-        "problema_principal": "El área más importante a mejorar",
+        "fortaleza_principal": "...",
+        "problema_principal": "...",
         "prioridad_revision": "alta|media|baja"
     }}
 }}
 """
 
+# PARTE 2: CONTENIDO DINÁMICO (Cambia por capítulo)
+CHAPTER_USER_PROMPT = """Analiza el siguiente capítulo basándote en las instrucciones cacheadas.
 
-def main(input_data: dict) -> dict:
+INFORMACIÓN DEL CAPÍTULO:
+- Título: {titulo}
+- ID Referencia: {chapter_id}
+- Función narrativa prevista: {funcion}
+- Personajes presentes: {personajes}
+
+TEXTO DEL CAPÍTULO:
+═══════════════════════════════════════════════════════════════════════════════
+{contenido}
+═══════════════════════════════════════════════════════════════════════════════
+"""
+
+def main(input_data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Envía capítulos a Claude Batch para generar notas de margen.
-    
-    Input:
-        - chapters: Lista de fragmentos/capítulos
-        - carta_editorial: Resultado de GenerateEditorialLetter
-        - bible: Biblia narrativa
-        - book_metadata: Metadatos del libro
-    
-    Output:
-        - batch_id: ID del batch de Claude
-        - status: Estado del envío
+    Envía capítulos a Claude Batch utilizando Context Caching.
     """
-    
     try:
         from anthropic import Anthropic
         
@@ -132,114 +96,129 @@ def main(input_data: dict) -> dict:
         bible = input_data.get('bible', {})
         book_metadata = input_data.get('book_metadata', {})
         
-        libro = book_metadata.get('title', bible.get('identidad_obra', {}).get('titulo', 'Sin título'))
+        libro_titulo = book_metadata.get('title', bible.get('identidad_obra', {}).get('titulo', 'Sin título'))
         
-        logging.info(f"📝 Preparando notas de margen para {len(chapters)} capítulos")
+        logging.info(f"📝 Preparando notas de margen para {len(chapters)} capítulos con Caching.")
         
         client = Anthropic(api_key=api_key)
         
         batch_requests = []
         chapter_metadata = {}
         
-        # Extraer contexto editorial relevante
-        contexto_editorial = extraer_contexto_editorial(carta, bible)
+        # 1. Preparar el contenido estático para el Caché
+        # Este string debe ser IDÉNTICO en todos los requests para que el caché funcione
+        contexto_editorial_str = extraer_contexto_editorial(carta, bible)
         
+        system_content_cached = [
+            {
+                "type": "text",
+                "text": STATIC_SYSTEM_INSTRUCTIONS.format(
+                    libro=libro_titulo,
+                    contexto_editorial=contexto_editorial_str
+                ),
+                # AQUI ESTA LA MAGIA DEL AHORRO:
+                "cache_control": {"type": "ephemeral"} 
+            }
+        ]
+
+        # 2. Iterar capítulos y construir requests
         for chapter in chapters:
             ch_id = str(chapter.get('id', chapter.get('chapter_id', '?')))
             parent_id = chapter.get('parent_chapter_id', ch_id)
             
-            # Guardar metadata
+            # Guardar metadata para seguimiento
             chapter_metadata[ch_id] = {
                 'fragment_id': chapter.get('id', 0),
                 'parent_chapter_id': parent_id,
                 'original_title': chapter.get('title', chapter.get('original_title', 'Sin título'))
             }
             
-            # Buscar notas específicas del capítulo en la carta
+            # Extraer datos dinámicos (específicos de este request)
             notas_cap = ""
             for nota in carta.get('notas_por_capitulo', []):
                 if str(nota.get('capitulo')) == str(parent_id):
-                    notas_cap = f"Función: {nota.get('funcion', '')}\nMejorar: {nota.get('que_mejorar', '')}"
+                    notas_cap = f"Función: {nota.get('funcion', '')}. Mejorar: {nota.get('que_mejorar', '')}"
                     break
             
-            # Personajes
             personajes = extraer_personajes_capitulo(bible, parent_id)
             
-            prompt = MARGIN_NOTES_PROMPT.format(
+            # Construir el mensaje del usuario (dinámico)
+            user_content = CHAPTER_USER_PROMPT.format(
                 titulo=chapter.get('title', chapter.get('original_title', 'Sin título')),
-                libro=libro,
-                contexto_editorial=contexto_editorial,
-                posicion=f"Capítulo {parent_id}",
+                chapter_id=ch_id,
                 funcion=notas_cap or "No especificada",
                 personajes=", ".join(personajes) if personajes else "No especificados",
-                contenido=chapter.get('content', ''),
-                chapter_id=ch_id
+                contenido=chapter.get('content', '')
             )
             
             request = {
                 "custom_id": f"margin-{ch_id}",
                 "params": {
-                    "model": "claude-sonnet-4-5-20250929",
+                    "model": "claude-sonnet-4-5-20250929", # Modelo preservado según instrucciones
                     "max_tokens": 4000,
                     "temperature": 0.5,
-                    "messages": [{"role": "user", "content": prompt}]
+                    "system": system_content_cached, # Pasamos la estructura con cache_control
+                    "messages": [
+                        {"role": "user", "content": user_content}
+                    ]
                 }
             }
             batch_requests.append(request)
         
         logging.info(f"📦 Enviando {len(batch_requests)} requests a Claude Batch")
         
+        # Crear el batch
         message_batch = client.messages.batches.create(requests=batch_requests)
         
-        logging.info(f"✅ Batch de notas creado: {message_batch.id}")
+        logging.info(f"✅ Batch creado: {message_batch.id}")
         
         return {
             "batch_id": message_batch.id,
             "chapters_count": len(chapters),
             "status": "submitted",
             "processing_status": message_batch.processing_status,
-            "chapter_metadata": chapter_metadata
+            "chapter_metadata": chapter_metadata,
+            "optimization": "context_caching_enabled"
         }
         
     except ImportError as e:
         logging.error(f"❌ SDK no instalado: {e}")
         return {"error": str(e), "status": "import_error"}
     except Exception as e:
-        logging.error(f"❌ Error: {str(e)}")
+        logging.error(f"❌ Error crítico: {str(e)}")
         import traceback
         logging.error(traceback.format_exc())
         return {"error": str(e), "status": "error"}
 
 
-def extraer_contexto_editorial(carta: dict, bible: dict) -> str:
-    """Extrae contexto relevante de la carta editorial."""
-    
+def extraer_contexto_editorial(carta: Dict, bible: Dict) -> str:
+    """Extrae contexto relevante de la carta editorial (Estático)."""
     contexto = []
     
     # Áreas de oportunidad principales
     areas = carta.get('areas_de_oportunidad', [])
     if areas:
-        contexto.append("PROBLEMAS PRINCIPALES IDENTIFICADOS:")
-        for area in areas[:5]:  # Top 5
+        contexto.append("PROBLEMAS PRINCIPALES DEL LIBRO:")
+        for area in areas[:5]:
             if area.get('prioridad') in ['ALTA', 'MEDIA']:
-                contexto.append(f"- [{area.get('categoria', '').upper()}] {area.get('problema', '')[:100]}")
+                cat = area.get('categoria', '').upper()
+                prob = area.get('problema', '')[:120] # Limitado para consistencia
+                contexto.append(f"- [{cat}] {prob}")
     
     # Voz del autor
     voz = bible.get('voz_del_autor', {})
     if voz.get('NO_CORREGIR'):
-        contexto.append("\nELEMENTOS A PRESERVAR:")
+        contexto.append("\nELEMENTOS A PRESERVAR (VOZ):")
         for item in voz['NO_CORREGIR'][:3]:
             contexto.append(f"- {item}")
     
-    # Estilo
-    contexto.append(f"\nESTILO: {voz.get('estilo_detectado', 'No especificado')}")
+    contexto.append(f"\nESTILO GENERAL: {voz.get('estilo_detectado', 'Estándar')}")
     
     return "\n".join(contexto)
 
 
-def extraer_personajes_capitulo(bible: dict, chapter_id) -> list:
-    """Extrae personajes relevantes para un capítulo."""
-    
+def extraer_personajes_capitulo(bible: Dict, chapter_id) -> List[str]:
+    """Extrae personajes relevantes para un capítulo (Dinámico)."""
     personajes = []
     reparto = bible.get('reparto_completo', {})
     
@@ -251,7 +230,8 @@ def extraer_personajes_capitulo(bible: dict, chapter_id) -> list:
     for tipo in ['protagonistas', 'antagonistas', 'secundarios']:
         for p in reparto.get(tipo, []):
             caps = p.get('capitulos_clave', [])
-            if ch_num in caps or not caps:
-                personajes.append(p.get('nombre', 'Desconocido'))
+            # Si no tiene capítulos definidos, asumimos que aparece, o si coincide el ID
+            if not caps or ch_num in caps:
+                personajes.append(p.get('nombre', 'Personaje'))
     
-    return personajes[:5]  # Max 5 personajes
+    return personajes[:6]

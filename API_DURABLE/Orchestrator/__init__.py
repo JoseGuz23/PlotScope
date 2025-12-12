@@ -43,7 +43,7 @@ except ImportError as e:
 # CONFIGURACIÓN OPTIMIZADA
 # =============================================================================
 
-LIMIT_TO_FIRST_N_CHAPTERS = 3  # None = procesar todos
+LIMIT_TO_FIRST_N_CHAPTERS = None  # None = procesar todos
 MAX_WAIT_MINUTES = 60
 
 # NUEVO: Polling adaptativo - Empieza rápido, luego incrementa

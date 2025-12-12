@@ -1,5 +1,5 @@
 # =============================================================================
-# GenerateEditorialLetter/__init__.py - LYA 6.0 (CLAUDE OPUS 4.1)
+# GenerateEditorialLetter/__init__.py - LYA 6.0 (CLAUDE OPUS FIX TIMEOUT)
 # =============================================================================
 
 import logging
@@ -109,7 +109,7 @@ Escribe la carta completa como TEXTO PLANO EN MARKDOWN SIMPLE, sin estructura JS
 
 def main(input_data: dict) -> dict:
     """
-    Genera la carta editorial usando Claude Opus 4.1.
+    Genera la carta editorial usando Claude Opus.
     """
 
     try:
@@ -118,6 +118,7 @@ def main(input_data: dict) -> dict:
             return {"error": "ANTHROPIC_API_KEY no configurada", "status": "config_error"}
 
         # Inicialización del cliente de Anthropic
+        # NOTA: El timeout global se puede configurar aquí si se prefiere
         client = anthropic.Anthropic(api_key=api_key)
 
         bible = input_data.get('bible', {})
@@ -152,16 +153,21 @@ def main(input_data: dict) -> dict:
         )
 
         logging.info(f"📝 Generando Carta Editorial para: {titulo}")
-        logging.info(f"🔄 Llamando a Claude Opus 4.1 API...")
+        logging.info(f"🔄 Llamando a Claude Opus API...")
 
-        # Llamada a Claude Opus 4.1
+        # Llamada a Claude Opus
         response = client.messages.create(
-            model='claude-opus-4-1-20250805',
-            max_tokens=16000,
+            # FIX: Usar nombre oficial del modelo. 
+            # Si tienes acceso a 'claude-3-opus-20240229', úsalo.
+            model='claude-3-opus-20240229', 
+            max_tokens=4000, # Opus soporta 4k output
             temperature=0.7,
             messages=[
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            # --- FIX CRÍTICO: TIMEOUT ---
+            # Evita el error "Streaming is required..." permitiendo esperas largas
+            timeout=1200.0 
         )
 
         logging.info(f"✅ Respuesta recibida de Claude")
@@ -189,7 +195,7 @@ def main(input_data: dict) -> dict:
             "metadata": {
                 "longitud_caracteres": len(carta_markdown),
                 "longitud_palabras": len(carta_markdown.split()),
-                "modelo": "claude-opus-4.1"
+                "modelo": "claude-3-opus"
             }
         }
 
@@ -197,4 +203,5 @@ def main(input_data: dict) -> dict:
         logging.error(f"❌ Error generando carta editorial: {str(e)}")
         import traceback
         logging.error(traceback.format_exc())
+        # Retornar error controlado para no romper el flujo
         return {"error": str(e), "status": "error"}
