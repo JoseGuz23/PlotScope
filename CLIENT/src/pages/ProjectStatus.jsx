@@ -5,10 +5,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { projectsAPI } from '../services/api';
-import { 
-  Upload, BookOpen, Search, FileText, Brain, Scroll, 
-  Map, Edit, Save, Loader2, Clock, AlertOctagon, 
-  Terminal, StopCircle, ArrowRight, AlertTriangle, Check
+import {
+  Upload, BookOpen, Search, FileText, Brain, Scroll,
+  Map, Edit, Save, Loader2, Clock, AlertOctagon,
+  Terminal, StopCircle, ArrowRight, AlertTriangle, Check, Activity, Eye
 } from 'lucide-react';
 
 const PHASES = [
@@ -17,11 +17,13 @@ const PHASES = [
   { key: 'analyze1', icon: Search, label: 'Análisis Factual', description: 'Extracción de datos duros' },
   { key: 'consolidate', icon: FileText, label: 'Consolidación', description: 'Unificación de hallazgos' },
   { key: 'analyze2-3', icon: Brain, label: 'Análisis Profundo', description: 'Estructura y calidad' },
+  { key: 'emotional', icon: Activity, label: 'Arco Emocional', description: 'Análisis de sentiment (v6.0)', badge: 'NUEVO' },
+  { key: 'sensory', icon: Eye, label: 'Detección Sensorial', description: 'Show vs Tell (v6.0)', badge: 'NUEVO' },
   { key: 'bible', icon: Scroll, label: 'Biblia Narrativa', description: 'Generación de guía maestra' },
   { key: 'carta', icon: FileText, label: 'Carta Editorial', description: 'Feedback profesional' },
   { key: 'notas', icon: Edit, label: 'Notas de Margen', description: 'Anotaciones contextuales' },
   { key: 'arcs', icon: Map, label: 'Mapeo de Arcos', description: 'Trayectorias narrativas' },
-  { key: 'edit', icon: Edit, label: 'Edición IA', description: 'Corrección estilística' },
+  { key: 'edit', icon: Edit, label: 'Edición IA', description: 'Corrección estilística + Reflection' },
   { key: 'save', icon: Save, label: 'Finalización', description: 'Compilando entregables' },
 ];
 
@@ -65,18 +67,23 @@ function getPhaseIndex(customStatus) {
     if (s.includes('capa 1') || s.includes('factual')) return 2;
     if (s.includes('consolid')) return 3;
     if (s.includes('paralelo') || s.includes('layer2') || s.includes('estructur') || s.includes('qualitative')) return 4;
-    if (s.includes('biblia') || s.includes('holistic') || s.includes('esperando')) return 5;
-    if (s.includes('carta') || s.includes('editorial')) return 6;
-    if (s.includes('notas') || s.includes('margin')) return 7;
-    if (s.includes('arc') || s.includes('arco')) return 8;
-    if (s.includes('edici') || s.includes('edit')) return 9;
-    if (s.includes('final') || s.includes('guard')) return 10;
+
+    // Nuevas fases v6.0
+    if (s.includes('emotional') || s.includes('emocional') || s.includes('fase 5.5')) return 5;
+    if (s.includes('sensory') || s.includes('sensorial') || s.includes('fase 5.6')) return 6;
+
+    if (s.includes('biblia') || s.includes('holistic') || s.includes('esperando')) return 7;
+    if (s.includes('carta') || s.includes('editorial')) return 8;
+    if (s.includes('notas') || s.includes('margin')) return 9;
+    if (s.includes('arc') || s.includes('arco')) return 10;
+    if (s.includes('edici') || s.includes('edit') || s.includes('reflection')) return 11;
+    if (s.includes('final') || s.includes('guard')) return 12;
 
     // Si contiene "batch" pero no es Capa 1, intentar identificar contexto
     if (s.includes('batch')) {
-      if (s.includes('arc_maps') || s.includes('arcs')) return 8;
-      if (s.includes('notas') || s.includes('margin')) return 7;
-      if (s.includes('edit') || s.includes('edicion')) return 9;
+      if (s.includes('arc_maps') || s.includes('arcs')) return 10;
+      if (s.includes('notas') || s.includes('margin')) return 9;
+      if (s.includes('edit') || s.includes('edicion')) return 11;
       return 2; // Por defecto, batch es Capa 1
     }
 
@@ -350,7 +357,15 @@ export default function ProjectStatus() {
                             ${isCompleted ? 'text-green-800' : isCurrent ? 'text-theme-primary' : 'text-gray-400'}`}>
                             {phase.label}
                         </h3>
-                        
+
+                        {phase.badge && (
+                            <div className="mb-2">
+                                <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-[9px] font-black uppercase tracking-widest rounded-full">
+                                    {phase.badge}
+                                </span>
+                            </div>
+                        )}
+
                         <p className="text-xs text-gray-400 leading-relaxed max-w-[80%] text-balance">
                             {phase.description}
                         </p>

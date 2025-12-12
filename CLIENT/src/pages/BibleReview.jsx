@@ -5,9 +5,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bibleAPI } from '../services/api';
-import { 
-  Book, Users, Anchor, Flag, Save, CheckCircle2, 
-  ChevronRight, AlertCircle, Loader2, ArrowLeft, PenTool
+import {
+  Book, Users, Anchor, Flag, Save, CheckCircle2,
+  ChevronRight, AlertCircle, Loader2, ArrowLeft, PenTool, Activity
 } from 'lucide-react';
 
 export default function BibleReview() {
@@ -115,30 +115,35 @@ export default function BibleReview() {
         </div>
         
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <NavItem 
-            icon={Book} label="Identidad y Tono" 
-            active={activeSection === 'identidad'} 
-            onClick={() => setActiveSection('identidad')} 
+          <NavItem
+            icon={Book} label="Identidad y Tono"
+            active={activeSection === 'identidad'}
+            onClick={() => setActiveSection('identidad')}
           />
-          <NavItem 
-            icon={Users} label="Reparto (Personajes)" 
-            active={activeSection === 'reparto'} 
-            onClick={() => setActiveSection('reparto')} 
+          <NavItem
+            icon={Users} label="Reparto (Personajes)"
+            active={activeSection === 'reparto'}
+            onClick={() => setActiveSection('reparto')}
           />
-          <NavItem 
-            icon={Anchor} label="Arco Narrativo" 
-            active={activeSection === 'arco'} 
-            onClick={() => setActiveSection('arco')} 
+          <NavItem
+            icon={Anchor} label="Arco Narrativo"
+            active={activeSection === 'arco'}
+            onClick={() => setActiveSection('arco')}
           />
-          <NavItem 
-            icon={PenTool} label="Voz del Autor" 
-            active={activeSection === 'voz'} 
-            onClick={() => setActiveSection('voz')} 
+          <NavItem
+            icon={Activity} label="Ritmo Emocional"
+            active={activeSection === 'ritmo'}
+            onClick={() => setActiveSection('ritmo')}
           />
-           <NavItem 
-            icon={Flag} label="Instrucciones IA" 
-            active={activeSection === 'guia'} 
-            onClick={() => setActiveSection('guia')} 
+          <NavItem
+            icon={PenTool} label="Voz del Autor"
+            active={activeSection === 'voz'}
+            onClick={() => setActiveSection('voz')}
+          />
+           <NavItem
+            icon={Flag} label="Instrucciones IA"
+            active={activeSection === 'guia'}
+            onClick={() => setActiveSection('guia')}
           />
         </nav>
 
@@ -160,6 +165,7 @@ export default function BibleReview() {
               {activeSection === 'identidad' && 'Identidad de la Obra'}
               {activeSection === 'reparto' && 'Reparto Completo'}
               {activeSection === 'arco' && 'Estructura y Arco'}
+              {activeSection === 'ritmo' && 'Ritmo Emocional'}
               {activeSection === 'voz' && 'Voz del Autor'}
               {activeSection === 'guia' && 'Guía para Claude'}
             </p>
@@ -216,14 +222,74 @@ export default function BibleReview() {
             {activeSection === 'arco' && (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
                 <SectionHeader title="Estructura Narrativa" icon={Anchor} description="Puntos de giro, clímax y estructura global detectada." />
-                <JsonEditor 
-                  data={bible.arco_narrativo || {}} 
-                  onChange={(v) => updateSection('arco_narrativo', v)} 
+                <JsonEditor
+                  data={bible.arco_narrativo || {}}
+                  onChange={(v) => updateSection('arco_narrativo', v)}
                 />
               </div>
             )}
 
-            {/* 4. VOZ DEL AUTOR */}
+            {/* 4. RITMO EMOCIONAL (LYA 6.0) */}
+            {activeSection === 'ritmo' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                  <SectionHeader title="Mapa de Ritmo Emocional" icon={Activity} description="Análisis de ritmo emocional por capítulo y patrón global detectado (LYA 6.0)." />
+
+                  {bible?.mapa_ritmo_emocional ? (
+                    <div className="space-y-4">
+                      {/* Patrón Global */}
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p className="text-sm font-bold text-blue-900 mb-1">Patrón Global Detectado</p>
+                        <p className="text-lg text-blue-700 font-bold">{bible.mapa_ritmo_emocional.patron_global}</p>
+                      </div>
+
+                      {/* Ritmo por Capítulo */}
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold text-gray-700 mb-2">Ritmo por Capítulo</p>
+                        {bible.mapa_ritmo_emocional.ritmo_por_capitulo?.map((cap, i) => (
+                          <div key={i} className="bg-white p-4 rounded-lg border border-gray-200">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <p className="font-bold text-gray-900">Capítulo {cap.chapter_id}</p>
+                                <p className="text-sm text-gray-600 mt-1">{cap.razon}</p>
+                              </div>
+                              <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ml-4 ${
+                                cap.ritmo === 'RAPIDO' ? 'bg-red-100 text-red-700' :
+                                cap.ritmo === 'LENTO' ? 'bg-blue-100 text-blue-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {cap.ritmo}
+                              </span>
+                            </div>
+
+                            {/* Arco emocional del capítulo */}
+                            {cap.arco_emocional && (
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <p className="text-xs text-gray-500">
+                                  <span className="font-bold">Arco emocional:</span>{' '}
+                                  <span className="text-gray-700">{cap.arco_emocional.pattern}</span>
+                                  {' | '}
+                                  <span className="font-bold">Valencia:</span>{' '}
+                                  <span className={`font-mono ${cap.arco_emocional.avg_valence >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {cap.arco_emocional.avg_valence?.toFixed(2)}
+                                  </span>
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      Mapa de ritmo emocional no disponible. Este análisis se genera con LYA 6.0.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 5. VOZ DEL AUTOR */}
             {activeSection === 'voz' && (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
                 <SectionHeader title="Estilo y Voz" icon={PenTool} description="Elementos estilísticos que se deben preservar o potenciar." />
@@ -234,7 +300,7 @@ export default function BibleReview() {
               </div>
             )}
 
-             {/* 5. GUIA PARA CLAUDE */}
+             {/* 6. GUIA PARA CLAUDE */}
              {activeSection === 'guia' && (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 animate-fadeIn">
                 <SectionHeader title="Instrucciones de Edición" icon={Flag} description="Directrices específicas que la IA seguirá durante la reescritura." />

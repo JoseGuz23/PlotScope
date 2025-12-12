@@ -3,7 +3,8 @@ import { useOutletContext } from 'react-router-dom';
 // Asegúrate de que estas importaciones son CORRECTAS
 import EditorialLetter from './EditorialLetter';
 import Editor from './Editor';
-import { FileText, PenTool, Layout as LayoutIcon, Loader2 } from 'lucide-react';
+import Insights from './Insights';
+import { FileText, PenTool, Layout as LayoutIcon, Loader2, BarChart3 } from 'lucide-react';
 
 export default function ResultsHub() {
   // El contexto (project) se obtiene del componente padre ProjectLayout.
@@ -58,15 +59,24 @@ export default function ResultsHub() {
           >
             <PenTool className="w-4 h-4" /> Editor & Notas
           </button>
+          <button
+            onClick={() => setActiveSubTab('insights')}
+            className={`
+              flex items-center gap-2 px-6 py-2 rounded-md text-xs font-bold transition-all uppercase tracking-wide
+              ${activeSubTab === 'insights' ? 'bg-white shadow text-theme-primary' : 'text-gray-500 hover:text-gray-700'}
+            `}
+          >
+            <BarChart3 className="w-4 h-4" /> Insights v6.0
+          </button>
         </div>
       </div>
 
       {/* CONTENIDO */}
       <div className="flex-1 overflow-hidden relative">
         {/* Aquí es donde se resuelven las importaciones de los componentes que estaban en gris */}
-        {activeSubTab === 'carta' 
-          ? <EditorialLetter /> 
-          : <Editor />}
+        {activeSubTab === 'carta' && <EditorialLetter />}
+        {activeSubTab === 'editor' && <Editor />}
+        {activeSubTab === 'insights' && <Insights />}
       </div>
     </div>
   );
