@@ -1,8 +1,10 @@
 # =============================================================================
-# ReflectionEditingLoop/__init__.py - LYA 6.0
+# ReflectionEditingLoop/__init__.py - LYA 7.0 (CACHED & RUTHLESS)
 # =============================================================================
-# Implementa el patrón Crítico-Refinador para edición iterativa de alta calidad
-# Reduce alucinaciones en ~70% y mejora precisión editorial en ~40%
+# MEJORAS CRÍTICAS:
+# 1. Context Caching: Se cachea Biblia + Capítulo Original (Ahorro ~60-80%).
+# 2. Crítico Separado: Gemini usa system_instruction para mantener rigor.
+# 3. Dynamic Headers: Soporte listo para Opus 4.5 (High Stakes).
 # =============================================================================
 
 import logging
@@ -15,431 +17,278 @@ from anthropic import Anthropic
 
 logging.basicConfig(level=logging.INFO)
 
-# Importar configuración de modelos
+# Importar configuración
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from config_models import (
-    REFLECTION_CRITIC_MODEL,
-    REFLECTION_WRITER_MODEL,
-    REFLECTION_MAX_ITERATIONS,
-    CLAUDE_SONNET_MODEL
-)
+
+# Fallback por si no existe config_models
+try:
+    from config_models import (
+        REFLECTION_CRITIC_MODEL,
+        REFLECTION_WRITER_MODEL, # Idealmente Claude 3.5 Sonnet o Opus 4.5
+        REFLECTION_MAX_ITERATIONS
+    )
+except ImportError:
+    REFLECTION_CRITIC_MODEL = "gemini-3-pro-preview"
+    REFLECTION_WRITER_MODEL = "claude-sonnet-4-5-20250929"
+    REFLECTION_MAX_ITERATIONS = 3
 
 
 # =============================================================================
-# PROMPT PARA EL AGENTE CRÍTICO (Gemini Pro)
+# 1. SYSTEM PROMPTS (ESTÁTICOS - SE CACHEAN)
 # =============================================================================
 
-CRITIC_PROMPT_TEMPLATE = """Eres un EDITOR SENIOR EXIGENTE evaluando una propuesta de edición.
+# Este bloque se envía a Claude una vez y se mantiene en memoria
+WRITER_SYSTEM_CACHEABLE = """Eres un DEVELOPMENTAL EDITOR de élite.
+Tu trabajo es editar el capítulo proporcionado para alcanzar la excelencia literaria.
 
 ═══════════════════════════════════════════════════════════════════════════════
-TEXTO ORIGINAL (sin editar)
-═══════════════════════════════════════════════════════════════════════════════
-{original_text}
-
-═══════════════════════════════════════════════════════════════════════════════
-PROPUESTA DE EDICIÓN (del editor junior)
-═══════════════════════════════════════════════════════════════════════════════
-{edited_text}
-
-═══════════════════════════════════════════════════════════════════════════════
-BIBLIA NARRATIVA (Fuente de verdad)
+BIBLIA Y CONTEXTO (FUENTE DE VERDAD)
 ═══════════════════════════════════════════════════════════════════════════════
 Género: {genero}
 Tono: {tono}
-Voz del Autor: {voz}
+Voz del Autor: {voz_desc}
 
-ELEMENTOS QUE NO DEBEN MODIFICARSE:
-{no_corregir}
-
-═══════════════════════════════════════════════════════════════════════════════
-TU TAREA: EVALUAR LA CALIDAD DE LA EDICIÓN
-═══════════════════════════════════════════════════════════════════════════════
-
-Evalúa la propuesta con rigor extremo en estos criterios:
-
-### 1. PRESERVACIÓN DE VOZ AUTORAL (Crítico)
-¿Se ha mantenido el estilo distintivo del autor?
-¿Se respetaron TODOS los elementos de NO_CORREGIR?
-¿La edición suena como el autor o como IA genérica?
-
-### 2. AUSENCIA DE ALUCINACIONES (Crítico)
-¿Se añadió información que NO estaba en el original?
-¿Se eliminó información vital?
-¿Se cambiaron nombres, lugares, u objetos?
-
-### 3. MEJORA REAL DEL "SHOW VS TELL" (Alto)
-¿Se convirtieron abstracciones en descripciones sensoriales?
-¿Las emociones ahora tienen anclaje físico?
-¿O solo se cambió vocabulario sin mejorar inmersión?
-
-### 4. ECONOMÍA NARRATIVA (Medio)
-¿Se eliminaron redundancias genuinas?
-¿Se preservó información necesaria para la trama?
-
-### 5. COHERENCIA CON BIBLIA (Alto)
-¿La edición respeta el tono establecido?
-¿Es consistente con el género y contrato con el lector?
+⛔ RESTRICCIONES ABSOLUTAS (NO TOCAR):
+{no_corregir_text}
 
 ═══════════════════════════════════════════════════════════════════════════════
-FORMATO DE RESPUESTA (JSON)
-═══════════════════════════════════════════════════════════════════════════════
-
-{{
-  "score_global": 8.5,
-  "aprobado": true,
-
-  "evaluacion_detallada": {{
-    "preservacion_voz": {{"score": 9, "nota": "Excelente preservación del tono poético"}},
-    "ausencia_alucinaciones": {{"score": 10, "nota": "Sin añadidos inventados"}},
-    "mejora_show_tell": {{"score": 7, "nota": "Mejoró pero aún hay 'telling' en párrafo 3"}},
-    "economia_narrativa": {{"score": 9, "nota": "Redundancias eliminadas efectivamente"}},
-    "coherencia_biblia": {{"score": 8, "nota": "Respeta tono grimdark"}}
-  }},
-
-  "fallos_criticos": [
-    "En párrafo 3: Se cambió 'espada de hueso' por 'espada' (dato importante perdido)",
-    "En párrafo 5: Se añadió 'con miedo' (no estaba en original, es alucinación)"
-  ],
-
-  "mejoras_requeridas": [
-    "Párrafo 3: Restaurar 'de hueso' en descripción de espada",
-    "Párrafo 5: Eliminar 'con miedo', dejar solo la acción física",
-    "Párrafo 7: Convertir 'Ana estaba aterrada' en descripción sensorial (manos temblando, etc)"
-  ],
-
-  "aspectos_positivos": [
-    "Eliminación de 'muy' y 'bastante' (adverbios débiles)",
-    "Conversión de 'caminó lentamente' en 'se arrastró' (verbo más fuerte)"
-  ]
-}}
-
-IMPORTANTE:
-- Score >= 9.0 = APROBAR (aprobado: true)
-- Score < 9.0 = RECHAZAR (aprobado: false) y proveer mejoras_requeridas
-- Sé EXTREMADAMENTE exigente. Es mejor rechazar 3 veces que aprobar algo mediocre.
-"""
-
-
-# =============================================================================
-# PROMPT PARA EL AGENTE REFINADOR (Claude Sonnet - 2da+ iteración)
-# =============================================================================
-
-REFINER_PROMPT_TEMPLATE = """Eres un DEVELOPMENTAL EDITOR refinando tu trabajo basándote en feedback de un editor senior.
-
-═══════════════════════════════════════════════════════════════════════════════
-TEXTO ORIGINAL (sin editar)
+CAPÍTULO ORIGINAL (REFERENCIA)
 ═══════════════════════════════════════════════════════════════════════════════
 {original_text}
 
 ═══════════════════════════════════════════════════════════════════════════════
-TU PROPUESTA ANTERIOR (rechazada)
+TUS OBJETIVOS DE EDICIÓN
 ═══════════════════════════════════════════════════════════════════════════════
-{previous_draft}
+1. SHOW, DON'T TELL: Elimina abstracciones. "Sintió miedo" -> "Sus manos temblaron".
+2. RITMO: Ajusta la longitud de oraciones a la tensión de la escena.
+3. VOZ: Mantén el estilo del autor, solo pule la ejecución.
+4. SUBTEXTO: Los personajes no deben decir exactamente lo que piensan.
 
-═══════════════════════════════════════════════════════════════════════════════
-FEEDBACK DEL EDITOR SENIOR (corregir estos problemas)
-═══════════════════════════════════════════════════════════════════════════════
-Score obtenido: {score}
+Responde SIEMPRE en formato JSON.
+"""
 
-FALLOS CRÍTICOS:
-{fallos_criticos}
+# Prompt del Crítico (Gemini) - Ahora va en system_instruction
+CRITIC_SYSTEM_ROLE = """Eres el EDITOR JEFE más exigente de la industria.
+Tu trabajo es DESTRUIR (constructivamente) el borrador del editor junior.
+No dejes pasar ni una sola alucinación, ni un solo adjetivo débil.
+Si el texto no es perfecto, RECHÁZALO (aprobado: false).
+Tu estándar es la perfección literaria."""
 
-MEJORAS REQUERIDAS:
-{mejoras_requeridas}
+# =============================================================================
+# 2. USER PROMPTS (DINÁMICOS)
+# =============================================================================
 
-ASPECTOS POSITIVOS (mantener):
-{aspectos_positivos}
+CRITIC_TASK_PROMPT = """
+COMPARATIVA DE EDICIÓN:
 
-═══════════════════════════════════════════════════════════════════════════════
-TU TAREA: CORREGIR Y MEJORAR
-═══════════════════════════════════════════════════════════════════════════════
+--- TEXTO ORIGINAL ---
+{original_text}
 
-1. CORRIGE todos los fallos críticos señalados
-2. IMPLEMENTA todas las mejoras requeridas
-3. MANTÉN los aspectos positivos de tu versión anterior
-4. NO introduzcas nuevos problemas
+--- PROPUESTA DEL EDITOR JUNIOR ---
+{edited_text}
 
-RESPONDE CON JSON:
+EVALÚA CON RIGOR:
+1. ¿Inventó cosas? (Alucinaciones = RECHAZO INMEDIATO)
+2. ¿Perdió la voz del autor?
+3. ¿Mejoró realmente el Show vs Tell?
+
+Responde en JSON:
 {{
-  "capitulo_editado": "texto corregido completo",
-  "cambios_aplicados": [
-    {{
-      "tipo": "correccion_alucinacion",
-      "original": "texto del original",
-      "editado": "texto corregido",
-      "justificacion": "Restauré 'espada de hueso' que había eliminado incorrectamente",
-      "impacto_narrativo": "alto"
-    }}
-  ]
+  "score_global": 0.0,
+  "aprobado": boolean,
+  "fallos_criticos": ["string"],
+  "mejoras_requeridas": ["string"],
+  "aspectos_positivos": ["string"]
 }}
 """
 
+REFINER_TASK_PROMPT = """
+El Editor Jefe ha revisado tu borrador. Aquí está su feedback:
+
+SCORE: {score}/10
+
+FALLOS A CORREGIR:
+{fallos}
+
+MEJORAS REQUERIDAS:
+{mejoras}
+
+Genera la VERSIÓN FINAL corregida.
+Responde JSON:
+{{
+  "capitulo_editado": "...",
+  "cambios_aplicados": [...]
+}}
+"""
+
+# =============================================================================
+# LÓGICA PRINCIPAL
+# =============================================================================
 
 def main(input_data: dict) -> dict:
-    """
-    Ejecuta el bucle de reflexión para editar un capítulo.
-
-    Args:
-        input_data: {
-            "chapter": {...},  # Capítulo con contenido
-            "bible": {...},    # Biblia Narrativa
-            "margin_notes": [...],  # Notas de margen
-            "arc_map": {...},  # Mapa de arcos
-            "metadata": {...}  # Metadata del libro
-        }
-
-    Returns:
-        {
-            "edited_content": "...",
-            "changes": [...],
-            "reflection_stats": {
-                "iterations_used": 2,
-                "final_score": 9.2,
-                "improvement_delta": 1.7
-            }
-        }
-    """
     try:
         gemini_key = os.environ.get('GEMINI_API_KEY')
         claude_key = os.environ.get('ANTHROPIC_API_KEY')
-
-        if not gemini_key or not claude_key:
-            return {"error": "API keys no configuradas"}
+        if not gemini_key or not claude_key: return {"error": "API keys missing"}
 
         gemini_client = genai.Client(api_key=gemini_key)
         claude_client = Anthropic(api_key=claude_key)
 
-        chapter = input_data['chapter']
-        bible = input_data['bible']
+        # Desempaquetar datos
+        chapter = input_data.get('chapter', {})
+        bible = input_data.get('bible', {})
         margin_notes = input_data.get('margin_notes', [])
-        arc_map = input_data.get('arc_map', {})
         metadata = input_data.get('metadata', {})
 
         original_text = chapter.get('content', '')
-        chapter_id = chapter.get('chapter_id', 'unknown')
-
-        logging.info(f"🔄 Iniciando Reflection Loop para capítulo {chapter_id}")
-
-        # Extraer info de la Biblia
+        chapter_title = chapter.get('title', 'Capítulo')
+        
+        # Datos de Biblia
         identidad = bible.get('identidad_obra', {})
-        voz = bible.get('voz_autor', {})
+        voz = bible.get('voz_del_autor', {}) # Corregido key
+        genero = identidad.get('genero', 'Ficción')
+        tono = identidad.get('tono_predominante', 'Neutro')
+        voz_desc = voz.get('estilo_detectado', 'Estándar')
         no_corregir = voz.get('NO_CORREGIR', [])
+        no_corregir_text = "\n".join([f"- {x}" for x in no_corregir])
 
-        genero = identidad.get('genero', 'Desconocido')
-        tono = identidad.get('tono_predominante', 'Desconocido')
-        voz_desc = voz.get('estilo', 'Desconocido')
-        no_corregir_text = "\n".join([f"- {item}" for item in no_corregir])
+        logging.info(f"🔄 [REFLECTION] Iniciando cirugía en: {chapter_title}")
 
-        # Variables del loop
-        current_draft = None
-        current_score = 0.0
-        iteration = 0
+        # ---------------------------------------------------------------------
+        # PREPARAR SYSTEM PROMPT CON CACHÉ (CLAUDE)
+        # ---------------------------------------------------------------------
+        # Aquí inyectamos el texto original UNA VEZ.
+        system_content_str = WRITER_SYSTEM_CACHEABLE.format(
+            genero=genero,
+            tono=tono,
+            voz_desc=voz_desc,
+            no_corregir_text=no_corregir_text,
+            original_text=original_text[:100000] # Safety clip
+        )
+        
+        system_block = [
+            {
+                "type": "text", 
+                "text": system_content_str,
+                "cache_control": {"type": "ephemeral"} # <--- AHORRO DE DINERO
+            }
+        ]
+
+        # Variables de estado
+        current_draft = ""
+        current_changes = []
         feedback_history = []
-
-        # Construir prompt inicial de edición
-        chapter_content = chapter.get('content', '')
-        chapter_title = chapter.get('title', chapter.get('original_title', 'Sin título'))
-
-        # Formatear notas de margen
-        notas_str = "\n".join([f"- {n.get('nota', '')}: {n.get('sugerencia', '')}"
-                               for n in margin_notes]) if margin_notes else "(Sin notas de margen)"
-
-        initial_prompt = f"""Eres un DEVELOPMENTAL EDITOR profesional editando "{metadata.get('title', 'Sin título')}".
-
-═══════════════════════════════════════════════════════════════════════════════
-CONTEXTO DE LA OBRA
-═══════════════════════════════════════════════════════════════════════════════
-- Género: {genero}
-- Tono: {tono}
-- Voz del autor: {voz_desc}
-
-RESTRICCIONES ABSOLUTAS (NO MODIFICAR):
-{no_corregir_text}
-
-═══════════════════════════════════════════════════════════════════════════════
-CAPÍTULO A EDITAR: {chapter_title}
-═══════════════════════════════════════════════════════════════════════════════
-
-NOTAS DE MARGEN DEL EDITOR (priorizar):
-{notas_str}
-
-═══════════════════════════════════════════════════════════════════════════════
-TEXTO A EDITAR
-═══════════════════════════════════════════════════════════════════════════════
-{chapter_content}
-
-═══════════════════════════════════════════════════════════════════════════════
-CRITERIOS DE EDICIÓN
-═══════════════════════════════════════════════════════════════════════════════
-1. **Show vs Tell**: Convierte declaraciones en acciones/sensaciones observables
-2. **Profundidad emocional**: Ancla emociones en sensaciones físicas
-3. **Economía narrativa**: Elimina redundancias genuinas
-4. **Voz del autor**: Preserva el estilo distintivo
-5. **Coherencia**: Respeta la Biblia Narrativa
-
-═══════════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES
-═══════════════════════════════════════════════════════════════════════════════
-1. Lee todo el capítulo primero
-2. Identifica problemas según criterios
-3. Prioriza las notas de margen del editor
-4. Edita preservando la voz del autor
-
-Responde SOLO con JSON (sin markdown):
-{{
-  "capitulo_editado": "texto editado completo",
-  "cambios_aplicados": [
-    {{
-      "tipo": "show_tell|redundancia|claridad|dialogos|etc",
-      "original": "fragmento original",
-      "editado": "fragmento editado",
-      "justificacion": "por qué este cambio mejora el texto",
-      "impacto_narrativo": "bajo|medio|alto"
-    }}
-  ]
-}}
-"""
-
-        # =============================================================================
-        # BUCLE DE REFLEXIÓN
-        # =============================================================================
-
+        iteration = 0
+        
+        # ---------------------------------------------------------------------
+        # BUCLE DE EDICIÓN
+        # ---------------------------------------------------------------------
         while iteration < REFLECTION_MAX_ITERATIONS:
             iteration += 1
-            logging.info(f"   📝 Iteración {iteration}/{REFLECTION_MAX_ITERATIONS}")
+            logging.info(f" ⚡ Iteración {iteration} (Modelo: {REFLECTION_WRITER_MODEL})")
 
-            # -------------------------------------------------------------------------
-            # PASO 1: AGENTE REDACTOR/REFINADOR (Claude Sonnet)
-            # -------------------------------------------------------------------------
-
+            # --- PASO 1: ESCRITURA / REFINAMIENTO ---
             if iteration == 1:
-                # Primera iteración: Usar prompt completo de edición profesional
-                logging.info("      ✍️ Redactor: Generando primera propuesta...")
-
-                response = claude_client.messages.create(
-                    model=CLAUDE_SONNET_MODEL,
-                    max_tokens=16000,
-                    messages=[{"role": "user", "content": initial_prompt}]
-                )
-
-                response_text = response.content[0].text
-
+                # Prompt inicial simple (el contexto ya está en System)
+                notas_txt = "\n".join([f"- {n['nota']}" for n in margin_notes])
+                user_msg = f"Genera la PRIMERA VERSIÓN editada.\n\nATENCIÓN A ESTAS NOTAS DE MARGEN:\n{notas_txt}"
             else:
-                # Iteraciones subsiguientes: Usar prompt de refinamiento con feedback
-                logging.info("      🔧 Refinador: Aplicando feedback del crítico...")
-
-                last_feedback = feedback_history[-1]
-
-                refiner_prompt = REFINER_PROMPT_TEMPLATE.format(
-                    original_text=original_text,
-                    previous_draft=current_draft,
-                    score=last_feedback['score_global'],
-                    fallos_criticos="\n".join([f"- {f}" for f in last_feedback.get('fallos_criticos', [])]),
-                    mejoras_requeridas="\n".join([f"- {m}" for m in last_feedback.get('mejoras_requeridas', [])]),
-                    aspectos_positivos="\n".join([f"- {a}" for a in last_feedback.get('aspectos_positivos', [])])
+                # Prompt de refinamiento
+                last_fb = feedback_history[-1]
+                user_msg = REFINER_TASK_PROMPT.format(
+                    score=last_fb.get('score_global'),
+                    fallos="\n".join([f"- {f}" for f in last_fb.get('fallos_criticos', [])]),
+                    mejoras="\n".join([f"- {m}" for m in last_fb.get('mejoras_requeridas', [])])
                 )
 
-                response = claude_client.messages.create(
-                    model=CLAUDE_SONNET_MODEL,
-                    max_tokens=16000,
-                    messages=[{"role": "user", "content": refiner_prompt}]
-                )
+            # Llamada a Claude (Writer)
+            # Detectamos si es Opus 4.5 para activar headers high-stakes
+            extra_headers = {}
+            extra_body = {}
+            if "opus-4-5" in REFLECTION_WRITER_MODEL:
+                extra_headers = {"anthropic-beta": "effort-2025-11-24"}
+                # Solo usamos high effort en la primera pasada para establecer la base
+                if iteration == 1: extra_body = {"effort": "high"}
 
-                response_text = response.content[0].text
-
-            # Parsear respuesta de Claude
+            writer_response = claude_client.messages.create(
+                model=REFLECTION_WRITER_MODEL,
+                max_tokens=8192,
+                system=system_block, # <--- Enviamos el bloque con caché
+                messages=[{"role": "user", "content": user_msg}],
+                extra_headers=extra_headers,
+                extra_body=extra_body
+            )
+            
+            # Procesar respuesta Writer
             try:
-                # Limpiar markdown si existe
-                clean_text = response_text.strip()
-                if clean_text.startswith("```json"):
-                    clean_text = clean_text[7:]
-                if clean_text.endswith("```"):
-                    clean_text = clean_text[:-3]
+                txt = writer_response.content[0].text
+                # Limpieza JSON
+                if txt.strip().startswith("```json"): 
+                    txt = txt.strip()[7:].strip().rstrip("```")
+                
+                data = json.loads(txt)
+                current_draft = data.get('capitulo_editado', '')
+                current_changes = data.get('cambios_aplicados', [])
+            except:
+                logging.error("❌ Error parseando JSON del Writer, usando texto raw")
+                current_draft = writer_response.content[0].text
 
-                draft_data = json.loads(clean_text.strip())
-                current_draft = draft_data.get('capitulo_editado', '')
-                current_changes = draft_data.get('cambios_aplicados', [])
-
-            except json.JSONDecodeError as e:
-                logging.error(f"❌ Error parseando respuesta de Claude: {e}")
-                # Fallback: usar texto directo
-                current_draft = response_text
-                current_changes = []
-
-            # -------------------------------------------------------------------------
-            # PASO 2: AGENTE CRÍTICO (Gemini Pro)
-            # -------------------------------------------------------------------------
-
-            logging.info("      🔍 Crítico: Evaluando propuesta...")
-
-            critic_prompt = CRITIC_PROMPT_TEMPLATE.format(
-                original_text=original_text,
-                edited_text=current_draft,
-                genero=genero,
-                tono=tono,
-                voz=voz_desc,
-                no_corregir=no_corregir_text
+            # --- PASO 2: CRÍTICA (GEMINI PRO) ---
+            logging.info(" ⚖️  El Juez (Gemini) está deliberando...")
+            
+            critic_input = CRITIC_TASK_PROMPT.format(
+                original_text=original_text[:20000], # Limite seguro para comparativa
+                edited_text=current_draft[:20000]
             )
 
             critic_response = gemini_client.models.generate_content(
-                model=REFLECTION_CRITIC_MODEL,
-                contents=critic_prompt,
+                model=REFLECTION_CRITIC_MODEL, # gemini-3-pro-preview
+                contents=critic_input,
                 config=types.GenerateContentConfig(
+                    system_instruction=CRITIC_SYSTEM_ROLE, # <--- Rol fuerte
+                    temperature=0.1, # Frialdad absoluta
                     response_mime_type="application/json"
                 )
             )
-
+            
             try:
                 critique = json.loads(critic_response.text)
-                current_score = critique.get('score_global', 0.0)
-                aprobado = critique.get('aprobado', False)
-
+                score = critique.get('score_global', 0)
+                approved = critique.get('aprobado', False)
                 feedback_history.append(critique)
-
-                logging.info(f"      📊 Score: {current_score}/10 - {'✅ APROBADO' if aprobado else '❌ RECHAZADO'}")
-
-                # Si está aprobado, salir del loop
-                if aprobado and current_score >= 9.0:
-                    logging.info(f"   ✅ Edición aprobada en iteración {iteration}")
+                
+                logging.info(f" 📊 Score Iteración {iteration}: {score}/10")
+                
+                if approved and score >= 9.0:
+                    logging.info(" ✅ CALIDAD ALCANZADA. Saliendo del loop.")
                     break
-
-            except json.JSONDecodeError as e:
-                logging.error(f"❌ Error parseando crítica: {e}")
-                # Si no podemos parsear, asumimos aprobado para no bloquear
-                current_score = 8.5
+                    
+            except:
+                logging.error("❌ Error parseando crítica")
                 break
 
-        # =============================================================================
-        # FIN DEL BUCLE
-        # =============================================================================
-
-        logging.info(f"🏁 Reflection Loop completado:")
-        logging.info(f"   Iteraciones usadas: {iteration}/{REFLECTION_MAX_ITERATIONS}")
-        logging.info(f"   Score final: {current_score}/10")
-
-        # Calcular mejora
-        first_score = feedback_history[0].get('score_global', 0) if feedback_history else 0
-        improvement = current_score - first_score
-
+        # ---------------------------------------------------------------------
+        # RESULTADO FINAL
+        # ---------------------------------------------------------------------
+        first_score = feedback_history[0]['score_global'] if feedback_history else 0
+        final_score = feedback_history[-1]['score_global'] if feedback_history else 0
+        
         return {
             "edited_content": current_draft,
             "changes": current_changes,
             "reflection_stats": {
                 "iterations_used": iteration,
-                "final_score": current_score,
                 "first_score": first_score,
-                "improvement_delta": improvement,
-                "feedback_history": feedback_history
-            },
-            "status": "completed"
+                "final_score": final_score,
+                "improvement_delta": round(final_score - first_score, 2),
+                "model_writer": REFLECTION_WRITER_MODEL,
+                "model_critic": REFLECTION_CRITIC_MODEL
+            }
         }
 
     except Exception as e:
-        logging.error(f"❌ Error en Reflection Loop: {e}")
+        logging.error(f"💥 Error crítico en ReflectionLoop: {e}")
         import traceback
         logging.error(traceback.format_exc())
-        return {
-            "error": str(e),
-            "status": "error"
-        }
+        return {"error": str(e)}
