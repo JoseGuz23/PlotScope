@@ -14,7 +14,10 @@
       "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" test_claude.py)",
       "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" -m pip install google-genai anthropic)",
       "Bash(PYTHONIOENCODING=utf-8 \"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\":*)",
-      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" rename_sylphrena_to_lya.py)"
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" rename_sylphrena_to_lya.py)",
+      "Bash(findstr:*)",
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\" update_metadata_insights.py)",
+      "Bash(\"c:\\Sylphrena\\LYA\\venv\\Scripts\\python.exe\":*)"
     ]
   }
 }

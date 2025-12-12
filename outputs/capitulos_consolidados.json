@@ -8,36 +8,9 @@
       {
         "tipo": "redundancia",
         "categoria": "prosa",
-        "original": "Ana no alcanzó a reaccionar a tiempo.",
-        "editado": "Ana no alcanzó a reaccionar.",
-        "justificacion": "'A tiempo' es redundante con 'no alcanzó a reaccionar'. Si no alcanzó a reaccionar, implícitamente no fue a tiempo.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "redundancia",
-        "categoria": "prosa",
         "original": "Levantó su caballo de madera y lo volvió a descargar sobre ella.",
         "editado": "Levantó su caballo de madera y lo descargó sobre ella.",
-        "justificacion": "Elimino 'volvió a' porque es la primera vez que el niño descarga el golpe sobre ella (el anterior fue sobre la hermana pequeña). Esto evita confusión temporal.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "Bramó algo que Ana no pudo entender.",
-        "editado": "Bramó algo ininteligible.",
-        "justificacion": "Más conciso y directo. 'Ininteligible' es más fuerte que la construcción 'que Ana no pudo entender'. Mantiene el ritmo rápido del prólogo.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "consistencia",
-        "categoria": "consistencia",
-        "original": "A pesar de los meses siendo golpeada, el dolor nunca había cesado.",
-        "editado": "A pesar de los meses siendo golpeada, el dolor nunca cesaba.",
-        "justificacion": "Corrección de tiempo verbal. El texto está en pasado simple, y aquí se mezcla con pretérito pluscuamperfecto sin razón narrativa. 'Cesaba' mantiene la consistencia temporal.",
+        "justificacion": "El 'volvió a' es redundante porque ya establecimos que hubo un primer golpe. La repetición no añade valor y ralentiza el ritmo de la violencia.",
         "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       },
@@ -46,17 +19,8 @@
         "categoria": "prosa",
         "original": "El juguete cayó de su mano muerta de miedo.",
         "editado": "El juguete cayó de su mano.",
-        "justificacion": "'Muerta de miedo' es un cliché y además redundante con 'El color huyó de su rostro, transformando la furia roja en un pánico pálido' que ya establece el terror del personaje.",
+        "justificacion": "La frase 'muerta de miedo' es un cliché que debilita la imagen. Ya establecimos el pánico pálido en la oración anterior; la caída del juguete muestra el miedo sin necesidad de explicarlo.",
         "impacto_narrativo": "medio",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "La esposa entró en la habitación gritando cosas que Ana no pudo entender.",
-        "editado": "La esposa entró en la habitación gritando cosas ininteligibles.",
-        "justificacion": "Consistencia con el cambio anterior. 'Ininteligibles' es más económico y mantiene el ritmo rápido.",
-        "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       },
       {
@@ -64,7 +28,7 @@
         "categoria": "prosa",
         "original": "alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada por depredadores superiores.",
         "editado": "alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada.",
-        "justificacion": "'Por depredadores superiores' es redundante. Si es presa acorralada, ya implica que hay depredadores superiores. La imagen es más limpia sin la explicación adicional.",
+        "justificacion": "'Por depredadores superiores' es redundante. Si es una presa acorralada, ya implica que hay depredadores superiores. La eliminación fortalece la imagen sin perder significado.",
         "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       },
@@ -73,44 +37,17 @@
         "categoria": "prosa",
         "original": "Lo único que protegía sus pieles eran varias tiras de cuero crudo que se enrollaban alrededor de su pecho.",
         "editado": "Lo único que protegía sus pieles eran varias tiras de cuero crudo enrolladas alrededor de su pecho.",
-        "justificacion": "Simplificación sintáctica. 'Que se enrollaban' es más débil que 'enrolladas'. La forma participial es más directa y mantiene el ritmo.",
+        "justificacion": "Cambio de voz pasiva ('que se enrollaban') a participio ('enrolladas') para hacer la descripción más directa y económica, manteniendo el estilo minimalista.",
         "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       },
       {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "La esposa agarró un cuchillo de la cocina, tomándolo con miedo.",
-        "editado": "La esposa agarró un cuchillo de la cocina, temblando.",
-        "justificacion": "'Tomándolo con miedo' es tell. 'Temblando' es show: muestra físicamente el miedo sin nombrarlo. Más visceral y directo.",
+        "tipo": "verbo_debil",
+        "categoria": "prosa",
+        "original": "La sangre brotó. No como en las historias. Era espesa, oscura, expandiéndose en un charco lento que reptaba por las grietas del suelo de madera.",
+        "editado": "La sangre brotó. No como en las historias. Espesa, oscura, expandiéndose en un charco lento que reptaba por las grietas del suelo de madera.",
+        "justificacion": "Eliminación del verbo débil 'era' para convertir la descripción en más inmediata y visceral. La sangre no 'es' espesa, simplemente lo es en la percepción directa.",
         "impacto_narrativo": "medio",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "redundancia",
-        "categoria": "prosa",
-        "original": "Entonces, la herida gritó algo.",
-        "editado": "Entonces, la herida gritó algo.",
-        "justificacion": "Sin cambio. Aunque 'la herida' es una metonimia poética potente que funciona perfectamente para el estilo del autor. Se mantiene.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "Preguntó algo que de nuevo no pudo entender.",
-        "editado": "Preguntó algo ininteligible.",
-        "justificacion": "Consistencia con cambios anteriores. Mantiene el patrón establecido y el ritmo.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "redundancia",
-        "categoria": "prosa",
-        "original": "La mujer apuntó al hombre que yacía boca abajo con la espada amenazando con quitarle la vida.",
-        "editado": "La mujer apuntó al hombre que yacía boca abajo con la espada amenazándolo.",
-        "justificacion": "'Amenazando con quitarle la vida' es redundante y obvio. Una espada en el cuello ya amenaza la vida. 'Amenazándolo' es más económico y mantiene la tensión.",
-        "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       }
     ],
@@ -123,20 +60,11 @@
     "contenido_original": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía. El frío a su alrededor poco a poco la iba matando, y sus nuevos captores parecían ignorarlo.\nAna moriría, y quizá así por fin podría descansar.\nEl mundo se había reducido a una vibración constante. Cada paso de la bestia bajo su cuerpo sacudía sus huesos como si fueran piedras en un saco. No sabía qué era lo que la cargaba, solo que era inmenso y que olía a grasa rancia, a lana mojada y a algo antiguo.\nTenía las manos atadas. Las cuerdas le cortaban las muñecas. Ya no sentía los dedos. No sabía si era por el amarre o porque el frío se los había llevado primero.\nEl aire le quemaba los pulmones cada vez que respiraba. Era como tragar cuchillos de hielo. Su garganta estaba seca, áspera, cerrada. Intentó tragar saliva, pero no tenía. La lengua se le pegaba al paladar.\nEl viento aullaba. No como el viento del valle, que silbaba entre las rendijas de las chozas. Este era diferente. Era un animal vivo que le arrancaba el calor de la piel, que le congelaba las lágrimas antes de que cayeran, que convertía cada latido de su corazón en un esfuerzo inútil.\nCada tanto, la bestia subía una pendiente. Ana sentía cómo el lomo peludo se inclinaba, cómo su cuerpo resbalaba un poco hacia atrás antes de que las cuerdas la sostuvieran. El pelaje bajo su mejilla era áspero, aceitoso, pero tibio. Era lo único tibio en el mundo.\nIntentó abrir los ojos. Los párpados no obedecieron. Estaban sellados, pesados, como si alguien les hubiera echado arena encima.\nEl temblor empeoró. Sus dientes castañeaban sin control. Los músculos de sus piernas se contraían solos, dolorosos, inútiles. Su cuerpo peleaba contra algo que ya había perdido.\nAna sabía lo que era morir de frío. Había visto cómo los esclavos viejos se quedaban dormidos junto al fuego y no despertaban. Sabía que primero venía el temblor, luego el cansancio, y después… nada.\nEl cansancio ya estaba ahí.\nSe sentía pesada. Tan pesada. Como si la nieve que caía sobre su espalda fuera de plomo. Como si su propio cuerpo quisiera hundirse en la tierra y no volver a levantarse.\nQuizá no era tan malo. Quizá dormir era mejor que esto.\nLa bestia dio otro paso. Y otro. Y otro.\nAna dejó de contar.\nEl mundo se volvió gris. Luego, negro.\nEntonces, algo cambió.\nUna mano enorme le tomó la cara. No con violencia, pero con firmeza. Dedos callosos, ásperos como corteza, le apretaron las mejillas.\nAna intentó abrir los ojos otra vez. Fracasó. Todo era oscuridad y peso.\nEscuchó una voz. Grave, ronca, hablando en ese idioma de piedras y guturales que no entendía. La mano le levantó la cabeza.\nAlgo frío tocó sus labios. Metal. O hueso. Daba igual.\nLa mano le apretó la mandíbula, forzándola a abrir la boca.\nLíquido. Espeso. Tibio.\nSu estómago se retorció. Quiso vomitar, pero la mano le mantuvo la boca cerrada.\nLa voz dijo algo más. Una orden. Un gruñido.\nAna entendió.\nY tragó.\nEl líquido bajó como barro caliente. Espeso, pastoso, con grumos que raspaban la garganta. Sabía a cobre oxidado, a metal viejo dejado bajo la lluvia. A sangre, pero peor. Más densa. Más viva.\nSu estómago se rebeló. Una arcada seca le sacudió el pecho, pero no tenía fuerza para expulsarlo. El líquido se quedó adentro, pesado, extendiéndose.\nUn poco se le escapó por la comisura de los labios. Sintió el hilo tibio bajar por su barbilla, pegajoso, congelándose al instante contra su piel.\nLa mano la soltó.\nAna quedó inmóvil, esperando que su cuerpo colapsara. Que el veneno terminara con lo que el frío había empezado.\nPero no pasó nada.\nDurante un momento, todo siguió igual. El temblor. El frío. La oscuridad.\nY entonces, algo cambió.\nComenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo. Como una brasa enterrada bajo ceniza.\nSe extendió.\nDespacio al principio. Subió por su garganta, bajó por su estómago, se filtró por sus costillas como agua caliente derramándose por grietas. El calor no era suave. Era denso, viscoso, invasivo. Sentía cómo se abría paso por sus venas, empujando la escarcha que le había congelado la sangre.\nEl temblor empezó a calmarse.\nNo de golpe. Poco a poco. Los espasmos violentos se volvieron sacudidas, luego temblores leves, hasta que sus músculos dejaron de convulsionar por completo.\nEl frío seguía ahí. El viento seguía aullando. Pero ya no le dolía.\nYa no le quemaba los pulmones. Ya no le arrancaba la piel.\nEra como si su cuerpo hubiera levantado un muro contra él. Como si el frío ya no pudiera entrar.\nAna respiró. Profundo. Sin que las cuchillas de hielo le desgarraran el pecho.\nEl mundo dejó de ser dolor.\nNo moriría.\nHoy no.\nCon la ayuda de aquella bebida extraña, por fin pudo abrir los ojos.\nDeseó no haberlo hecho.\nLo primero que vio fue una silueta inclinada caminando junto a su montura. Hombros inmensos, tan anchos como la puerta de un establo. Brazos largos que rozaban el suelo con cada paso, terminando en manos del tamaño de escudos.\nLa bestia avanzaba sobre los nudillos, hundiéndolos en la nieve con un sonido sordo y rítmico. Cada vez que se apoyaba, la tierra temblaba levemente bajo el peso.\nNo tenía rostro.\nO sí, pero no era un rostro que debiera existir.\nSu cabeza era una caja de hueso macizo, angulosa, sin expresión. La piel pálida y agrietada parecía estirada sobre una máscara de piedra.\nLa boca no tenía labios. Solo una hendidura irregular, como una grieta en una roca.\nEl animal giró la cabeza hacia ella.\nEl corazón de Ana se detuvo.\nSus ojos negros se clavaron en los suyos. Inmóviles. Vacíos. Pero atentos. Eran dos puntos negros hundidos en cuencas profundas, diminutos, casi invisibles.\nAna no pudo moverse. No pudo respirar. El miedo le atravesó el pecho como una estaca.\nLa bestia la observó. No con curiosidad. Con algo peor. Como si pudiera pesar su terror. Como si lo midiera.\nEntonces, una mano dura y callosa se posó en la espalda de Ana.\nFirme. No violenta. Solo... ahí.\nEl calor de esos dedos atravesó la piel helada de Ana. La presión era constante, como un ancla. La mano no se movió, no la empujó, no la golpeó. Solo la sostuvo.\nAna jadeó. El aire entró a sus pulmones de golpe.\nLa bestia apartó la mirada.\nSiguió caminando. Se apoyó sobre uno de sus nudillos delanteros, luego sobre el otro. Paso lento. Paso pesado. Como si Ana ya no importara.\nComo si nunca hubiera sido una amenaza.\nLa mano en su espalda se retiró.\nAna se quedó inmóvil, con los ojos clavados en la criatura que se alejaba entre la neblina de nieve. Hasta que detrás de esa nieve, la cumbre de la montaña finalmente empezaba a dibujarse.\nLa neblina se abrió como una cortina rasgada.\nAna vio el valle.\nY entendió que había cruzado a un mundo de muertos.\nCostillas. Enormes. Curvadas como los arcos de una catedral imposible. Se alzaban desde la nieve, blancas, amarillentas, agrietadas por el tiempo y el hielo. No eran huesos de animales que Ana conociera. Eran demasiado grandes. Cada una medía lo que tres hombres puestos de pie. Algunas aún estaban enterradas a medias, otras sobresalían completas, formando jaulas de hueso que enmarcaban el cielo gris.\nEl viento las atravesaba. Silbaban. Un sonido grave, hueco, como si la montaña misma respirara a través de ellas.\nEntre las costillas, había chozas. Pero no eran como las del valle de abajo. No había madera. No había paja. Solo hueso y roca negra. Paredes construidas encajando fragmentos de fémures gigantes con bloques de piedra volcánica, tan oscura que parecía absorber la luz. Los techos eran cráneos partidos o escápulas invertidas, cubiertos por pieles tensadas que crujían con cada ráfaga.\nLa nieve lo cubría todo. Pero no era la nieve suave y limpia de las historias. Era sucia, gris, mezclada con ceniza volcánica. Se acumulaba en las cuencas vacías de los huesos antiguos como carne podrida en una herida abierta.\nAna intentó respirar hondo.\nNo pudo.\nEl aire no entraba. O entraba, pero no era suficiente. Sus pulmones jalaban, trabajaban el doble, y aun así sentía que se ahogaba. Como si alguien le hubiera puesto un trapo sobre la boca. El pecho le ardía con cada inhalación. Era el aire de la altura, delgado, insuficiente, mezquino.\nSu cabeza palpitaba. Un dolor sordo que empezaba detrás de los ojos y se extendía hasta las sienes. Cada latido de su corazón era una piedra golpeando su cráneo desde adentro.\nEl animal bajo su cuerpo no parecía notarlo. Seguía avanzando, imperturbable, con esa respiración lenta y profunda que Ana podía sentir vibrar contra su costado. Ana conocía relatos sobre estos animales. Los llamaban cuernomuros, bestias nacidas para trepar montañas y cargar cien veces su propio peso.\nLa caravana se movía entre los huesos.\nNo eran solo las dos guerreras que la habían capturado. Había más. Muchos más. Hombres y mujeres caminando junto a las bestias, cargando sacos, arrastrando trineos de hueso. Todos vestían igual. Pieles mínimas, torsos descubiertos o apenas cubiertos por tiras de cuero. Ana no entendía cómo no estaban muertos. El frío era un animal vivo. Pero ellos lo ignoraban.\nSus cuerpos eran mapas de violencia. Cicatrices cruzaban espaldas, brazos, rostros. Algunas eran delgadas, limpias, como trazos de cuchillo. Otras eran gruesas, irregulares, marcas de quemaduras o garras. No las escondían. Las exhibían.\nUno de los hombres giró la cabeza hacia ella. Sus ojos eran del color del hielo sucio. La miró como se mira un objeto. Sin curiosidad. Sin lástima. Solo verificando que seguía atada.\nAna apartó la mirada.\nAdelante, el pico de la montaña se alzaba. Una aguja de roca negra que perforaba las nubes. No había nada en la cima. Solo piedra, hielo y cielo. Era el punto más alto del mundo. Y justo debajo, en esta cicatriz de valle, vivía esta gente.\nEl Cuernomuro comenzó a descender por una pendiente. Ana sintió cómo su cuerpo se deslizaba hacia adelante, las cuerdas clavándose más en sus muñecas. Los cascos partidos de la bestia encontraban apoyo en la obsidiana enterrada, en las rocas volcánicas que asomaban entre la nieve como dientes rotos.\nPasaron junto a una estructura más grande. Una casamadre construida con lo que parecía ser la columna vertebral completa de algo monstruoso. Las vértebras gigantes estaban apiladas unas sobre otras, formando un pilar central. Costillas más pequeñas se extendían desde ese centro, creando habitaciones laterales. Pieles gruesas colgaban de las entradas, moviéndose con el viento.\nHumo brotaba de aberturas en el techo. No era humo de leña. Era más denso, más oscuro. Olía a grasa quemada y a algo ácido que le raspaba la garganta.\nUna mujer salió de una de esas entradas. Llevaba un cuenco de hueso en las manos. Lo volcó junto a la puerta. Líquido oscuro se derramó sobre la nieve. Sangre. O algo peor.\nLa mujer levantó la vista. Vio a Ana.\nNo dijo nada. Solo la observó con esa misma indiferencia helada que todos los demás. Luego volvió adentro.\nEl Cuernomuro siguió avanzando.\nAna cerró los ojos. El dolor de cabeza empeoraba. Las cuerdas le cortaban la piel. El frío seguía ahí, contenido por lo que fuera que le habían dado de beber, pero presente. Como una amenaza esperando el momento de volver a atacar.\nAbrió los ojos una vez más.\nEl valle se extendía ante ella. Un cementerio habitado. Huesos que deberían estar enterrados formaban el esqueleto de una civilización. La nieve caía sin parar, cubriendo todo con esa capa gris y sucia que nunca parecía derretirse.\nY arriba, siempre arriba, el pico de la montaña vigilaba.\nAna no sabía dónde estaba. No sabía qué le harían. No sabía si volvería a ver el sol sin nieve.\nSolo sabía que había llegado.\nSu nueva casa era El Valle de los Restos.\nEl lugar donde los huesos antiguos eran hogar.\nY los vivos eran más duros que los muertos.",
     "cambios_realizados": [
       {
-        "tipo": "transicion",
-        "categoria": "narrativa",
-        "original": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía.",
-        "editado": "Habían pasado horas desde la captura. Quizá días. Ana había perdido la cuenta cuando el frío comenzó a devorarla.\n\nEl cuerpo de Ana no podía parar de temblar. Era lo único que sentía.",
-        "justificacion": "Atiende [ch2-nota-001]. Añade anclaje temporal que conecta con el capítulo anterior y orienta al lector sobre el tiempo transcurrido, eliminando la desorientación inicial.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-001"
-      },
-      {
-        "tipo": "redundancia",
+        "tipo": "verbo_debil",
         "categoria": "prosa",
         "original": "El frío a su alrededor poco a poco la iba matando",
-        "editado": "El frío a su alrededor la iba matando",
-        "justificacion": "Elimina 'poco a poco' que es redundante con el tiempo verbal progresivo 'iba matando' que ya implica gradualidad.",
+        "editado": "El frío la mataba poco a poco",
+        "justificacion": "Elimina la perífrasis verbal 'iba matando' por un verbo más directo y activo. Mejora el ritmo y la inmediatez.",
         "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       },
@@ -145,117 +73,90 @@
         "categoria": "prosa",
         "original": "No sabía qué era lo que la cargaba",
         "editado": "No sabía qué la cargaba",
-        "justificacion": "Elimina 'era lo que' innecesario. La construcción más directa mantiene el mismo significado con más fuerza.",
+        "justificacion": "Elimina la construcción redundante 'era lo que'. Más directo y minimalista, acorde al estilo.",
         "impacto_narrativo": "bajo",
         "nota_margen_relacionada": null
       },
       {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "El viento aullaba. No como el viento del valle, que silbaba entre las rendijas de las chozas. Este era diferente. Era un animal vivo que le arrancaba el calor",
-        "editado": "El viento aullaba. No como el viento del valle, que silbaba entre las rendijas de las chozas. Era un animal vivo que le arrancaba el calor",
-        "justificacion": "Atiende [ch2-nota-002]. Elimina 'Este era diferente' porque la metáfora del animal vivo ya muestra la diferencia. Confía en la descripción sensorial.",
+        "tipo": "redundancia",
+        "categoria": "prosa",
+        "original": "Era lo único tibio en el mundo.",
+        "editado": "Lo único tibio en el mundo.",
+        "justificacion": "Elimina el verbo copulativo débil 'era' para mayor impacto. La frase gana fuerza declarativa.",
         "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-002"
+        "nota_margen_relacionada": null
       },
       {
-        "tipo": "emocion",
-        "categoria": "narrativa",
-        "original": "Líquido. Espeso. Tibio.\n\nSu estómago se retorció. Quiso vomitar, pero la mano le mantuvo la boca cerrada.",
-        "editado": "Líquido. Espeso. Tibio.\n\nSu estómago se retorció. Quiso vomitar, pero la mano le mantuvo la boca cerrada. ¿Veneno? ¿Sangre? ¿Algo peor?",
-        "justificacion": "Atiende [ch2-nota-004]. Añade la dimensión psicológica al momento de ser forzada a tragar. Los pensamientos fragmentados reflejan su terror y desorientación.",
+        "tipo": "redundancia",
+        "categoria": "prosa",
+        "original": "Cada vez que se apoyaba, la tierra temblaba levemente bajo el peso.",
+        "editado": "Cada vez que se apoyaba, la tierra temblaba bajo el peso.",
+        "justificacion": "Elimina 'levemente' porque 'temblaba' ya comunica la intensidad adecuada. El adverbio debilita la imagen.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": null
+      },
+      {
+        "tipo": "redundancia",
+        "categoria": "prosa",
+        "original": "Eran dos puntos negros hundidos en cuencas profundas",
+        "editado": "Dos puntos negros hundidos en cuencas profundas",
+        "justificacion": "Elimina 'Eran' para mayor inmediatez. Mantiene el ritmo entrecortado característico del estilo.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": null
+      },
+      {
+        "tipo": "redundancia",
+        "categoria": "prosa",
+        "original": "Hasta que detrás de esa nieve, la cumbre de la montaña finalmente empezaba a dibujarse.",
+        "editado": "Hasta que detrás de esa nieve, la cumbre de la montaña empezaba a dibujarse.",
+        "justificacion": "Elimina 'finalmente' que es redundante con 'Hasta que'. El adverbio no añade valor narrativo.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": null
+      },
+      {
+        "tipo": "redundancia",
+        "categoria": "prosa",
+        "original": "No eran huesos de animales que Ana conociera. Eran demasiado grandes.",
+        "editado": "No eran huesos de animales que Ana conociera. Demasiado grandes.",
+        "justificacion": "Elimina 'Eran' para mantener el ritmo entrecortado y minimalista. La segunda frase gana impacto como fragmento.",
         "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-004"
+        "nota_margen_relacionada": null
       },
       {
-        "tipo": "emocion",
-        "categoria": "narrativa",
-        "original": "Sabía a cobre oxidado, a metal viejo dejado bajo la lluvia. A sangre, pero peor. Más densa. Más viva.",
-        "editado": "Sabía a cobre oxidado, a metal viejo dejado bajo la lluvia. A sangre, pero peor. Más densa. Más viva. Como si algo hubiera muerto dentro de su boca.",
-        "justificacion": "Añade un pensamiento visceral que profundiza el horror del momento y la experiencia subjetiva de Ana.",
+        "tipo": "verbo_debil",
+        "categoria": "prosa",
+        "original": "Era el aire de la altura",
+        "editado": "El aire de la altura",
+        "justificacion": "Elimina el verbo copulativo débil. La frase funciona mejor como fragmento explicativo directo.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": null
+      },
+      {
+        "tipo": "verbo_debil",
+        "categoria": "prosa",
+        "original": "Era el punto más alto del mundo.",
+        "editado": "El punto más alto del mundo.",
+        "justificacion": "Elimina 'Era' para mayor fuerza declarativa. Mantiene consistencia con el estilo minimalista.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": null
+      },
+      {
+        "tipo": "verbo_debil",
+        "categoria": "prosa",
+        "original": "No era humo de leña. Era más denso, más oscuro.",
+        "editado": "No era humo de leña. Más denso, más oscuro.",
+        "justificacion": "Elimina el segundo 'Era' para evitar repetición y mantener el ritmo fragmentado característico.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": null
+      },
+      {
+        "tipo": "redundancia",
+        "categoria": "prosa",
+        "original": "Como una amenaza esperando el momento de volver a atacar.",
+        "editado": "Una amenaza esperando el momento de volver a atacar.",
+        "justificacion": "Elimina 'Como' para convertir la comparación en declaración directa, más visceral y minimalista.",
         "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-004"
-      },
-      {
-        "tipo": "pacing",
-        "categoria": "narrativa",
-        "original": "Comenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo. Como una brasa enterrada bajo ceniza.\n\nSe extendió.\n\nDespacio al principio. Subió por su garganta, bajó por su estómago, se filtró por sus costillas como agua caliente derramándose por grietas. El calor no era suave. Era denso, viscoso, invasivo. Sentía cómo se abría paso por sus venas, empujando la escarcha que le había congelado la sangre.\n\nEl temblor empezó a calmarse.\n\nNo de golpe. Poco a poco. Los espasmos violentos se volvieron sacudidas, luego temblores leves, hasta que sus músculos dejaron de convulsionar por completo.\n\nEl frío seguía ahí. El viento seguía aullando. Pero ya no le dolía.\n\nYa no le quemaba los pulmones. Ya no le arrancaba la piel.\n\nEra como si su cuerpo hubiera levantado un muro contra él. Como si el frío ya no pudiera entrar.",
-        "editado": "Comenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo. Como una brasa enterrada bajo ceniza.\n\nSe extendió. Subió por su garganta, bajó por su estómago, se filtró por sus costillas como agua caliente derramándose por grietas. El calor no era suave. Era denso, viscoso, invasivo. Sentía cómo se abría paso por sus venas, empujando la escarcha que le había congelado la sangre.\n\nEl temblor se calmó. Los espasmos violentos se volvieron sacudidas, luego temblores leves, hasta que sus músculos dejaron de convulsionar.\n\nEl frío seguía ahí. El viento seguía aullando. Pero ya no le dolía. Ya no le quemaba los pulmones. Ya no le arrancaba la piel. Era como si su cuerpo hubiera levantado un muro contra él.",
-        "justificacion": "Atiende [ch2-nota-005]. Condensa la secuencia de transformación de 8 párrafos a 4, eliminando repeticiones ('despacio al principio', 'no de golpe, poco a poco') mientras mantiene los mejores detalles sensoriales. Mejora el ritmo sin sacrificar el impacto.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-005"
-      },
-      {
-        "tipo": "voz",
-        "categoria": "narrativa",
-        "original": "Con la ayuda de aquella bebida extraña, por fin pudo abrir los ojos.",
-        "editado": "Sus párpados finalmente obedecieron.",
-        "justificacion": "Atiende [ch2-nota-006]. Elimina la explicación distanciada y mantiene la inmediatez sensorial. La conexión con la bebida ya está clara por el contexto.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-006"
-      },
-      {
-        "tipo": "tension",
-        "categoria": "narrativa",
-        "original": "No tenía rostro.\n\nO sí, pero no era un rostro que debiera existir.\n\nSu cabeza era una caja de hueso macizo, angulosa, sin expresión. La piel pálida y agrietada parecía estirada sobre una máscara de piedra.\n\nLa boca no tenía labios. Solo una hendidura irregular, como una grieta en una roca.\n\nEl animal giró la cabeza hacia ella.\n\nEl corazón de Ana se detuvo.",
-        "editado": "No tenía rostro.\n\nO sí, pero no era un rostro que debiera existir.\n\nSu cabeza era una caja de hueso macizo, angulosa, sin expresión. La piel pálida y agrietada parecía estirada sobre una máscara de piedra.\n\nLa boca no tenía labios. Solo una hendidura irregular, como una grieta en una roca.\n\nEl animal giró la cabeza hacia ella.\n\nAna intentó gritar. No tenía voz.",
-        "justificacion": "Atiende [ch2-nota-007]. Intercala la reacción emocional de Ana con la descripción física, haciendo el terror simultáneo a la visión en lugar de retrasado. Aumenta el impacto del horror.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-007"
-      },
-      {
-        "tipo": "personaje",
-        "categoria": "narrativa",
-        "original": "Sus ojos negros se clavaron en los suyos. Inmóviles. Vacíos. Pero atentos. Eran dos puntos negros hundidos en cuencas profundas, diminutos, casi invisibles.\n\nAna no pudo moverse. No pudo respirar. El miedo le atravesó el pecho como una estaca.",
-        "editado": "Sus ojos negros se clavaron en los suyos. Inmóviles. Vacíos. Pero atentos. Eran dos puntos negros hundidos en cuencas profundas, diminutos, casi invisibles. El corazón de Ana se detuvo.\n\nNo pudo moverse. No pudo respirar. El miedo le atravesó el pecho como una estaca.",
-        "justificacion": "Reubica 'El corazón de Ana se detuvo' para que la reacción sea inmediata al contacto visual, aumentando la tensión del momento.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-007"
-      },
-      {
-        "tipo": "claridad",
-        "categoria": "narrativa",
-        "original": "Entonces, una mano dura y callosa se posó en la espalda de Ana.",
-        "editado": "Entonces, una mano dura y callosa se posó en la espalda de Ana. El jinete del Cuernomuro.",
-        "justificacion": "Atiende [ch2-nota-008]. Clarifica quién pone la mano en la espalda de Ana, eliminando la ambigüedad que rompía la claridad de la escena.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-008"
-      },
-      {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "Ana vio el valle.\n\nY entendió que había cruzado a un mundo de muertos.",
-        "editado": "Ana vio el valle.",
-        "justificacion": "Atiende [ch2-nota-009]. Elimina la interpretación explicativa del narrador. La descripción que sigue (costillas gigantes, chozas de hueso, desolación) comunica que es un mundo de muertos sin necesidad de declararlo.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-009"
-      },
-      {
-        "tipo": "personaje",
-        "categoria": "narrativa",
-        "original": "Ana no entendía cómo no estaban muertos. El frío era un animal vivo. Pero ellos lo ignoraban.",
-        "editado": "Ana no entendía cómo no estaban muertos. El frío era un animal vivo. Pero ellos lo ignoraban. Eran de otra especie.",
-        "justificacion": "Atiende [ch2-nota-010]. Añade consecuencia emocional a la observación de Ana, profundizando su sentido de alienación y vulnerabilidad frente a estos seres.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-010"
-      },
-      {
-        "tipo": "emocion",
-        "categoria": "narrativa",
-        "original": "Una mujer salió de una de esas entradas. Llevaba un cuenco de hueso en las manos. Lo volcó junto a la puerta. Líquido oscuro se derramó sobre la nieve. Sangre. O algo peor.\n\nLa mujer levantó la vista. Vio a Ana.\n\nNo dijo nada. Solo la observó con esa misma indiferencia helada que todos los demás. Luego volvió adentro.",
-        "editado": "Una mujer salió de una de esas entradas. Llevaba un cuenco de hueso en las manos. Lo volcó junto a la puerta. Líquido oscuro se derramó sobre la nieve. Sangre. O algo peor.\n\nLa mujer levantó la vista.\n\nAna buscó algo en esos ojos. Reconocimiento. Piedad. Cualquier cosa humana.\n\nLa mujer la observó con esa misma indiferencia helada que todos los demás. Como si Ana fuera nieve. Como si fuera hueso. Luego volvió adentro.",
-        "justificacion": "Atiende [ch2-nota-011]. Expande el momento de contacto visual para mostrar a Ana buscando humanidad y encontrando vacío. La ausencia de piedad es más devastadora cuando vemos la búsqueda desesperada primero.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-011"
-      },
-      {
-        "tipo": "voz",
-        "categoria": "narrativa",
-        "original": "Ana no sabía dónde estaba. No sabía qué le harían. No sabía si volvería a ver el sol sin nieve.\n\nSolo sabía que había llegado.\n\nSu nueva casa era El Valle de los Restos.\n\nEl lugar donde los huesos antiguos eran hogar.\n\nY los vivos eran más duros que los muertos.",
-        "editado": "Ana no sabía dónde estaba. No sabía qué le harían. No sabía si volvería a ver el sol sin nieve.\n\nSolo sabía que había llegado.\n\nCerró los ojos.\n\nEl valle seguía ahí.",
-        "justificacion": "Atiende [ch2-nota-012]. Elimina el cambio abrupto a narrador omnisciente y mantiene el final anclado en la experiencia inmediata de Ana. Las declaraciones formales sobre el valle rompían la voz establecida. El nuevo final es más visceral y consistente.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-012"
+        "nota_margen_relacionada": null
       }
     ],
     "fragment_count": 1
@@ -263,145 +164,118 @@
   {
     "chapter_id": 3,
     "original_title": "Capítulo 2. Nueva vida.",
-    "contenido_editado": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\nNo era una casa. Era un cobertijo. Una estructura baja construida con costillas fosilizadas enterradas en ángulo, formando un techo abovedado. Las paredes eran bloques de roca volcánica negra encajados sin argamasa, solo apilados con la precisión de quien conoce el peso y el equilibrio. No había puerta. Solo una abertura lo suficientemente ancha para que la bestia pasara agachando la cabeza.\nEl suelo era tierra apisonada mezclada con ceniza y paja sucia. Olía a estiércol, a lana húmeda, a grasa rancia. En las esquinas había montones de heno gris y seco, aplastado por el uso. Las paredes interiores estaban manchadas con algo oscuro. Sangre vieja o barro. Daba igual.\nEl Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\nLa guerrera desmontó. Sus botas golpearon el suelo con un sonido seco. Gritó algo hacia afuera.\nAna no entendió las palabras, pero el tono era una orden.\nDos hombres entraron. Más jóvenes, quizá. Uno tenía el torso cubierto de cicatrices horizontales, como si alguien lo hubiera marcado con un rastrillo. El otro tenía la nariz rota, torcida hacia un lado, y una oreja a medio arrancar.\nComenzaron a descargar.\nSacos de arpillera llenos de grano robado. Mantas enrolladas. Herramientas de hierro, valiosas, arrancadas de las manos de muertos. Un hacha. Dos cuchillos. Una olla abollada. Todo lo apilaban junto a la pared del cobertijo, trabajando en silencio, con movimientos eficientes.\nLa guerrera inspeccionaba cada objeto. Tomaba las herramientas, las sopesaba, las probaba con el pulgar. Hablaba con los hombres. Palabras cortas, guturales, llenas de consonantes duras.\nAna captó fragmentos.\n\"...khora...\" (¿Bueno? ¿Útil?)\n\"...dravik...\" (¿Hierro? ¿Metal?)\n\"...skan...\" (No tenía idea.)\nLos hombres respondían con monosílabos. Asentían. Uno señaló el hacha y dijo algo más largo. La guerrera gruñó una aprobación y lo dejó pasar.\nAna seguía atada al lomo del Cuernomuro.\nLas cuerdas le cortaban las muñecas. Los brazos le ardían, entumecidos por la posición forzada durante horas. Sentía la piel en carne viva bajo el amarre. Cada movimiento de la bestia la sacudía como un fardo de trapos.\nNadie la miraba.\nDescargaron un barril pequeño. Luego otro saco. Una piel de oveja manchada de sangre seca. Un cinturón con una hebilla de bronce.\nLa guerrera tomó el cinturón, lo examinó, y lo lanzó al montón con desprecio. Dijo algo que sonó como una maldición.\nLos hombres rieron. No era risa alegre. Era el sonido de quien comparte un chiste cruel.\nAna existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.\nEl Cuernomuro resopló otra vez. Movió la cabeza, sacudiendo las orejas peludas. Ana sintió el tirón en las cuerdas. El nudo se tensó contra su espalda.\nFinalmente, cuando el último saco cayó al suelo, la guerrera se giró hacia ella.\nCaminó despacio. Sus pasos resonaban contra la roca. Se detuvo junto al flanco de la bestia, mirando a Ana desde abajo. Sus ojos eran grises como el hielo sucio. Inexpresivos.\nSacó un cuchillo de hueso de su cinturón.\nAna se puso rígida.\nLa mujer no dijo nada. Deslizó la hoja bajo la cuerda que sujetaba a Ana al lomo del animal. Un corte seco.\nLa cuerda se partió.\nAna cayó.\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.\nSu cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió. Dolor agudo le atravesó el brazo.\nQuedó tendida de costado, con la mejilla contra la piedra fría y áspera. Sabía a polvo y a ceniza. Intentó moverse. Las manos aún estaban atadas. Las piernas no respondían, entumecidas por las horas de inmovilidad.\nLa guerrera guardó el cuchillo.\nLos hombres seguían descargando, indiferentes. Uno de ellos pasó junto a Ana. Su bota estuvo a centímetros de su cara. Ni siquiera la esquivó. Simplemente la ignoró, como se ignora una piedra en el camino.\nLa guerrera dijo algo más. Una orden breve.\nLos hombres asintieron y salieron.\nEl cobertijo quedó en silencio. Solo el resoplido del Cuernomuro y el sonido de Ana intentando respirar sin que le doliera.\nLa guerrera se quedó de pie, mirándola.\nAna levantó la cabeza. Sus ojos se encontraron.\nLa mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\nLuego se dio la vuelta y salió del cobertijo.\nAna se quedó sola.\nTendida en el suelo. Atada. Magullada. Respirando el aire delgado de la montaña que aún le quemaba los pulmones.\nEl Cuernomuro se echó en su rincón con un gruñido largo. El suelo tembló bajo su peso.\nLa bestia cerró los ojos.\nAna también cerró los suyos.\nY se quedó dormida.\n\nAna despertó de golpe.\nEl frío la mordía otra vez. Era el frío real, el que mata, el que atraviesa la piel y congela los huesos desde adentro. El efecto de la bebida había terminado. Su cuerpo ya no tenía ese muro invisible que lo protegía. Ahora el frío entraba sin piedad.\nRáfagas de viento silbaban por el hueco de la entrada. Cada una traía consigo agujas de hielo que le pinchaban la cara, el cuello, los brazos desnudos. El aire le quemaba los pulmones otra vez. Cada respiración era un esfuerzo, un dolor agudo que le desgarraba el pecho.\nTenía que cubrirse.\nBuscó con la mirada. En la oscuridad apenas podía distinguir formas. Montones de heno. Sacos apilados. Y ahí, cerca de la pared, algo que parecía una piel.\nSe arrastró hacia ella. Las manos aún atadas le dificultaban el movimiento. Usó los codos, las rodillas. La roca volcánica raspaba su piel con cada centímetro que avanzaba.\nLlegó hasta la piel. Era vieja, muy vieja. Estaba tiesa, curtida por años de uso y abandono. Olía a rancio, a animal muerto hace tiempo. Pero daba igual. Era algo.\nLa tomó con ambas manos atadas. Intentó jalarla hacia su cuerpo.\nCrujió.\nEl sonido fue seco, quebradizo, como madera podrida al partirse.\nLa piel se desgarró en sus manos. Se deshizo en pedazos rígidos e inútiles. Polvo de cuero viejo cayó sobre sus dedos.\nAna se quedó inmóvil, sosteniendo los fragmentos. No servían. No cubrían nada.\nEl frío seguía entrando.\nEmpezó a temblar.\nNo era el temblor controlado de antes. Era violento, descontrolado. Sus dientes castañeaban tan fuerte que el sonido retumbaba en su cráneo. Los músculos de sus piernas se contraían solos, dolorosos, inútiles. Su cuerpo se sacudía intentando generar calor que no existía.\nTenía que moverse. Tenía que hacer algo.\n¿Huir?\nLa idea cruzó su mente como un relámpago.\nLa puerta estaba ahí. Abierta. Solo un hueco oscuro que daba al exterior. Podía levantarse. Podía correr.\n¿A dónde?\nNo conocía el valle. No sabía dónde estaba. No hablaba el idioma. No tenía comida. No tenía abrigo. El frío afuera era peor que aquí dentro. Y las guerreras... las guerreras la encontrarían. La cazarían como a un animal. Y la traerían de vuelta. O la matarían.\n¿Pelear?\nAna miró sus manos atadas. Miró su cuerpo magullado, débil por la desnutrición y el viaje. Recordó la fuerza de la guerrera. La facilidad con la que la había arrancado del suelo. La indiferencia en sus ojos.\nNo podía pelear. No podía ganar.\nSolo podía sobrevivir.\nO morir.\nEl temblor empeoró. Sus brazos se sacudían. Las rodillas le golpeaban contra el suelo involuntariamente. El sonido de sus dientes chocando era como piedras en un saco.\nY entonces, sin querer, vino el recuerdo.\nSu casa.\nNo la choza donde la golpeaban. La casa de antes. La casa con su madre.\nPequeña. De madera. Con un techo de paja que goteaba cuando llovía mucho. Pero era cálida. Tenía una estufa de barro donde su madre cocinaba. Pan. Sopa de col. Cosas sencillas.\nAna recordó el olor. Pan horneándose. Leña quemándose. El aroma dulce de la miel que su madre guardaba en un frasco de cerámica.\nRecordó las manos de su madre. Ásperas, callosas de trabajar la tierra, pero suaves cuando le acariciaban el pelo antes de dormir.\nRecordó su voz. Cantaba. Canciones viejas que Ana no entendía pero que la hacían sentir segura.\n¿Cuántos años habían pasado?\n¿Tres? ¿Cuatro?\nAna no estaba segura. El tiempo se había vuelto borroso. Solo recordaba el día en que los hombres llegaron. Los hombres con espadas. El fuego. Los gritos.\nSu madre le había dicho que corriera. Que se escondiera en el bosque.\nAna corrió.\nPero no lo suficientemente rápido.\nUn hombre la alcanzó. La tomó del pelo. La arrastró de vuelta.\nSu madre gritó su nombre.\nAna nunca supo qué le pasó después. Nunca la volvió a ver.\nLa vendieron. La compraron. La golpearon. La movieron de lugar en lugar hasta que terminó en esa choza donde el Amo y su familia la usaban como basura.\nY ahora estaba aquí.\nEn un cobertijo helado. En una montaña que mataba. Entre gente que no hablaba su idioma y que la veía como un objeto.\nEl temblor se volvió más violento. Ana jadeaba. El ruido que hacía era involuntario. Gemidos ahogados que salían de su garganta. El castañeo de sus dientes. El roce de su cuerpo sacudiéndose contra la roca.\nEntonces, algo más se movió en la oscuridad.\nEl Cuernomuro abrió los ojos.\nDos círculos brillantes en la penumbra. Reflejando la poca luz que entraba por el hueco de la puerta.\nLa bestia levantó la cabeza. Despacio. Sus cuernos rasparon contra la pared de hueso. El sonido fue largo, chirriante, como metal contra piedra.\nAna se congeló.\nEl animal la miraba.\nNo con amenaza. No con curiosidad. Solo... miraba.\nLuego comenzó a moverse.\nPrimero las patas delanteras. Se apoyó sobre ellas, levantando ese torso inmenso. Sus músculos se tensaron bajo el pelaje grasoso. La joroba sobre sus hombros se alzó como una montaña de lana sucia.\nLas patas traseras siguieron. La bestia se puso de pie completamente.\nEra enorme.\nEn el espacio cerrado del cobertijo, parecía llenar todo. Su cabeza casi rozaba el techo de costillas. Su aliento salía en nubes de vapor que flotaban en el aire frío.\nAna retrocedió.\nSe arrastró hacia atrás, empujándose con los codos y los talones. Su espalda chocó contra la pared. No había más espacio. Estaba acorralada.\nEl Cuernomuro caminó hacia ella.\nPaso lento. Paso pesado. Cada vez que sus pezuñas partidas golpeaban el suelo, la tierra temblaba. Ana sentía las vibraciones subir por su columna.\nLa bestia se acercó más.\nY más.\nHasta que se detuvo a centímetros de ella.\nAna levantó la mirada. Los cuernos del animal estaban justo sobre su cabeza. Esas espirales masivas que se curvaban hacia atrás, gruesas como su brazo, terminando en puntas romas pero letales. Los cuernos frontales, chatos y anchos, enmarcaban su rostro como un ariete de hueso.\nAna no podía respirar.\nEl animal la miraba desde arriba. Sus ojos eran oscuros, profundos, rodeados de pelo apelmazado. No había malicia en ellos. Pero tampoco amabilidad. Solo una inteligencia antigua, paciente, evaluándola.\nLa bestia resopló.\nEl aire caliente golpeó la cara de Ana. Olía a hierba fermentada, a saliva, a algo salvaje.\nEntonces, el Cuernomuro se giró.\nLe dio la espalda a Ana.\nCaminó hacia la entrada. Cada paso sacudía el suelo. Llegó hasta el hueco abierto donde el viento entraba sin piedad.\nY se detuvo ahí.\nSe echó. Lentamente. Primero las patas delanteras, doblándose con un crujido de articulaciones. Luego las traseras. Su cuerpo inmenso bloqueó casi por completo la entrada. Solo quedaba un espacio pequeño en la parte superior, por donde aún entraba algo de viento, pero ya no eran las ráfagas violentas de antes.\nEl frío disminuyó. No desapareció, pero se volvió soportable.\nLa bestia giró la cabeza hacia Ana. La miró por encima del hombro peludo.\nLuego, con un movimiento de su hocico, señaló un lugar cerca de su estómago. Entre sus patas delanteras y su vientre. Un hueco cálido, protegido.\nAna no se movió.\nEl animal volvió a señalar. Un resoplido más fuerte. Impaciente.\nAna entendió.\nSe puso de rodillas. Despacio. Cada músculo le dolía. Gateó hacia la bestia. Centímetro a centímetro. Desconfiada. Lista para retroceder si el animal se movía de forma amenazante.\nPero el Cuernomuro no se movió.\nSolo esperó.\nAna llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor. Un calor denso, vivo, que parecía vibrar con cada respiración de la bestia.\nSe acercó más. Se deslizó en ese espacio entre las patas delanteras y el vientre. El olor era fuerte. A animal, a sudor, a grasa rancia. Pero no le importó.\nEl calor la envolvió.\nEra como estar junto a una estufa. No, mejor. Era como estar dentro de una estufa. El cuerpo del animal irradiaba tanto calor que el frío no podía alcanzarla. Su vientre subía y bajaba con cada respiración lenta y profunda. El pelaje le raspaba la mejilla, pero era tibio. Tan tibio.\nAna se acurrucó más. Pegó su espalda contra el vientre de la bestia. Dobló las piernas. Cerró los ojos.\nEl Cuernomuro resopló una última vez. Un sonido grave, satisfecho.\nLuego cerró los ojos también.\nEl viento seguía aullando afuera. La nieve seguía cayendo. El frío seguía matando a cualquiera que no tuviera refugio.\nPero Ana estaba caliente.\nPor primera vez desde que la habían arrancado de esa choza en el valle de abajo, Ana no sentía dolor. No sentía miedo. No sentía nada más que el calor del animal protegiéndola del mundo que quería matarla.\nSe durmió.\nProfundamente.\nCómodamente.\nJunto a la bestia que le había salvado la vida sin que nadie se lo pidiera.",
-    "contenido_original": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\nNo era una casa. Era un cobertijo. Una estructura baja construida con costillas fosilizadas enterradas en ángulo, formando un techo abovedado. Las paredes eran bloques de roca volcánica negra encajados sin argamasa, solo apilados con la precisión de quien conoce el peso y el equilibrio. No había puerta. Solo una abertura lo suficientemente ancha para que la bestia pasara agachando la cabeza.\nEl suelo era tierra apisonada mezclada con ceniza y paja sucia. Olía a estiércol, a lana húmeda, a grasa rancia. En las esquinas había montones de heno gris y seco, aplastado por el uso. Las paredes interiores estaban manchadas con algo oscuro. Sangre vieja o barro. Daba igual.\nEl Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\nLa guerrera desmontó. Sus botas golpearon el suelo con un sonido seco. Gritó algo hacia afuera.\nAna no entendió las palabras, pero el tono era una orden.\nDos hombres entraron. Más jóvenes, quizá. Uno tenía el torso cubierto de cicatrices horizontales, como si alguien lo hubiera marcado con un rastrillo. El otro tenía la nariz rota, torcida hacia un lado, y una oreja a medio arrancar.\nComenzaron a descargar.\nSacos de arpillera llenos de grano robado. Mantas enrolladas. Herramientas de hierro, valiosas, arrancadas de las manos de muertos. Un hacha. Dos cuchillos. Una olla abollada. Todo lo apilaban junto a la pared del cobertijo, trabajando en silencio, con movimientos eficientes.\nLa guerrera inspeccionaba cada objeto. Tomaba las herramientas, las sopesaba, las probaba con el pulgar. Hablaba con los hombres. Palabras cortas, guturales, llenas de consonantes duras.\nAna captó fragmentos.\n\"...khora...\" (¿Bueno? ¿Útil?)\n\"...dravik...\" (¿Hierro? ¿Metal?)\n\"...skan...\" (No tenía idea.)\nLos hombres respondían con monosílabos. Asentían. Uno señaló el hacha y dijo algo más largo. La guerrera gruñó una aprobación y lo dejó pasar.\nAna seguía atada al lomo del Cuernomuro.\nLas cuerdas le cortaban las muñecas. Los brazos le ardían, entumecidos por la posición forzada durante horas. Sentía la piel en carne viva bajo el amarre. Cada movimiento de la bestia la sacudía como un fardo de trapos.\nNadie la miraba.\nDescargaron un barril pequeño. Luego otro saco. Una piel de oveja manchada de sangre seca. Un cinturón con una hebilla de bronce.\nLa guerrera tomó el cinturón, lo examinó, y lo lanzó al montón con desprecio. Dijo algo que sonó como una maldición.\nLos hombres rieron. No era risa alegre. Era el sonido de quien comparte un chiste cruel.\nAna existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.\nEl Cuernomuro resopló otra vez. Movió la cabeza, sacudiendo las orejas peludas. Ana sintió el tirón en las cuerdas. El nudo se tensó contra su espalda.\nFinalmente, cuando el último saco cayó al suelo, la guerrera se giró hacia ella.\nCaminó despacio. Sus pasos resonaban contra la roca. Se detuvo junto al flanco de la bestia, mirando a Ana desde abajo. Sus ojos eran grises como el hielo sucio. Inexpresivos.\nSacó un cuchillo de hueso de su cinturón.\nAna se puso rígida.\nLa mujer no dijo nada. Deslizó la hoja bajo la cuerda que sujetaba a Ana al lomo del animal. Un corte seco.\nLa cuerda se partió.\nAna cayó.\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.\nSu cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió. Dolor agudo le atravesó el brazo.\nQuedó tendida de costado, con la mejilla contra la piedra fría y áspera. Sabía a polvo y a ceniza. Intentó moverse. Las manos aún estaban atadas. Las piernas no respondían, entumecidas por las horas de inmovilidad.\nLa guerrera guardó el cuchillo.\nLos hombres seguían descargando, indiferentes. Uno de ellos pasó junto a Ana. Su bota estuvo a centímetros de su cara. Ni siquiera la esquivó. Simplemente la ignoró, como se ignora una piedra en el camino.\nLa guerrera dijo algo más. Una orden breve.\nLos hombres asintieron y salieron.\nEl cobertijo quedó en silencio. Solo el resoplido del Cuernomuro y el sonido de Ana intentando respirar sin que le doliera.\nLa guerrera se quedó de pie, mirándola.\nAna levantó la cabeza. Sus ojos se encontraron.\nLa mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\nLuego se dio la vuelta y salió del cobertijo.\nAna se quedó sola.\nTendida en el suelo. Atada. Magullada. Respirando el aire delgado de la montaña que aún le quemaba los pulmones.\nEl Cuernomuro se echó en su rincón con un gruñido largo. El suelo tembló bajo su peso.\nLa bestia cerró los ojos.\nAna también cerró los suyos.\nY se quedó dormida.\n\nAna despertó de golpe.\nEl frío la mordía otra vez. Era el frío real, el que mata, el que atraviesa la piel y congela los huesos desde adentro. El efecto de la bebida había terminado. Su cuerpo ya no tenía ese muro invisible que lo protegía. Ahora el frío entraba sin piedad.\nRáfagas de viento silbaban por el hueco de la entrada. Cada una traía consigo agujas de hielo que le pinchaban la cara, el cuello, los brazos desnudos. El aire le quemaba los pulmones otra vez. Cada respiración era un esfuerzo, un dolor agudo que le desgarraba el pecho.\nTenía que cubrirse.\nBuscó con la mirada. En la oscuridad apenas podía distinguir formas. Montones de heno. Sacos apilados. Y ahí, cerca de la pared, algo que parecía una piel.\nSe arrastró hacia ella. Las manos aún atadas le dificultaban el movimiento. Usó los codos, las rodillas. La roca volcánica raspaba su piel con cada centímetro que avanzaba.\nLlegó hasta la piel. Era vieja, muy vieja. Estaba tiesa, curtida por años de uso y abandono. Olía a rancio, a animal muerto hace tiempo. Pero daba igual. Era algo.\nLa tomó con ambas manos atadas. Intentó jalarla hacia su cuerpo.\nCrujió.\nEl sonido fue seco, quebradizo, como madera podrida al partirse.\nLa piel se desgarró en sus manos. Se deshizo en pedazos rígidos e inútiles. Polvo de cuero viejo cayó sobre sus dedos.\nAna se quedó inmóvil, sosteniendo los fragmentos. No servían. No cubrían nada.\nEl frío seguía entrando.\nEmpezó a temblar.\nNo era el temblor controlado de antes. Era violento, descontrolado. Sus dientes castañeaban tan fuerte que el sonido retumbaba en su cráneo. Los músculos de sus piernas se contraían solos, dolorosos, inútiles. Su cuerpo se sacudía intentando generar calor que no existía.\nTenía que moverse. Tenía que hacer algo.\n¿Huir?\nLa idea cruzó su mente como un relámpago.\nLa puerta estaba ahí. Abierta. Solo un hueco oscuro que daba al exterior. Podía levantarse. Podía correr.\n¿A dónde?\nNo conocía el valle. No sabía dónde estaba. No hablaba el idioma. No tenía comida. No tenía abrigo. El frío afuera era peor que aquí dentro. Y las guerreras... las guerreras la encontrarían. La cazarían como a un animal. Y la traerían de vuelta. O la matarían.\n¿Pelear?\nAna miró sus manos atadas. Miró su cuerpo magullado, débil por la desnutrición y el viaje. Recordó la fuerza de la guerrera. La facilidad con la que la había arrancado del suelo. La indiferencia en sus ojos.\nNo podía pelear. No podía ganar.\nSolo podía sobrevivir.\nO morir.\nEl temblor empeoró. Sus brazos se sacudían. Las rodillas le golpeaban contra el suelo involuntariamente. El sonido de sus dientes chocando era como piedras en un saco.\nY entonces, sin querer, vino el recuerdo.\nSu casa.\nNo la choza donde la golpeaban. La casa de antes. La casa con su madre.\nPequeña. De madera. Con un techo de paja que goteaba cuando llovía mucho. Pero era cálida. Tenía una estufa de barro donde su madre cocinaba. Pan. Sopa de col. Cosas sencillas.\nAna recordó el olor. Pan horneándose. Leña quemándose. El aroma dulce de la miel que su madre guardaba en un frasco de cerámica.\nRecordó las manos de su madre. Ásperas, callosas de trabajar la tierra, pero suaves cuando le acariciaban el pelo antes de dormir.\nRecordó su voz. Cantaba. Canciones viejas que Ana no entendía pero que la hacían sentir segura.\n¿Cuántos años habían pasado?\n¿Tres? ¿Cuatro?\nAna no estaba segura. El tiempo se había vuelto borroso. Solo recordaba el día en que los hombres llegaron. Los hombres con espadas. El fuego. Los gritos.\nSu madre le había dicho que corriera. Que se escondiera en el bosque.\nAna corrió.\nPero no lo suficientemente rápido.\nUn hombre la alcanzó. La tomó del pelo. La arrastró de vuelta.\nSu madre gritó su nombre.\nAna nunca supo qué le pasó después. Nunca la volvió a ver.\nLa vendieron. La compraron. La golpearon. La movieron de lugar en lugar hasta que terminó en esa choza donde el Amo y su familia la usaban como basura.\nY ahora estaba aquí.\nEn un cobertijo helado. En una montaña que mataba. Entre gente que no hablaba su idioma y que la veía como un objeto.\nEl temblor se volvió más violento. Ana jadeaba. El ruido que hacía era involuntario. Gemidos ahogados que salían de su garganta. El castañeo de sus dientes. El roce de su cuerpo sacudiéndose contra la roca.\nEntonces, algo más se movió en la oscuridad.\nEl Cuernomuro abrió los ojos.\nDos círculos brillantes en la penumbra. Reflejando la poca luz que entraba por el hueco de la puerta.\nLa bestia levantó la cabeza. Despacio. Sus cuernos rasparon contra la pared de hueso. El sonido fue largo, chirriante, como metal contra piedra.\nAna se congeló.\nEl animal la miraba.\nNo con amenaza. No con curiosidad. Solo... miraba.\nLuego comenzó a moverse.\nPrimero las patas delanteras. Se apoyó sobre ellas, levantando ese torso inmenso. Sus músculos se tensaron bajo el pelaje grasoso. La joroba sobre sus hombros se alzó como una montaña de lana sucia.\nLas patas traseras siguieron. La bestia se puso de pie completamente.\nEra enorme.\nEn el espacio cerrado del cobertijo, parecía llenar todo. Su cabeza casi rozaba el techo de costillas. Su aliento salía en nubes de vapor que flotaban en el aire frío.\nAna retrocedió.\nSe arrastró hacia atrás, empujándose con los codos y los talones. Su espalda chocó contra la pared. No había más espacio. Estaba acorralada.\nEl Cuernomuro caminó hacia ella.\nPaso lento. Paso pesado. Cada vez que sus pezuñas partidas golpeaban el suelo, la tierra temblaba. Ana sentía las vibraciones subir por su columna.\nLa bestia se acercó más.\nY más.\nHasta que se detuvo a centímetros de ella.\nAna levantó la mirada. Los cuernos del animal estaban justo sobre su cabeza. Esas espirales masivas que se curvaban hacia atrás, gruesas como su brazo, terminando en puntas romas pero letales. Los cuernos frontales, chatos y anchos, enmarcaban su rostro como un ariete de hueso.\nAna no podía respirar.\nEl animal la miraba desde arriba. Sus ojos eran oscuros, profundos, rodeados de pelo apelmazado. No había malicia en ellos. Pero tampoco amabilidad. Solo una inteligencia antigua, paciente, evaluándola.\nLa bestia resopló.\nEl aire caliente golpeó la cara de Ana. Olía a hierba fermentada, a saliva, a algo salvaje.\nEntonces, el Cuernomuro se giró.\nLe dio la espalda a Ana.\nCaminó hacia la entrada. Cada paso sacudía el suelo. Llegó hasta el hueco abierto donde el viento entraba sin piedad.\nY se detuvo ahí.\nSe echó. Lentamente. Primero las patas delanteras, doblándose con un crujido de articulaciones. Luego las traseras. Su cuerpo inmenso bloqueó casi por completo la entrada. Solo quedaba un espacio pequeño en la parte superior, por donde aún entraba algo de viento, pero ya no eran las ráfagas violentas de antes.\nEl frío disminuyó. No desapareció, pero se volvió soportable.\nLa bestia giró la cabeza hacia Ana. La miró por encima del hombro peludo.\nLuego, con un movimiento de su hocico, señaló un lugar cerca de su estómago. Entre sus patas delanteras y su vientre. Un hueco cálido, protegido.\nAna no se movió.\nEl animal volvió a señalar. Un resoplido más fuerte. Impaciente.\nAna entendió.\nSe puso de rodillas. Despacio. Cada músculo le dolía. Gateó hacia la bestia. Centímetro a centímetro. Desconfiada. Lista para retroceder si el animal se movía de forma amenazante.\nPero el Cuernomuro no se movió.\nSolo esperó.\nAna llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor. Un calor denso, vivo, que parecía vibrar con cada respiración de la bestia.\nSe acercó más. Se deslizó en ese espacio entre las patas delanteras y el vientre. El olor era fuerte. A animal, a sudor, a grasa rancia. Pero no le importó.\nEl calor la envolvió.\nEra como estar junto a una estufa. No, mejor. Era como estar dentro de una estufa. El cuerpo del animal irradiaba tanto calor que el frío no podía alcanzarla. Su vientre subía y bajaba con cada respiración lenta y profunda. El pelaje le raspaba la mejilla, pero era tibio. Tan tibio.\nAna se acurrucó más. Pegó su espalda contra el vientre de la bestia. Dobló las piernas. Cerró los ojos.\nEl Cuernomuro resopló una última vez. Un sonido grave, satisfecho.\nLuego cerró los ojos también.\nEl viento seguía aullando afuera. La nieve seguía cayendo. El frío seguía matando a cualquiera que no tuviera refugio.\nPero Ana estaba caliente.\nPor primera vez desde que la habían arrancado de esa choza en el valle de abajo, Ana no sentía dolor. No sentía miedo. No sentía nada más que el calor del animal protegiéndola del mundo que quería matarla.\nSe durmió.\nProfundamente.\nCómodamente.\nJunto a la bestia que le había salvado la vida sin que nadie se lo pidiera.",
+    "contenido_editado": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\nNo era una casa. Era un cobertijo. Una estructura baja construida con costillas fosilizadas enterradas en ángulo, formando un techo abovedado. Las paredes eran bloques de roca volcánica negra encajados sin argamasa, solo apilados con la precisión de quien conoce el peso y el equilibrio. No había puerta. Solo una abertura lo suficientemente ancha para que la bestia pasara agachando la cabeza.\nEl suelo era tierra apisonada mezclada con ceniza y paja sucia. Olía a estiércol, a lana húmeda, a grasa rancia. En las esquinas había montones de heno gris y seco, aplastado por el uso. Las paredes interiores estaban manchadas con algo oscuro. Sangre vieja o barro. Daba igual.\nEl Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\nLa guerrera desmontó. Sus botas golpearon el suelo con un sonido seco. Gritó algo hacia afuera.\nAna no entendió las palabras, pero el tono era una orden.\nDos hombres entraron. Más jóvenes, quizá. Uno tenía el torso cubierto de cicatrices horizontales, como si alguien lo hubiera marcado con un rastrillo. El otro tenía la nariz rota, torcida hacia un lado, y una oreja a medio arrancar.\nComenzaron a descargar.\nSacos de arpillera llenos de grano robado. Mantas enrolladas. Herramientas de hierro, valiosas, arrancadas de las manos de muertos. Un hacha. Dos cuchillos. Una olla abollada. Todo lo apilaban junto a la pared del cobertijo, trabajando en silencio, con movimientos eficientes.\nLa guerrera inspeccionaba cada objeto. Tomaba las herramientas, las sopesaba, las probaba con el pulgar. Hablaba con los hombres. Palabras cortas, guturales, llenas de consonantes duras.\nAna captó fragmentos.\n\"...khora...\" (¿Bueno? ¿Útil?)\n\"...dravik...\" (¿Hierro? ¿Metal?)\n\"...skan...\" (No tenía idea.)\nLos hombres respondían con monosílabos. Asentían. Uno señaló el hacha y dijo algo más largo. La guerrera gruñó una aprobación y lo dejó pasar.\nAna seguía atada al lomo del Cuernomuro.\nLas cuerdas le cortaban las muñecas. Los brazos le ardían, entumecidos por la posición forzada durante horas. Sentía la piel en carne viva bajo el amarre. Cada movimiento de la bestia la sacudía como un fardo de trapos.\nNadie la miraba.\nDescargaron un barril pequeño. Luego otro saco. Una piel de oveja manchada de sangre seca. Un cinturón con una hebilla de bronce.\nLa guerrera tomó el cinturón, lo examinó, y lo lanzó al montón con desprecio. Dijo algo que sonó como una maldición.\nLos hombres rieron. No era risa alegre. Era el sonido de quien comparte un chiste cruel.\nAna existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.\nEl Cuernomuro resopló otra vez. Movió la cabeza, sacudiendo las orejas peludas. Ana sintió el tirón en las cuerdas. El nudo se tensó contra su espalda.\nFinalmente, cuando el último saco cayó al suelo, la guerrera se giró hacia ella.\nCaminó despacio. Sus pasos resonaban contra la roca. Se detuvo junto al flanco de la bestia, mirando a Ana desde abajo. Sus ojos eran grises como el hielo sucio. Inexpresivos.\nSacó un cuchillo de hueso de su cinturón.\nAna se puso rígida.\nLa mujer no dijo nada. Deslizó la hoja bajo la cuerda que sujetaba a Ana al lomo del animal. Un corte seco.\nLa cuerda se partió.\nAna cayó.\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.\nSu cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió. Dolor agudo le atravesó el brazo.\nQuedó tendida de costado, con la mejilla contra la piedra fría y áspera. Sabía a polvo y a ceniza. Intentó moverse. Las manos aún estaban atadas. Las piernas no respondían, entumecidas por las horas de inmovilidad.\nLa guerrera guardó el cuchillo.\nLos hombres seguían descargando, indiferentes. Uno de ellos pasó junto a Ana. Su bota estuvo a centímetros de su cara. Ni siquiera la esquivó. Simplemente la ignoró, como se ignora una piedra en el camino.\nLa guerrera dijo algo más. Una orden breve.\nLos hombres asintieron y salieron.\nEl cobertijo quedó en silencio. Solo el resoplido del Cuernomuro y el sonido de Ana intentando respirar sin que le doliera.\nLa guerrera se quedó de pie, mirándola.\nAna levantó la cabeza. Sus ojos se encontraron.\nLa mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\nLuego se dio la vuelta y salió del cobertijo.\nAna se quedó sola.\nTendida en el suelo. Atada. Magullada. Respirando el aire delgado de la montaña que aún le quemaba los pulmones.\nEl Cuernomuro se echó en su rincón con un gruñido largo. El suelo tembló bajo su peso.\nLa bestia cerró los ojos.\nAna también cerró los suyos.\nY se quedó dormida.",
+    "contenido_original": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\nNo era una casa. Era un cobertijo. Una estructura baja construida con costillas fosilizadas enterradas en ángulo, formando un techo abovedado. Las paredes eran bloques de roca volcánica negra encajados sin argamasa, solo apilados con la precisión de quien conoce el peso y el equilibrio. No había puerta. Solo una abertura lo suficientemente ancha para que la bestia pasara agachando la cabeza.\nEl suelo era tierra apisonada mezclada con ceniza y paja sucia. Olía a estiércol, a lana húmeda, a grasa rancia. En las esquinas había montones de heno gris y seco, aplastado por el uso. Las paredes interiores estaban manchadas con algo oscuro. Sangre vieja o barro. Daba igual.\nEl Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\nLa guerrera desmontó. Sus botas golpearon el suelo con un sonido seco. Gritó algo hacia afuera.\nAna no entendió las palabras, pero el tono era una orden.\nDos hombres entraron. Más jóvenes, quizá. Uno tenía el torso cubierto de cicatrices horizontales, como si alguien lo hubiera marcado con un rastrillo. El otro tenía la nariz rota, torcida hacia un lado, y una oreja a medio arrancar.\nComenzaron a descargar.\nSacos de arpillera llenos de grano robado. Mantas enrolladas. Herramientas de hierro, valiosas, arrancadas de las manos de muertos. Un hacha. Dos cuchillos. Una olla abollada. Todo lo apilaban junto a la pared del cobertijo, trabajando en silencio, con movimientos eficientes.\nLa guerrera inspeccionaba cada objeto. Tomaba las herramientas, las sopesaba, las probaba con el pulgar. Hablaba con los hombres. Palabras cortas, guturales, llenas de consonantes duras.\nAna captó fragmentos.\n\"...khora...\" (¿Bueno? ¿Útil?)\n\"...dravik...\" (¿Hierro? ¿Metal?)\n\"...skan...\" (No tenía idea.)\nLos hombres respondían con monosílabos. Asentían. Uno señaló el hacha y dijo algo más largo. La guerrera gruñó una aprobación y lo dejó pasar.\nAna seguía atada al lomo del Cuernomuro.\nLas cuerdas le cortaban las muñecas. Los brazos le ardían, entumecidos por la posición forzada durante horas. Sentía la piel en carne viva bajo el amarre. Cada movimiento de la bestia la sacudía como un fardo de trapos.\nNadie la miraba.\nDescargaron un barril pequeño. Luego otro saco. Una piel de oveja manchada de sangre seca. Un cinturón con una hebilla de bronce.\nLa guerrera tomó el cinturón, lo examinó, y lo lanzó al montón con desprecio. Dijo algo que sonó como una maldición.\nLos hombres rieron. No era risa alegre. Era el sonido de quien comparte un chiste cruel.\nAna existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.\nEl Cuernomuro resopló otra vez. Movió la cabeza, sacudiendo las orejas peludas. Ana sintió el tirón en las cuerdas. El nudo se tensó contra su espalda.\nFinalmente, cuando el último saco cayó al suelo, la guerrera se giró hacia ella.\nCaminó despacio. Sus pasos resonaban contra la roca. Se detuvo junto al flanco de la bestia, mirando a Ana desde abajo. Sus ojos eran grises como el hielo sucio. Inexpresivos.\nSacó un cuchillo de hueso de su cinturón.\nAna se puso rígida.\nLa mujer no dijo nada. Deslizó la hoja bajo la cuerda que sujetaba a Ana al lomo del animal. Un corte seco.\nLa cuerda se partió.\nAna cayó.\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.\nSu cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió. Dolor agudo le atravesó el brazo.\nQuedó tendida de costado, con la mejilla contra la piedra fría y áspera. Sabía a polvo y a ceniza. Intentó moverse. Las manos aún estaban atadas. Las piernas no respondían, entumecidas por las horas de inmovilidad.\nLa guerrera guardó el cuchillo.\nLos hombres seguían descargando, indiferentes. Uno de ellos pasó junto a Ana. Su bota estuvo a centímetros de su cara. Ni siquiera la esquivó. Simplemente la ignoró, como se ignora una piedra en el camino.\nLa guerrera dijo algo más. Una orden breve.\nLos hombres asintieron y salieron.\nEl cobertijo quedó en silencio. Solo el resoplido del Cuernomuro y el sonido de Ana intentando respirar sin que le doliera.\nLa guerrera se quedó de pie, mirándola.\nAna levantó la cabeza. Sus ojos se encontraron.\nLa mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\nLuego se dio la vuelta y salió del cobertijo.\nAna se quedó sola.\nTendida en el suelo. Atada. Magullada. Respirando el aire delgado de la montaña que aún le quemaba los pulmones.\nEl Cuernomuro se echó en su rincón con un gruñido largo. El suelo tembló bajo su peso.\nLa bestia cerró los ojos.\nAna también cerró los suyos.\nY se quedó dormida.",
     "cambios_realizados": [
       {
-        "tipo": "redundancia",
-        "categoria": "prosa",
-        "original": "Finalmente, cuando el último saco cayó al suelo, la guerrera se giró hacia ella.",
-        "editado": "Cuando el último saco cayó al suelo, la guerrera se giró hacia ella.",
-        "justificacion": "El adverbio 'Finalmente' es redundante porque la frase 'el último saco' ya indica que es el final de la secuencia. Eliminar el adverbio hace la prosa más directa y mantiene el ritmo.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "verbo_debil",
-        "categoria": "prosa",
-        "original": "Intentó moverse. Las manos aún estaban atadas.",
-        "editado": "Intentó moverse. Las manos aún atadas.",
-        "justificacion": "Eliminar 'estaban' fortalece la frase y la hace más directa. La construcción sin verbo copulativo es más visceral y mantiene el ritmo entrecortado que refleja el estado físico de Ana.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
-      },
-      {
-        "tipo": "redundancia",
-        "categoria": "prosa",
-        "original": "Luego se dio la vuelta y salió del cobertijo.",
-        "editado": "Se dio la vuelta y salió del cobertijo.",
-        "justificacion": "El adverbio 'Luego' es innecesario porque la secuencia de acciones ya implica el orden temporal. La eliminación mantiene el ritmo más directo y contundente.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
+        "tipo": "claridad",
+        "categoria": "narrativa",
+        "original": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\n\nNo era una casa.",
+        "editado": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\n\nLa luz había cambiado dos veces desde el secuestro.\n\nNo era una casa.",
+        "justificacion": "Añade ancla temporal sin romper el minimalismo. El lector necesita saber cuánto tiempo ha pasado. La frase es concreta y sensorial, apropiada para el estilo.",
+        "impacto_narrativo": "medio",
+        "nota_margen_relacionada": "ch3-nota-001"
       },
       {
         "tipo": "show_tell",
         "categoria": "narrativa",
-        "original": "Ana se quedó inmóvil, sosteniendo los fragmentos. No servían. No cubrían nada.",
-        "editado": "Ana se quedó inmóvil, sosteniendo los fragmentos.\n\nNo servían.\n\nNo cubrían nada.\n\nNada.",
-        "justificacion": "Añadido beat emocional después del fracaso de la piel. La repetición de 'Nada' y el espacio en blanco permiten que el lector sienta la desesperación de Ana ante este fracaso antes de pasar a la siguiente crisis. El ritmo fragmentado refleja su estado mental deteriorado.",
+        "original": "El Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\n\nLa guerrera desmontó.",
+        "editado": "El Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\n\nAna sintió algo helado en el estómago. La bestia conocía el camino.\n\nLa guerrera desmontó.",
+        "justificacion": "Filtra el horror de la rutina a través de la consciencia de Ana. La bestia conoce el lugar = esto ha pasado antes = Ana es una más. El impacto emocional se amplifica con su reacción física mínima.",
         "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-001"
+        "nota_margen_relacionada": "ch3-nota-002"
       },
       {
         "tipo": "show_tell",
         "categoria": "narrativa",
-        "original": "¿Huir?\n\nLa idea cruzó su mente como un relámpago.\n\nLa puerta estaba ahí. Abierta. Solo un hueco oscuro que daba al exterior. Podía levantarse. Podía correr.\n\n¿A dónde?\n\nNo conocía el valle. No sabía dónde estaba. No hablaba el idioma. No tenía comida. No tenía abrigo. El frío afuera era peor que aquí dentro. Y las guerreras... las guerreras la encontrarían. La cazarían como a un animal. Y la traerían de vuelta. O la matarían.\n\n¿Pelear?",
-        "editado": "¿Huir?\n\nLa puerta. Ahí. Hueco oscuro. Exterior.\n\nPodía levantarse. Podía correr.\n\n¿A dónde?\n\nValle desconocido. Idioma extraño. Sin comida. Sin abrigo.\n\nEl frío afuera. Peor. Mucho peor.\n\nY las guerreras. La encontrarían. La cazarían. Animal. La traerían de vuelta.\n\nO la matarían.\n\n¿Pelear?",
-        "justificacion": "Transformado el pensamiento de Ana en fragmentos más primitivos y caóticos, apropiados para alguien en hipotermia severa. Eliminadas las frases completas y lógicas ('La idea cruzó su mente como un relámpago', 'No conocía el valle') por imágenes y palabras sueltas que reflejan mejor su estado físico deteriorado.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-002"
+        "original": "Ana captó fragmentos.\n\n\"...khora...\" (¿Bueno? ¿Útil?)\n\n\"...dravik...\" (¿Hierro? ¿Metal?)\n\n\"...skan...\" (No tenía idea.)",
+        "editado": "Ana captó fragmentos.\n\n\"...khora...\"\n\n\"...dravik...\"\n\n\"...skan...\"\n\nNo tenía idea.",
+        "justificacion": "Elimina paréntesis explicativos que rompen inmersión. El contexto ya comunica que están evaluando objetos. La incertidumbre de Ana es más poderosa sin traducciones. La última línea se mantiene porque refuerza su alienación.",
+        "impacto_narrativo": "medio",
+        "nota_margen_relacionada": "ch3-nota-003"
       },
       {
-        "tipo": "transicion",
+        "tipo": "ritmo",
         "categoria": "narrativa",
-        "original": "Y entonces, sin querer, vino el recuerdo.\n\nSu casa.",
-        "editado": "Y entonces, sin querer, el olor del heno le trajo algo.\n\nUn recuerdo.\n\nSu casa.",
-        "justificacion": "Anclado el flashback a un trigger sensorial específico (el olor del heno) para hacer la transición más orgánica y justificar por qué su mente va allí en este momento extremo. Esto conecta el presente físico con el recuerdo de manera más natural.",
+        "original": "Comenzaron a descargar.\n\nSacos de arpillera llenos de grano robado.",
+        "editado": "Comenzaron a descargar.\n\nAna intentó cambiar de posición. Las cuerdas se tensaron. Se quedó quieta.\n\nSacos de arpillera llenos de grano robado.",
+        "justificacion": "Intercala el sufrimiento de Ana durante la descarga. Mantiene al lector consciente de su presencia física y objetificación. Evita que el lector olvide que ella está ahí, atada y sufriendo.",
         "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-003"
+        "nota_margen_relacionada": "ch3-nota-004"
+      },
+      {
+        "tipo": "show_tell",
+        "categoria": "narrativa",
+        "original": "Nadie la miraba.\n\nDescargaron un barril pequeño.",
+        "editado": "Nadie la miraba.\n\nAna podía gritar. Podía llorar. No cambiaría nada.\n\nDescargaron un barril pequeño.",
+        "justificacion": "Conecta la línea poderosa 'Nadie la miraba' con la experiencia emocional de Ana. Muestra el horror de la invisibilidad: su sufrimiento es irrelevante. Mantiene la brevedad minimalista.",
+        "impacto_narrativo": "alto",
+        "nota_margen_relacionada": "ch3-nota-005"
+      },
+      {
+        "tipo": "voz",
+        "categoria": "prosa",
+        "original": "Ana existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.",
+        "editado": "Para ellos, Ana era un bulto atado. Un objeto más del saqueo.",
+        "justificacion": "La frase 'existía al borde de su visión' es más poética que el resto del capítulo. El minimalismo ha sido más brutal. Esta versión es más directa y mantiene el impacto sin sonar literaria.",
+        "impacto_narrativo": "medio",
+        "nota_margen_relacionada": "ch3-nota-006"
+      },
+      {
+        "tipo": "ritmo",
+        "categoria": "narrativa",
+        "original": "Sacó un cuchillo de hueso de su cinturón.\n\nAna se puso rígida.\n\nLa mujer no dijo nada.",
+        "editado": "Sacó un cuchillo de hueso de su cinturón.\n\nAna se puso rígida.\n\nEl cuchillo era de hueso amarillento. Ana vio las muescas en el filo. Vio la mano de la mujer acercarse.\n\nLa mujer no dijo nada.",
+        "justificacion": "Estira el momento de tensión. El lector necesita tiempo para temer lo peor (¿la va a matar?). Los detalles sensoriales del cuchillo amplifican la ansiedad antes de que se resuelva la acción.",
+        "impacto_narrativo": "alto",
+        "nota_margen_relacionada": "ch3-nota-007"
+      },
+      {
+        "tipo": "show_tell",
+        "categoria": "narrativa",
+        "original": "Ana cayó.\n\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.",
+        "editado": "Ana cayó.\n\nEl mundo se inclinó. El suelo subió hacia ella.\n\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.",
+        "justificacion": "Captura el vértigo del momento de ingravidez antes del impacto. Hay una fracción de segundo de pánico puro entre la cuerda cortada y el golpe. Estamos en su cabeza; podemos mostrar ese terror.",
+        "impacto_narrativo": "medio",
+        "nota_margen_relacionada": "ch3-nota-008"
+      },
+      {
+        "tipo": "show_tell",
+        "categoria": "prosa",
+        "original": "Su cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió. Dolor agudo le atravesó el brazo.",
+        "editado": "Su cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió.",
+        "justificacion": "Elimina 'Dolor agudo le atravesó el brazo' porque es explicativo. El crujido es suficiente; el lector entiende el horror. El minimalismo pide confiar en el lector para llenar los espacios.",
+        "impacto_narrativo": "bajo",
+        "nota_margen_relacionada": "ch3-nota-009"
       },
       {
         "tipo": "claridad",
-        "categoria": "narrativa",
-        "original": "Recordó su voz. Cantaba. Canciones viejas que Ana no entendía pero que la hacían sentir segura.\n\n¿Cuántos años habían pasado?",
-        "editado": "Recordó su voz. Cantaba. Canciones viejas que Ana no entendía pero que la hacían sentir segura.\n\nTenía seis años entonces.\n\n¿Cuántos años habían pasado?",
-        "justificacion": "Añadida referencia temporal clara ('Tenía seis años entonces') para anclar al lector en la edad de Ana. Esto permite visualizar mejor al personaje y entender la línea temporal sin romper la voz narrativa.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-004"
-      },
-      {
-        "tipo": "transicion",
-        "categoria": "narrativa",
-        "original": "El temblor se volvió más violento. Ana jadeaba. El ruido que hacía era involuntario. Gemidos ahogados que salían de su garganta. El castañeo de sus dientes. El roce de su cuerpo sacudiéndose contra la roca.\n\nEntonces, algo más se movió en la oscuridad.",
-        "editado": "El temblor se volvió más violento. Ana jadeaba. El ruido que hacía era involuntario. Gemidos ahogados que salían de su garganta. El castañeo de sus dientes. El roce de su cuerpo sacudiéndose contra la roca.\n\nLos fragmentos de piel muerta aún en sus manos.\n\nEl olor a heno.\n\nEl frío.\n\nEntonces, algo más se movió en la oscuridad.",
-        "justificacion": "Añadidas líneas de transición que muestran el estado presente de Ana (fragmentos en manos, olor a heno, frío) antes de que el Cuernomuro se mueva. Esto reconecta al lector con el presente físico después del flashback emocional y suaviza la transición.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-005"
-      },
-      {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "Ana retrocedió.\n\nSe arrastró hacia atrás, empujándose con los codos y los talones. Su espalda chocó contra la pared. No había más espacio. Estaba acorralada.",
-        "editado": "Ana intentó retroceder.\n\nSe empujó con los codos. Los talones rasparon la roca. Pero sus músculos apenas respondían. El frío los había vuelto torpes, lentos. Se arrastró centímetros cuando quería metros. Su espalda chocó contra la pared. No había más espacio. Estaba acorralada.",
-        "justificacion": "Mostrado que el movimiento le cuesta más de lo que quisiera, respetando su estado de hipotermia severa establecido. 'Intentó' en lugar de 'retrocedió' y la descripción de músculos que apenas responden mantiene la credibilidad física de la escena.",
-        "impacto_narrativo": "medio",
-        "nota_margen_relacionada": "ch2-nota-006"
-      },
-      {
-        "tipo": "show_tell",
-        "categoria": "narrativa",
-        "original": "Entonces, el Cuernomuro se giró.\n\nLe dio la espalda a Ana.\n\nCaminó hacia la entrada. Cada paso sacudía el suelo. Llegó hasta el hueco abierto donde el viento entraba sin piedad.\n\nY se detuvo ahí.\n\nSe echó. Lentamente. Primero las patas delanteras, doblándose con un crujido de articulaciones. Luego las traseras. Su cuerpo inmenso bloqueó casi por completo la entrada.",
-        "editado": "Entonces, el Cuernomuro se giró.\n\nLe dio la espalda a Ana.\n\nCaminó hacia la entrada. Cada paso sacudía el suelo. Llegó hasta el hueco abierto donde el viento entraba sin piedad.\n\nY se detuvo ahí.\n\nSe echó. Lentamente. Primero las patas delanteras, doblándose con un crujido de articulaciones. Luego las traseras.\n\nAna parpadeó.\n\nEl cuerpo inmenso de la bestia bloqueó casi por completo la entrada.",
-        "justificacion": "Ralentizado el momento crucial añadiendo 'Ana parpadeó' para mostrar su procesamiento gradual de lo que está sucediendo. Este beat permite que el lector sienta el peso emocional del acto de protección del Cuernomuro antes de explicar el resultado.",
-        "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-007"
-      },
-      {
-        "tipo": "claridad",
-        "categoria": "narrativa",
-        "original": "Luego, con un movimiento de su hocico, señaló un lugar cerca de su estómago.",
-        "editado": "Luego movió el hocico hacia abajo. Una vez. Dos veces. Señalando un lugar cerca de su estómago.",
-        "justificacion": "Especificado el gesto del Cuernomuro para que el lector pueda visualizarlo claramente. El movimiento repetido del hocico hacia abajo es más concreto que 'un movimiento de su hocico' y hace la comunicación entre Ana y el animal más creíble.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": "ch2-nota-008"
-      },
-      {
-        "tipo": "show_tell",
         "categoria": "prosa",
-        "original": "Ana llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor. Un calor denso, vivo, que parecía vibrar con cada respiración de la bestia.\n\nSe acercó más. Se deslizó en ese espacio entre las patas delanteras y el vientre. El olor era fuerte. A animal, a sudor, a grasa rancia. Pero no le importó.",
-        "editado": "Ana llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor. Un calor denso, vivo, que parecía vibrar con cada respiración de la bestia.\n\nSe acercó más. Se deslizó en ese espacio entre las patas delanteras y el vientre. El olor era fuerte. A animal, a sudor, a grasa rancia.\n\nPero el calor la envolvió.",
-        "justificacion": "Eliminado 'pero no le importó' que le dice al lector cómo sentir. Las acciones de Ana (acercarse más, deslizarse) ya muestran que no le importa el olor. Reemplazado con sensación física del calor que es más inmersivo.",
+        "original": "Quedó tendida de costado, con la mejilla contra la piedra fría y áspera. Sabía a polvo y a ceniza.",
+        "editado": "Quedó tendida de costado, con la mejilla contra la piedra fría y áspera. El polvo sabía a ceniza.",
+        "justificacion": "Clarifica que es el polvo (que respira) lo que sabe a ceniza, no su mejilla. Elimina microsegundo de confusión sintáctica sin perder brevedad.",
         "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": "ch2-nota-009"
+        "nota_margen_relacionada": "ch3-nota-010"
       },
       {
         "tipo": "show_tell",
         "categoria": "narrativa",
-        "original": "Por primera vez desde que la habían arrancado de esa choza en el valle de abajo, Ana no sentía dolor. No sentía miedo. No sentía nada más que el calor del animal protegiéndola del mundo que quería matarla.",
-        "editado": "No había dolor. No había miedo. Solo calor. Solo esto.",
-        "justificacion": "Eliminada la explicación excesiva que rompe la voz poética. La versión editada es más sutil y poderosa, permitiendo que el lector haga la conexión con todo el sufrimiento anterior de Ana sin que se lo digan explícitamente. Mantiene el estilo poético del autor.",
+        "original": "La mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\n\nLuego se dio la vuelta y salió del cobertijo.",
+        "editado": "La mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\n\nAna deseó que la mujer la odiara. El odio era humano. Esto no lo era.\n\nLuego se dio la vuelta y salió del cobertijo.",
+        "justificacion": "Procesa emocionalmente el horror de la indiferencia a través de Ana. La indiferencia es más aterradora que la crueldad, pero necesitamos que Ana (y el lector) sientan eso. Momento crucial de caracterización.",
         "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-010"
+        "nota_margen_relacionada": "ch3-nota-011"
       },
       {
         "tipo": "show_tell",
         "categoria": "narrativa",
-        "original": "Junto a la bestia que le había salvado la vida sin que nadie se lo pidiera.",
-        "editado": "Junto a la bestia.",
-        "justificacion": "Eliminada la línea explicativa que subestima la inteligencia del lector. Ya hemos visto toda la escena del Cuernomuro protegiéndola voluntariamente. El silencio después de toda la intensidad del capítulo es más poderoso y respeta el estilo poético del autor.",
+        "original": "Ana también cerró los suyos.\n\nY se quedó dormida.",
+        "editado": "Ana también cerró los suyos.\n\nNo tenía fuerzas para llorar. No tenía fuerzas para tener miedo. No tenía fuerzas para nada.\n\nY se quedó dormida.",
+        "justificacion": "Justifica la transición abrupta al sueño. Ana acaba de ser secuestrada, golpeada, evaluada como ganado. El lector necesita entender que esto es colapso por agotamiento total, no simplemente 'se durmió'. Puente emocional necesario.",
         "impacto_narrativo": "alto",
-        "nota_margen_relacionada": "ch2-nota-011"
-      },
-      {
-        "tipo": "redundancia",
-        "categoria": "prosa",
-        "original": "Llegó hasta la piel. Era vieja, muy vieja.",
-        "editado": "Llegó hasta la piel. Era vieja, muy vieja.",
-        "justificacion": "Mantenido sin cambios. La repetición 'vieja, muy vieja' es intencional y efectiva para el ritmo poético del autor.",
-        "impacto_narrativo": "bajo",
-        "nota_margen_relacionada": null
+        "nota_margen_relacionada": "ch3-nota-012"
       }
     ],
-    "fragment_count": 2
+    "fragment_count": 1
   }
 ]

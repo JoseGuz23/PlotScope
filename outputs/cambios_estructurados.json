@@ -1,1 +1,573 @@
-{"total_changes": 42, "changes_by_type": {"redundancia": 12, "show_tell": 13, "consistencia": 1, "transicion": 3, "emocion": 3, "pacing": 1, "voz": 2, "tension": 1, "personaje": 2, "claridad": 3, "verbo_debil": 1}, "changes": [{"change_id": "ch1-change-000", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 14, "word_end": 21, "context_before": "madera contra el hueso retumbó por toda la choza.", "context_after": "El hijo de la familia era demasiado rápido, demas"}, "tipo": "redundancia", "original": "Ana no alcanzó a reaccionar a tiempo.", "editado": "Ana no alcanzó a reaccionar.", "justificacion": "'A tiempo' es redundante con 'no alcanzó a reaccionar'. Si no alcanzó a reaccionar, implícitamente no fue a tiempo.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709478Z", "user_decision": null}, {"change_id": "ch1-change-001", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 48, "word_end": 60, "context_before": "de la hermana pequeña. La niña estalló en llanto.", "context_after": "Su mirada desprendía ira y diversión.\nLa puerta d"}, "tipo": "redundancia", "original": "Levantó su caballo de madera y lo volvió a descargar sobre ella.", "editado": "Levantó su caballo de madera y lo descargó sobre ella.", "justificacion": "Elimino 'volvió a' porque es la primera vez que el niño descarga el golpe sobre ella (el anterior fue sobre la hermana pequeña). Esto evita confusión temporal.", "impacto_narrativo": "medio", "status": "rejected", "created_at": "2025-12-11T14:05:12.709501Z", "user_decision": null}, {"change_id": "ch1-change-002", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 110, "word_end": 117, "context_before": "uguete en la mano. Sus ojos fueron directo a Ana.", "context_after": "Sonó como una maldición, como si la culpase por n"}, "tipo": "show_tell", "original": "Bramó algo que Ana no pudo entender.", "editado": "Bramó algo ininteligible.", "justificacion": "Más conciso y directo. 'Ininteligible' es más fuerte que la construcción 'que Ana no pudo entender'. Mantiene el ritmo rápido del prólogo.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709516Z", "user_decision": null}, {"change_id": "ch1-change-003", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 168, "word_end": 180, "context_before": "impactó en la cara. Sintió el estallido de dolor.", "context_after": "El hombre recogió el juguete del suelo y volvió a"}, "tipo": "consistencia", "original": "A pesar de los meses siendo golpeada, el dolor nunca había cesado.", "editado": "A pesar de los meses siendo golpeada, el dolor nunca cesaba.", "justificacion": "Corrección de tiempo verbal. El texto está en pasado simple, y aquí se mezcla con pretérito pluscuamperfecto sin razón narrativa. 'Cesaba' mantiene la consistencia temporal.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709532Z", "user_decision": null}, {"change_id": "ch1-change-004", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 289, "word_end": 298, "context_before": "transformando la furia roja en un pánico pálido.", "context_after": "La esposa entró en la habitación gritando cosas q"}, "tipo": "redundancia", "original": "El juguete cayó de su mano muerta de miedo.", "editado": "El juguete cayó de su mano.", "justificacion": "'Muerta de miedo' es un cliché y además redundante con 'El color huyó de su rostro, transformando la furia roja en un pánico pálido' que ya establece el terror del personaje.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.709552Z", "user_decision": null}, {"change_id": "ch1-change-005", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 298, "word_end": 311, "context_before": "lido. El juguete cayó de su mano muerta de miedo.", "context_after": "Bajó el escudo de la chimenea a tirones.\nEl Amo d"}, "tipo": "show_tell", "original": "La esposa entró en la habitación gritando cosas que Ana no pudo entender.", "editado": "La esposa entró en la habitación gritando cosas ininteligibles.", "justificacion": "Consistencia con el cambio anterior. 'Ininteligibles' es más económico y mantiene el ritmo rápido.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709572Z", "user_decision": null}, {"change_id": "ch1-change-006", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 358, "word_end": 383, "context_before": "mbre trastabilló, retrocediendo dos pasos torpes;", "context_after": "Ana no lo pensó. El instinto se impuso. Se lanzó"}, "tipo": "redundancia", "original": "alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada por depredadores superiores.", "editado": "alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada.", "justificacion": "'Por depredadores superiores' es redundante. Si es presa acorralada, ya implica que hay depredadores superiores. La imagen es más limpia sin la explicación adicional.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709601Z", "user_decision": null}, {"change_id": "ch1-change-007", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 462, "word_end": 481, "context_before": "ones de piel; llevaban la parte alta descubierta.", "context_after": "El Amo lanzó un tajo desesperado, un golpe ciego"}, "tipo": "redundancia", "original": "Lo único que protegía sus pieles eran varias tiras de cuero crudo que se enrollaban alrededor de su pecho.", "editado": "Lo único que protegía sus pieles eran varias tiras de cuero crudo enrolladas alrededor de su pecho.", "justificacion": "Simplificación sintáctica. 'Que se enrollaban' es más débil que 'enrolladas'. La forma participial es más directa y mantiene el ritmo.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709637Z", "user_decision": null}, {"change_id": "ch1-change-008", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 410, "word_end": 421, "context_before": "sí, cubriéndolos con su propio cuerpo magullado.", "context_after": "Entre la nube de polvo, dos siluetas inmensas cru"}, "tipo": "show_tell", "original": "La esposa agarró un cuchillo de la cocina, tomándolo con miedo.", "editado": "La esposa agarró un cuchillo de la cocina, temblando.", "justificacion": "'Tomándolo con miedo' es tell. 'Temblando' es show: muestra físicamente el miedo sin nombrarlo. Más visceral y directo.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.709660Z", "user_decision": null}, {"change_id": "ch1-change-009", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 644, "word_end": 649, "context_before": "chorreante, aullando, arrastrándose hacia atrás.", "context_after": "Palabras rápidas, agudas, impregnadas de súplica"}, "tipo": "redundancia", "original": "Entonces, la herida gritó algo.", "editado": "Entonces, la herida gritó algo.", "justificacion": "Sin cambio. Aunque 'la herida' es una metonimia poética potente que funciona perfectamente para el estilo del autor. Se mantiene.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709698Z", "user_decision": null}, {"change_id": "ch1-change-010", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 815, "word_end": 823, "context_before": "rtes en sus pómulos y las marcas recién abiertas.", "context_after": "Ana cerró los ojos, esperando que lo que tuviera"}, "tipo": "show_tell", "original": "Preguntó algo que de nuevo no pudo entender.", "editado": "Preguntó algo ininteligible.", "justificacion": "Consistencia con cambios anteriores. Mantiene el patrón establecido y el ritmo.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709739Z", "user_decision": null}, {"change_id": "ch1-change-011", "chapter_id": 1, "chapter_title": "Capítulo 1", "position": {"paragraph_index": 0, "word_start": 871, "word_end": 888, "context_before": "ñaló las heridas.\nAna no hizo amago de responder.", "context_after": "Ana asintió.\nLa guerrera que custodiaba al Amo di"}, "tipo": "redundancia", "original": "La mujer apuntó al hombre que yacía boca abajo con la espada amenazando con quitarle la vida.", "editado": "La mujer apuntó al hombre que yacía boca abajo con la espada amenazándolo.", "justificacion": "'Amenazando con quitarle la vida' es redundante y obvio. Una espada en el cuello ya amenaza la vida. 'Amenazándolo' es más económico y mantiene la tensión.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709780Z", "user_decision": null}, {"change_id": "ch2-change-012", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 14, "context_before": "", "context_after": "El frío a su alrededor poco a poco la iba matando"}, "tipo": "transicion", "original": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía.", "editado": "Habían pasado horas desde la captura. Quizá días. Ana había perdido la cuenta cuando el frío comenzó a devorarla.\n\nEl cuerpo de Ana no podía parar de temblar. Era lo único que sentía.", "justificacion": "Atiende [ch2-nota-001]. Añade anclaje temporal que conecta con el capítulo anterior y orienta al lector sobre el tiempo transcurrido, eliminando la desorientación inicial.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.709793Z", "user_decision": null}, {"change_id": "ch2-change-013", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 14, "word_end": 25, "context_before": "podía parar de temblar. Era lo único que sentía.", "context_after": ", y sus nuevos captores parecían ignorarlo.\nAna mo"}, "tipo": "redundancia", "original": "El frío a su alrededor poco a poco la iba matando", "editado": "El frío a su alrededor la iba matando", "justificacion": "Elimina 'poco a poco' que es redundante con el tiempo verbal progresivo 'iba matando' que ya implica gradualidad.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709800Z", "user_decision": null}, {"change_id": "ch2-change-014", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 67, "word_end": 75, "context_before": "día sus huesos como si fueran piedras en un saco.", "context_after": ", solo que era inmenso y que olía a grasa rancia,"}, "tipo": "redundancia", "original": "No sabía qué era lo que la cargaba", "editado": "No sabía qué la cargaba", "justificacion": "Elimina 'era lo que' innecesario. La construcción más directa mantiene el mismo significado con más fuerza.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.709809Z", "user_decision": null}, {"change_id": "ch2-change-015", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 158, "word_end": 187, "context_before": "pero no tenía. La lengua se le pegaba al paladar.", "context_after": "de la piel, que le congelaba las lágrimas antes d"}, "tipo": "show_tell", "original": "El viento aullaba. No como el viento del valle, que silbaba entre las rendijas de las chozas. Este era diferente. Era un animal vivo que le arrancaba el calor", "editado": "El viento aullaba. No como el viento del valle, que silbaba entre las rendijas de las chozas. Era un animal vivo que le arrancaba el calor", "justificacion": "Atiende [ch2-nota-002]. Elimina 'Este era diferente' porque la metáfora del animal vivo ya muestra la diferencia. Confía en la descripción sensorial.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.709825Z", "user_decision": null}, {"change_id": "ch2-change-016", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "emocion", "original": "Líquido. Espeso. Tibio.\n\nSu estómago se retorció. Quiso vomitar, pero la mano le mantuvo la boca cerrada.", "editado": "Líquido. Espeso. Tibio.\n\nSu estómago se retorció. Quiso vomitar, pero la mano le mantuvo la boca cerrada. ¿Veneno? ¿Sangre? ¿Algo peor?", "justificacion": "Atiende [ch2-nota-004]. Añade la dimensión psicológica al momento de ser forzada a tragar. Los pensamientos fragmentados reflejan su terror y desorientación.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.709909Z", "user_decision": null}, {"change_id": "ch2-change-017", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 531, "word_end": 550, "context_before": "so, pastoso, con grumos que raspaban la garganta.", "context_after": "Su estómago se rebeló. Una arcada seca le sacudió"}, "tipo": "emocion", "original": "Sabía a cobre oxidado, a metal viejo dejado bajo la lluvia. A sangre, pero peor. Más densa. Más viva.", "editado": "Sabía a cobre oxidado, a metal viejo dejado bajo la lluvia. A sangre, pero peor. Más densa. Más viva. Como si algo hubiera muerto dentro de su boca.", "justificacion": "Añade un pensamiento visceral que profundiza el horror del momento y la experiencia subjetiva de Ana.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.709948Z", "user_decision": null}, {"change_id": "ch2-change-018", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "pacing", "original": "Comenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo. Como una brasa enterrada bajo ceniza.\n\nSe extendió.\n\nDespacio al principio. Subió por su garganta, bajó por su estómago, se filtró por sus costillas como agua caliente derramándose por grietas. El calor no era suave. Era denso, viscoso, invasivo. Sentía cómo se abría paso por sus venas, empujando la escarcha que le había congelado la sangre.\n\nEl temblor empezó a calmarse.\n\nNo de golpe. Poco a poco. Los espasmos violentos se volvieron sacudidas, luego temblores leves, hasta que sus músculos dejaron de convulsionar por completo.\n\nEl frío seguía ahí. El viento seguía aullando. Pero ya no le dolía.\n\nYa no le quemaba los pulmones. Ya no le arrancaba la piel.\n\nEra como si su cuerpo hubiera levantado un muro contra él. Como si el frío ya no pudiera entrar.", "editado": "Comenzó en el pecho. Un calor pequeño, apenas un punto tibio en medio de todo el hielo. Como una brasa enterrada bajo ceniza.\n\nSe extendió. Subió por su garganta, bajó por su estómago, se filtró por sus costillas como agua caliente derramándose por grietas. El calor no era suave. Era denso, viscoso, invasivo. Sentía cómo se abría paso por sus venas, empujando la escarcha que le había congelado la sangre.\n\nEl temblor se calmó. Los espasmos violentos se volvieron sacudidas, luego temblores leves, hasta que sus músculos dejaron de convulsionar.\n\nEl frío seguía ahí. El viento seguía aullando. Pero ya no le dolía. Ya no le quemaba los pulmones. Ya no le arrancaba la piel. Era como si su cuerpo hubiera levantado un muro contra él.", "justificacion": "Atiende [ch2-nota-005]. Condensa la secuencia de transformación de 8 párrafos a 4, eliminando repeticiones ('despacio al principio', 'no de golpe, poco a poco') mientras mantiene los mejores detalles sensoriales. Mejora el ritmo sin sacrificar el impacto.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.709988Z", "user_decision": null}, {"change_id": "ch2-change-019", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 812, "word_end": 825, "context_before": ".\nEl mundo dejó de ser dolor.\nNo moriría.\nHoy no.", "context_after": "Deseó no haberlo hecho.\nLo primero que vio fue un"}, "tipo": "voz", "original": "Con la ayuda de aquella bebida extraña, por fin pudo abrir los ojos.", "editado": "Sus párpados finalmente obedecieron.", "justificacion": "Atiende [ch2-nota-006]. Elimina la explicación distanciada y mantiene la inmediatez sensorial. La conexión con la bebida ya está clara por el contexto.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710033Z", "user_decision": null}, {"change_id": "ch2-change-020", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "tension", "original": "No tenía rostro.\n\nO sí, pero no era un rostro que debiera existir.\n\nSu cabeza era una caja de hueso macizo, angulosa, sin expresión. La piel pálida y agrietada parecía estirada sobre una máscara de piedra.\n\nLa boca no tenía labios. Solo una hendidura irregular, como una grieta en una roca.\n\nEl animal giró la cabeza hacia ella.\n\nEl corazón de Ana se detuvo.", "editado": "No tenía rostro.\n\nO sí, pero no era un rostro que debiera existir.\n\nSu cabeza era una caja de hueso macizo, angulosa, sin expresión. La piel pálida y agrietada parecía estirada sobre una máscara de piedra.\n\nLa boca no tenía labios. Solo una hendidura irregular, como una grieta en una roca.\n\nEl animal giró la cabeza hacia ella.\n\nAna intentó gritar. No tenía voz.", "justificacion": "Atiende [ch2-nota-007]. Intercala la reacción emocional de Ana con la descripción física, haciendo el terror simultáneo a la visión en lugar de retrasado. Aumenta el impacto del horror.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710061Z", "user_decision": null}, {"change_id": "ch2-change-021", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "personaje", "original": "Sus ojos negros se clavaron en los suyos. Inmóviles. Vacíos. Pero atentos. Eran dos puntos negros hundidos en cuencas profundas, diminutos, casi invisibles.\n\nAna no pudo moverse. No pudo respirar. El miedo le atravesó el pecho como una estaca.", "editado": "Sus ojos negros se clavaron en los suyos. Inmóviles. Vacíos. Pero atentos. Eran dos puntos negros hundidos en cuencas profundas, diminutos, casi invisibles. El corazón de Ana se detuvo.\n\nNo pudo moverse. No pudo respirar. El miedo le atravesó el pecho como una estaca.", "justificacion": "Reubica 'El corazón de Ana se detuvo' para que la reacción sea inmediata al contacto visual, aumentando la tensión del momento.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710086Z", "user_decision": null}, {"change_id": "ch2-change-022", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 1019, "word_end": 1032, "context_before": "o si pudiera pesar su terror. Como si lo midiera.", "context_after": "Firme. No violenta. Solo... ahí.\nEl calor de esos"}, "tipo": "claridad", "original": "Entonces, una mano dura y callosa se posó en la espalda de Ana.", "editado": "Entonces, una mano dura y callosa se posó en la espalda de Ana. El jinete del Cuernomuro.", "justificacion": "Atiende [ch2-nota-008]. Clarifica quién pone la mano en la espalda de Ana, eliminando la ambigüedad que rompía la claridad de la escena.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710142Z", "user_decision": null}, {"change_id": "ch2-change-023", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "show_tell", "original": "Ana vio el valle.\n\nY entendió que había cruzado a un mundo de muertos.", "editado": "Ana vio el valle.", "justificacion": "Atiende [ch2-nota-009]. Elimina la interpretación explicativa del narrador. La descripción que sigue (costillas gigantes, chozas de hueso, desolación) comunica que es un mundo de muertos sin necesidad de declararlo.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710165Z", "user_decision": null}, {"change_id": "ch2-change-024", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 1543, "word_end": 1560, "context_before": "scubiertos o apenas cubiertos por tiras de cuero.", "context_after": "Sus cuerpos eran mapas de violencia. Cicatrices c"}, "tipo": "personaje", "original": "Ana no entendía cómo no estaban muertos. El frío era un animal vivo. Pero ellos lo ignoraban.", "editado": "Ana no entendía cómo no estaban muertos. El frío era un animal vivo. Pero ellos lo ignoraban. Eran de otra especie.", "justificacion": "Atiende [ch2-nota-010]. Añade consecuencia emocional a la observación de Ana, profundizando su sentido de alienación y vulnerabilidad frente a estos seres.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710247Z", "user_decision": null}, {"change_id": "ch2-change-025", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "emocion", "original": "Una mujer salió de una de esas entradas. Llevaba un cuenco de hueso en las manos. Lo volcó junto a la puerta. Líquido oscuro se derramó sobre la nieve. Sangre. O algo peor.\n\nLa mujer levantó la vista. Vio a Ana.\n\nNo dijo nada. Solo la observó con esa misma indiferencia helada que todos los demás. Luego volvió adentro.", "editado": "Una mujer salió de una de esas entradas. Llevaba un cuenco de hueso en las manos. Lo volcó junto a la puerta. Líquido oscuro se derramó sobre la nieve. Sangre. O algo peor.\n\nLa mujer levantó la vista.\n\nAna buscó algo en esos ojos. Reconocimiento. Piedad. Cualquier cosa humana.\n\nLa mujer la observó con esa misma indiferencia helada que todos los demás. Como si Ana fuera nieve. Como si fuera hueso. Luego volvió adentro.", "justificacion": "Atiende [ch2-nota-011]. Expande el momento de contacto visual para mostrar a Ana buscando humanidad y encontrando vacío. La ausencia de piedad es más devastadora cuando vemos la búsqueda desesperada primero.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710271Z", "user_decision": null}, {"change_id": "ch2-change-026", "chapter_id": 2, "chapter_title": "Capítulo 2", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "voz", "original": "Ana no sabía dónde estaba. No sabía qué le harían. No sabía si volvería a ver el sol sin nieve.\n\nSolo sabía que había llegado.\n\nSu nueva casa era El Valle de los Restos.\n\nEl lugar donde los huesos antiguos eran hogar.\n\nY los vivos eran más duros que los muertos.", "editado": "Ana no sabía dónde estaba. No sabía qué le harían. No sabía si volvería a ver el sol sin nieve.\n\nSolo sabía que había llegado.\n\nCerró los ojos.\n\nEl valle seguía ahí.", "justificacion": "Atiende [ch2-nota-012]. Elimina el cambio abrupto a narrador omnisciente y mantiene el final anclado en la experiencia inmediata de Ana. Las declaraciones formales sobre el valle rompían la voz establecida. El nuevo final es más visceral y consistente.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710293Z", "user_decision": null}, {"change_id": "ch3-change-027", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 486, "word_end": 500, "context_before": "las cuerdas. El nudo se tensó contra su espalda.", "context_after": "Caminó despacio. Sus pasos resonaban contra la ro"}, "tipo": "redundancia", "original": "Finalmente, cuando el último saco cayó al suelo, la guerrera se giró hacia ella.", "editado": "Cuando el último saco cayó al suelo, la guerrera se giró hacia ella.", "justificacion": "El adverbio 'Finalmente' es redundante porque la frase 'el último saco' ya indica que es el final de la secuencia. Eliminar el adverbio hace la prosa más directa y mantiene el ritmo.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.710330Z", "user_decision": null}, {"change_id": "ch3-change-028", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 639, "word_end": 646, "context_before": "a piedra fría y áspera. Sabía a polvo y a ceniza.", "context_after": "Las piernas no respondían, entumecidas por las ho"}, "tipo": "verbo_debil", "original": "Intentó moverse. Las manos aún estaban atadas.", "editado": "Intentó moverse. Las manos aún atadas.", "justificacion": "Eliminar 'estaban' fortalece la frase y la hace más directa. La construcción sin verbo copulativo es más visceral y mantiene el ritmo entrecortado que refleja el estado físico de Ana.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.710365Z", "user_decision": null}, {"change_id": "ch3-change-029", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 776, "word_end": 785, "context_before": "én comprado y decide si vale la pena alimentarlo.", "context_after": "Ana se quedó sola.\nTendida en el suelo. Atada. Ma"}, "tipo": "redundancia", "original": "Luego se dio la vuelta y salió del cobertijo.", "editado": "Se dio la vuelta y salió del cobertijo.", "justificacion": "El adverbio 'Luego' es innecesario porque la secuencia de acciones ya implica el orden temporal. La eliminación mantiene el ritmo más directo y contundente.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.710454Z", "user_decision": null}, {"change_id": "ch3-change-030", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 1, "word_start": 232, "word_end": 244, "context_before": "tiles. Polvo de cuero viejo cayó sobre sus dedos.", "context_after": "El frío seguía entrando.\nEmpezó a temblar.\nNo era"}, "tipo": "show_tell", "original": "Ana se quedó inmóvil, sosteniendo los fragmentos. No servían. No cubrían nada.", "editado": "Ana se quedó inmóvil, sosteniendo los fragmentos.\n\nNo servían.\n\nNo cubrían nada.\n\nNada.", "justificacion": "Añadido beat emocional después del fracaso de la piel. La repetición de 'Nada' y el espacio en blanco permiten que el lector sienta la desesperación de Ana ante este fracaso antes de pasar a la siguiente crisis. El ritmo fragmentado refleja su estado mental deteriorado.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710480Z", "user_decision": null}, {"change_id": "ch3-change-031", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "show_tell", "original": "¿Huir?\n\nLa idea cruzó su mente como un relámpago.\n\nLa puerta estaba ahí. Abierta. Solo un hueco oscuro que daba al exterior. Podía levantarse. Podía correr.\n\n¿A dónde?\n\nNo conocía el valle. No sabía dónde estaba. No hablaba el idioma. No tenía comida. No tenía abrigo. El frío afuera era peor que aquí dentro. Y las guerreras... las guerreras la encontrarían. La cazarían como a un animal. Y la traerían de vuelta. O la matarían.\n\n¿Pelear?", "editado": "¿Huir?\n\nLa puerta. Ahí. Hueco oscuro. Exterior.\n\nPodía levantarse. Podía correr.\n\n¿A dónde?\n\nValle desconocido. Idioma extraño. Sin comida. Sin abrigo.\n\nEl frío afuera. Peor. Mucho peor.\n\nY las guerreras. La encontrarían. La cazarían. Animal. La traerían de vuelta.\n\nO la matarían.\n\n¿Pelear?", "justificacion": "Transformado el pensamiento de Ana en fragmentos más primitivos y caóticos, apropiados para alguien en hipotermia severa. Eliminadas las frases completas y lógicas ('La idea cruzó su mente como un relámpago', 'No conocía el valle') por imágenes y palabras sueltas que reflejan mejor su estado físico deteriorado.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710518Z", "user_decision": null}, {"change_id": "ch3-change-032", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "transicion", "original": "Y entonces, sin querer, vino el recuerdo.\n\nSu casa.", "editado": "Y entonces, sin querer, el olor del heno le trajo algo.\n\nUn recuerdo.\n\nSu casa.", "justificacion": "Anclado el flashback a un trigger sensorial específico (el olor del heno) para hacer la transición más orgánica y justificar por qué su mente va allí en este momento extremo. Esto conecta el presente físico con el recuerdo de manera más natural.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710543Z", "user_decision": null}, {"change_id": "ch3-change-033", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "claridad", "original": "Recordó su voz. Cantaba. Canciones viejas que Ana no entendía pero que la hacían sentir segura.\n\n¿Cuántos años habían pasado?", "editado": "Recordó su voz. Cantaba. Canciones viejas que Ana no entendía pero que la hacían sentir segura.\n\nTenía seis años entonces.\n\n¿Cuántos años habían pasado?", "justificacion": "Añadida referencia temporal clara ('Tenía seis años entonces') para anclar al lector en la edad de Ana. Esto permite visualizar mejor al personaje y entender la línea temporal sin romper la voz narrativa.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710565Z", "user_decision": null}, {"change_id": "ch3-change-034", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "transicion", "original": "El temblor se volvió más violento. Ana jadeaba. El ruido que hacía era involuntario. Gemidos ahogados que salían de su garganta. El castañeo de sus dientes. El roce de su cuerpo sacudiéndose contra la roca.\n\nEntonces, algo más se movió en la oscuridad.", "editado": "El temblor se volvió más violento. Ana jadeaba. El ruido que hacía era involuntario. Gemidos ahogados que salían de su garganta. El castañeo de sus dientes. El roce de su cuerpo sacudiéndose contra la roca.\n\nLos fragmentos de piel muerta aún en sus manos.\n\nEl olor a heno.\n\nEl frío.\n\nEntonces, algo más se movió en la oscuridad.", "justificacion": "Añadidas líneas de transición que muestran el estado presente de Ana (fragmentos en manos, olor a heno, frío) antes de que el Cuernomuro se mueva. Esto reconecta al lector con el presente físico después del flashback emocional y suaviza la transición.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710586Z", "user_decision": null}, {"change_id": "ch3-change-035", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "show_tell", "original": "Ana retrocedió.\n\nSe arrastró hacia atrás, empujándose con los codos y los talones. Su espalda chocó contra la pared. No había más espacio. Estaba acorralada.", "editado": "Ana intentó retroceder.\n\nSe empujó con los codos. Los talones rasparon la roca. Pero sus músculos apenas respondían. El frío los había vuelto torpes, lentos. Se arrastró centímetros cuando quería metros. Su espalda chocó contra la pared. No había más espacio. Estaba acorralada.", "justificacion": "Mostrado que el movimiento le cuesta más de lo que quisiera, respetando su estado de hipotermia severa establecido. 'Intentó' en lugar de 'retrocedió' y la descripción de músculos que apenas responden mantiene la credibilidad física de la escena.", "impacto_narrativo": "medio", "status": "accepted", "created_at": "2025-12-11T14:05:12.710606Z", "user_decision": null}, {"change_id": "ch3-change-036", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "show_tell", "original": "Entonces, el Cuernomuro se giró.\n\nLe dio la espalda a Ana.\n\nCaminó hacia la entrada. Cada paso sacudía el suelo. Llegó hasta el hueco abierto donde el viento entraba sin piedad.\n\nY se detuvo ahí.\n\nSe echó. Lentamente. Primero las patas delanteras, doblándose con un crujido de articulaciones. Luego las traseras. Su cuerpo inmenso bloqueó casi por completo la entrada.", "editado": "Entonces, el Cuernomuro se giró.\n\nLe dio la espalda a Ana.\n\nCaminó hacia la entrada. Cada paso sacudía el suelo. Llegó hasta el hueco abierto donde el viento entraba sin piedad.\n\nY se detuvo ahí.\n\nSe echó. Lentamente. Primero las patas delanteras, doblándose con un crujido de articulaciones. Luego las traseras.\n\nAna parpadeó.\n\nEl cuerpo inmenso de la bestia bloqueó casi por completo la entrada.", "justificacion": "Ralentizado el momento crucial añadiendo 'Ana parpadeó' para mostrar su procesamiento gradual de lo que está sucediendo. Este beat permite que el lector sienta el peso emocional del acto de protección del Cuernomuro antes de explicar el resultado.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710626Z", "user_decision": null}, {"change_id": "ch3-change-037", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 1, "word_start": 1163, "word_end": 1177, "context_before": "hacia Ana. La miró por encima del hombro peludo.", "context_after": "Entre sus patas delanteras y su vientre. Un hueco"}, "tipo": "claridad", "original": "Luego, con un movimiento de su hocico, señaló un lugar cerca de su estómago.", "editado": "Luego movió el hocico hacia abajo. Una vez. Dos veces. Señalando un lugar cerca de su estómago.", "justificacion": "Especificado el gesto del Cuernomuro para que el lector pueda visualizarlo claramente. El movimiento repetido del hocico hacia abajo es más concreto que 'un movimiento de su hocico' y hace la comunicación entre Ana y el animal más creíble.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.710691Z", "user_decision": null}, {"change_id": "ch3-change-038", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 0, "word_start": 0, "word_end": 0, "context_before": "", "context_after": ""}, "tipo": "show_tell", "original": "Ana llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor. Un calor denso, vivo, que parecía vibrar con cada respiración de la bestia.\n\nSe acercó más. Se deslizó en ese espacio entre las patas delanteras y el vientre. El olor era fuerte. A animal, a sudor, a grasa rancia. Pero no le importó.", "editado": "Ana llegó hasta su costado. El pelaje era áspero, aceitoso, pero emanaba calor. Un calor denso, vivo, que parecía vibrar con cada respiración de la bestia.\n\nSe acercó más. Se deslizó en ese espacio entre las patas delanteras y el vientre. El olor era fuerte. A animal, a sudor, a grasa rancia.\n\nPero el calor la envolvió.", "justificacion": "Eliminado 'pero no le importó' que le dice al lector cómo sentir. Las acciones de Ana (acercarse más, deslizarse) ya muestran que no le importa el olor. Reemplazado con sensación física del calor que es más inmersivo.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.710712Z", "user_decision": null}, {"change_id": "ch3-change-039", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 1, "word_start": 1408, "word_end": 1446, "context_before": "que no tuviera refugio.\nPero Ana estaba caliente.", "context_after": "Se durmió.\nProfundamente.\nCómodamente.\nJunto a la"}, "tipo": "show_tell", "original": "Por primera vez desde que la habían arrancado de esa choza en el valle de abajo, Ana no sentía dolor. No sentía miedo. No sentía nada más que el calor del animal protegiéndola del mundo que quería matarla.", "editado": "No había dolor. No había miedo. Solo calor. Solo esto.", "justificacion": "Eliminada la explicación excesiva que rompe la voz poética. La versión editada es más sutil y poderosa, permitiendo que el lector haga la conexión con todo el sufrimiento anterior de Ana sin que se lo digan explícitamente. Mantiene el estilo poético del autor.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710790Z", "user_decision": null}, {"change_id": "ch3-change-040", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 1, "word_start": 1450, "word_end": 1466, "context_before": "a matarla.\nSe durmió.\nProfundamente.\nCómodamente.", "context_after": ""}, "tipo": "show_tell", "original": "Junto a la bestia que le había salvado la vida sin que nadie se lo pidiera.", "editado": "Junto a la bestia.", "justificacion": "Eliminada la línea explicativa que subestima la inteligencia del lector. Ya hemos visto toda la escena del Cuernomuro protegiéndola voluntariamente. El silencio después de toda la intensidad del capítulo es más poderoso y respeta el estilo poético del autor.", "impacto_narrativo": "alto", "status": "accepted", "created_at": "2025-12-11T14:05:12.710876Z", "user_decision": null}, {"change_id": "ch3-change-041", "chapter_id": 3, "chapter_title": "Capítulo 3", "position": {"paragraph_index": 1, "word_start": 158, "word_end": 166, "context_before": "raspaba su piel con cada centímetro que avanzaba.", "context_after": "Estaba tiesa, curtida por años de uso y abandono."}, "tipo": "redundancia", "original": "Llegó hasta la piel. Era vieja, muy vieja.", "editado": "Llegó hasta la piel. Era vieja, muy vieja.", "justificacion": "Mantenido sin cambios. La repetición 'vieja, muy vieja' es intencional y efectiva para el ritmo poético del autor.", "impacto_narrativo": "bajo", "status": "accepted", "created_at": "2025-12-11T14:05:12.710890Z", "user_decision": null}], "decision_stats": {"accepted": 41, "rejected": 1, "pending": 0, "total": 42, "updated_at": "2025-12-11T19:48:17.264675Z"}}
+{
+  "total_changes": 28,
+  "changes_by_type": {
+    "redundancia": 11,
+    "verbo_debil": 5,
+    "claridad": 2,
+    "show_tell": 7,
+    "ritmo": 2,
+    "voz": 1
+  },
+  "changes": [
+    {
+      "change_id": "ch1-change-000",
+      "chapter_id": 1,
+      "chapter_title": "Capítulo 1",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 48,
+        "word_end": 60,
+        "context_before": "de la hermana pequeña. La niña estalló en llanto.",
+        "context_after": "Su mirada desprendía ira y diversión.\nLa puerta d"
+      },
+      "tipo": "redundancia",
+      "original": "Levantó su caballo de madera y lo volvió a descargar sobre ella.",
+      "editado": "Levantó su caballo de madera y lo descargó sobre ella.",
+      "justificacion": "El 'volvió a' es redundante porque ya establecimos que hubo un primer golpe. La repetición no añade valor y ralentiza el ritmo de la violencia.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154596Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch1-change-001",
+      "chapter_id": 1,
+      "chapter_title": "Capítulo 1",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 289,
+        "word_end": 298,
+        "context_before": "transformando la furia roja en un pánico pálido.",
+        "context_after": "La esposa entró en la habitación gritando cosas q"
+      },
+      "tipo": "redundancia",
+      "original": "El juguete cayó de su mano muerta de miedo.",
+      "editado": "El juguete cayó de su mano.",
+      "justificacion": "La frase 'muerta de miedo' es un cliché que debilita la imagen. Ya establecimos el pánico pálido en la oración anterior; la caída del juguete muestra el miedo sin necesidad de explicarlo.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154650Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch1-change-002",
+      "chapter_id": 1,
+      "chapter_title": "Capítulo 1",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 358,
+        "word_end": 383,
+        "context_before": "mbre trastabilló, retrocediendo dos pasos torpes;",
+        "context_after": "Ana no lo pensó. El instinto se impuso. Se lanzó"
+      },
+      "tipo": "redundancia",
+      "original": "alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada por depredadores superiores.",
+      "editado": "alzó el escudo frente a su rostro, no con la postura de un guerrero, sino con el temblor de una presa acorralada.",
+      "justificacion": "'Por depredadores superiores' es redundante. Si es una presa acorralada, ya implica que hay depredadores superiores. La eliminación fortalece la imagen sin perder significado.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154686Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch1-change-003",
+      "chapter_id": 1,
+      "chapter_title": "Capítulo 1",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 462,
+        "word_end": 481,
+        "context_before": "ones de piel; llevaban la parte alta descubierta.",
+        "context_after": "El Amo lanzó un tajo desesperado, un golpe ciego"
+      },
+      "tipo": "redundancia",
+      "original": "Lo único que protegía sus pieles eran varias tiras de cuero crudo que se enrollaban alrededor de su pecho.",
+      "editado": "Lo único que protegía sus pieles eran varias tiras de cuero crudo enrolladas alrededor de su pecho.",
+      "justificacion": "Cambio de voz pasiva ('que se enrollaban') a participio ('enrolladas') para hacer la descripción más directa y económica, manteniendo el estilo minimalista.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154724Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch1-change-004",
+      "chapter_id": 1,
+      "chapter_title": "Capítulo 1",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 946,
+        "word_end": 971,
+        "context_before": "del Amo se sacudió una vez. Luego quedó inmóvil.",
+        "context_after": "El olor a cobre inundó la habitación, mezclándose"
+      },
+      "tipo": "verbo_debil",
+      "original": "La sangre brotó. No como en las historias. Era espesa, oscura, expandiéndose en un charco lento que reptaba por las grietas del suelo de madera.",
+      "editado": "La sangre brotó. No como en las historias. Espesa, oscura, expandiéndose en un charco lento que reptaba por las grietas del suelo de madera.",
+      "justificacion": "Eliminación del verbo débil 'era' para convertir la descripción en más inmediata y visceral. La sangre no 'es' espesa, simplemente lo es en la percepción directa.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154814Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-005",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 14,
+        "word_end": 25,
+        "context_before": "podía parar de temblar. Era lo único que sentía.",
+        "context_after": ", y sus nuevos captores parecían ignorarlo.\nAna mo"
+      },
+      "tipo": "verbo_debil",
+      "original": "El frío a su alrededor poco a poco la iba matando",
+      "editado": "El frío la mataba poco a poco",
+      "justificacion": "Elimina la perífrasis verbal 'iba matando' por un verbo más directo y activo. Mejora el ritmo y la inmediatez.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154831Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-006",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 67,
+        "word_end": 75,
+        "context_before": "día sus huesos como si fueran piedras en un saco.",
+        "context_after": ", solo que era inmenso y que olía a grasa rancia,"
+      },
+      "tipo": "redundancia",
+      "original": "No sabía qué era lo que la cargaba",
+      "editado": "No sabía qué la cargaba",
+      "justificacion": "Elimina la construcción redundante 'era lo que'. Más directo y minimalista, acorde al estilo.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154842Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-007",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 250,
+        "word_end": 257,
+        "context_before": "bajo su mejilla era áspero, aceitoso, pero tibio.",
+        "context_after": "Intentó abrir los ojos. Los párpados no obedecier"
+      },
+      "tipo": "redundancia",
+      "original": "Era lo único tibio en el mundo.",
+      "editado": "Lo único tibio en el mundo.",
+      "justificacion": "Elimina el verbo copulativo débil 'era' para mayor impacto. La frase gana fuerza declarativa.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154862Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-008",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 884,
+        "word_end": 896,
+        "context_before": "ndolos en la nieve con un sonido sordo y rítmico.",
+        "context_after": "No tenía rostro.\nO sí, pero no era un rostro que"
+      },
+      "tipo": "redundancia",
+      "original": "Cada vez que se apoyaba, la tierra temblaba levemente bajo el peso.",
+      "editado": "Cada vez que se apoyaba, la tierra temblaba bajo el peso.",
+      "justificacion": "Elimina 'levemente' porque 'temblaba' ya comunica la intensidad adecuada. El adverbio debilita la imagen.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154915Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-009",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 972,
+        "word_end": 980,
+        "context_before": "on en los suyos. Inmóviles. Vacíos. Pero atentos.",
+        "context_after": ", diminutos, casi invisibles.\nAna no pudo moverse."
+      },
+      "tipo": "redundancia",
+      "original": "Eran dos puntos negros hundidos en cuencas profundas",
+      "editado": "Dos puntos negros hundidos en cuencas profundas",
+      "justificacion": "Elimina 'Eran' para mayor inmediatez. Mantiene el ritmo entrecortado característico del estilo.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.154977Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-010",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 1141,
+        "word_end": 1156,
+        "context_before": "riatura que se alejaba entre la neblina de nieve.",
+        "context_after": "La neblina se abrió como una cortina rasgada.\nAna"
+      },
+      "tipo": "redundancia",
+      "original": "Hasta que detrás de esa nieve, la cumbre de la montaña finalmente empezaba a dibujarse.",
+      "editado": "Hasta que detrás de esa nieve, la cumbre de la montaña empezaba a dibujarse.",
+      "justificacion": "Elimina 'finalmente' que es redundante con 'Hasta que'. El adverbio no añade valor narrativo.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155055Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-011",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 1202,
+        "word_end": 1213,
+        "context_before": "marillentas, agrietadas por el tiempo y el hielo.",
+        "context_after": "Cada una medía lo que tres hombres puestos de pie"
+      },
+      "tipo": "redundancia",
+      "original": "No eran huesos de animales que Ana conociera. Eran demasiado grandes.",
+      "editado": "No eran huesos de animales que Ana conociera. Demasiado grandes.",
+      "justificacion": "Elimina 'Eran' para mantener el ritmo entrecortado y minimalista. La segunda frase gana impacto como fragmento.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155123Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-012",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 1408,
+        "word_end": 1414,
+        "context_before": "e la boca. El pecho le ardía con cada inhalación.",
+        "context_after": ", delgado, insuficiente, mezquino.\nSu cabeza palpi"
+      },
+      "tipo": "verbo_debil",
+      "original": "Era el aire de la altura",
+      "editado": "El aire de la altura",
+      "justificacion": "Elimina el verbo copulativo débil. La frase funciona mejor como fragmento explicativo directo.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155200Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-013",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 1658,
+        "word_end": 1665,
+        "context_before": "abía nada en la cima. Solo piedra, hielo y cielo.",
+        "context_after": "Y justo debajo, en esta cicatriz de valle, vivía"
+      },
+      "tipo": "verbo_debil",
+      "original": "Era el punto más alto del mundo.",
+      "editado": "El punto más alto del mundo.",
+      "justificacion": "Elimina 'Era' para mayor fuerza declarativa. Mantiene consistencia con el estilo minimalista.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155290Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-014",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 1786,
+        "word_end": 1796,
+        "context_before": "el viento.\nHumo brotaba de aberturas en el techo.",
+        "context_after": "Olía a grasa quemada y a algo ácido que le raspab"
+      },
+      "tipo": "verbo_debil",
+      "original": "No era humo de leña. Era más denso, más oscuro.",
+      "editado": "No era humo de leña. Más denso, más oscuro.",
+      "justificacion": "Elimina el segundo 'Era' para evitar repetición y mantener el ritmo fragmentado característico.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155376Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch2-change-015",
+      "chapter_id": 2,
+      "chapter_title": "Capítulo 2",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 1904,
+        "word_end": 1914,
+        "context_before": "fuera que le habían dado de beber, pero presente.",
+        "context_after": "Abrió los ojos una vez más.\nEl valle se extendía"
+      },
+      "tipo": "redundancia",
+      "original": "Como una amenaza esperando el momento de volver a atacar.",
+      "editado": "Una amenaza esperando el momento de volver a atacar.",
+      "justificacion": "Elimina 'Como' para convertir la comparación en declaración directa, más visceral y minimalista.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155477Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-016",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "claridad",
+      "original": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\n\nNo era una casa.",
+      "editado": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo que parecía ser su hogar.\n\nLa luz había cambiado dos veces desde el secuestro.\n\nNo era una casa.",
+      "justificacion": "Añade ancla temporal sin romper el minimalismo. El lector necesita saber cuánto tiempo ha pasado. La frase es concreta y sensorial, apropiada para el estilo.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155526Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-017",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "show_tell",
+      "original": "El Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\n\nLa guerrera desmontó.",
+      "editado": "El Cuernomuro entró sin que nadie lo guiara. Conocía el lugar. Se detuvo en el centro, resoplando por la nariz, expulsando dos columnas de vapor que se disolvieron en el aire frío.\n\nAna sintió algo helado en el estómago. La bestia conocía el camino.\n\nLa guerrera desmontó.",
+      "justificacion": "Filtra el horror de la rutina a través de la consciencia de Ana. La bestia conoce el lugar = esto ha pasado antes = Ana es una más. El impacto emocional se amplifica con su reacción física mínima.",
+      "impacto_narrativo": "alto",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155555Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-018",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "show_tell",
+      "original": "Ana captó fragmentos.\n\n\"...khora...\" (¿Bueno? ¿Útil?)\n\n\"...dravik...\" (¿Hierro? ¿Metal?)\n\n\"...skan...\" (No tenía idea.)",
+      "editado": "Ana captó fragmentos.\n\n\"...khora...\"\n\n\"...dravik...\"\n\n\"...skan...\"\n\nNo tenía idea.",
+      "justificacion": "Elimina paréntesis explicativos que rompen inmersión. El contexto ya comunica que están evaluando objetos. La incertidumbre de Ana es más poderosa sin traducciones. La última línea se mantiene porque refuerza su alienación.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155578Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-019",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "ritmo",
+      "original": "Comenzaron a descargar.\n\nSacos de arpillera llenos de grano robado.",
+      "editado": "Comenzaron a descargar.\n\nAna intentó cambiar de posición. Las cuerdas se tensaron. Se quedó quieta.\n\nSacos de arpillera llenos de grano robado.",
+      "justificacion": "Intercala el sufrimiento de Ana durante la descarga. Mantiene al lector consciente de su presencia física y objetificación. Evita que el lector olvide que ella está ahí, atada y sufriendo.",
+      "impacto_narrativo": "alto",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155598Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-020",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "show_tell",
+      "original": "Nadie la miraba.\n\nDescargaron un barril pequeño.",
+      "editado": "Nadie la miraba.\n\nAna podía gritar. Podía llorar. No cambiaría nada.\n\nDescargaron un barril pequeño.",
+      "justificacion": "Conecta la línea poderosa 'Nadie la miraba' con la experiencia emocional de Ana. Muestra el horror de la invisibilidad: su sufrimiento es irrelevante. Mantiene la brevedad minimalista.",
+      "impacto_narrativo": "alto",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155621Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-021",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 445,
+        "word_end": 460,
+        "context_before": "Era el sonido de quien comparte un chiste cruel.",
+        "context_after": "El Cuernomuro resopló otra vez. Movió la cabeza,"
+      },
+      "tipo": "voz",
+      "original": "Ana existía al borde de su visión. Un bulto atado. Un objeto más del saqueo.",
+      "editado": "Para ellos, Ana era un bulto atado. Un objeto más del saqueo.",
+      "justificacion": "La frase 'existía al borde de su visión' es más poética que el resto del capítulo. El minimalismo ha sido más brutal. Esta versión es más directa y mantiene el impacto sin sonar literaria.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155652Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-022",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "ritmo",
+      "original": "Sacó un cuchillo de hueso de su cinturón.\n\nAna se puso rígida.\n\nLa mujer no dijo nada.",
+      "editado": "Sacó un cuchillo de hueso de su cinturón.\n\nAna se puso rígida.\n\nEl cuchillo era de hueso amarillento. Ana vio las muescas en el filo. Vio la mano de la mujer acercarse.\n\nLa mujer no dijo nada.",
+      "justificacion": "Estira el momento de tensión. El lector necesita tiempo para temer lo peor (¿la va a matar?). Los detalles sensoriales del cuchillo amplifican la ansiedad antes de que se resuelva la acción.",
+      "impacto_narrativo": "alto",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155674Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-023",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "show_tell",
+      "original": "Ana cayó.\n\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.",
+      "editado": "Ana cayó.\n\nEl mundo se inclinó. El suelo subió hacia ella.\n\nNo hubo advertencia. No hubo manos que la recibieran. Solo gravedad.",
+      "justificacion": "Captura el vértigo del momento de ingravidez antes del impacto. Hay una fracción de segundo de pánico puro entre la cuerda cortada y el golpe. Estamos en su cabeza; podemos mostrar ese terror.",
+      "impacto_narrativo": "medio",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155716Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-024",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 581,
+        "word_end": 620,
+        "context_before": ". No hubo manos que la recibieran. Solo gravedad.",
+        "context_after": "Quedó tendida de costado, con la mejilla contra l"
+      },
+      "tipo": "show_tell",
+      "original": "Su cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió. Dolor agudo le atravesó el brazo.",
+      "editado": "Su cuerpo golpeó el suelo de roca volcánica con un impacto sordo. El aire salió de sus pulmones en un jadeo estrangulado. El hombro izquierdo absorbió la mayor parte del golpe. Algo crujió.",
+      "justificacion": "Elimina 'Dolor agudo le atravesó el brazo' porque es explicativo. El crujido es suficiente; el lector entiende el horror. El minimalismo pide confiar en el lector para llenar los espacios.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155758Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-025",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 620,
+        "word_end": 639,
+        "context_before": "e. Algo crujió. Dolor agudo le atravesó el brazo.",
+        "context_after": "Intentó moverse. Las manos aún estaban atadas. La"
+      },
+      "tipo": "claridad",
+      "original": "Quedó tendida de costado, con la mejilla contra la piedra fría y áspera. Sabía a polvo y a ceniza.",
+      "editado": "Quedó tendida de costado, con la mejilla contra la piedra fría y áspera. El polvo sabía a ceniza.",
+      "justificacion": "Clarifica que es el polvo (que respira) lo que sabe a ceniza, no su mejilla. Elimina microsegundo de confusión sintáctica sin perder brevedad.",
+      "impacto_narrativo": "bajo",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155793Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-026",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "show_tell",
+      "original": "La mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\n\nLuego se dio la vuelta y salió del cobertijo.",
+      "editado": "La mujer no tenía expresión. No había crueldad en su rostro. Tampoco piedad. Solo una evaluación fría, como quien mira un animal recién comprado y decide si vale la pena alimentarlo.\n\nAna deseó que la mujer la odiara. El odio era humano. Esto no lo era.\n\nLuego se dio la vuelta y salió del cobertijo.",
+      "justificacion": "Procesa emocionalmente el horror de la indiferencia a través de Ana. La indiferencia es más aterradora que la crueldad, pero necesitamos que Ana (y el lector) sientan eso. Momento crucial de caracterización.",
+      "impacto_narrativo": "alto",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155819Z",
+      "user_decision": null
+    },
+    {
+      "change_id": "ch3-change-027",
+      "chapter_id": 3,
+      "chapter_title": "Capítulo 3",
+      "position": {
+        "paragraph_index": 0,
+        "word_start": 0,
+        "word_end": 0,
+        "context_before": "",
+        "context_after": ""
+      },
+      "tipo": "show_tell",
+      "original": "Ana también cerró los suyos.\n\nY se quedó dormida.",
+      "editado": "Ana también cerró los suyos.\n\nNo tenía fuerzas para llorar. No tenía fuerzas para tener miedo. No tenía fuerzas para nada.\n\nY se quedó dormida.",
+      "justificacion": "Justifica la transición abrupta al sueño. Ana acaba de ser secuestrada, golpeada, evaluada como ganado. El lector necesita entender que esto es colapso por agotamiento total, no simplemente 'se durmió'. Puente emocional necesario.",
+      "impacto_narrativo": "alto",
+      "status": "pending",
+      "created_at": "2025-12-12T19:10:05.155839Z",
+      "user_decision": null
+    }
+  ]
+}

@@ -69,20 +69,31 @@ export default function Insights() {
   );
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-50 p-8">
+    <div className="h-full overflow-y-auto bg-theme-bg p-8">
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="mb-8 bg-theme-paper p-6 rounded border border-theme-border">
+          <div className="flex items-center gap-3 mb-3">
             <BarChart3 className="w-8 h-8 text-theme-primary" />
-            <h1 className="font-editorial text-4xl font-bold text-gray-900">
-              Insights de LYA 6.0
+            <h1 className="font-editorial text-4xl font-bold text-theme-text">
+              Informe de Análisis Narrativo
             </h1>
           </div>
-          <p className="text-gray-600">
-            Análisis avanzado de arco emocional, detección sensorial y estadísticas de refinamiento.
-          </p>
+
+          {/* Descripción Editorial */}
+          <div className="border-l-4 border-theme-primary pl-4 py-2 bg-gray-50">
+            <p className="text-theme-subtle text-sm leading-relaxed mb-2">
+              Este informe presenta dos métricas clave extraídas mediante análisis computacional de tu manuscrito:
+            </p>
+            <ul className="text-theme-subtle text-sm space-y-1 ml-4">
+              <li><strong>Arco Emocional:</strong> Detecta el patrón de tensión/valencia emocional a lo largo de la narrativa usando modelos de sentiment analysis.</li>
+              <li><strong>Show vs Tell:</strong> Mide la densidad de lenguaje sensorial (visual, táctil, auditivo) versus lenguaje abstracto/expositivo.</li>
+            </ul>
+            <p className="text-xs text-gray-500 mt-3 italic">
+              Nota: Estos datos son herramientas de diagnóstico, no prescripciones. Úsalos como punto de partida para decisiones editoriales conscientes.
+            </p>
+          </div>
 
           {/* Reflection Badge en el header */}
           {project?.reflection_stats && (

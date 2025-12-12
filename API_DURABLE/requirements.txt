@@ -1,6 +1,4 @@
-# =============================================================================
-# LYA 6.0 - Requirements
-# =============================================================================
+--extra-index-url https://download.pytorch.org/whl/cpu
 
 # Azure Core
 azure-functions>=1.21.0
@@ -16,6 +14,8 @@ python-docx>=0.8.11
 pdfplumber>=0.9.0
 
 # NLP & ML (LYA 6.0)
+# Se especifica la versión CPU implícitamente por el index-url, 
+# pero transformers y torch siguen siendo pesados.
 transformers>=4.30.0
 torch>=2.0.0
 numpy>=1.24.0

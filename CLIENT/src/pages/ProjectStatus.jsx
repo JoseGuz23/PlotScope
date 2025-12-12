@@ -1,55 +1,48 @@
 // =============================================================================
-// ProjectStatus.jsx - TIMER INFALIBLE (ID Parsing Fallback)
+// ProjectStatus.jsx - DISEÑO LIMPIO & AUTORECARGA
 // =============================================================================
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext, Link } from 'react-router-dom'; // Agregado useOutletContext
 import { projectsAPI } from '../services/api';
 import {
   Upload, BookOpen, Search, FileText, Brain, Scroll,
   Map, Edit, Save, Loader2, Clock, AlertOctagon,
-  Terminal, StopCircle, ArrowRight, AlertTriangle, Check, Activity, Eye
+  StopCircle, ArrowRight, AlertTriangle, Check, Activity, Eye, Sparkles
 } from 'lucide-react';
 
 const PHASES = [
-  { key: 'upload', icon: Upload, label: 'Recepción', description: 'Carga inicial del archivo' },
-  { key: 'segment', icon: BookOpen, label: 'Segmentación', description: 'División estructural' },
-  { key: 'analyze1', icon: Search, label: 'Análisis Factual', description: 'Extracción de datos duros' },
-  { key: 'consolidate', icon: FileText, label: 'Consolidación', description: 'Unificación de hallazgos' },
-  { key: 'analyze2-3', icon: Brain, label: 'Análisis Profundo', description: 'Estructura y calidad' },
-  { key: 'emotional', icon: Activity, label: 'Arco Emocional', description: 'Análisis de sentiment (v6.0)', badge: 'NUEVO' },
-  { key: 'sensory', icon: Eye, label: 'Detección Sensorial', description: 'Show vs Tell (v6.0)', badge: 'NUEVO' },
-  { key: 'bible', icon: Scroll, label: 'Biblia Narrativa', description: 'Generación de guía maestra' },
-  { key: 'carta', icon: FileText, label: 'Carta Editorial', description: 'Feedback profesional' },
-  { key: 'notas', icon: Edit, label: 'Notas de Margen', description: 'Anotaciones contextuales' },
-  { key: 'arcs', icon: Map, label: 'Mapeo de Arcos', description: 'Trayectorias narrativas' },
-  { key: 'edit', icon: Edit, label: 'Edición IA', description: 'Corrección estilística + Reflection' },
-  { key: 'save', icon: Save, label: 'Finalización', description: 'Compilando entregables' },
+  { key: 'upload', icon: Upload, label: 'Recepción', description: 'Carga del manuscrito' },
+  { key: 'segment', icon: BookOpen, label: 'Segmentación', description: 'Estructura base' },
+  { key: 'analyze1', icon: Search, label: 'Análisis Factual', description: 'Datos y hechos' },
+  { key: 'consolidate', icon: FileText, label: 'Consolidación', description: 'Unificación' },
+  { key: 'analyze2-3', icon: Brain, label: 'Análisis Profundo', description: 'Estructura y Tono' },
+  { key: 'emotional', icon: Activity, label: 'Arco Emocional', description: 'Sentiment Analysis', badge: 'v6.0' },
+  { key: 'sensory', icon: Eye, label: 'Detección Sensorial', description: 'Show vs Tell', badge: 'v6.0' },
+  { key: 'bible', icon: Scroll, label: 'Biblia Narrativa', description: 'Documento Maestro' },
+  { key: 'carta', icon: FileText, label: 'Carta Editorial', description: 'Feedback Humano' },
+  { key: 'notas', icon: Edit, label: 'Notas de Margen', description: 'Contexto' },
+  { key: 'arcs', icon: Map, label: 'Arcos Narrativos', description: 'Trayectorias' },
+  { key: 'edit', icon: Edit, label: 'Edición Reflexiva', description: 'Corrección IA' },
+  { key: 'save', icon: Save, label: 'Finalización', description: 'Empaquetado' },
 ];
 
-// --- FUNCIÓN DE RESCATE: EXTRAER FECHA DEL ID ---
-// Formato esperado: UserID_YYYYMMDD_HHMMSS (Ej: 2110_20251210_204409)
+// --- HELPERS ---
 function extractDateFromId(id) {
   try {
     if (!id) return null;
     const parts = id.split('_');
-    // Buscamos las partes que parecen fecha y hora (normalmente indices 1 y 2)
     if (parts.length >= 3) {
-      const datePart = parts[1]; // 20251210
-      const timePart = parts[2]; // 204409
-      
+      const datePart = parts[1];
+      const timePart = parts[2];
       if (datePart.length === 8 && timePart.length >= 6) {
         const year = parseInt(datePart.substring(0, 4));
-        const month = parseInt(datePart.substring(4, 6)) - 1; // JS meses son 0-11
+        const month = parseInt(datePart.substring(4, 6)) - 1;
         const day = parseInt(datePart.substring(6, 8));
-        
         const hour = parseInt(timePart.substring(0, 2));
         const min = parseInt(timePart.substring(2, 4));
         const sec = parseInt(timePart.substring(4, 6));
-        
-        const generatedDate = new Date(year, month, day, hour, min, sec);
-        console.log("🕒 Fecha recuperada del ID:", generatedDate);
-        return generatedDate;
+        return new Date(year, month, day, hour, min, sec);
       }
     }
   } catch (e) {
@@ -67,11 +60,8 @@ function getPhaseIndex(customStatus) {
     if (s.includes('capa 1') || s.includes('factual')) return 2;
     if (s.includes('consolid')) return 3;
     if (s.includes('paralelo') || s.includes('layer2') || s.includes('estructur') || s.includes('qualitative')) return 4;
-
-    // Nuevas fases v6.0
     if (s.includes('emotional') || s.includes('emocional') || s.includes('fase 5.5')) return 5;
     if (s.includes('sensory') || s.includes('sensorial') || s.includes('fase 5.6')) return 6;
-
     if (s.includes('biblia') || s.includes('holistic') || s.includes('esperando')) return 7;
     if (s.includes('carta') || s.includes('editorial')) return 8;
     if (s.includes('notas') || s.includes('margin')) return 9;
@@ -79,81 +69,57 @@ function getPhaseIndex(customStatus) {
     if (s.includes('edici') || s.includes('edit') || s.includes('reflection')) return 11;
     if (s.includes('final') || s.includes('guard')) return 12;
 
-    // Si contiene "batch" pero no es Capa 1, intentar identificar contexto
     if (s.includes('batch')) {
       if (s.includes('arc_maps') || s.includes('arcs')) return 10;
       if (s.includes('notas') || s.includes('margin')) return 9;
       if (s.includes('edit') || s.includes('edicion')) return 11;
-      return 2; // Por defecto, batch es Capa 1
+      return 2; 
     }
-
     return 0;
-  }
+}
 
 export default function ProjectStatus() {
   const { id: projectId } = useParams();
   const navigate = useNavigate();
+  
+  // 1. OBTENER LA FUNCIÓN DE RECARGA DEL CONTEXTO
+  const { refreshProject } = useOutletContext(); 
   
   const [status, setStatus] = useState(null);
   const [projectCreatedAt, setProjectCreatedAt] = useState(null);
   const [error, setError] = useState(null);
   const [isTerminating, setIsTerminating] = useState(false);
   const [terminated, setTerminated] = useState(false);
-  const [logs, setLogs] = useState([]);
   const [currentPhase, setCurrentPhase] = useState(0);
   const [elapsedTime, setElapsedTime] = useState('00:00');
   
   const pollIntervalRef = useRef(null);
   const timerIntervalRef = useRef(null);
-  const logsContainerRef = useRef(null);
 
-  // 1. CARGA INICIAL ROBUSTA
+  // 1. CARGA INICIAL
   useEffect(() => {
-    console.log("🔍 Intentando extraer fecha del projectId:", projectId);
-
-    // Intento 1: Extraer del ID inmediatamente (Es lo más rápido y CORRECTO)
     const dateFromId = extractDateFromId(projectId);
     if (dateFromId) {
-      console.log("✅ Fecha extraída del ID:", dateFromId);
       setProjectCreatedAt(dateFromId);
     } else {
-      console.warn("⚠️ No se pudo extraer fecha del ID, usando fallback API");
-
-      // SOLO si no hay fecha del ID, consultar API como fallback
       projectsAPI.getById(projectId).then(data => {
-        console.log("📡 Respuesta API getById (fallback):", data);
         const apiDate = data?.created_at || data?.createdAt || data?.timestamp;
-        if (apiDate) {
-          console.log("✅ Fecha obtenida de API (fallback):", apiDate);
-          setProjectCreatedAt(new Date(apiDate));
-        } else {
-          console.warn("⚠️ API no retornó fecha válida");
-        }
-      }).catch(err => {
-        console.error("❌ Error consultando API:", err);
-      });
+        if (apiDate) setProjectCreatedAt(new Date(apiDate));
+      }).catch(err => console.error(err));
     }
   }, [projectId]);
 
-  // 2. POLLING Y TIMER (corregido para reiniciar cuando projectCreatedAt cambie)
+  // 2. POLLING
   useEffect(() => {
     checkStatus();
     pollIntervalRef.current = setInterval(checkStatus, 4000);
-
-    return () => {
-      clearInterval(pollIntervalRef.current);
-    };
+    return () => clearInterval(pollIntervalRef.current);
   }, [projectId]);
 
-  // 2B. TIMER SEPARADO - Solo depende de projectCreatedAt
+  // 3. TIMER
   useEffect(() => {
     if (!projectCreatedAt) return;
-
-    console.log("⏱️ Timer iniciado con fecha:", projectCreatedAt);
-
-    // Función de actualización del timer dentro del useEffect
     const tick = () => {
-      // Verificar condiciones de parada dentro del tick
       if (status?.is_completed || status?.is_failed || terminated) {
         if (timerIntervalRef.current) {
           clearInterval(timerIntervalRef.current);
@@ -161,35 +127,18 @@ export default function ProjectStatus() {
         }
         return;
       }
-
       const now = new Date();
       const diff = Math.floor((now.getTime() - projectCreatedAt.getTime()) / 1000);
-
       if (diff >= 0) {
         const m = Math.floor(diff / 60);
         const s = diff % 60;
         setElapsedTime(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
       }
     };
-
-    tick(); // Actualizar inmediatamente
+    tick();
     timerIntervalRef.current = setInterval(tick, 1000);
-
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-        timerIntervalRef.current = null;
-      }
-    };
-  }, [projectCreatedAt]); // Solo depende de projectCreatedAt
-
-  // 3. AUTO-SCROLL LOGS
-  useEffect(() => {
-    if (logsContainerRef.current) {
-        const container = logsContainerRef.current;
-        container.scrollTop = container.scrollHeight;
-    }
-  }, [logs]);
+    return () => clearInterval(timerIntervalRef.current);
+  }, [projectCreatedAt, status, terminated]);
 
   async function checkStatus() {
     if (terminated) return;
@@ -197,47 +146,36 @@ export default function ProjectStatus() {
       const data = await projectsAPI.getStatus(projectId);
       setStatus(data);
 
-      // Si aun no tenemos fecha y la API de status la trae, úsala
       if (!projectCreatedAt && (data.created_at || data.createdAt || data.startTime)) {
          const dateStr = data.created_at || data.createdAt || data.startTime;
          if (dateStr) setProjectCreatedAt(new Date(dateStr));
       }
       
-      // Logs
-      if (data.custom_status) {
-        setLogs(prev => {
-          const last = prev[prev.length - 1];
-          if (!last || last.message !== data.custom_status) {
-            return [...prev, { 
-              time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}), 
-              message: data.friendly_message || data.custom_status 
-            }].slice(-200);
-          }
-          return prev;
-        });
-      }
-
-      // Fases
       const newPhase = getPhaseIndex(data.custom_status);
       if (newPhase > 0) setCurrentPhase(newPhase);
       
-      // Finalización
+      // --- FINALIZACIÓN ---
       if (data.is_completed) {
         clearInterval(pollIntervalRef.current);
-        setTimeout(() => navigate(`/proyecto/${projectId}/editor`), 2000);
+        
+        // 2. FORZAR ACTUALIZACIÓN DEL CONTEXTO (Solución al F5)
+        await refreshProject(); 
+
+        // 3. REDIRIGIR A EDITOR
+        setTimeout(() => navigate(`/proyecto/${projectId}/editor`), 1000);
       }
       
       if (data.is_failed) {
         clearInterval(pollIntervalRef.current);
-        setError('El orquestador reportó un fallo crítico. Revise los logs.');
+        setError('El orquestador reportó un fallo crítico.');
       }
     } catch (err) { 
-        console.warn("Error polling status:", err);
+        console.warn("Polling error:", err);
     }
   }
 
   const handleStop = async () => {
-    if (!confirm('¿Desea detener el análisis permanentemente?')) return;
+    if (!confirm('¿Detener análisis permanentemente?')) return;
     setIsTerminating(true);
     try {
       await projectsAPI.terminate(projectId);
@@ -251,173 +189,149 @@ export default function ProjectStatus() {
   const isWaitingForBible = status?.custom_status?.toLowerCase().includes('esperando') || 
                             status?.custom_status?.toLowerCase().includes('waiting');
 
+  // --- RENDER ---
   return (
-    <div className="flex flex-col lg:flex-row items-start min-h-full">
+    <div className="min-h-screen bg-gray-50/50 p-8 lg:p-12 font-sans">
       
-      {/* SECCIÓN IZQUIERDA: DIAGRAMA */}
-      <div className="flex-1 w-full p-8 lg:p-12">
+      <div className="max-w-7xl mx-auto">
         
-         {/* HEADER */}
-         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-12 border-b border-gray-200 pb-8 gap-6">
-            <div className="max-w-3xl">
-               <h2 className="text-4xl font-editorial font-bold text-gray-900 leading-tight mb-3">
-                 {terminated ? 'Proceso Detenido' : status?.is_completed ? 'Análisis Completado' : status?.friendly_message || 'Iniciando sistema...'}
-               </h2>
-               <div className="flex items-center gap-3">
-                 <span className={`w-2.5 h-2.5 rounded-full ${status?.is_completed ? 'bg-green-500' : terminated ? 'bg-red-500' : 'bg-theme-primary animate-pulse'}`}></span>
-                 <p className="text-sm text-gray-500 font-mono uppercase tracking-widest">
-                    {status?.custom_status || 'Inicializando...'}
-                 </p>
-               </div>
-            </div>
+        {/* HEADER SUPERIOR */}
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+           <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-sm">
+                <span className={`relative flex h-2.5 w-2.5`}>
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${status?.is_completed ? 'bg-green-400' : terminated ? 'bg-red-400' : 'bg-theme-primary'}`}></span>
+                  <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${status?.is_completed ? 'bg-green-500' : terminated ? 'bg-red-500' : 'bg-theme-primary'}`}></span>
+                </span>
+                <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                  {status?.custom_status || 'Inicializando...'}
+                </span>
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl font-editorial font-bold text-gray-900 leading-tight">
+                {terminated ? 'Proceso Detenido' : status?.is_completed ? 'Análisis Completado' : status?.friendly_message || 'Iniciando LYA...'}
+              </h1>
+           </div>
 
-            <div className="flex items-center gap-6 shrink-0">
-               <div className="text-right">
-                 <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 flex items-center justify-end gap-1">
-                   <Clock className="w-3 h-3" /> Tiempo Total
-                 </div>
-                 <div className="text-3xl font-mono font-bold text-gray-800 tabular-nums">
-                    {/* Renderizado condicional del tiempo */}
+           {/* Timer y Acciones */}
+           <div className="flex flex-col items-end gap-4">
+              <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-lg border border-gray-200 shadow-sm">
+                 <Clock className="w-5 h-5 text-gray-400" />
+                 <div className="text-3xl font-mono font-bold text-gray-800 tracking-tight">
                     {projectCreatedAt ? elapsedTime : '--:--'}
                  </div>
-               </div>
+              </div>
 
-               {!status?.is_completed && !terminated && (
-                 <button 
-                    onClick={handleStop} 
-                    disabled={isTerminating}
-                    className="
-                      flex items-center gap-2 px-5 py-3 
-                      bg-white border-2 border-red-100 text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-700
-                      rounded-sm transition-all text-xs font-extrabold uppercase tracking-widest shadow-sm
-                    "
-                 >
-                    {isTerminating ? <Loader2 className="w-4 h-4 animate-spin" /> : <StopCircle className="w-4 h-4" />}
-                    Abortar
-                 </button>
-               )}
-            </div>
-        </div>
+              {!status?.is_completed && !terminated && (
+                <button 
+                  onClick={handleStop} 
+                  disabled={isTerminating}
+                  className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-widest flex items-center gap-2 px-2"
+                >
+                  {isTerminating ? <Loader2 className="w-3 h-3 animate-spin" /> : <StopCircle className="w-3 h-3" />}
+                  Cancelar Proceso
+                </button>
+              )}
+           </div>
+        </header>
 
-        {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-6 mb-10 text-red-800 font-bold flex items-center gap-4 text-lg shadow-sm animate-pulse">
-                <AlertOctagon className="w-6 h-6 shrink-0" /> {error}
-            </div>
-        )}
-
+        {/* ALERTA DE ACCIÓN (BIBLIA) */}
         {isWaitingForBible && (
-             <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+             <div className="mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
                 <Link 
                   to={`/proyecto/${projectId}/biblia`} 
-                  className="
-                    w-full md:w-auto inline-flex items-center justify-center gap-3
-                    bg-theme-primary text-white 
-                    px-8 py-5 rounded-md text-base font-bold uppercase tracking-widest
-                    shadow-xl shadow-theme-primary/30 hover:shadow-theme-primary/50
-                    hover:bg-theme-primary-hover
-                    transition-all transform hover:-translate-y-1 ring-4 ring-theme-primary/10
-                  "
+                  className="group relative w-full flex items-center justify-center gap-4 bg-gradient-to-r from-theme-primary to-purple-700 text-white px-8 py-8 rounded-xl shadow-2xl shadow-theme-primary/30 hover:shadow-theme-primary/50 transition-all transform hover:-translate-y-1 overflow-hidden"
                 >
-                   <AlertTriangle className="w-5 h-5 animate-bounce" /> 
-                   ACCIÓN REQUERIDA: REVISAR BIBLIA NARRATIVA
-                   <ArrowRight className="w-5 h-5" />
+                   <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors"></div>
+                   <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
+                   
+                   <div className="relative flex items-center gap-4">
+                     <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
+                        <Scroll className="w-8 h-8 text-white" />
+                     </div>
+                     <div className="text-left">
+                        <p className="text-xs font-bold text-purple-200 uppercase tracking-widest mb-1">Pausa Automática</p>
+                        <h3 className="text-2xl font-bold">Revisión de Biblia Narrativa Requerida</h3>
+                     </div>
+                     <ArrowRight className="w-6 h-6 ml-4 group-hover:translate-x-2 transition-transform" />
+                   </div>
                 </Link>
              </div>
         )}
+
+        {/* ERROR */}
+        {error && (
+            <div className="max-w-2xl mx-auto bg-red-50 border-l-4 border-red-500 p-6 mb-12 rounded-r-lg shadow-sm flex gap-4 items-start">
+               <AlertOctagon className="w-6 h-6 text-red-600 shrink-0 mt-1" />
+               <div>
+                 <h3 className="text-red-800 font-bold text-lg mb-1">Error del Sistema</h3>
+                 <p className="text-red-700">{error}</p>
+               </div>
+            </div>
+        )}
         
-        {/* GRID DE FASES */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+        {/* GRID DE FASES (PIPELINE) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative">
+            {/* Línea conectora visual (solo desktop) */}
+            <div className="hidden xl:block absolute top-12 left-0 w-full h-0.5 bg-gray-100 -z-10"></div>
+
             {PHASES.map((phase, idx) => {
                 const isCompleted = status?.is_completed || currentPhase > idx;
                 const isCurrent = !status?.is_completed && !terminated && currentPhase === idx;
 
                 return (
                     <div key={phase.key} className={`
-                        relative flex flex-col items-center text-center p-8 rounded-xl border-2 transition-all duration-300
-                        min-h-[220px] justify-center
+                        group relative flex flex-col p-6 rounded-2xl border transition-all duration-500 overflow-hidden
                         ${isCurrent 
-                            ? 'bg-white border-theme-primary shadow-2xl scale-[1.03] z-10' 
+                            ? 'bg-white border-theme-primary shadow-2xl scale-105 z-10 ring-4 ring-theme-primary/5' 
                             : isCompleted 
-                                ? 'bg-white border-green-200/60'
-                                : 'bg-white border-gray-100'}
-                        ${!isCompleted && !isCurrent ? 'opacity-40 grayscale' : ''}
+                                ? 'bg-white border-green-100 shadow-sm opacity-90 hover:opacity-100'
+                                : 'bg-gray-50 border-gray-100 opacity-60 grayscale'}
                     `}>
-                        <div className={`
-                            w-16 h-16 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-300
-                            ${isCompleted 
-                                ? 'bg-green-50 text-green-600' 
-                                : isCurrent 
-                                    ? 'bg-theme-primary text-white shadow-lg shadow-theme-primary/20' 
-                                    : 'bg-gray-50 text-gray-300'}
-                        `}>
-                            <phase.icon className="w-8 h-8" />
+                        {/* Indicador de estado superior */}
+                        <div className="flex justify-between items-start mb-4">
+                            <div className={`
+                                w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300
+                                ${isCompleted ? 'bg-green-100 text-green-600' : isCurrent ? 'bg-theme-primary text-white shadow-lg shadow-theme-primary/30' : 'bg-gray-200 text-gray-400'}
+                            `}>
+                                <phase.icon className="w-6 h-6" />
+                            </div>
+                            {isCompleted && <div className="bg-green-100 p-1 rounded-full"><Check className="w-4 h-4 text-green-600" /></div>}
+                            {isCurrent && <div className="bg-purple-100 p-1 rounded-full"><Loader2 className="w-4 h-4 text-theme-primary animate-spin" /></div>}
                         </div>
 
-                        <h3 className={`text-sm font-black uppercase tracking-widest mb-2 w-full text-balance
-                            ${isCompleted ? 'text-green-800' : isCurrent ? 'text-theme-primary' : 'text-gray-400'}`}>
-                            {phase.label}
-                        </h3>
-
-                        {phase.badge && (
-                            <div className="mb-2">
-                                <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-[9px] font-black uppercase tracking-widest rounded-full">
-                                    {phase.badge}
-                                </span>
-                            </div>
-                        )}
-
-                        <p className="text-xs text-gray-400 leading-relaxed max-w-[80%] text-balance">
-                            {phase.description}
-                        </p>
-
-                        <div className="absolute top-4 right-4">
-                            {isCompleted && <Check className="w-5 h-5 text-green-500" />}
-                            {isCurrent && (
-                                <span className="flex h-3 w-3">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme-primary opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-theme-primary"></span>
+                        {/* Contenido */}
+                        <div className="relative">
+                            <h3 className={`text-base font-bold mb-1 ${isCompleted ? 'text-gray-800' : isCurrent ? 'text-theme-primary' : 'text-gray-400'}`}>
+                                {phase.label}
+                            </h3>
+                            <p className="text-xs text-gray-500 leading-relaxed mb-3">
+                                {phase.description}
+                            </p>
+                            
+                            {/* Badges v6.0 */}
+                            {phase.badge && (
+                                <span className={`
+                                    inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider
+                                    ${isCurrent || isCompleted ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'bg-gray-200 text-gray-500'}
+                                `}>
+                                    <Sparkles className="w-2 h-2" /> {phase.badge}
                                 </span>
                             )}
                         </div>
+
+                        {/* Barra de progreso sutil para fase actual */}
+                        {isCurrent && (
+                           <div className="absolute bottom-0 left-0 h-1 bg-theme-primary/20 w-full">
+                              <div className="h-full bg-theme-primary animate-progress-indeterminate"></div>
+                           </div>
+                        )}
                     </div>
                 );
             })}
         </div>
+
       </div>
-
-      {/* LOGS - Mobile: abajo | Desktop: lateral derecho */}
-      <aside className="w-full lg:w-[380px] bg-[#0f172a] border-t lg:border-t-0 lg:border-l border-gray-800 shrink-0 flex flex-col shadow-2xl z-20
-          lg:sticky lg:top-[200px] h-[400px] lg:h-[calc(100vh-200px)]">
-         
-         <div className="bg-[#1e293b] px-6 py-4 border-b border-gray-700 flex justify-between items-center shrink-0">
-             <div className="flex items-center gap-3">
-                 <Terminal className="w-4 h-4 text-theme-primary" />
-                 <span className="text-gray-200 font-mono text-xs font-bold uppercase tracking-widest">System Output</span>
-             </div>
-             <div className="flex gap-2">
-                 <div className={`w-2 h-2 rounded-full ${status?.is_completed ? 'bg-green-500' : 'bg-gray-700'}`}></div>
-                 <div className={`w-2 h-2 rounded-full ${!status?.is_completed && !terminated ? 'bg-yellow-500 animate-pulse' : 'bg-gray-700'}`}></div>
-             </div>
-         </div>
-
-         <div 
-            ref={logsContainerRef}
-            className="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-[11px] custom-scrollbar bg-[#0f172a]"
-         >
-             {logs.length === 0 && (
-                <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-50 space-y-2">
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                    <p>Conectando con el orquestador...</p>
-                </div>
-             )}
-             {logs.map((log, i) => (
-                 <div key={i} className="flex flex-col border-l-2 border-transparent hover:border-theme-primary/50 pl-3 transition-colors duration-200">
-                     <span className="text-blue-400/60 font-bold text-[10px] mb-1">{log.time}</span>
-                     <span className="text-gray-300 break-words leading-relaxed">{log.message}</span>
-                 </div>
-             ))}
-         </div>
-      </aside>
     </div>
   );
 }

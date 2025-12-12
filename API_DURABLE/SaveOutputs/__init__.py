@@ -1,5 +1,5 @@
 # =============================================================================
-# SaveOutputs/__init__.py - LYA 5.3 (FULL + STABLE)
+# SaveOutputs/__init__.py - LYA 6.0 (FULL + STABLE)
 # =============================================================================
 
 import logging
@@ -97,14 +97,17 @@ def generate_changes_report_v5(chapters: list) -> str:
         logging.error(f"Error generando Reporte Cambios: {e}")
         return "# Error generando Reporte"
 
-# Mock para structure_changes si no existe el módulo
 def structure_changes_safe(consolidated):
     """Calcula estadísticas básicas de cambios."""
     try:
-        from .structure_changes import structure_changes
-        return structure_changes(consolidated)
-    except ImportError:
-        # Fallback simple si no existe el módulo
+        # Intento de importación local si existe módulo, sino fallback
+        try:
+            from .structure_changes import structure_changes
+            return structure_changes(consolidated)
+        except ImportError:
+            pass
+            
+        # Fallback simple
         total = 0
         changes_list = []
         for ch in consolidated:
@@ -122,7 +125,7 @@ def structure_changes_safe(consolidated):
 
 def main(input_data: Any) -> dict:
     """
-    Guarda todos los outputs del proceso LYA 5.0.
+    Guarda todos los outputs del proceso LYA 6.0.
     """
     logging.info(f"SaveOutputs Activity ejecutada. Tipo de input: {type(input_data)}")
     
@@ -138,7 +141,7 @@ def main(input_data: Any) -> dict:
     if not isinstance(payload, dict):
         raise Exception("El formato de datos de entrada es incorrecto.")
 
-    # 2. FIX DE VARIABLES: Inicialización temprana para evitar UnboundLocalError
+    # 2. FIX DE VARIABLES: Inicialización temprana
     structured_changes = {"total_changes": 0, "changes": []} 
     urls = {}
     
@@ -154,6 +157,11 @@ def main(input_data: Any) -> dict:
         carta_markdown = payload.get('carta_markdown', '')
         margin_notes = payload.get('margin_notes', {})
         
+        # --- NUEVOS COMPONENTES LYA 6.0 ---
+        emotional_arc_analysis = payload.get('emotional_arc_analysis', {})
+        sensory_detection_analysis = payload.get('sensory_detection_analysis', {})
+        reflection_stats = payload.get('reflection_stats', {})
+
         # Extraer métricas y tiempos
         statistics = payload.get('statistics', {})
         tiempos = payload.get('tiempos', {})
@@ -185,7 +193,7 @@ def main(input_data: Any) -> dict:
         # -----------------------------------------------------------------
 
         # A. Metadata
-        # Detectar estado real: Si hay carta editorial, el proceso "narrativo" terminó
+        # Detectar estado real
         final_status = 'completed' if carta_editorial else payload.get('status', 'processing')
         if final_status == 'success': final_status = 'completed'
 
@@ -205,12 +213,35 @@ def main(input_data: Any) -> dict:
         metadata = {
             'job_id': job_id,
             'book_name': book_name,
-            'project_name': original_project_name or book_name,  # Mantener compatibilidad
-            'version': 'LYA 5.3',
-            'created_at': original_created_at or datetime.now().isoformat(),  # Preservar original
+            'project_name': original_project_name or book_name,
+            'version': 'LYA 6.0', # <--- ACTUALIZADO A 6.0
+            'created_at': original_created_at or datetime.now().isoformat(),
             'status': final_status,
-            'counts': {'chapters': len(consolidated_chapters)}
+            'counts': {'chapters': len(consolidated_chapters)},
+            # --- FLAGS PARA FRONTEND LYA 6.0 ---
+            'has_emotional_analysis': bool(emotional_arc_analysis),
+            'has_sensory_analysis': bool(sensory_detection_analysis),
+            'global_metrics': sensory_detection_analysis.get('global_metrics', {})
         }
+
+        # --- AÑADIR DATOS COMPLETOS PARA FRONTEND LYA 6.0 ---
+        if emotional_arc_analysis:
+            metadata['emotional_arc_analysis'] = {
+                'chapter_arcs': emotional_arc_analysis.get('emotional_arcs', []),
+                'global_arc': emotional_arc_analysis.get('global_arc', {}),
+                'diagnostics': emotional_arc_analysis.get('diagnostics', [])
+            }
+
+        if sensory_detection_analysis:
+            metadata['sensory_detection_analysis'] = {
+                'chapter_details': sensory_detection_analysis.get('sensory_analyses', []),
+                'global_metrics': sensory_detection_analysis.get('global_metrics', {}),
+                'critical_issues': sensory_detection_analysis.get('critical_issues', [])
+            }
+
+        if reflection_stats:
+            metadata['reflection_stats'] = reflection_stats
+
         urls['metadata'] = upload_blob(f"{base_path}/metadata.json", metadata, 'application/json')
 
         # B. Biblia
@@ -223,7 +254,6 @@ def main(input_data: Any) -> dict:
         if carta_editorial:
             urls['carta_editorial_json'] = upload_blob(f"{base_path}/carta_editorial.json", carta_editorial, 'application/json')
         
-        # Prioridad de Markdown: Argumento directo > Texto dentro de JSON > Vacío
         md_content = carta_markdown
         if not md_content and isinstance(carta_editorial, dict):
             md_content = carta_editorial.get('texto_completo', '')
@@ -235,13 +265,11 @@ def main(input_data: Any) -> dict:
         if margin_notes:
             urls['notas_margen'] = upload_blob(f"{base_path}/notas_margen.json", margin_notes, 'application/json')
 
-        # E. Capítulos y Cambios (El núcleo de la edición)
+        # E. Capítulos y Cambios
         if consolidated_chapters:
             urls['capitulos'] = upload_blob(f"{base_path}/capitulos_consolidados.json", consolidated_chapters, 'application/json')
             
-            # Generar estructura de cambios
             logging.info("🔄 Estructurando cambios...")
-            # Usamos el input si viene calculado, o lo calculamos aquí
             if 'cambios_estructurados' in payload:
                 structured_changes = payload['cambios_estructurados']
             else:
@@ -249,17 +277,28 @@ def main(input_data: Any) -> dict:
             
             urls['cambios'] = upload_blob(f"{base_path}/cambios_estructurados.json", structured_changes, 'application/json')
             
-            # Reporte MD de cambios
             reporte_md = generate_changes_report_v5(consolidated_chapters)
             urls['reporte_cambios'] = upload_blob(f"{base_path}/reporte_cambios.md", reporte_md, 'text/markdown')
 
-        # F. Resumen Ejecutivo (JSON final para el frontend)
+        # --- F. NUEVOS ARCHIVOS LYA 6.0 ---
+        if emotional_arc_analysis:
+            urls['analisis_emocional'] = upload_blob(f"{base_path}/analisis_emocional.json", emotional_arc_analysis, 'application/json')
+            logging.info("✅ Guardado analisis_emocional.json")
+
+        if sensory_detection_analysis:
+            urls['deteccion_sensorial'] = upload_blob(f"{base_path}/deteccion_sensorial.json", sensory_detection_analysis, 'application/json')
+            logging.info("✅ Guardado deteccion_sensorial.json")
+
+        if reflection_stats:
+            urls['estadisticas_reflexion'] = upload_blob(f"{base_path}/estadisticas_reflexion.json", reflection_stats, 'application/json')
+
+        # G. Resumen Ejecutivo
         resumen = {
             'job_id': job_id,
             'book_name': book_name,
-            'version': 'LYA 5.3',
+            'version': 'LYA 6.0',
             'fecha_procesamiento': datetime.now().isoformat(),
-            'total_cambios': structured_changes.get('total_changes', 0), # <--- AHORA SEGURO
+            'total_cambios': structured_changes.get('total_changes', 0),
             'total_notas': len(margin_notes.get('all_notes', [])) if margin_notes else 0,
             'urls': urls
         }
@@ -276,5 +315,4 @@ def main(input_data: Any) -> dict:
 
     except Exception as e:
         logging.error(f"❌ Error en SaveOutputs: {str(e)}")
-        # Retorno de error controlado para no tumbar la orquestación si ya se guardó algo
         return {'status': 'error', 'error': str(e)}

@@ -1,5 +1,5 @@
 # =============================================================================
-# Orchestrator/__init__.py - LYA 6.0 "Editor Reflexivo"
+# Orchestrator/__init__.py - LYA 6.0 "Editor Reflexivo" (FULL VERSION)
 # =============================================================================
 # VERSIÓN 6.0 - NUEVAS CAPACIDADES:
 #   1. Reflection Loops: Edición iterativa con crítica (reduce alucinaciones 70%)
@@ -420,7 +420,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         tiempos = {}
         
         logging.info(f"{'#'*70}")
-        logging.info(f"#  LYA 5.1 FIX - DEVELOPMENTAL EDITOR AI")
+        logging.info(f"#  LYA 6.0 FIX - DEVELOPMENTAL EDITOR AI")
         logging.info(f"#  Job ID: {context.instance_id}")
         logging.info(f"#  Patch: Content Injection + Polling Adaptativo")
         logging.info(f"{'#'*70}")
@@ -576,6 +576,16 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 if isinstance(sensory_result, str):
                     sensory_result = json.loads(sensory_result)
 
+                global_metrics = sensory_result.get('global_metrics', {})
+                ratio = global_metrics.get('avg_showing_ratio', 0)
+                logging.info(f"📊 Showing Ratio Global: {ratio:.2%}")
+
+                # SAFETY STOP: 0% EXACTO ES UN ERROR TÉCNICO
+                if ratio <= 0.0000001:
+                    error_msg = "⛔ FATAL ERROR: Detección Sensorial devolvió 0% absoluto. Abortando para evitar datos corruptos."
+                    logging.error(error_msg)
+                    raise Exception(error_msg)
+
                 # Inyectar en consolidated para notas de margen
                 for chapter in consolidated:
                     chap_id = str(chapter.get('chapter_id'))
@@ -583,13 +593,11 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                                     if str(a.get('chapter_id')) == chap_id), {})
                     chapter['sensory_analysis'] = analysis
 
-                global_metrics = sensory_result.get('global_metrics', {})
                 logging.info(f"[OK] Detección sensorial completada")
-                logging.info(f"    Showing ratio global: {global_metrics.get('avg_showing_ratio', 0):.2%}")
 
             except Exception as e:
-                logging.error(f"[ERROR] Detección sensorial falló: {e}")
-                # Continuar sin análisis sensorial
+                logging.error(f"[ERROR CRÍTICO] Detección sensorial falló: {e}")
+                raise e # Detener orquestación
 
         t5_6 = context.current_utc_datetime
         tiempos['deteccion_sensorial'] = str(t5_6 - t5_5)
@@ -623,7 +631,10 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             'bible': bible,
             'consolidated_chapters': consolidated,
             'statistics': {}, 
-            'tiempos': tiempos
+            'tiempos': tiempos,
+            # Guardamos parciales para asegurar que existen antes de la aprobación
+            'emotional_arc_analysis': emotional_arc_result,
+            'sensory_detection_analysis': sensory_result
         }
         try:
             yield context.call_activity('SaveOutputs', pre_save_payload)
@@ -659,7 +670,8 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
         logging.info(f">>> FASE 8: NOTAS DE MARGEN")
         context.set_custom_status("Fase 8: Notas de margen...")
         
-        margin_result = yield from run_margin_notes_batch_optimized(context, fragments, carta_editorial, bible, book_metadata)
+        # FIX: USAR CONSOLIDATED EN LUGAR DE FRAGMENTS
+        margin_result = yield from run_margin_notes_batch_optimized(context, consolidated, carta_editorial, bible, book_metadata)
         margin_notes_by_chapter = {}
         for ch_result in margin_result.get('results', []):
             ch_id = str(ch_result.get('chapter_id', ch_result.get('fragment_id', '?')))

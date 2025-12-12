@@ -1,34 +1,34 @@
 {
   "identidad_obra": {
     "genero": "Fantasía Oscura (Grimdark)",
-    "subgenero": "Supervivencia / Drama de cautiverio",
-    "tono_predominante": "Visceral, opresivo, sensorial y sombrío",
-    "tema_central": "La fragilidad humana frente a la crueldad (humana y natural)",
-    "contrato_con_lector": "Una historia cruda sobre trauma y supervivencia extrema donde el entorno es tan antagonista como los captores, sin exposición (infodumping) innecesaria.",
+    "subgenero": "Supervivencia / Drama",
+    "tono_predominante": "Opresivo, visceral, desesperanzado y minimalista",
+    "tema_central": "La fragilidad humana frente a la brutalidad (social y natural)",
+    "contrato_con_lector": "Una historia cruda sobre el sufrimiento físico y la supervivencia inmediata, donde la magia o la fantasía son elementos hostiles y no maravillosos.",
     "estilo_narrativo": "TERCERA_LIMITADA"
   },
   "arco_narrativo": {
     "estructura_detectada": "TRES_ACTOS",
     "puntos_clave": {
       "gancho_inicial": {
-        "capitulo": 1,
-        "descripcion": "La violencia doméstica brutal e injusta contra Ana, estableciendo su indefensión."
+        "capitulo": 0,
+        "descripcion": "Violencia doméstica brutal contra Ana, estableciendo su vulnerabilidad extrema."
       },
       "inciting_incident": {
-        "capitulo": 2,
-        "descripcion": "El traslado forzoso al Valle de los Muertos. Cambio de entorno social a entorno salvaje."
+        "capitulo": 1,
+        "descripcion": "Traslado forzoso hacia el Valle de los Muertos/Restos; cambio de un entorno abusivo a uno mortal."
       },
       "primer_giro": {
-        "capitulo": 3,
-        "descripcion": "Llegada a la choza de costillas. Ana deja de ser carga en tránsito para enfrentar la supervivencia estática."
+        "capitulo": 2,
+        "descripcion": "Llegada al cobertizo de huesos; la supervivencia pasa a depender enteramente de ella frente al frío."
       },
       "punto_medio": {
         "capitulo": null,
         "descripcion": "No alcanzado."
       },
       "crisis": {
-        "capitulo": 3,
-        "descripcion": "El despertar sin protección térmica; el frío como amenaza mortal inmediata."
+        "capitulo": null,
+        "descripcion": "No alcanzado."
       },
       "climax": {
         "capitulo": null,
@@ -41,13 +41,13 @@
     },
     "evaluacion_arco": {
       "fortalezas": [
-        "Inmersión sensorial inmediata",
-        "Establecimiento claro de los 'stakes' (vida o muerte)",
-        "Atmósfera coherente"
+        "Inicio in media res efectivo",
+        "Establecimiento claro de las apuestas (vida o muerte)",
+        "Atmósfera sensorial inmersiva"
       ],
       "debilidades": [
-        "Posible fatiga por repetición de sufrimiento sin alivio",
-        "Estructuras repetitivas en descripciones"
+        "Posible confusión en nomenclatura geográfica",
+        "Pasividad extrema del personaje (justificada pero riesgosa si se prolonga)"
       ],
       "score": 8.3
     }
@@ -56,13 +56,19 @@
     "protagonistas": [
       {
         "nombre": "Ana",
-        "aliases": [],
-        "rol_arquetipo": "La Sobreviviente / La Víctima",
-        "arco_personaje": "De la sumisión doméstica a la lucha primitiva contra los elementos",
-        "motivacion_principal": "Sobrevivir al frío y al dolor inmediato",
+        "aliases": [
+          "La niña (posible referencia cruzada)",
+          "Ella"
+        ],
+        "rol_arquetipo": "La Superviviente / La Víctima",
+        "arco_personaje": "De objeto pasivo a superviviente activa (en desarrollo)",
+        "motivacion_principal": "Evitar el dolor y el frío; sobrevivir un día más.",
         "consistencia": "CONSISTENTE",
-        "notas_inconsistencia": [],
+        "notas_inconsistencia": [
+          "Ambigüedad sobre si 'Ana' es su nombre real o una etiqueta impuesta ('Lo que fuera que usaban para llamarla')."
+        ],
         "capitulos_clave": [
+          0,
           1,
           2,
           3
@@ -74,47 +80,50 @@
         "nombre": "El Frío / El Entorno",
         "aliases": [],
         "rol_arquetipo": "Fuerza de la Naturaleza",
-        "arco_personaje": "Estático (Amenaza constante)",
-        "motivacion_principal": "N/A",
+        "arco_personaje": "Antagonista omnipresente",
+        "motivacion_principal": "Extinguir la vida",
+        "consistencia": "CONSISTENTE",
+        "notas_inconsistencia": [],
+        "capitulos_clave": [
+          1,
+          2
+        ]
+      },
+      {
+        "nombre": "Cuernomuro",
+        "aliases": [
+          "La Bestia"
+        ],
+        "rol_arquetipo": "Monstruo",
+        "arco_personaje": "Amenaza física inmediata",
+        "motivacion_principal": "Depredación / Servicio (bestia de carga)",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [],
         "capitulos_clave": [
           2,
           3
         ]
-      },
+      }
+    ],
+    "secundarios": [
       {
-        "nombre": "El Amo y La Esposa",
+        "nombre": "El Amo y su familia",
         "aliases": [],
         "rol_arquetipo": "Opresores",
-        "arco_personaje": "Catalizadores del trauma",
-        "motivacion_principal": "Crueldad / Dominio",
+        "arco_personaje": "Estático",
+        "motivacion_principal": "Control y crueldad",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [],
         "capitulos_clave": [
           1
         ]
-      }
-    ],
-    "secundarios": [
-      {
-        "nombre": "Cuernomuro",
-        "aliases": [],
-        "rol_arquetipo": "Bestia de Carga",
-        "arco_personaje": "Elemento de worldbuilding",
-        "motivacion_principal": "N/A",
-        "consistencia": "CONSISTENTE",
-        "notas_inconsistencia": [],
-        "capitulos_clave": [
-          3
-        ]
       },
       {
         "nombre": "La Guerrera",
         "aliases": [],
-        "rol_arquetipo": "Figura de autoridad/transporte",
-        "arco_personaje": "N/A",
-        "motivacion_principal": "Cumplir el traslado",
+        "rol_arquetipo": "Posible aliada/mentora",
+        "arco_personaje": "Introducción",
+        "motivacion_principal": "Desconocida",
         "consistencia": "CONSISTENTE",
         "notas_inconsistencia": [],
         "capitulos_clave": [
@@ -124,118 +133,128 @@
     ]
   },
   "voz_del_autor": {
-    "estilo_detectado": "POETICO",
-    "longitud_oraciones": "MIXTAS",
+    "estilo_detectado": "MINIMALISTA",
+    "longitud_oraciones": "CORTAS",
     "densidad_dialogo": "BAJA",
     "recursos_distintivos": [
-      "Personificación del clima (el frío muerde/mata)",
-      "Enfoque en sensaciones táctiles desagradables (grasa, huesos)",
-      "Neologismos (Cuernomuro)",
-      "Uso de oraciones cortas para sentencias físicas"
+      "Fragmentación sintáctica (puntos seguidos en lugar de comas)",
+      "Antropomorfización del clima",
+      "Enfoque en tacto y dolor visceral",
+      "Ausencia de infodumping"
     ],
     "NO_CORREGIR": [
-      "Término 'Cuernomuro'",
-      "Uso de 'cobertijo' (verificar intencionalidad arcaica)",
-      "Descripciones de violencia explícita (necesarias para el género)",
-      "Arquitectura basada en huesos"
+      "La sintaxis entrecortada ('No preguntó. No miró.'). Es intencional para generar ansiedad.",
+      "Términos específicos de worldbuilding como 'Cuernomuro' o 'cobertijo'.",
+      "La falta de agencia inicial de Ana (es necesaria para el arco)."
     ]
   },
   "mapa_de_ritmo": {
-    "patron_global": "Comienzo explosivo (violencia) seguido de inmersión lenta (viaje) y urgencia media (supervivencia).",
+    "patron_global": "Inicio explosivo (shock) seguido de una inmersión sensorial lenta y opresiva.",
     "capitulos": [
       {
-        "numero": 1,
-        "titulo": "Capítulo 1 (Prólogo en análisis original)",
+        "numero": 0,
+        "titulo": "Prólogo",
         "clasificacion": "RAPIDO",
         "es_intencional": true,
-        "justificacion": "Acción violenta inmediata, oraciones cortas, caos.",
+        "justificacion": "Generar shock inmediato mediante violencia.",
         "posicion_en_arco": "Gancho"
       },
       {
-        "numero": 2,
-        "titulo": "Capítulo 2 (El Valle)",
+        "numero": 1,
+        "titulo": "El Valle de los Muertos",
         "clasificacion": "LENTO",
         "es_intencional": true,
-        "justificacion": "Enfoque en sufrimiento físico y monotonía del viaje.",
-        "posicion_en_arco": "Inciting Incident / Transición"
+        "justificacion": "Transmitir la agonía física del viaje y el frío.",
+        "posicion_en_arco": "Incidente Incitador"
+      },
+      {
+        "numero": 2,
+        "titulo": "Nueva vida",
+        "clasificacion": "MEDIO",
+        "es_intencional": true,
+        "justificacion": "Equilibrio entre worldbuilding visual y urgencia de supervivencia.",
+        "posicion_en_arco": "Primer Giro"
       },
       {
         "numero": 3,
-        "titulo": "Capítulo 3 (Nueva vida)",
+        "titulo": "Capítulo 3",
         "clasificacion": "MEDIO",
         "es_intencional": true,
-        "justificacion": "Worldbuilding de la choza y urgencia por el frío.",
-        "posicion_en_arco": "Primer Giro"
+        "justificacion": "Introducción de nuevos personajes y dinámicas.",
+        "posicion_en_arco": "Desarrollo"
       }
     ]
   },
   "problemas_priorizados": {
-    "criticos": [],
+    "criticos": [
+      {
+        "id": "CRIT-001",
+        "tipo": "CONTINUIDAD",
+        "descripcion": "Inconsistencia en el nombre del lugar: se menciona como 'Valle de los Muertos' en el título/inicio y 'Valle de los Restos' al final.",
+        "capitulos_afectados": [
+          1,
+          2
+        ],
+        "sugerencia": "Unificar la nomenclatura. 'Valle de los Huesos' o 'Valle de los Muertos' parecen más temáticos."
+      }
+    ],
     "medios": [
       {
         "id": "MED-001",
-        "tipo": "ESTILISTICO",
-        "descripcion": "Repetición de la estructura 'demasiado X, demasiado Y' en Capítulo 1.",
+        "tipo": "CARACTERIZACION",
+        "descripcion": "Ambigüedad sobre el nombre de Ana. La frase 'Lo que fuera que usaban para llamarla' sugiere que Ana podría no ser su nombre real.",
         "capitulos_afectados": [
           1
         ],
-        "sugerencia": "Variar la estructura de las oraciones para evitar monotonía rítmica."
-      },
-      {
-        "id": "MED-002",
-        "tipo": "TONO",
-        "descripcion": "Juicio de valor explícito ('eran incluso peores') en narrador.",
-        "capitulos_afectados": [
-          1
-        ],
-        "sugerencia": "Mostrar la crueldad en lugar de calificarla (Show, don't tell) para mantener objetividad sombría."
+        "sugerencia": "Clarificar si es un rechazo a su identidad o si el narrador duda del nombre."
       }
     ],
     "menores": [
       {
         "id": "MIN-001",
-        "tipo": "LEXICO",
-        "descripcion": "Uso de 'cobertijo' vs 'cobertizo'.",
+        "tipo": "ESTILO",
+        "descripcion": "Juicio de valor explícito en la narración: 'Pero esta vez, los dueños eran incluso peores'.",
         "capitulos_afectados": [
-          3
+          1
         ],
-        "sugerencia": "Confirmar si es arcaísmo intencional o errata."
+        "sugerencia": "Mostrar la crueldad en lugar de calificarla (Show, don't tell), aunque encaja con el tono pesimista."
       }
     ]
   },
   "guia_para_claude": {
     "instrucciones_globales": [
-      "Mantener el tono Grimdark: no suavizar dolor ni suciedad.",
-      "Priorizar la experiencia sensorial (tacto, temperatura) sobre la visual.",
-      "Respetar la terminología fantástica (Cuernomuro)."
+      "Mantener el tono Grimdark: no suavizar la violencia ni el sufrimiento.",
+      "Respetar la sintaxis 'staccato'. No unir oraciones cortas con conectores lógicos.",
+      "Priorizar descripciones sensoriales (frío, dolor, vibración) sobre las visuales o explicativas.",
+      "No empoderar a Ana prematuramente; su fuerza actual es solo la resistencia pasiva."
     ],
     "patrones_a_mantener": [
-      "Frases cortas y contundentes para momentos de impacto físico.",
-      "Personificación del entorno como un enemigo activo."
+      "Uso de 'No [verbo]. No [verbo].' para énfasis.",
+      "Antropomorfización de elementos naturales."
     ],
     "capitulos_especiales": [
       {
-        "capitulo": 1,
-        "instruccion": "Conservar la crudeza de la violencia doméstica como base del trauma."
+        "capitulo": 0,
+        "instruccion": "Mantener la velocidad y brutalidad. No añadir introspección aquí."
       },
       {
-        "capitulo": 3,
-        "instruccion": "Asegurar consistencia en la descripción de la arquitectura de huesos."
+        "capitulo": 2,
+        "instruccion": "Asegurar que la terminología fantástica (Cuernomuro) sea consistente."
       }
     ]
   },
   "metricas_globales": {
     "total_palabras": 460,
-    "total_capitulos": 3,
+    "total_capitulos": 4,
     "score_coherencia_personajes": 8,
-    "score_logica_causal": 8,
-    "score_estructura": 8.3,
-    "score_global": 8.1
+    "score_logica_causal": 7,
+    "score_estructura": 8,
+    "score_global": 8.3
   },
   "_metadata": {
     "status": "success",
     "version": "4.0",
-    "processing_time_seconds": 52.93,
+    "processing_time_seconds": 43.61,
     "inputs_processed": {
       "chapters": 3,
       "structural": 3,

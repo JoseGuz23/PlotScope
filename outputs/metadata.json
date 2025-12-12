@@ -1,11 +1,269 @@
 {
-  "job_id": "Ana_20251211_045613",
-  "book_name": "Ana",
-  "project_name": "Ana",
-  "version": "Sylphrena 5.3",
-  "created_at": "2025-12-11T04:56:13.202220Z",
+  "job_id": "Los_Astillados_20251212_184515",
+  "book_name": "Los Astillados",
+  "project_name": "Los Astillados",
+  "version": "LYA 6.0",
+  "created_at": "2025-12-12T18:45:15.419560Z",
   "status": "completed",
   "counts": {
     "chapters": 3
+  },
+  "has_emotional_analysis": true,
+  "has_sensory_analysis": true,
+  "global_metrics": {
+    "avg_showing_ratio": 1.0,
+    "avg_sensory_density": 0.033400000000000006,
+    "total_chapters_analyzed": 3
+  },
+  "emotional_arc_analysis": {
+    "chapter_arcs": [
+      {
+        "chapter_id": "1",
+        "emotional_trajectory": [
+          {
+            "window_index": 0,
+            "valence": -0.9807026982307434,
+            "label": "NEG"
+          },
+          {
+            "window_index": 1,
+            "valence": -0.8153449296951294,
+            "label": "NEG"
+          },
+          {
+            "window_index": 2,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 3,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 4,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 5,
+            "valence": -0.9961943626403809,
+            "label": "NEG"
+          }
+        ],
+        "avg_valence": -0.4653736650943756,
+        "emotional_range": 0.9961943626403809,
+        "emotional_pattern": "ASCENDENTE",
+        "critical_moments": [],
+        "total_windows": 6
+      },
+      {
+        "chapter_id": "2",
+        "emotional_trajectory": [
+          {
+            "window_index": 0,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 1,
+            "valence": -0.989316463470459,
+            "label": "NEG"
+          },
+          {
+            "window_index": 2,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 3,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 4,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 5,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 6,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 7,
+            "valence": 0.0,
+            "label": "NEU"
+          }
+        ],
+        "avg_valence": -0.12366455793380737,
+        "emotional_range": 0.989316463470459,
+        "emotional_pattern": "ASCENDENTE",
+        "critical_moments": [
+          {
+            "type": "VALLE_NEGATIVO",
+            "window_index": 1,
+            "valence": -0.989316463470459,
+            "description": "Momento de mayor intensidad emocional negativa"
+          }
+        ],
+        "total_windows": 8
+      },
+      {
+        "chapter_id": "3",
+        "emotional_trajectory": [
+          {
+            "window_index": 0,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 1,
+            "valence": 0.0,
+            "label": "NEU"
+          },
+          {
+            "window_index": 2,
+            "valence": -0.9703034162521362,
+            "label": "NEG"
+          },
+          {
+            "window_index": 3,
+            "valence": 0.0,
+            "label": "NEU"
+          }
+        ],
+        "avg_valence": -0.24257585406303406,
+        "emotional_range": 0.9703034162521362,
+        "emotional_pattern": "DESCENDENTE",
+        "critical_moments": [
+          {
+            "type": "VALLE_NEGATIVO",
+            "window_index": 2,
+            "valence": -0.9703034162521362,
+            "description": "Momento de mayor intensidad emocional negativa"
+          }
+        ],
+        "total_windows": 4
+      }
+    ],
+    "global_arc": {
+      "avg_valence": -0.2639923261271583,
+      "emotional_pattern": "ASCENDENTE",
+      "total_data_points": 18
+    },
+    "diagnostics": []
+  },
+  "sensory_detection_analysis": {
+    "chapter_details": [
+      {
+        "chapter_id": "1",
+        "paragraphs_analyzed": 1,
+        "avg_sensory_density": 0.0371,
+        "showing_ratio": 1.0,
+        "problem_paragraphs": [],
+        "recommendations": [
+          "CALIDAD ACEPTABLE: Buen balance entre showing y telling."
+        ],
+        "detailed_analyses": [
+          {
+            "text": "El golpe seco de la madera contra el hueso retumbó por toda la choza.\nAna no alcanzó a reaccionar a ...",
+            "sensory_density": 0.0371,
+            "sensory_breakdown": {
+              "visual": 7,
+              "auditivo": 9,
+              "olfativo": 2,
+              "táctil": 14,
+              "gustativo": 1,
+              "kinestésico": 18
+            },
+            "abstract_density": 0.0065,
+            "is_showing": true,
+            "diagnosis": "SHOWING: Inmersión sensorial fuerte (densidad: 3.7%). Sentido dominante: kinestésico.",
+            "total_words": 1376,
+            "sensory_word_count": 51,
+            "abstract_word_count": 9,
+            "paragraph_index": 0
+          }
+        ]
+      },
+      {
+        "chapter_id": "2",
+        "paragraphs_analyzed": 1,
+        "avg_sensory_density": 0.0357,
+        "showing_ratio": 1.0,
+        "problem_paragraphs": [],
+        "recommendations": [
+          "CALIDAD ACEPTABLE: Buen balance entre showing y telling."
+        ],
+        "detailed_analyses": [
+          {
+            "text": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía. El frío a su alrededor poco a p...",
+            "sensory_density": 0.0357,
+            "sensory_breakdown": {
+              "visual": 16,
+              "auditivo": 4,
+              "táctil": 30,
+              "gustativo": 3,
+              "kinestésico": 19
+            },
+            "abstract_density": 0.001,
+            "is_showing": true,
+            "diagnosis": "SHOWING: Inmersión sensorial fuerte (densidad: 3.6%). Sentido dominante: táctil.",
+            "total_words": 2018,
+            "sensory_word_count": 72,
+            "abstract_word_count": 2,
+            "paragraph_index": 0
+          }
+        ]
+      },
+      {
+        "chapter_id": "3",
+        "paragraphs_analyzed": 1,
+        "avg_sensory_density": 0.0274,
+        "showing_ratio": 1.0,
+        "problem_paragraphs": [],
+        "recommendations": [
+          "CALIDAD ACEPTABLE: Buen balance entre showing y telling."
+        ],
+        "detailed_analyses": [
+          {
+            "text": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo q...",
+            "sensory_density": 0.0274,
+            "sensory_breakdown": {
+              "visual": 3,
+              "auditivo": 6,
+              "táctil": 7,
+              "kinestésico": 7
+            },
+            "abstract_density": 0.0012,
+            "is_showing": true,
+            "diagnosis": "SHOWING: Inmersión sensorial fuerte (densidad: 2.7%). Sentido dominante: táctil.",
+            "total_words": 839,
+            "sensory_word_count": 23,
+            "abstract_word_count": 1,
+            "paragraph_index": 0
+          }
+        ]
+      }
+    ],
+    "global_metrics": {
+      "avg_showing_ratio": 1.0,
+      "avg_sensory_density": 0.033400000000000006,
+      "total_chapters_analyzed": 3
+    },
+    "critical_issues": []
+  },
+  "reflection_stats": {
+    "total_chapters": 3,
+    "chapters_with_reflection": 0,
+    "chapters_single_pass": 3,
+    "avg_iterations": 1.0,
+    "total_iterations": 3
   }
 }

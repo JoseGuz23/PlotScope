@@ -1,0 +1,101 @@
+{
+  "sensory_analyses": [
+    {
+      "chapter_id": "1",
+      "paragraphs_analyzed": 1,
+      "avg_sensory_density": 0.0371,
+      "showing_ratio": 1.0,
+      "problem_paragraphs": [],
+      "recommendations": [
+        "CALIDAD ACEPTABLE: Buen balance entre showing y telling."
+      ],
+      "detailed_analyses": [
+        {
+          "text": "El golpe seco de la madera contra el hueso retumbó por toda la choza.\nAna no alcanzó a reaccionar a ...",
+          "sensory_density": 0.0371,
+          "sensory_breakdown": {
+            "visual": 7,
+            "auditivo": 9,
+            "olfativo": 2,
+            "táctil": 14,
+            "gustativo": 1,
+            "kinestésico": 18
+          },
+          "abstract_density": 0.0065,
+          "is_showing": true,
+          "diagnosis": "SHOWING: Inmersión sensorial fuerte (densidad: 3.7%). Sentido dominante: kinestésico.",
+          "total_words": 1376,
+          "sensory_word_count": 51,
+          "abstract_word_count": 9,
+          "paragraph_index": 0
+        }
+      ]
+    },
+    {
+      "chapter_id": "2",
+      "paragraphs_analyzed": 1,
+      "avg_sensory_density": 0.0357,
+      "showing_ratio": 1.0,
+      "problem_paragraphs": [],
+      "recommendations": [
+        "CALIDAD ACEPTABLE: Buen balance entre showing y telling."
+      ],
+      "detailed_analyses": [
+        {
+          "text": "El cuerpo de Ana no podía parar de temblar. Era lo único que sentía. El frío a su alrededor poco a p...",
+          "sensory_density": 0.0357,
+          "sensory_breakdown": {
+            "visual": 16,
+            "auditivo": 4,
+            "táctil": 30,
+            "gustativo": 3,
+            "kinestésico": 19
+          },
+          "abstract_density": 0.001,
+          "is_showing": true,
+          "diagnosis": "SHOWING: Inmersión sensorial fuerte (densidad: 3.6%). Sentido dominante: táctil.",
+          "total_words": 2018,
+          "sensory_word_count": 72,
+          "abstract_word_count": 2,
+          "paragraph_index": 0
+        }
+      ]
+    },
+    {
+      "chapter_id": "3",
+      "paragraphs_analyzed": 1,
+      "avg_sensory_density": 0.0274,
+      "showing_ratio": 1.0,
+      "problem_paragraphs": [],
+      "recommendations": [
+        "CALIDAD ACEPTABLE: Buen balance entre showing y telling."
+      ],
+      "detailed_analyses": [
+        {
+          "text": "La guerrera que secuestró a Ana dirigió su Cuernomuro hasta una pequeña choza de piedra junto a lo q...",
+          "sensory_density": 0.0274,
+          "sensory_breakdown": {
+            "visual": 3,
+            "auditivo": 6,
+            "táctil": 7,
+            "kinestésico": 7
+          },
+          "abstract_density": 0.0012,
+          "is_showing": true,
+          "diagnosis": "SHOWING: Inmersión sensorial fuerte (densidad: 2.7%). Sentido dominante: táctil.",
+          "total_words": 839,
+          "sensory_word_count": 23,
+          "abstract_word_count": 1,
+          "paragraph_index": 0
+        }
+      ]
+    }
+  ],
+  "global_metrics": {
+    "avg_showing_ratio": 1.0,
+    "avg_sensory_density": 0.033400000000000006,
+    "total_chapters_analyzed": 3
+  },
+  "critical_issues": [],
+  "status": "completed"
+}

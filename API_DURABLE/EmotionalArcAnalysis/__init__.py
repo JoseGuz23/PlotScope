@@ -12,20 +12,10 @@ import re
 from typing import List, Dict, Any, Tuple
 import numpy as np
 
+# NOTA: Se ha eliminado el import global de transformers para evitar Cold Start timeouts.
+# Se importa dentro de la clase EmotionalArcAnalyzer.
+
 logging.basicConfig(level=logging.INFO)
-
-# =============================================================================
-# CONFIGURACIÓN DE SENTIMENT ANALYSIS
-# =============================================================================
-
-# Intentar importar transformers (si no está, usar fallback simple)
-try:
-    from transformers import pipeline
-    TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    TRANSFORMERS_AVAILABLE = False
-    logging.warning("⚠️ transformers no disponible, usando análisis léxico simple")
-
 
 class EmotionalArcAnalyzer:
     """
@@ -42,19 +32,27 @@ class EmotionalArcAnalyzer:
         self.model_name = model_name
         self.sentiment_analyzer = None
 
-        if TRANSFORMERS_AVAILABLE:
-            try:
-                logging.info(f"🤖 Cargando modelo de sentiment: {model_name}")
-                self.sentiment_analyzer = pipeline(
-                    "sentiment-analysis",
-                    model=model_name,
-                    truncation=True,
-                    max_length=512
-                )
-                logging.info("✅ Modelo cargado exitosamente")
-            except Exception as e:
-                logging.error(f"❌ Error cargando modelo: {e}")
-                self.sentiment_analyzer = None
+        # --- LAZY LOADING: Importar transformers SOLO al instanciar la clase ---
+        try:
+            logging.info("⏳ Intentando cargar transformers pipeline...")
+            from transformers import pipeline
+            
+            logging.info(f"🤖 Cargando modelo de sentiment: {model_name}")
+            self.sentiment_analyzer = pipeline(
+                "sentiment-analysis",
+                model=model_name,
+                truncation=True,
+                max_length=512
+            )
+            logging.info("✅ Modelo cargado exitosamente")
+            
+        except ImportError:
+            logging.warning("⚠️ Transformers no instalado. Se usará análisis léxico simple (Fallback).")
+            self.sentiment_analyzer = None
+        except Exception as e:
+            logging.error(f"❌ Error cargando modelo: {e}")
+            self.sentiment_analyzer = None
+        # -----------------------------------------------------------------------
 
 
     def analyze_text_sentiment(self, text: str) -> Dict[str, float]:
@@ -88,7 +86,7 @@ class EmotionalArcAnalyzer:
                 }
 
             except Exception as e:
-                logging.error(f"Error en análisis de sentimiento: {e}")
+                logging.error(f"Error en análisis de sentimiento (ML): {e}")
                 return self._fallback_sentiment(text)
         else:
             return self._fallback_sentiment(text)
