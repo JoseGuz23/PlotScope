@@ -5,7 +5,7 @@
 import logging
 import json
 import os
-import anthropic
+from anthropic import AnthropicVertex, Anthropic
 
 logging.basicConfig(level=logging.INFO)
 
@@ -63,11 +63,19 @@ def main(fragment: dict) -> dict:
     logging.info(f"🔀 Claude fallback para fragmento {fragment_id}")
     
     try:
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not api_key:
-            return {"error": "No ANTHROPIC_API_KEY", "fragment_id": fragment_id}
+        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
+        region = os.environ.get('GOOGLE_CLOUD_LOCATION', 'us-central1')
         
-        client = anthropic.Anthropic(api_key=api_key)
+        # Priority to Vertex AI
+        if project_id:
+            client = AnthropicVertex(region=region, project_id=project_id)
+            model_name = "claude-3-haiku" # or available haiku model on Vertex
+        else:
+            api_key = os.environ.get('ANTHROPIC_API_KEY')
+            if not api_key:
+                 return {"error": "No ANTHROPIC_API_KEY or GOOGLE_CLOUD_PROJECT", "fragment_id": fragment_id}
+            client = Anthropic(api_key=api_key)
+            model_name = "claude-haiku-4-5-20251001" # Legacy name
         
         prompt = ANALYSIS_PROMPT.format(
             chapter_id=fragment_id,
@@ -79,7 +87,7 @@ def main(fragment: dict) -> dict:
         )
         
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model=model_name,
             max_tokens=4096,
             messages=[{"role": "user", "content": prompt}]
         )

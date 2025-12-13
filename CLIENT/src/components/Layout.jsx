@@ -99,7 +99,11 @@ const Layout = ({ children }) => {
                 LOGIC YIELD ASSISTANT <span className="text-gray-400 ml-1">v5.0</span>
             </p>
 
-            <p className="font-mono text-[10px] text-gray-400 uppercase tracking-widest mt-6">
+            <a href="https://plotscope.net" className="font-sans text-xs font-bold text-gray-500 hover:text-theme-primary transition-colors mt-8 mb-2 uppercase tracking-wide flex items-center gap-1">
+              Conoce PlotScope, la empresa detrás de LYA <span>&rarr;</span>
+            </a>
+
+            <p className="font-mono text-[10px] text-gray-400 uppercase tracking-widest mt-4">
               © 2025 PlotScope. Arquitectura Narrativa Avanzada.
             </p>
         </div>

@@ -1,22 +1,32 @@
 # =============================================================================
-# SubmitMarginNotes/__init__.py - LYA 6.0 (Optimized)
+# SubmitMarginNotes/__init__.py - LYA 6.0 (Vertex AI Migration)
 # =============================================================================
-# ACTUALIZACIÓN: Implementación de Context Caching para reducción de costos.
-# Se separa el contexto estático (instrucciones/carta) del dinámico (capítulos).
+# MIGRACIÓN VERTEX AI: Generación de notas de margen usando Vertex AI Batch.
+# Adapta prompts para incluir identificación explícita en el output.
 # =============================================================================
 
 import logging
 import json
 import os
+import sys
+import uuid
 from typing import Dict, List, Any
+
+# Agregar directorio padre para importar vertex_utils
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from vertex_utils import submit_vertex_batch_job, upload_jsonl_to_gcs, format_claude_vertex_request
+    from config_models import CLAUDE_SONNET_MODEL
+except ImportError:
+    from API_DURABLE.vertex_utils import submit_vertex_batch_job, upload_jsonl_to_gcs, format_claude_vertex_request
+    from API_DURABLE.config_models import CLAUDE_SONNET_MODEL
 
 logging.basicConfig(level=logging.INFO)
 
 # -----------------------------------------------------------------------------
-# PROMPTS (Divididos para Caching)
+# PROMPTS
 # -----------------------------------------------------------------------------
 
-# PARTE 1: INSTRUCCIONES ESTÁTICAS (Se cacheará esto)
 STATIC_SYSTEM_INSTRUCTIONS = """Eres un EDITOR PROFESIONAL. Tu tarea es generar NOTAS DE MARGEN para el libro "{libro}".
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -45,6 +55,7 @@ INSTRUCCIONES DE SALIDA:
 4. RESPONDE ÚNICAMENTE CON JSON VÁLIDO con el siguiente formato:
 
 {{
+    "id_referencia": "DEBE_COINCIDIR_CON_INPUT",
     "notas_margen": [
         {{
             "nota_id": "chID-nota-001",
@@ -65,8 +76,9 @@ INSTRUCCIONES DE SALIDA:
 }}
 """
 
-# PARTE 2: CONTENIDO DINÁMICO (Cambia por capítulo)
-CHAPTER_USER_PROMPT = """Analiza el siguiente capítulo basándote en las instrucciones cacheadas.
+CHAPTER_USER_PROMPT = """Analiza el siguiente capítulo basándote en las instrucciones.
+
+IMPORTANTE: En tu respuesta JSON, el campo "id_referencia" DEBE SER EXACTAMENTE: "{chapter_id}"
 
 INFORMACIÓN DEL CAPÍTULO:
 - Título: {titulo}
@@ -82,15 +94,9 @@ TEXTO DEL CAPÍTULO:
 
 def main(input_data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Envía capítulos a Claude Batch utilizando Context Caching.
+    Envía capítulos a Vertex AI Batch.
     """
     try:
-        from anthropic import Anthropic
-        
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not api_key:
-            return {"error": "ANTHROPIC_API_KEY no configurada", "status": "config_error"}
-        
         chapters = input_data.get('chapters', [])
         carta = input_data.get('carta_editorial', {})
         bible = input_data.get('bible', {})
@@ -98,42 +104,32 @@ def main(input_data: Dict[str, Any]) -> Dict[str, Any]:
         
         libro_titulo = book_metadata.get('title', bible.get('identidad_obra', {}).get('titulo', 'Sin título'))
         
-        logging.info(f"📝 Preparando notas de margen para {len(chapters)} capítulos con Caching.")
-        
-        client = Anthropic(api_key=api_key)
+        logging.info(f"📝 Preparando notas de margen (Vertex AI) para {len(chapters)} capítulos.")
         
         batch_requests = []
         chapter_metadata = {}
         
-        # 1. Preparar el contenido estático para el Caché
-        # Este string debe ser IDÉNTICO en todos los requests para que el caché funcione
+        # 1. Preparar el contenido estático
         contexto_editorial_str = extraer_contexto_editorial(carta, bible)
         
-        system_content_cached = [
-            {
-                "type": "text",
-                "text": STATIC_SYSTEM_INSTRUCTIONS.format(
-                    libro=libro_titulo,
-                    contexto_editorial=contexto_editorial_str
-                ),
-                # AQUI ESTA LA MAGIA DEL AHORRO:
-                "cache_control": {"type": "ephemeral"} 
-            }
-        ]
+        system_content = STATIC_SYSTEM_INSTRUCTIONS.format(
+            libro=libro_titulo,
+            contexto_editorial=contexto_editorial_str
+        )
 
         # 2. Iterar capítulos y construir requests
         for chapter in chapters:
             ch_id = str(chapter.get('id', chapter.get('chapter_id', '?')))
             parent_id = chapter.get('parent_chapter_id', ch_id)
             
-            # Guardar metadata para seguimiento
             chapter_metadata[ch_id] = {
                 'fragment_id': chapter.get('id', 0),
                 'parent_chapter_id': parent_id,
-                'original_title': chapter.get('title', chapter.get('original_title', 'Sin título'))
+                'original_title': chapter.get('title', chapter.get('original_title', 'Sin título')),
+                'content': chapter.get('content', '') # Para fallback
             }
             
-            # Extraer datos dinámicos (específicos de este request)
+            # Datos dinámicos
             notas_cap = ""
             for nota in carta.get('notas_por_capitulo', []):
                 if str(nota.get('capitulo')) == str(parent_id):
@@ -142,7 +138,6 @@ def main(input_data: Dict[str, Any]) -> Dict[str, Any]:
             
             personajes = extraer_personajes_capitulo(bible, parent_id)
             
-            # Construir el mensaje del usuario (dinámico)
             user_content = CHAPTER_USER_PROMPT.format(
                 titulo=chapter.get('title', chapter.get('original_title', 'Sin título')),
                 chapter_id=ch_id,
@@ -151,39 +146,41 @@ def main(input_data: Dict[str, Any]) -> Dict[str, Any]:
                 contenido=chapter.get('content', '')
             )
             
-            request = {
-                "custom_id": f"margin-{ch_id}",
-                "params": {
-                    "model": "claude-sonnet-4-5-20250929", # Modelo preservado según instrucciones
-                    "max_tokens": 4000,
-                    "temperature": 0.5,
-                    "system": system_content_cached, # Pasamos la estructura con cache_control
-                    "messages": [
-                        {"role": "user", "content": user_content}
-                    ]
-                }
-            }
+            request = format_claude_vertex_request(
+                messages=[{"role": "user", "content": user_content}],
+                system=system_content,
+                max_tokens=4000,
+                temperature=0.5
+            )
             batch_requests.append(request)
         
-        logging.info(f"📦 Enviando {len(batch_requests)} requests a Claude Batch")
+        logging.info(f"📦 Subiendo {len(batch_requests)} requests a GCS")
         
-        # Crear el batch
-        message_batch = client.messages.batches.create(requests=batch_requests)
+        batch_filename = f"claude_notes_batch_{uuid.uuid4()}.jsonl"
+        source_uri = upload_jsonl_to_gcs(batch_requests, batch_filename)
         
-        logging.info(f"✅ Batch creado: {message_batch.id}")
+        timestamp = uuid.uuid4().hex[:8]
+        destination_prefix = f"claude_notes_results_{timestamp}"
+        
+        # Submit Job
+        model_name = CLAUDE_SONNET_MODEL
+        job_id = submit_vertex_batch_job(
+            model_name=model_name,
+            source_uri=source_uri,
+            destination_uri_prefix=destination_prefix,
+            job_display_name=f"lya-notes-{timestamp}"
+        )
+        
+        logging.info(f"✅ Batch Vertex AI iniciado: {job_id}")
         
         return {
-            "batch_id": message_batch.id,
+            "batch_id": job_id,
             "chapters_count": len(chapters),
             "status": "submitted",
-            "processing_status": message_batch.processing_status,
             "chapter_metadata": chapter_metadata,
-            "optimization": "context_caching_enabled"
+            "provider": "vertex_ai"
         }
         
-    except ImportError as e:
-        logging.error(f"❌ SDK no instalado: {e}")
-        return {"error": str(e), "status": "import_error"}
     except Exception as e:
         logging.error(f"❌ Error crítico: {str(e)}")
         import traceback
@@ -192,20 +189,17 @@ def main(input_data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def extraer_contexto_editorial(carta: Dict, bible: Dict) -> str:
-    """Extrae contexto relevante de la carta editorial (Estático)."""
+    """Extrae contexto relevante de la carta editorial."""
     contexto = []
-    
-    # Áreas de oportunidad principales
     areas = carta.get('areas_de_oportunidad', [])
     if areas:
         contexto.append("PROBLEMAS PRINCIPALES DEL LIBRO:")
         for area in areas[:5]:
             if area.get('prioridad') in ['ALTA', 'MEDIA']:
                 cat = area.get('categoria', '').upper()
-                prob = area.get('problema', '')[:120] # Limitado para consistencia
+                prob = area.get('problema', '')[:120]
                 contexto.append(f"- [{cat}] {prob}")
     
-    # Voz del autor
     voz = bible.get('voz_del_autor', {})
     if voz.get('NO_CORREGIR'):
         contexto.append("\nELEMENTOS A PRESERVAR (VOZ):")
@@ -218,20 +212,16 @@ def extraer_contexto_editorial(carta: Dict, bible: Dict) -> str:
 
 
 def extraer_personajes_capitulo(bible: Dict, chapter_id) -> List[str]:
-    """Extrae personajes relevantes para un capítulo (Dinámico)."""
+    """Extrae personajes relevantes para un capítulo."""
     personajes = []
     reparto = bible.get('reparto_completo', {})
-    
     try:
         ch_num = int(chapter_id)
     except:
         ch_num = 0
-    
     for tipo in ['protagonistas', 'antagonistas', 'secundarios']:
         for p in reparto.get(tipo, []):
             caps = p.get('capitulos_clave', [])
-            # Si no tiene capítulos definidos, asumimos que aparece, o si coincide el ID
             if not caps or ch_num in caps:
                 personajes.append(p.get('nombre', 'Personaje'))
-    
     return personajes[:6]

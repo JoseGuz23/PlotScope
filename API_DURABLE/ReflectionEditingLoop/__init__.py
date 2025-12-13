@@ -13,13 +13,18 @@ import os
 from typing import Dict, Any, Optional
 from google import genai
 from google.genai import types
-from anthropic import Anthropic
+from anthropic import AnthropicVertex
 
 logging.basicConfig(level=logging.INFO)
 
 # Importar configuración
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+try:
+    from vertex_utils import resolve_vertex_model_id
+except ImportError:
+    from API_DURABLE.vertex_utils import resolve_vertex_model_id
 
 # Fallback por si no existe config_models
 try:
@@ -129,11 +134,26 @@ Responde JSON:
 def main(input_data: dict) -> dict:
     try:
         gemini_key = os.environ.get('GEMINI_API_KEY')
-        claude_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not gemini_key or not claude_key: return {"error": "API keys missing"}
+        # Vertex AI Config
+        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
+        region = os.environ.get('GOOGLE_CLOUD_LOCATION', 'us-central1')
 
+        if not gemini_key: return {"error": "GEMINI_API_KEY missing"}
+        
+        # Initialize Clients
         gemini_client = genai.Client(api_key=gemini_key)
-        claude_client = Anthropic(api_key=claude_key)
+        
+        # Use AnthropicVertex instead of Anthropic direct
+        if project_id:
+            logging.info(f"🤖 Usando Anthropic sobre Vertex AI ({project_id} @ {region})")
+            claude_client = AnthropicVertex(region=region, project_id=project_id)
+        else:
+            # Fallback to standard Anthropic if no project_id (legacy support)
+            claude_key = os.environ.get('ANTHROPIC_API_KEY')
+            if claude_key:
+                claude_client = Anthropic(api_key=claude_key)
+            else:
+                 return {"error": "GOOGLE_CLOUD_PROJECT or ANTHROPIC_API_KEY missing"}
 
         # Desempaquetar datos
         chapter = input_data.get('chapter', {})
@@ -203,6 +223,9 @@ def main(input_data: dict) -> dict:
                 )
 
             # Llamada a Claude (Writer)
+            # Resolvers ID de Vertex
+            writer_model_vertex = resolve_vertex_model_id(REFLECTION_WRITER_MODEL)
+
             # Detectamos si es Opus 4.5 para activar headers high-stakes
             extra_headers = {}
             extra_body = {}
@@ -212,7 +235,7 @@ def main(input_data: dict) -> dict:
                 if iteration == 1: extra_body = {"effort": "high"}
 
             writer_response = claude_client.messages.create(
-                model=REFLECTION_WRITER_MODEL,
+                model=writer_model_vertex,
                 max_tokens=8192,
                 system=system_block, # <--- Enviamos el bloque con caché
                 messages=[{"role": "user", "content": user_msg}],

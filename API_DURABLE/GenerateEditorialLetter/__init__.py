@@ -12,7 +12,15 @@
 import logging
 import json
 import os
-import anthropic
+from anthropic import Anthropic, AnthropicVertex
+
+# Agregar directorio padre para importar vertex_utils
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from vertex_utils import resolve_vertex_model_id
+except ImportError:
+    from API_DURABLE.vertex_utils import resolve_vertex_model_id
 
 logging.basicConfig(level=logging.INFO)
 
@@ -125,11 +133,19 @@ def main(input_data: dict) -> dict:
     Genera la carta editorial usando Claude Opus 4.5 con parámetro 'effort'.
     """
     try:
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not api_key:
-            return {"error": "ANTHROPIC_API_KEY no configurada", "status": "config_error"}
+        # Vertex AI Config
+        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
+        region = os.environ.get('GOOGLE_CLOUD_LOCATION', 'us-east5')
 
-        client = anthropic.Anthropic(api_key=api_key)
+        # Priority to Vertex AI
+        if project_id:
+            logging.info(f"🤖 Usando Anthropic sobre Vertex AI ({project_id} @ {region})")
+            client = AnthropicVertex(region=region, project_id=project_id)
+        else:
+            api_key = os.environ.get('ANTHROPIC_API_KEY')
+            if not api_key:
+                return {"error": "ANTHROPIC_API_KEY no configurada y no hay config de Vertex", "status": "config_error"}
+            client = Anthropic(api_key=api_key)
 
         bible = input_data.get('bible', {})
         consolidated = input_data.get('consolidated_chapters', [])
@@ -163,23 +179,25 @@ def main(input_data: dict) -> dict:
         # NOTA: Se añade el header 'effort-2025-11-24' y el parámetro effort='high'
         # para activar el razonamiento profundo según documentación técnica.
         
-        logging.info(f"🔄 Invocando Opus 4.5...")
+        # Resolver nombre del modelo (Opus)
+        model_name = resolve_vertex_model_id('claude-opus-4-5-20251101')
+        logging.info(f"🔄 Invocando {model_name}...")
         
         response = client.messages.create(
-            model='claude-opus-4-5-20251101',
-            max_tokens=6000, # Aumentado para permitir respuestas más profundas de Opus 4.5
+            model=model_name,
+            max_tokens=6000, 
             temperature=0.7,
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            # Parametros exclusivos de Opus 4.5
+            # Headers/Body se mantienen por si el modelo soportado (ej. 3.5 Sonnet v2) admite 'effort' o Thinking
             extra_headers={
                 "anthropic-beta": "effort-2025-11-24"
             },
             extra_body={
-                "effort": "high" # Garantiza máxima exhaustividad
+                "effort": "high"
             },
-            timeout=1800.0 # 30 min timeout para razonamiento extendido
+            timeout=1800.0
         )
 
         logging.info(f"✅ Respuesta recibida")

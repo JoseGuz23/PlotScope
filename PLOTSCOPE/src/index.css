@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   PLOTSCOPE CORPORATE THEME - Dark / Professional / Sharp
+============================================================================= */
+
+@theme {
+  /* --- PALETA DE COLORES (Dark/Corporate) --- */
+  --color-theme-primary: #EA580C;        /* Orange 600 - Main Accent */
+  --color-theme-primary-hover: #C2410C;  /* Orange 700 */
+  --color-theme-secondary: #D97706;      /* Amber 600 - Secondary Accent */
+  
+  --color-theme-bg: #050505;             /* Pitch Black */
+  --color-theme-paper: #121212;          /* Very Dark Grey */
+  
+  --color-theme-text: #F5F5F5;           /* White Smoke */
+  --color-theme-subtle: #737373;         /* Neutral 500 - Stark contrast */
+  --color-theme-border: #262626;         /* Neutral 800 */
+
+  /* --- TIPOGRAFÍA (Serious/Formal) --- */
+  --font-serif: "Times New Roman", Times, serif;  /* Classic, Authoritative */
+  --font-editorial: "Times New Roman", Times, serif; /* Consistent Authority */
+  --font-mono: "JetBrains Mono", monospace;       /* Technical Precision */
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif; /* Neutral, Professional */
+}
+
+/* --- ESTILOS BASE --- */
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--color-theme-bg);
+  color: var(--color-theme-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  line-height: 1.5; /* Slightly tighter line height for density */
+}
+
+/* --- UTILIDADES --- */
+.text-balance { text-wrap: balance; }

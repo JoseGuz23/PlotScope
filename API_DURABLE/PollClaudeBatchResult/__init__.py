@@ -1,19 +1,22 @@
 # =============================================================================
-# PollClaudeBatchResult/__init__.py - LYA 4.0.2 CORREGIDO
+# PollClaudeBatchResult/__init__.py - LYA 6.0 (Vertex AI Migration)
 # =============================================================================
-# 
-# CORRECCIONES v4.0.2:
-#   - USA fragment_metadata_map para enriquecer resultados con metadatos jerárquicos
-#   - Pasa fragment_metadata_map en respuestas "processing" para no perderlo
-#   - Incluye contenido original para que ReconstructManuscript pueda hacer diff
-#   - Fallback: si parsing falla, usa contenido original
-#
+# MIGRACIÓN VERTEX AI: Polling de jobs de Vertex AI Batch.
+# Parsea resultados y los empareja usando 'id_referencia' en el JSON de salida.
 # =============================================================================
 
 import logging
 import json
 import os
+import sys
 import re
+
+# Agregar directorio padre para importar vertex_utils
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from vertex_utils import get_batch_job_status, get_batch_job_results
+except ImportError:
+    from API_DURABLE.vertex_utils import get_batch_job_status, get_batch_job_results
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,36 +24,24 @@ logging.basicConfig(level=logging.INFO)
 def clean_json_response(response_text: str) -> tuple:
     """
     Limpieza BLINDADA de respuesta JSON.
-    
-    Estrategia de 3 niveles:
-    1. Limpieza de markdown con regex
-    2. Extracción entre { y } si lo anterior falla
-    3. Retorna (json_dict, success_flag)
-    
-    NUNCA devuelve JSON crudo como fallback.
     """
     if not response_text:
         return {}, False
     
     clean = response_text.strip()
     
-    # ===========================================
-    # NIVEL 1: Limpieza de markdown con regex
-    # ===========================================
+    # Limpieza de markdown
     clean = re.sub(r'^[\s]*```(?:json)?[\s]*\n?', '', clean)
     clean = re.sub(r'\n?[\s]*```[\s]*$', '', clean)
     clean = clean.strip()
     
-    # Intentar parsear después de limpieza de markdown
     try:
         parsed = json.loads(clean)
         return parsed, True
     except json.JSONDecodeError:
         pass
     
-    # ===========================================
-    # NIVEL 2: Extracción entre llaves { }
-    # ===========================================
+    # Extracción entre { }
     start_idx = clean.find('{')
     end_idx = clean.rfind('}')
     
@@ -62,210 +53,176 @@ def clean_json_response(response_text: str) -> tuple:
         except json.JSONDecodeError:
             pass
     
-    # ===========================================
-    # NIVEL 3: Intentar con texto original
-    # ===========================================
-    try:
-        parsed = json.loads(response_text.strip())
-        return parsed, True
-    except json.JSONDecodeError:
-        pass
-    
     return {}, False
 
 
 def main(batch_info: dict) -> object:
     try:
-        from anthropic import Anthropic
-        
-        # =====================================================================
-        # A. CONFIGURACIÓN
-        # =====================================================================
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not api_key:
-            return {"status": "error", "error": "ANTHROPIC_API_KEY no configurada"}
-        
         batch_id = batch_info.get('batch_id')
         if not batch_id:
             return {"status": "error", "error": "No batch_id provided"}
         
-        # =====================================================================
-        # FIX v4.0.2: Obtener fragment_metadata_map para enriquecer resultados
-        # =====================================================================
         fragment_metadata_map = batch_info.get('fragment_metadata_map', {})
         
-        client = Anthropic(api_key=api_key)
+        # Consultar estado en Vertex AI
+        job_status = get_batch_job_status(batch_id)
+        state = job_status.get('state')
         
-        # =====================================================================
-        # B. CONSULTAR ESTADO
-        # =====================================================================
-        message_batch = client.messages.batches.retrieve(batch_id)
-        status = message_batch.processing_status
+        logging.info(f"🤖 Vertex Batch Status: [{state}] - ID: {batch_id}")
         
-        counts = message_batch.request_counts
-        succeeded = counts.succeeded if counts else 0
-        processing = counts.processing if counts else 0
-        
-        logging.info(f"🤖 Claude Status: [{status.upper()}] - ID: {batch_id}")
-        
-        # =====================================================================
-        # CASO A: PROCESANDO
-        # =====================================================================
-        if status in ['in_progress', 'canceling']:
+        if state in ["JOB_STATE_RUNNING", "JOB_STATE_PENDING", "JOB_STATE_QUEUED", "JOB_STATE_UNSPECIFIED"]:
             return {
                 "status": "processing",
-                "processing_status": status,
+                "processing_status": state,
                 "batch_id": batch_id,
-                "request_counts": {"succeeded": succeeded, "processing": processing},
-                "id_map": batch_info.get('id_map', []),
-                # ─────────────────────────────────────────────────────────────
-                # FIX v4.0.2: Pasar metadata para no perderla entre iteraciones
-                # ─────────────────────────────────────────────────────────────
-                "fragment_metadata_map": fragment_metadata_map
+                "fragment_metadata_map": fragment_metadata_map,
+                "state": state
             }
-
-        # =====================================================================
-        # CASO B: TERMINADO
-        # =====================================================================
-        elif status == "ended":
+            
+        elif state == "JOB_STATE_FAILED" or state == "JOB_STATE_CANCELLED":
+             return {
+                "status": "failed",
+                "error": job_status.get('error', 'Unknown error'),
+                "batch_id": batch_id
+            }
+            
+        elif state in ["JOB_STATE_SUCCEEDED", "JOB_STATE_PARTIALLY_SUCCEEDED"]:
             logging.info(f"✅ Batch finalizado. Descargando resultados...")
             
+            raw_results = get_batch_job_results(batch_id)
+            
             results = []
+            processed_ids = set()
             parse_failures = 0
             
-            for entry in client.messages.batches.results(batch_id):
-                try:
-                    if entry.result.type == "succeeded":
-                        # 1. Extraer identificadores
-                        custom_id = entry.custom_id
-                        chapter_id = custom_id.replace("chapter-", "")
-                        
-                        # ─────────────────────────────────────────────────────
-                        # FIX v4.0.2: Obtener metadatos jerárquicos
-                        # ─────────────────────────────────────────────────────
-                        fragment_meta = fragment_metadata_map.get(chapter_id, {})
-                        
-                        # 2. Extraer respuesta
-                        message = entry.result.message
-                        response_text = message.content[0].text
-                        
-                        # 3. PARSING BLINDADO
-                        parsed, parse_success = clean_json_response(response_text)
-                        
-                        if parse_success and parsed:
-                            # Extraer contenido editado
-                            final_content = parsed.get('capitulo_editado', '')
-                            cambios = parsed.get('cambios_realizados', [])
-                            elementos_preservados = parsed.get('elementos_preservados', [])
-                            problemas_corregidos = parsed.get('problemas_corregidos', [])
-                            notas = parsed.get('notas_editor', '')
-                            
-                            # Validación: si capitulo_editado está vacío o es JSON
-                            if not final_content or final_content.strip().startswith('{'):
-                                logging.warning(f"⚠️ {custom_id}: capitulo_editado vacío/inválido, usando original")
-                                final_content = fragment_meta.get('content', '')
-                                parse_failures += 1
-                            else:
-                                logging.info(f"✅ {custom_id}: Parseado correctamente")
-                        else:
-                            # Parsing falló - usar contenido original como fallback
-                            logging.warning(f"⚠️ {custom_id}: Parsing falló, usando contenido original")
-                            final_content = fragment_meta.get('content', '')
-                            cambios = []
-                            elementos_preservados = []
-                            problemas_corregidos = []
-                            notas = "FALLBACK: Se usó contenido original porque parsing falló"
-                            parse_failures += 1
-
-                        # 4. Calcular Costos
-                        input_tokens = message.usage.input_tokens
-                        output_tokens = message.usage.output_tokens
-                        total_cost = (input_tokens * 3.00 / 1_000_000) + (output_tokens * 15.00 / 1_000_000)
-
-                        # ─────────────────────────────────────────────────────
-                        # FIX v4.0.2: Construir Item con TODOS los metadatos
-                        # ─────────────────────────────────────────────────────
-                        item = {
-                            # Identificadores jerárquicos
-                            'chapter_id': chapter_id,
-                            'fragment_id': fragment_meta.get('fragment_id', chapter_id),
-                            'parent_chapter_id': fragment_meta.get('parent_chapter_id', chapter_id),
-                            'fragment_index': fragment_meta.get('fragment_index', 1),
-                            'total_fragments': fragment_meta.get('total_fragments', 1),
-                            
-                            # Metadatos del capítulo
-                            'original_title': fragment_meta.get('original_title', 'Sin título'),
-                            'titulo_original': fragment_meta.get('original_title', 'Sin título'),
-                            'section_type': fragment_meta.get('section_type', 'CHAPTER'),
-                            'is_first_fragment': fragment_meta.get('is_first_fragment', True),
-                            'is_last_fragment': fragment_meta.get('is_last_fragment', True),
-                            
-                            # Contenido
-                            'contenido_editado': final_content,
-                            'contenido_original': fragment_meta.get('content', ''),
-                            
-                            # Análisis editorial
-                            'cambios_realizados': cambios,
-                            'elementos_preservados': elementos_preservados,
-                            'problemas_corregidos': problemas_corregidos,
-                            'notas_editor': notas,
-                            
-                            # Metadata técnica
-                            'metadata': {
-                                'status': 'success' if (parse_success and final_content) else 'fallback_used',
-                                'costo_usd': round(total_cost, 4),
-                                'tokens_in': input_tokens,
-                                'tokens_out': output_tokens,
-                                'parse_success': parse_success and bool(final_content)
-                            }
-                        }
-                        results.append(item)
-                    
-                    else:
-                        # Error en el procesamiento
-                        error_type = entry.result.type
-                        chapter_id = entry.custom_id.replace("chapter-", "")
-                        fragment_meta = fragment_metadata_map.get(chapter_id, {})
-                        
-                        logging.warning(f"⚠️ {entry.custom_id}: Resultado tipo '{error_type}'")
-                        
-                        # Usar contenido original como fallback
-                        results.append({
-                            'chapter_id': chapter_id,
-                            'fragment_id': fragment_meta.get('fragment_id', chapter_id),
-                            'parent_chapter_id': fragment_meta.get('parent_chapter_id', chapter_id),
-                            'fragment_index': fragment_meta.get('fragment_index', 1),
-                            'total_fragments': fragment_meta.get('total_fragments', 1),
-                            'original_title': fragment_meta.get('original_title', 'Sin título'),
-                            'section_type': fragment_meta.get('section_type', 'CHAPTER'),
-                            'contenido_editado': fragment_meta.get('content', ''),
-                            'contenido_original': fragment_meta.get('content', ''),
-                            'cambios_realizados': [],
-                            'notas_editor': f'ERROR: Batch result type: {error_type}',
-                            'metadata': {'status': 'error', 'error_type': error_type}
-                        })
-                        parse_failures += 1
+            for item in raw_results:
+                # La estructura de 'item' depende de Vertex AI Batch output para Claude
+                # Generalmente contiene 'prediction' o similar.
+                # Claude output format: content text is in prediction['content'][0]['text'] or similar
+                # Asumimos que get_batch_job_results devuelve el objeto JSON de cada línea
                 
-                except Exception as e:
-                    logging.error(f"❌ Error procesando entrada: {e}")
+                # Intentar encontrar el contenido de la respuesta
+                response_text = ""
+                usage = {}
+                
+                # Caso 1: Estructura prediction
+                if 'prediction' in item:
+                    pred = item['prediction']
+                    # Claude vertex output structure
+                    if 'content' in pred:
+                        # content is usually a list of parts
+                        parts = pred.get('content', [])
+                        if parts and 'text' in parts[0]:
+                            response_text = parts[0]['text']
+                    elif 'text' in pred:
+                         response_text = pred['text']
+                         
+                    if 'usage' in pred:
+                        usage = pred['usage']
+                else:
+                    # Caso 2: Directo (menos probable en batch)
+                    if 'content' in item:
+                        parts = item.get('content', [])
+                        if parts and 'text' in parts[0]:
+                            response_text = parts[0]['text']
+                
+                if not response_text:
+                    logging.warning(f"⚠️ No text found in item: {str(item)[:100]}")
                     continue
+                
+                # Parsing
+                parsed, parse_success = clean_json_response(response_text)
+                
+                # Identificar capítulo
+                # Buscamos 'id_referencia' en el JSON parseado
+                chapter_id = None
+                if parse_success:
+                    chapter_id = parsed.get('id_referencia')
+                
+                # Fallback: intentar regex si el parsing falló o no tiene ID
+                if not chapter_id:
+                    match = re.search(r'"id_referencia"\s*:\s*"([^"]+)"', response_text)
+                    if match:
+                        chapter_id = match.group(1)
+                
+                if not chapter_id:
+                    logging.warning(f"⚠️ No se pudo identificar id_referencia en respuesta. Saltando.")
+                    continue
+                
+                processed_ids.add(chapter_id)
+                fragment_meta = fragment_metadata_map.get(chapter_id, {})
+                
+                if parse_success and parsed:
+                     final_content = parsed.get('capitulo_editado', '')
+                     cambios = parsed.get('cambios_realizados', [])
+                     notas = parsed.get('notas_editor', '')
+                     
+                     if not final_content or final_content.strip().startswith('{'):
+                         logging.warning(f"⚠️ {chapter_id}: Contenido inválido, usando original")
+                         final_content = fragment_meta.get('content', '')
+                         parse_failures += 1
+                else:
+                    logging.warning(f"⚠️ {chapter_id}: Parsing falló, usando original")
+                    final_content = fragment_meta.get('content', '')
+                    cambios = []
+                    notas = "FALLBACK: Parsing falló"
+                    parse_failures += 1
+                
+                # Costos (estimado)
+                input_tokens = usage.get('input_tokens', 0)
+                output_tokens = usage.get('output_tokens', 0)
+                total_cost = (input_tokens * 3.00 / 1_000_000) + (output_tokens * 15.00 / 1_000_000)
+                
+                result_item = {
+                    'chapter_id': chapter_id,
+                    'fragment_id': fragment_meta.get('fragment_id', chapter_id),
+                    'parent_chapter_id': fragment_meta.get('parent_chapter_id', chapter_id),
+                    'original_title': fragment_meta.get('original_title', 'Sin título'),
+                    'contenido_editado': final_content,
+                    'contenido_original': fragment_meta.get('content', ''),
+                    'cambios_realizados': cambios,
+                    'notas_editor': notas,
+                    'metadata': {
+                        'status': 'success' if (parse_success and final_content) else 'fallback_used',
+                        'costo_usd': round(total_cost, 4),
+                        'tokens_in': input_tokens,
+                        'tokens_out': output_tokens,
+                        'parse_success': parse_success
+                    }
+                }
+                results.append(result_item)
             
-            # Log resumen
-            logging.info(f"📊 Resultados: {len(results)} total, {parse_failures} fallbacks")
+            # Verificar faltantes
+            all_ids = set(fragment_metadata_map.keys())
+            missing_ids = all_ids - processed_ids
+            if missing_ids:
+                logging.warning(f"⚠️ {len(missing_ids)} capítulos no encontrados en resultados Batch: {missing_ids}")
+                # Agregar fallbacks para los faltantes
+                for mid in missing_ids:
+                    meta = fragment_metadata_map.get(mid, {})
+                    results.append({
+                        'chapter_id': mid,
+                        'fragment_id': meta.get('fragment_id', mid),
+                        'contenido_editado': meta.get('content', ''),
+                        'contenido_original': meta.get('content', ''),
+                        'cambios_realizados': [],
+                        'notas_editor': "ERROR: No encontrado en resultados Batch",
+                        'metadata': {'status': 'missing_in_batch'}
+                    })
+
+            logging.info(f"📊 Resultados procesados: {len(results)}")
             
             return {
                 "status": "success",
                 "results": results,
                 "batch_id": batch_id,
-                "total_processed": len(results),
-                "parse_failures": parse_failures
+                "total_processed": len(results)
             }
-
+            
         else:
-            logging.warning(f"⚠️ Estado inesperado: {status}")
             return {
                 "status": "unknown",
-                "processing_status": status,
+                "processing_status": state,
                 "batch_id": batch_id,
                 "fragment_metadata_map": fragment_metadata_map
             }

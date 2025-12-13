@@ -1,20 +1,31 @@
 # =============================================================================
-# SubmitClaudeBatch/__init__.py - LYA 5.1 (Optimized Caching)
+# SubmitClaudeBatch/__init__.py - LYA 6.0 (Vertex AI Migration)
 # =============================================================================
-# ACTUALIZACIÓN: Implementación de Context Caching para el Prompt de Edición.
-# Se separa la lógica en SYSTEM (Instrucciones/Criterios) y USER (Capítulo).
+# MIGRACIÓN VERTEX AI: Uso de Vertex AI Batch Prediction para Claude.
+# Se mantiene la lógica de prompts pero se adapta la infraestructura.
 # =============================================================================
 
 import logging
 import json
 import os
+import sys
+import uuid
 from typing import Dict, List, Any
+
+# Agregar directorio padre para importar vertex_utils
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from vertex_utils import submit_vertex_batch_job, upload_jsonl_to_gcs, format_claude_vertex_request
+    from config_models import CLAUDE_SONNET_MODEL
+except ImportError:
+    # Fallback para desarrollo local si el path falla
+    from API_DURABLE.vertex_utils import submit_vertex_batch_job, upload_jsonl_to_gcs, format_claude_vertex_request
+    from API_DURABLE.config_models import CLAUDE_SONNET_MODEL
 
 logging.basicConfig(level=logging.INFO)
 
 # =============================================================================
-# 1. PROMPT DE SISTEMA (ESTÁTICO - SE CACHEA)
-# Contiene identidad de la obra, reglas generales y formato de salida.
+# 1. PROMPT DE SISTEMA (ESTÁTICO)
 # =============================================================================
 STATIC_SYSTEM_TEMPLATE = """Eres un DEVELOPMENTAL EDITOR profesional editando "{titulo}" ({genero}).
 
@@ -72,6 +83,7 @@ INSTRUCCIONES DE EDICIÓN
 FORMATO DE RESPUESTA (JSON VÁLIDO)
 ═══════════════════════════════════════════════════════════════════════════════
 {{
+    "id_referencia": "DEBE_COINCIDIR_CON_INPUT",
     "capitulo_editado": "...[texto completo editado, SIN CORTAR]...",
     "cambios_realizados": [
         {{
@@ -97,10 +109,11 @@ FORMATO DE RESPUESTA (JSON VÁLIDO)
 """
 
 # =============================================================================
-# 2. PROMPT DE USUARIO (DINÁMICO - CAMBIA POR CAPÍTULO)
-# Contiene el texto y problemas específicos del capítulo.
+# 2. PROMPT DE USUARIO (DINÁMICO)
 # =============================================================================
 DYNAMIC_USER_TEMPLATE = """Por favor edita este capítulo siguiendo las instrucciones del sistema.
+
+IMPORTANTE: En tu respuesta JSON, el campo "id_referencia" DEBE SER EXACTAMENTE: "{chapter_id}"
 
 ═══════════════════════════════════════════════════════════════════════════════
 DATOS DEL CAPÍTULO: {titulo_capitulo}
@@ -128,7 +141,6 @@ TEXTO ORIGINAL:
 """
 
 def extract_book_context(bible: Dict, book_metadata: Dict) -> Dict:
-    """Extrae contexto global del libro para el System Prompt estático."""
     identidad = bible.get('identidad_obra', {})
     voz = bible.get('voz_del_autor', {})
     
@@ -141,9 +153,7 @@ def extract_book_context(bible: Dict, book_metadata: Dict) -> Dict:
         'no_corregir': voz.get('NO_CORREGIR', [])
     }
 
-def extract_chapter_context(chapter: Dict, bible: Dict, analysis: Dict, margin_notes: List) -> Dict:
-    """Extrae contexto específico del capítulo (Dinámico)."""
-    # Lógica idéntica a tu original, pero solo devolviendo lo que cambia por capítulo
+def extract_chapter_context(chapter: Dict, bible: Dict, margin_notes: List) -> Dict:
     chapter_id = chapter.get('id', 0)
     parent_id = chapter.get('parent_chapter_id', chapter_id)
     
@@ -178,7 +188,7 @@ def extract_chapter_context(chapter: Dict, bible: Dict, analysis: Dict, margin_n
             context['justificacion_ritmo'] = cap.get('justificacion', '')
             break
             
-    # Personajes (Simplificado para el ejemplo, lógica igual a original)
+    # Personajes
     reparto = bible.get('reparto_completo', {})
     for tipo in ['protagonistas', 'antagonistas', 'secundarios']:
         for p in reparto.get(tipo, []):
@@ -189,7 +199,7 @@ def extract_chapter_context(chapter: Dict, bible: Dict, analysis: Dict, margin_n
                     'rol': p.get('rol_arquetipo', tipo),
                     'voz': p.get('patron_dialogo', '')
                 })
-    context['personajes'] = context['personajes'][:5] # Top 5
+    context['personajes'] = context['personajes'][:5]
     
     # Problemas
     causalidad = bible.get('analisis_causalidad', {}).get('problemas_detectados', {})
@@ -201,22 +211,17 @@ def extract_chapter_context(chapter: Dict, bible: Dict, analysis: Dict, margin_n
     return context
 
 def format_dynamic_lists(context: Dict) -> Dict:
-    """Formatea las listas a strings para el prompt de usuario."""
-    # Formato Personajes
     p_lines = [f"• {p['nombre']} ({p['rol']}) - Voz: {p.get('voz', 'N/A')}" for p in context['personajes']]
     personajes_str = "\n".join(p_lines) if p_lines else "(Ninguno identificado)"
     
-    # Formato Notas Margen
     n_lines = []
     for n in context['notas_margen']:
         sev = "🔴" if n.get('severidad') == 'alta' else "🟡"
         n_lines.append(f"{sev} [{n.get('nota_id')}] {n.get('tipo', '').upper()}: {n.get('nota')}\n   Sugerencia: {n.get('sugerencia')}")
     notas_str = "\n".join(n_lines) if n_lines else "(Sin notas pendientes)"
     
-    # Formato Problemas
     prob_str = "\n".join([f"- {p}" for p in context['problemas']]) if context['problemas'] else "(Sin problemas estructurales)"
     
-    # Ritmo
     adv_ritmo = f"⚠️ INTENCIONAL: {context['justificacion_ritmo']}" if context['es_intencional'] else ""
     
     return {
@@ -227,13 +232,8 @@ def format_dynamic_lists(context: Dict) -> Dict:
     }
 
 def main(edit_requests: Dict) -> Dict:
-    """Envía capítulos a Claude Batch API con Context Caching."""
+    """Envía capítulos a Vertex AI Batch (Claude)."""
     try:
-        from anthropic import Anthropic
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not api_key:
-            return {"error": "ANTHROPIC_API_KEY falta", "status": "config_error"}
-
         # 1. Recuperar datos
         raw_requests = edit_requests.get('edit_requests', [])
         chapters = [r['chapter'] for r in raw_requests] if raw_requests and 'chapter' in raw_requests[0] else edit_requests.get('chapters', [])
@@ -242,55 +242,46 @@ def main(edit_requests: Dict) -> Dict:
         margin_notes_map = edit_requests.get('margin_notes', {})
         book_metadata = edit_requests.get('book_metadata', {})
         
-        logging.info(f"📦 Preparando Edición Batch (Caching Enabled) para {len(chapters)} capítulos")
+        logging.info(f"📦 Preparando Edición Batch (Vertex AI) para {len(chapters)} capítulos")
 
-        client = Anthropic(api_key=api_key)
         batch_requests = []
         ordered_ids = []
         fragment_metadata = {}
         
-        # 2. CONSTRUIR SYSTEM PROMPT (ESTÁTICO)
-        # Esto se hace UNA VEZ fuera del loop
+        # 2. CONSTRUIR SYSTEM PROMPT
         book_ctx = extract_book_context(bible, book_metadata)
-        
         no_corregir_str = "\n".join([f"⚠️ {i}" for i in book_ctx['no_corregir']]) if book_ctx['no_corregir'] else "Sin restricciones"
         
-        system_content_cached = [
-            {
-                "type": "text",
-                "text": STATIC_SYSTEM_TEMPLATE.format(
-                    titulo=book_ctx['titulo'],
-                    genero=book_ctx['genero'],
-                    tono=book_ctx['tono'],
-                    tema=book_ctx['tema'],
-                    estilo=book_ctx['estilo'],
-                    no_corregir=no_corregir_str
-                ),
-                "cache_control": {"type": "ephemeral"} # <--- ACTIVADOR DEL CACHÉ
-            }
-        ]
+        system_content = STATIC_SYSTEM_TEMPLATE.format(
+            titulo=book_ctx['titulo'],
+            genero=book_ctx['genero'],
+            tono=book_ctx['tono'],
+            tema=book_ctx['tema'],
+            estilo=book_ctx['estilo'],
+            no_corregir=no_corregir_str
+        )
 
-        # 3. CONSTRUIR REQUESTS (DINÁMICOS)
+        # 3. CONSTRUIR REQUESTS
         for chapter in chapters:
             ch_id = str(chapter.get('id', '?'))
             parent_id = str(chapter.get('parent_chapter_id', ch_id))
             ordered_ids.append(ch_id)
             
-            # Metadata para output
             fragment_metadata[ch_id] = {
                 'fragment_id': chapter.get('id'),
-                'original_title': chapter.get('title', 'Sin título')
+                'original_title': chapter.get('title', 'Sin título'),
+                'content': chapter.get('content', ''), # Guardar contenido para fallback
+                'parent_chapter_id': parent_id
             }
             
-            # Obtener contexto dinámico
             ch_notes = margin_notes_map.get(parent_id, [])
             if not ch_notes: ch_notes = margin_notes_map.get(ch_id, [])
             
-            ch_ctx = extract_chapter_context(chapter, bible, {}, ch_notes)
+            ch_ctx = extract_chapter_context(chapter, bible, ch_notes)
             fmt_ctx = format_dynamic_lists(ch_ctx)
             
-            # Crear User Prompt
             user_content = DYNAMIC_USER_TEMPLATE.format(
+                chapter_id=ch_id, # INYECTADO PARA MATCHING
                 titulo_capitulo=chapter.get('title', 'Capítulo'),
                 posicion=ch_ctx['posicion'],
                 ritmo=ch_ctx['ritmo'],
@@ -301,32 +292,43 @@ def main(edit_requests: Dict) -> Dict:
                 contenido=chapter.get('content', '')
             )
             
-            req = {
-                "custom_id": f"edit-{ch_id}",
-                "params": {
-                    "model": "claude-sonnet-4-5-20250929",
-                    "max_tokens": 12000, # Aumentado por si el cap es largo
-                    "temperature": 0.3,
-                    "system": system_content_cached, # Pasamos el bloque con caché
-                    "messages": [{"role": "user", "content": user_content}]
-                }
-            }
-            batch_requests.append(req)
+            # Formato Vertex AI Claude
+            request = format_claude_vertex_request(
+                messages=[{"role": "user", "content": user_content}],
+                system=system_content,
+                max_tokens=8192,
+                temperature=0.3
+            )
+            batch_requests.append(request)
             
-        logging.info(f"📝 Enviando {len(batch_requests)} requests a Claude Batch")
+        logging.info(f"📝 Subiendo {len(batch_requests)} requests a GCS")
         
-        message_batch = client.messages.batches.create(requests=batch_requests)
+        # Generar nombre único para el archivo batch
+        batch_filename = f"claude_edit_batch_{uuid.uuid4()}.jsonl"
+        source_uri = upload_jsonl_to_gcs(batch_requests, batch_filename)
         
-        logging.info(f"✅ Batch creado: {message_batch.id}")
+        # Destino
+        timestamp = uuid.uuid4().hex[:8]
+        destination_prefix = f"claude_edit_results_{timestamp}"
+        
+        # Submit Job
+        model_name = CLAUDE_SONNET_MODEL # Usar configuración centralizada
+        job_id = submit_vertex_batch_job(
+            model_name=model_name,
+            source_uri=source_uri,
+            destination_uri_prefix=destination_prefix,
+            job_display_name=f"lya-edit-{timestamp}"
+        )
+        
+        logging.info(f"✅ Batch Vertex AI iniciado: {job_id}")
         
         return {
-            "batch_id": message_batch.id,
+            "batch_id": job_id,
+            "status": "processing",
             "chapters_count": len(chapters),
-            "status": "submitted",
-            "processing_status": message_batch.processing_status,
             "id_map": ordered_ids,
             "fragment_metadata_map": fragment_metadata,
-            "optimization": "context_caching_active"
+            "provider": "vertex_ai"
         }
 
     except Exception as e:
